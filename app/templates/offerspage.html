@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+{%if offers%}
+<div class="container">
+<div class="row">
+    {%for i in offers%}
+    <div class="col-3  card" style="margin:4.0%;height:200px;box-shadow: rgba(0, 0, 0, 0.2) 0px 12px 28px 0px, rgba(0, 0, 0, 0.1) 0px 2px 4px 0px, rgba(255, 255, 255, 0.05) 0px 0px 0px 1px inset;">
+        <center><h2><i class='bx bxs-gift text-primary mt-3' style="font-size:55px"></i></h2>
+            
+        <h5 class="card-title"><span class="badge bg-label-success me-1">{{i.code}}</span> </h5>
+        <h6 class="card-title">Room Category: {{i.category.category_name}}</h6>
+        <h6 class="card-title">Offer Amount: {{i.amount}}</h6></center>
+        
+
+    </div>
+
+    
+
+    {%endfor%}
+
+</div>
+</div>
+{%endif%}
+{%endblock%}

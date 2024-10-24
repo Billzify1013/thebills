@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+
+{% load static %}
+<div class="row">
+    <div class="col-3 p-2">
+        <div class="card p-3">
+            <h4>Start Date: {{startdate}}</h4>
+            <h4>End Date: {{enddate}}</h4>
+        </div>
+    </div>
+    <div class="col-3 p-2">
+        <div class="card p-3">Settled Sales Invoices Total Amount<br><br>
+            <h5>{{sattle_total_amount}}</h5>
+        </div>
+
+    </div>
+    <div class="col-3 p-2">
+        <div class="card p-3">Folio Sales Invoices Total Amount<br><br>
+            <h5>{{folio_total_amount}}</h5>
+        </div>
+    </div>
+    <div class="col-3 p-2">
+        <div class="card p-3">Overall Tax Amount<br><br>
+            <h5>{{total_gst_amount}}</h5>
+        </div>
+    </div>
+    <div class="col-3 p-2">
+        <div class="card p-3">Overall Total  Amount<br><br>
+            <h5>{{grand_total_amount}}</h5>
+        </div>
+    </div>
+
+    <div class="col-3 p-2">
+        <div class="card p-3">Overall Cash Amount<br><br>
+            <h5>{{total_cash_amount}}</h5>
+        </div>
+    </div>
+    <div class="col-3 p-2">
+        <div class="card p-3">Overall Online  Amount<br><br>
+            <h5>{{total_online_amount}}</h5>
+        </div>
+    </div>
+</div>
+
+
+{%endblock%}

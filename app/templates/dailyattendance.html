@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-1">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <div id="success-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%endif%}
+</div>
+{%endfor%}
+
+<script>
+    $(document).ready(function() {
+        // Fade out the alert after 5 seconds (5000 milliseconds)
+        setTimeout(function() {
+            $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+                $(this).remove(); 
+            });
+        }, 3000);
+    });
+</script>
+
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#danger-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 3000);
+  });
+</script>
+{%endif%}
+
+
+
+
+    <h6 class="text p-4">
+      An employee can check in only once per day, and any subsequent check-in would be allowed after 24 hours from the previous check-in time.
+    </h6>
+
+
+
+
+<!-- Bootstrap Table with checkin employee  Header - Light -->
+<div class="row mt-2">
+    <div class="col-6">
+ <div class="card">
+    <h5 class="card-header">Employee`s Check-IN  Remaining</h5>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <caption class="ms-4">
+            List of Check-IN Employee
+          </caption>
+        <thead class="table-light">
+          <tr>
+            <th>Employee Details</th>
+           
+    
+            <th>Check-IN</th>
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+
+         {% for data in employees_not_checked_in%}
+          <tr>
+            <td><i class="fab fa-angular fa-lg text-danger "></i> <strong>{{data.first_name}} {{data.last_name}}</strong><br>{{data.employee_contact}}<br>{{data.position}}<br>{{data.department}}</td>
+            
+            
+            <td>
+                <a href="{% url 'employeecheckin' dsd=data.id %}" class="btn btn-outline-success">Check-IN</a>
+            </td>
+            
+          </tr>
+          {%endfor%}
+    
+        
+        </tbody>
+      </table>
+    </div></div></div>
+ 
+  <!-- Bootstrap Table with Header - Light -->
+
+
+
+  
+<!-- Bootstrap Table checkout employee  with Header - Light -->
+
+    <div class="col-6">
+ <div class="card">
+    <h5 class="card-header">Employee`s Check-OUT Remaining</h5>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <caption class="ms-4">
+            List of check-OUT Employee
+          </caption>
+        <thead class="table-light">
+          <tr>
+            <th>Employee Details</th>
+           
+            <th>Half-Day</th>
+            <th>Check-OUT</th>
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+
+         {% for data in employees_not_checked_out%}
+          <tr>
+            <td><i class="fab fa-angular fa-lg text-danger "></i> <strong>{{data.first_name}} {{data.last_name}}</strong><br>{{data.employee_contact}}<br>{{data.position}}<br>{{data.department}}</td>
+            
+           
+            <td>
+                <a href="{% url 'employeehalfday' dsd=data.id %}" class="btn btn-outline-danger">Half-Day</a>
+            </td>
+            <td>
+                <a href="{% url 'employeecheckout' dsd=data.id %}" class="btn btn-outline-warning">Check-OUT</a>
+            </td>
+
+            
+            
+          </tr>
+          {%endfor%}
+    
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Bootstrap Table with Header - Light -->
+
+
+{%endblock%}

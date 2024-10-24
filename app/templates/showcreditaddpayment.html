@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<div class="row">
+    
+    <div class="col-10 ">
+        <!-- Bootstrap Table with Header - Light -->
+ 
+ <div class="card">
+    <form action="{% url 'addpaymentfoliocredit' %}" method="post" >
+        {% csrf_token %}
+        <input type="hidden" name="creditid" value="{{creditid}}" />
+        <input type="hidden" name="invcid" value="{{invcid}}" />
+        <div class="row">
+            <span class="text ms-3 mt-2"><i class='bx bx-receipt'></i> Add Payment</span>
+    <div class="col-11 m-4 mb-4">
+        <span class="text ">Due Amount</span>
+        <div class="col mb-3">
+            <input
+              type="text"
+              name="amount"
+              id="nameBackdrop"
+              value="{{dueamount}}"
+              class="form-control"
+              placeholder="Enter RoomName"
+              required
+            />
+          </div>
+        <div>
+            <div class="mt-4">
+                <span class="text mb-2">Payment Mode</span>
+                <select class="form-control" name="paymentmode" required placeholder="Select Category" required>
+                    
+                    <option  value="cash">Cash</option>
+                    <option  value="UPI">UPI</option>
+                    <option  value="Chacks">Chacks</option>
+                    <option  value="Card">Card</option>
+                    <option  value="BankTransfer">BankTransfer</option>
+                  </select>
+        </div>
+        <div class="col-12 mt-3">
+            <span class="text">Payment Details</span>
+            <div class="col mb-3">
+                <input
+                  type="text"
+                  name="paymntdetails"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder=""
+                  
+                />
+              </div>
+        </div>
+        <div class="col-12 mt-3">
+            <span class="text">Comments</span>
+            <div class="col mb-3">
+                <input
+                  type="text"
+                  name="comment"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder=""
+                  
+                />
+              </div>
+        </div>
+
+    </div></div>
+</div>
+
+    <button class="btn btn-primary mb-3 ms-4" type="submit" >Add Payment</button>
+
+        </form>
+       
+    
+     
+    </div>
+</div>
+
+</div>
+
+
+
+{%endblock%}

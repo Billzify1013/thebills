@@ -1,0 +1,442 @@
+{% load static %}
+             <!DOCTYPE html>
+             <html lang="en">
+             
+             <head>
+                 <meta charset="utf-8">
+                 <title>profile</title>
+                 <meta content="width=device-width, initial-scale=1.0" name="viewport">
+                 <meta content="" name="keywords">
+                 <meta content="" name="description">
+             
+                 <!-- Favicon -->
+                 <link href="img/favicon.ico" rel="icon">
+             
+                 <!-- Google Web Fonts -->
+                 <link rel="preconnect" href="https://fonts.googleapis.com">
+                 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                 <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"> 
+             
+                 <!-- Icon Font Stylesheet -->
+                 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+                 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+             
+                 <!-- Libraries Stylesheet -->
+                 <link href="{% static 'vendorwebcss/lib/animate/animate.min.css'%}" rel="stylesheet">
+                 <link href="{% static 'vendorwebcss/lib/lightbox/css/lightbox.min.css'%}" rel="stylesheet">
+                 <link href="{% static 'vendorwebcss/lib/owlcarousel/assets/owl.carousel.min.css'%}" rel="stylesheet">
+             
+                 <!-- Customized Bootstrap Stylesheet -->
+                 <link href="{% static 'vendorwebcss/css/bootstrap.min.css'%}" rel="stylesheet">
+             
+                 <!-- Template Stylesheet -->
+                 <link href="{% static 'vendorwebcss/css/style.css'%}" rel="stylesheet">
+
+                 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet">
+   
+             </head>
+             
+             <body data-bs-spy="scroll" data-bs-target=".navbar" data-bs-offset="51">
+                 <!-- Spinner Start -->
+                 <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+                     <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                         <span class="sr-only">Loading...</span>
+                     </div>
+                 </div>
+                 <!-- Spinner End -->
+             
+             
+                 <!-- Navbar Start -->
+                 <nav class="navbar navbar-expand-lg bg-white navbar-light fixed-top shadow py-lg-0 px-4 px-lg-5 wow fadeIn" data-wow-delay="0.1s">
+                     <a href="index.html" class="navbar-brand d-block d-lg-none">
+                         <h2 class="text-primary fw-bold m-0">{{profile.name}}</h2>
+                     </a>
+                     <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                         <span class="navbar-toggler-icon"></span>
+                     </button>
+                     <div class="collapse navbar-collapse justify-content-between py-4 py-lg-0" id="navbarCollapse">
+                         <div class="navbar-nav ms-auto py-0">
+                             <a href="#home" class="nav-item nav-link active">Home</a>
+                             <a href="#about" class="nav-item nav-link">About Us</a>
+                             <a href="#about" class="nav-item nav-link">Guest Experiences</a>
+                             <a href="#rooms" class="nav-item nav-link">Rooms & Suites</a>
+                             <a href="#pricingoffer" class="nav-item nav-link">Offers & Packages</a>
+                         
+                             <a href="#services" class="nav-item nav-link">Amenities</a>
+                         
+                             <a href="#gallary" class="nav-item nav-link">Gallary</a>
+                             <a href="#testimonial" class="nav-item nav-link">Guests Say</a>
+                             <a href="#contact" class="nav-item nav-link">Contact</a>
+                         </div>
+                     </div>
+                 </nav>
+                 <!-- Navbar End -->
+             
+             
+                 <!-- Header Start -->
+                 <div class="container-fluid py-6 my-6 mt-3" id="guestexperiance">
+                     <div class="container">
+                         <div class="row g-5 align-items-center">
+                             <div class="col-lg-6 py-6 pb-0 pt-lg-0">
+                                 <h3 class="text-primary  mb-3" style="margin-top:-50px">Welcome To &#x1F44B;</h3>
+                                 <h6 class="display-3 mb-3" style="font-family: 'Cinzel', serif;"> {{profile.name}} </h6>
+                                 <h2 class="typed-text-output d-inline"></h2>
+                                 <div class="typed-text end-last d-none">A warm welcome  , Explore. Experience. Enjoy , Art of Hospitality, Comfort Meets Elegance , Love in Luxury</div>
+                                 <div class="d-flex align-items-center pt-5">
+
+                                    
+                                     <a href="#pricingoffer" class="btn  btn-primary py-3 px-4 me-5 ">Explore Offers</a>
+                                 </div>
+                             </div>
+                             <div class="col-lg-6 mb-5">
+                                 <img class="img-fluid mt-4" src="{% static 'vendorwebcss/img/welcomeroom.jpeg'%}" style="border-radius: 20px 80px" alt="">
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+                 <!-- Header End -->
+             
+             
+               
+             
+             
+                 <!-- About Start -->
+                 <div class="container-xxl py-6" id="about">
+                     <div class="container">
+                         <div class="row g-5">
+                             <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
+                                 <div class="d-flex align-items-center mb-5">
+                                    {%for i in about%}
+                                     <div class="years flex-shrink-0 text-center me-4">
+                                         <h1 class="display-1 mb-0">{{i.years}}</h1>
+                                         <h5 class="mb-0">Years</h5>
+                                     </div>
+                                     <h3 class="lh-base mb-0"> of experience in the hotel industry,</h3>
+                                 </div>
+                                 <p class="mb-4">At our hotel, we provide customized solutions that cater to your unique needs. Our dedication to excellence means that we offer competitive pricing while maintaining high-quality standards. With our assurance of timely service delivery, we empower hotels to strengthen their online visibility and achieve success in the industry.</p>
+                                 <p class="mb-3"><i class="far fa-check-circle text-primary me-3"></i>Afordable Prices</p>
+                                 <p class="mb-3"><i class="far fa-check-circle text-primary me-3"></i>Premium Quality Service</p>
+                                 <p class="mb-3"><i class="far fa-check-circle text-primary me-3"></i>Excellence in Hospitality</p>
+                                 <p class="mb-3"><i class="far fa-check-circle text-primary me-3"></i>Timely Service Assurance</p>
+                                 <a class="btn btn-primary py-3 px-5 mt-3" href="">Read More</a>
+                             </div>
+                             <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.5s">
+                                 <div class="row g-3 mb-4">
+                                     <div class="col-sm-6">
+                                         <img class="img-fluid rounded" src="{% static 'vendorwebcss/img/happyclientscouple.png'%}" alt="">
+                                     </div>
+                                     <div class="col-sm-6">
+                                        <img class="img-fluid rounded" src="{% static 'vendorwebcss/img/happyclintsbig.png'%}" alt="">
+                                    </div>
+                                     {% comment %} <div class="col-sm-6">
+                                         <img class="img-fluid rounded" src="{% static 'vendorwebcss/img/happyclientsgirl.png'%}" alt="">
+                                     </div> {% endcomment %}
+                                 </div>
+                                 <div class="d-flex align-items-center mb-3">
+                                     <h5 class="border-end pe-3 me-3 mb-0">Happy Clients</h5>
+                                     <h2 class="text-primary fw-bold mb-0" data-toggle="counter-up">{{i.clientscount}} </h2><span class="text-primary fw-bold"> + </span>
+                                 </div>
+                                 <p class="mb-4">Our priority is your satisfaction, ensuring every stay exceeds expectations.
+                                    Delighting guests with personalized service and memorable experiences.
+                                    Join our community of satisfied guests who've enjoyed unforgettable stays with us.</p>
+                                 <div class="d-flex align-items-center mb-3">
+                                     <h5 class="border-end pe-3 me-3 mb-0">Fabulous Reviews</h5>
+                                     <h2 class="text-primary fw-bold mb-0" data-toggle="counter-up">{{i.reviewscount}}</h2><span class="text-primary fw-bold"> + </span>
+                                 </div>
+                                 <p class="mb-0">Discover why our hotel consistently earns glowing reviews from satisfied guests.
+                                    Join the ranks of delighted visitors who have shared their positive experiences with us.</p>
+                             </div>
+                             {%endfor%}
+                         </div>
+                     </div>
+                 </div>
+                 <!-- About End -->
+             
+             
+                  <!-- Team Start -->
+                  <div class="container-xxl py-1 pb-5" id="rooms">
+                    <div class="container">
+                        <div class="row g-5 mb-5 wow fadeInUp" data-wow-delay="0.1s">
+                            <div class="col-lg-6">
+                                <h3 class="display-5 mb-0">Room and Suite</h3>
+                            </div>
+                            
+                        </div>
+                        <div class="row g-4">
+                            {%if rooms%}
+                            {%for i in rooms%}
+                            <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                                <div class="team-item position-relative">
+                                    <h5 class="ms-2">{{i.category_name}}</h5>
+                                    {%if i.roomimg and i.roomimg.url %}
+                                    <img class="img-fluid rounded" src="{{i.roomimg.url}}" alt="">
+                                    {%endif%}
+                                    <div class="team-text bg-white rounded-end p-4">
+                                        <div>
+                                            <h5>{{i.category_name}} Room</h5>
+                                            <span>Starts From <span class="text-primary">{{i.catprice}}</span><br>
+                                            <span style="font-size:11px" class="text-success"><i class="bi bi-gift-fill"></i>Find Amazing Deals - Click the Arrow!</span>
+                                        </div>
+                                        <a href="#pricingoffer" ><i class="fa fa-arrow-right fa-2x text-primary"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                            {%endfor%}
+                            {%endif%}
+                        </div>
+                    </div>
+                </div>
+                <!-- Team End -->
+             
+             {%if offers%}
+                 <!-- Service Start -->
+                 <div class="container-fluid bg-light my-5 py-3" id="pricingoffer">
+                     <div class="container">
+                         <div class="row g-5 mb-1 wow fadeInUp" data-wow-delay="0.1s">
+                             <div class="col-lg-6">
+                                 <h1 class="display-5 mb-3">Offers & Packages</h1>
+                             </div>
+                             
+                         </div>
+                         <div class="row g-4">
+                            {%for offer in offers%}
+                             <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
+                                 <div class="service-item d-flex flex-column flex-sm-row bg-white rounded h-100 p-4 p-lg-5">
+                                     
+                                     <div class="ms-sm-4">
+                                        <div class="row">
+                                            <div class="col-8"><h4 class="mb-3 text-primary pt-4">{{offer.category.category_name}} Rooms</h4></div>
+                                            <div class="col-4">
+                                                <img class="img-fluid mt-2 mb-2" style="width:90PX;height:70px;border-radius:5px 20px" src="{{offer.category.roomimg.url}}" alt="">
+                                         
+                                            </div>
+                                            
+                                        </div>
+                                        <h6 class="mb-1">Start from <span class="text-primary">{{offer.category.catprice}}</span></h6>
+                                         <a href="tel:+91{{profile.contact}}" style="text-decoration:none"> <img class="img-fluid mt-2 mb-2" style="width:95%;height:130px;pointer-events: none;" src="{% static 'vendorwebcss/img/APPLY1.png'%}" alt="">
+                                        <P style="margin-top:-123px;width:75%;margin-left:65px" class="text-black-50"><b>{{offer.code}}</b><br>
+                                            <SPAN class="text-success" style="font-size:14px">Save ₹{{offer.amount}} on this booking</APAN><br>
+                                            <span class="text-black-50 " style="font-size:11px">Use code WELCOME & get ₹{{offer.amount}} off.</span>
+                                        </P></a><br><br>
+                                        <span><b><i class="bi bi-award-fill"></i></b></span><br>
+                                         <span>Experience unparalleled luxury in our hotel Rooms, featuring elegant decor and premium amenities for a truly indulgent stay.</span>
+                                        </div>
+                                 </div>
+                             </div>
+                             {%endfor%}
+                             
+                             
+                         </div>
+                     </div>
+                 </div>
+                 <!-- Service End -->
+                  {%endif%}
+             
+             
+                 <!-- service Start -->
+                 <div class="container-xxl py-6 pt-5" id="services">
+                     <div class="container">
+                         <div class="row g-5 mb-5 align-items-center wow fadeInUp" data-wow-delay="0.1s">
+                             <div class="col-lg-6">
+                                 <h1 class="display-5 mb-0">Amenities</h1>
+                             </div>
+                         </div>
+                         <div class="row g-4 portfolio-container wow fadeInUp" data-wow-delay="0.1s">
+                             <div class="col-lg-12 col-md-6 portfolio-item first">
+                                 <div class="portfolio-img rounded overflow-hidden shadow">
+                                <p class="mb-4 m-4">Our dedicated team is here to provide exceptional service, ensuring every moment of your stay is comfortable and enjoyable.</p>
+                                {% for i in service%} 
+                                <p class="mb-3 ms-4"><i class="far fa-check-circle text-primary me-3"></i>{{i.service_name}}</p>
+                                {%endfor%} 
+                               
+                                 <a class="btn btn-primary py-3 px-5 mt-3 ms-4 mb-4" href="tel:+91{{profile.contact}}">Book Now</a>
+                                 </div>
+                             </div>
+                             
+                         </div>
+                     </div>
+                 </div>
+                 <!-- Projects End -->
+                
+                 <!-- gallary Start -->
+                 <div class="container-fluid bg-light py-5 my-5" id="gallary">
+                    <div class="container-fluid py-5">
+                        <h1 class="display-5 text-center mb-5 wow fadeInUp" data-wow-delay="0.1s">Gallary</h1>
+                        <div class="row justify-content-center">
+                            <div class="col-lg-3 d-none d-lg-block">
+                                <div class="testimonial-left h-100">
+                                    <img class="img-fluid wow fadeIn" data-wow-delay="0.1s" src="{% static 'vendorwebcss/img/testimonial-1.jpg'%}" alt="">
+                                    <img class="img-fluid wow fadeIn" data-wow-delay="0.3s" src="{% static 'vendorwebcss/img/testimonial-2.jpg'%}" alt="">
+                                    <img class="img-fluid wow fadeIn" data-wow-delay="0.5s" src="{% static 'vendorwebcss/img/testimonial-3.jpg'%}" alt="">
+                                </div>
+                            </div>
+                            <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.5s">
+                                <div class="owl-carousel testimonial-carousel">
+                                    {% for img in gallary %}
+                                    <div class="testimonial-item text-center">
+                                        
+                                        <div class="col-sm-12">
+                                          <center>  <img class="img-fluid  h-100" style="width:90%;border-radius:10px 60px" src="{{img.gallary_img.url}}" alt=""></center>
+                                        </div>
+                                        
+                                    </div>
+                                    {%endfor%}
+                                   
+                                    
+
+                                </div>
+                            </div>
+                            <div class="col-lg-3 d-none d-lg-block">
+                                <div class="testimonial-right h-100">
+                                    <img class="img-fluid wow fadeIn" data-wow-delay="0.1s" src="{% static 'vendorwebcss/img/testimonial-1.jpg'%}" alt="">
+                                    <img class="img-fluid wow fadeIn" data-wow-delay="0.3s" src="{% static 'vendorwebcss/img/testimonial-2.jpg'%}" alt="">
+                                    <img class="img-fluid wow fadeIn" data-wow-delay="0.5s" src="{% static 'vendorwebcss/img/testimonial-3.jpg'%}" alt="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- gallary End -->
+             
+               
+             
+             
+                 <!-- Testimonial Start -->
+                 <div class="container-fluid py-5 my-5" id="testimonial">
+                     <div class="container-fluid py-5">
+                         <h1 class="display-5 text-center mb-5 wow fadeInUp" data-wow-delay="0.1s">Guest Stories</h1>
+                         <div class="row justify-content-center">
+                             <div class="col-lg-3 d-none d-lg-block">
+                                 <div class="testimonial-left h-100">
+                                     <img class="img-fluid wow fadeIn" data-wow-delay="0.1s" src="{% static 'vendorwebcss/img/testimonial-1.jpg'%}" alt="">
+                                     <img class="img-fluid wow fadeIn" data-wow-delay="0.3s" src="{% static 'vendorwebcss/img/testimonial-2.jpg'%}" alt="">
+                                     <img class="img-fluid wow fadeIn" data-wow-delay="0.5s" src="{% static 'vendorwebcss/img/testimonial-3.jpg'%}" alt="">
+                                 </div>
+                             </div>
+                             <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.5s">
+                                 <div class="owl-carousel testimonial-carousel">
+                                     <div class="testimonial-item text-center">
+                                         <div class="position-relative mb-5">
+                                             <img class="img-fluid rounded-circle border border-secondary p-2 mx-auto" src="{% static 'vendorwebcss/img/testimonial-1.jpg'%}" alt="">
+                                             <div class="testimonial-icon">
+                                                 <i class="fa fa-quote-left text-primary"></i>
+                                             </div>
+                                         </div>
+                                         <p class="fs-5 fst-italic">A wonderful experience from start to finish. The staff were incredibly friendly, and the amenities were fantastic. We'll definitely be back!.</p>
+                                         <hr class="w-25 mx-auto">
+                                         <h5>Ananya</h5>
+                                         <span>Doctor</span>
+                                     </div>
+                                     <div class="testimonial-item text-center">
+                                         <div class="position-relative mb-5">
+                                             <img class="img-fluid rounded-circle border border-secondary p-2 mx-auto" src="{% static 'vendorwebcss/img/testimonial-2.jpg'%}" alt="">
+                                             <div class="testimonial-icon">
+                                                 <i class="fa fa-quote-left text-primary"></i>
+                                             </div>
+                                         </div>
+                                         
+                                         <p class="fs-5 fst-italic">We felt right at home from the moment we arrived. The attention to detail and the friendly atmosphere made our vacation perfect.</p>
+                                         <hr class="w-25 mx-auto">
+                                         <h5>Neel </h5>
+                                         <span>Student</span>
+                                     </div>
+                                     <div class="testimonial-item text-center">
+                                         <div class="position-relative mb-5">
+                                             <img class="img-fluid rounded-circle border border-secondary p-2 mx-auto" src="{% static 'vendorwebcss/img/testimonial-3.jpg'%}" alt="">
+                                             <div class="testimonial-icon">
+                                                 <i class="fa fa-quote-left text-primary"></i>
+                                             </div>
+                                         </div>
+                                         <p class="fs-5 fst-italic">An outstanding hotel with a welcoming atmosphere. The staff went above and beyond to ensure our comfort. We can't wait to return!</p>
+                                         <hr class="w-25 mx-auto">
+                                         <h5>Aarav </h5>
+                                         <span>Salse Manager</span>
+                                     </div>
+                                 </div>
+                             </div>
+                             <div class="col-lg-3 d-none d-lg-block">
+                                 <div class="testimonial-right h-100">
+                                     <img class="img-fluid wow fadeIn" data-wow-delay="0.1s" src="{% static 'vendorwebcss/img/testimonial-1.jpg'%}" alt="">
+                                     <img class="img-fluid wow fadeIn" data-wow-delay="0.3s" src="{% static 'vendorwebcss/img/testimonial-2.jpg'%}" alt="">
+                                     <img class="img-fluid wow fadeIn" data-wow-delay="0.5s" src="{% static 'vendorwebcss/img/testimonial-3.jpg'%}" alt="">
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+                 <!-- Testimonial End -->
+             
+             
+                 <!-- Contact Start -->
+                 <div class="container-xxl pb-5" id="contact">
+                     <div class="container py-5">
+                         <div class="row g-5 mb-5 wow fadeInUp" data-wow-delay="0.1s">
+                             <div class="col-lg-6">
+                                 <h1 class="display-5 mb-0">Let's book happiness</h1>
+                             </div>
+                             <div class="col-lg-6 text-lg-end">
+                                 <a class="btn btn-primary py-3 px-5" href="tel:+91{{profile.contact}}">Contact Us</a>
+                             </div>
+                         </div>
+                         <div class="row g-5">
+                             <div class="col-lg-5 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                                 <p class="mb-2">Address:</p>
+                                 <h3 class="fw-bold">{{profile.address}}</h3>
+                                 <hr class="w-100">
+                                 <p class="mb-2">Call :</p>
+                                 <h3 class="fw-bold">{{profile.contact}}</h3>
+                                 <hr class="w-100">
+                                 <p class="mb-2">Mail :</p>
+                                 <h3 class="fw-bold">{{profile.email}}</h3>
+                                 <hr class="w-100">
+                                 <p class="mb-2">Call on:</p>
+                                 <div class="d-flex pt-2">
+                                     <a class="btn btn-square btn-primary me-2" href="tel:+91{{profile.contact}}"><i class="bi bi-telephone-fill"></i></a>
+                                 </div>
+                             </div>
+                             
+                         </div>
+                     </div>
+                 </div>
+                 <!-- Contact End -->
+             
+             
+                 
+             
+             
+                 <!-- Copyright Start -->
+                 <div class="container-fluid bg-dark text-white py-4">
+                         <div class="container">
+                             <div class="row">
+                                 <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                                     &copy; <a class="border-bottom text-secondary" href="#">WWW.Billzify.com</a>, All Right Reserved.
+                                 </div>
+                                 
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+                 <!-- Copyright End -->
+             
+             
+                 <!-- Back to Top -->
+                 <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+             
+             
+                 <!-- JavaScript Libraries -->
+                 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+                 <script src="{% static 'vendorwebcss/lib/wow/wow.min.js'%}"></script>
+                 <script src="{% static 'vendorwebcss/lib/easing/easing.min.js'%}"></script>
+                 <script src="{% static 'vendorwebcss/lib/waypoints/waypoints.min.js'%}"></script>
+                 <script src="{% static 'vendorwebcss/lib/typed/typed.min.js'%}"></script>
+                 <script src="{% static 'vendorwebcss/lib/counterup/counterup.min.js'%}"></script>
+                 <script src="{% static 'vendorwebcss/lib/owlcarousel/owl.carousel.min.js'%}"></script>
+                 <script src="{% static 'vendorwebcss/lib/isotope/isotope.pkgd.min.js'%}"></script>
+                 <script src="{% static 'vendorwebcss/lib/lightbox/js/lightbox.min.js'%}"></script>
+             
+                 <!-- Template Javascript -->
+                 <script src="{% static 'vendorwebcss/js/main.js'%}"></script>
+             </body>
+             
+             </html>

@@ -1,0 +1,443 @@
+{% extends "base.html" %}
+{% block content %}
+{% load static %}
+    
+ 
+        <!--div body start-->
+
+      
+                <div class="row">
+                  
+                  <div class="col-3 mb-4 ">
+                    <div class="card" style="height:126px;">
+                        <div class="d-flex align-items-end row">
+                          <div class="col-sm-12">
+                            <div class="card-body">
+                                <h6 class="card-title  "> Today Availibity</h6>
+
+                                <div class="row">
+                                    <div class="col-6 mb-1">
+                                        <i class='bx bxs-offer  bx-md text-success '></i>
+                                    </div>
+                                    <div class="col-6">
+                                        <h6 class="card-title mt-1 text-center fs-xlarge ">{{availablerooms}}</h6>
+                                    </div>
+
+                                </div>
+
+                             
+                            </div>
+                          </div>
+                         
+
+
+
+                          
+                        </div>
+                      </div>
+                </div>
+
+                <div class="col-3 mb-4 ">
+                  <div class="card" style="height:126px;">
+                        <div class="col-sm-12">
+                          <div class="card-body">
+                              <h6 class="card-title  "> Today Stayover</h6>
+
+                              <div class="row">
+                                  <div class="col-6 mb-1">
+                                      <i class='bx bxs-bed fs-xlarge mt-2  me-5'></i>
+                                  </div>
+                                  <div class="col-6">
+                                      <h6 class="card-title mt-2 text-center fs-xlarge ">{{stayover}}</h6>
+                                  </div>
+
+                              </div>
+
+                              
+                          </div>
+                        </div>                         
+                      
+                    </div>
+              </div>
+
+                    <div class="col-3 mb-4 ">
+                        <div class="card" style="height:126px;">
+                            <div class="d-flex align-items-end row">
+                              <div class="col-sm-12">
+                                <div class="card-body">
+                                    <h6 class="card-title  "> Today Departure</h6>
+
+                                    <div class="row">
+                                        <div class="col-6 mb-1">
+                                            <i class='bx bxs-plane-take-off bx-md mt-1 mb-1   me-5'></i>
+                                        </div>
+                                        <div class="col-6">
+                                            <h6 class="card-title mt-2 text-center fs-xlarge ">{{checkoutcount}}</h6>
+                                        </div>
+
+                                    </div>
+
+                                    
+                                </div>
+                              </div>
+                             
+                            </div>
+                          </div>
+                    </div>
+
+
+                    <div class="col-3 mb-4 ">
+                      <a href="{% url 'todaybookingpage' %}" class="">
+                      <div class="card" style="height:126px;">
+                          <div class="d-flex align-items-end row">
+                            <div class="col-sm-12">
+                              <div class="card-body">
+                                  <h6 class="card-title  "> Today Arrivals <span class="badge bg-label-primary ms-4 ">Click</span></h6>
+                                  
+                                  
+                                  <div class="row">
+                                      <div class="col-6 mb-0">
+                                          <i class='bx bxs-plane-land bx-md mt-0 mb-0 me-0 text-gray' ></i>
+                                      </div>
+                                      <div class="col-6">
+                                          <h6 class="card-title mt-2 text-center fs-xlarge ">{{arriwalcount}}</h6>
+                                      </div>
+
+                                  </div>
+                              </div>
+                            </div>
+                           
+                          </div>
+                        </div></a>
+                  </div>
+
+                    
+                </div>
+          
+        
+                {% if messages%}
+                {% for msg in messages %}
+                <div class="container mt-0">
+                    <!-- Success Alert -->
+                    {% if msg.tags == 'success' %}
+                    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+                        {{msg}}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {%else%}
+                    <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+                        {{msg}}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {%endif%}
+                </div>
+                {%endfor%}
+                {%endif%}
+
+        {% comment %} <!--Room Create button-->
+        
+        <div class="row"> 
+            <div class="col-10">
+                <h5 class="card-title  ms-2 mt-1">Add New Rooms</h5>
+            </div> 
+            <div class="col-2">
+                <button class="btn btn-primary  w-100 "   data-bs-toggle="modal"
+                data-bs-target="#backDropModal"><i class='bx bx-buildings mb-1' ></i> Add Room</button>
+            </div> 
+
+        </div>  
+        <!--Room Create button end--> {% endcomment %}
+
+        <!--rooms Div Start-->
+        
+        {% comment %} {% for room in rooms|slice:":{{category_count}}" %}
+
+        
+        {{category_count}}
+        
+        
+
+        <div class="row mt-3">
+            <h5 class="card-title  ms-2 mt-1">{{room.room_type}}</h5>
+           
+           
+            {%for roomcat in rooms%}
+            
+                {% if room.room_type == roomcat.room_type  %}
+                
+                <div class="col-2">
+                    <div class="card mt-3">
+                    <div class="card-body">
+                        {{roomcat.room_type}}{{roomcat}}
+                    </div>
+                </div>
+                </div> 
+                
+                {% endif %} 
+                
+            {%endfor%}
+           
+      
+        </div>
+        {%endfor%} {% endcomment %}
+                {%if checkintimedata%}
+                {%for i in checkintimedata%}
+        <div class="row">
+          <div class="col-6">
+            <button class="btn btn-primary  w-100 " >CheckIn TIme: {{i.checkintimes}}</button>
+        </div> 
+        <div class="col-6">
+          <button class="btn btn-primary  w-100 " >CheckOut TIme: {{i.checkouttimes}}</button>
+      </div> 
+        </div>
+        {%endfor%}
+        {%endif%}
+
+    {%for i,j in roomsdict.items%}
+    <div class="row mt-3">
+        
+        <div class="row mt-3 mb-3"> 
+            <div class="col-9">
+                <h5 class="card-title  ms-2 "> <span class="ms-2">{{i}}</span> <i class='bx bxs-down-arrow'></i></h5>
+            </div> 
+            <div class="col-3">
+                <button class="btn btn-outline-primary  w-100 " >{{i}} <i class='bx bx-buildings mb-1' ></i></button>
+            </div> 
+
+        </div> 
+
+        
+    
+        {%for room in j%}
+        {%if room.1 == 1%}
+
+        <div class="col-2 col-outline-danger">
+          <a href="{% url 'gotofoliobyhome' id=room.0 %}" style="text-decoration:none "
+          >
+            <div class="card mt-3">
+            <div class="card-body ">
+                <center><i class='bx bxs-store fs-center mb-2 text-danger' style="font-size:21px"></i>
+                    
+                    
+                <h4 class="card-title   mt- text-center">{{room.0}}</h4>
+                
+            </center>
+                
+            </div>
+        </div></a>
+        </div> 
+       
+
+        {% elif room.1 == 2 %}
+        <div class="col-2 ">
+            
+            <a href="{% url 'gotofoliobyhome' id=room.0 %}" style="text-decoration:none "
+            >
+            <div class="card mt-3">
+            <div class="card-body ">
+                <center><i class='bx bxs-store fs-center mb-2 text-warning' style="font-size:21px" ></i>
+                <h4 class="card-title   mt- text-center">{{room.0}}</h4></center>
+                
+            </div>
+        </div></a>
+        </div> 
+
+        {% elif room.1 == 6 %}
+        <div class="col-2 ">
+            
+           
+            <div class="card mt-3">
+            <div class="card-body ">
+                <center><i class='bx bxs-store fs-center mb-2 text-secondary' style="font-size:21px" ></i>
+                <h4 class="card-title   mt- text-center">Hourly</h4></center>
+            </div>
+        </div>
+        </div> 
+        
+
+        {% elif room.1 == 4 or room.1 == 5 %}
+        <div class="col-2 ">
+            
+            <a href="#" style="text-decoration:none ">
+            <div class="card mt-3">
+            <div class="card-body ">
+                <center><i class='bx bxs-store fs-center mb-2 text-muted' style="font-size:21px" ></i>
+                <h6 class="card-title   mb-1 text-center">{{room.0}}</h6>
+                  <span class="badge bg-label-primary text-secondary mb-0" style="font-size:10px">Reserved</span></center>
+                
+            </div>
+        </div></a>
+        </div> 
+        {%else%}
+        <div class="col-2 ">
+            <a href="{% url 'openroomclickformpage' id=room.0 %}" style="text-decoration:none ">
+            <div class="card mt-3">
+            <div class="card-body ">
+                <center><i class='bx bxs-store fs-center mb-2 text-success' style="font-size:21px"></i>
+                <h4 class="card-title   mt- text-center">{{room.0}}</h4></center>
+                
+            </div>
+        </div></a>
+        </div> 
+
+        {% endif %}
+
+        
+        {%endfor%}
+        
+        
+
+
+
+
+    </div>
+    {%endfor%}
+        
+     <!--js of room no set to pop up button-->
+
+        <script type="text/javascript">
+          function getroomnumberpopup(e) {
+            var room_no = e
+            document.getElementById('roomnoid').innerHTML = e;
+            document.getElementById('roomnoidinput').value = e;
+          }
+        </script>
+        <!--js of discount button end-->
+   
+    
+           <!-- Toggle Between Modals -->
+                        <!-- Modal to open cancel reject  model-->
+                        <div
+                          class="modal fade"
+                          id="modalToggle"
+                          aria-labelledby="modalToggleLabel"
+                          tabindex="-1"
+                          style="display: none"
+                          aria-hidden="true"
+                        >
+                          <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="modalToggleLabel">Room No:<span id="roomnoid"></span></h5>
+                                
+                                <button
+                                  type="button"
+                                  class="btn-close"
+                                  data-bs-dismiss="modal"
+                                  aria-label="Close"
+                                ></button>
+                              </div>
+                              <div class="modal-body">Show a second modal and hide this one with the button below.</div>
+                              <div class="modal-footer">
+                                
+
+                                <button
+                                  class="btn btn-primary"
+                                  data-bs-dismiss="modal"
+                                >
+                                  Extend Booking
+                                </button>
+
+                                <button
+                                  class="btn btn-outline-success"
+                                  data-bs-dismiss="modal"
+                                >
+                                  Close Popup
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+         <!--model end cancel reject-->
+
+                
+                   
+  
+                          <!-- Modal add rooms -->
+                          <div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1">
+                            <div class="modal-dialog">
+                                <form action="{% url 'addroom'  %}" method="POST" class="modal-content">
+                                    {% csrf_token %}
+                                
+                                <div class="modal-header">
+                                  <h5 class="modal-title" id="backDropModalTitle">Add Room</h5>
+                                  <button
+                                    type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="modal"
+                                    aria-label="Close"
+                                  ></button>
+                                </div>
+                                <div class="modal-body">
+                                  <div class="row">
+                                    <div class="col mb-3">
+                                      <label for="nameBackdrop" class="form-label">Room Name</label>
+                                      <input
+                                        type="number"
+                                        name="roomname"
+                                        id="nameBackdrop"
+                                        class="form-control"
+                                        placeholder="Enter RoomName"
+                                      />
+                                    </div>
+
+                                    <div class="col mb-3">
+                                        <label for="nameBackdrop" class="form-label">Category</label>
+                                        <select class="form-control" name="category" placeholder="Select Category">
+                                            {%for cat in category%}
+                                            <option  value="{{cat.id}}">{{cat}}</option>
+                                            
+                                            {%endfor%}
+                                          </select>
+                                      </div>
+                                  </div>
+
+                                  <div class="row">
+                                    <div class="col mb-3">
+                                      <label for="nameBackdrop" class="form-label">Price</label>
+                                      <input
+                                        type="number"
+                                        name="roomprice"
+                                        id="nameBackdrop"
+                                        class="form-control"
+                                        placeholder="Enter Room Price"
+                                      />
+                                    </div>
+
+                                    <div class="col mb-3">
+                                        <label for="nameBackdrop" class="form-label">Tax Category</label>
+                                        <select class="form-control" name="taxcategory" placeholder="Select Category">
+                                            {%for tx in tax%}
+                                            <option  value="{{tx.id}}">{{tx}}</option>
+                                            
+                                            {%endfor%}
+                                          </select>
+                                      </div>
+                                  </div>
+
+                                  
+                                  
+                                 
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                    Close
+                                  </button>
+                                  <button  class="btn btn-primary">Save</button>
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!--/ Bootstrap modals -->
+   
+   
+                {% endblock %}
+        
+
+    
+

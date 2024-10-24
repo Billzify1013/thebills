@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h5>Download ExcelSheet Page</h5>
+
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <a href="{% url 'billingplanpage' %}" style="text-decoration:none;">
+    <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div></a>
+    {%endif%}
+</div>
+{%endfor%}
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 1000);
+  });
+
+  $(document).ready(function() {
+    // Fade out the alert after 5 seconds (5000 milliseconds)
+    setTimeout(function() {
+        $("#danger-alert").fadeTo(500, 0).slideUp(500, function(){
+            $(this).remove(); 
+        });
+    }, 1000);
+});
+</script>
+{%endif%} 
+
+<h6 class="text ms-3 text-danger">Note: Please be aware that guest invoices,Amenities invoicees and event invoices are separate documents and should be downloaded individually.</h6>
+
+<div class="row p-1">
+<div class="col-6">
+    <div class="card">
+        <form action="{% url 'generate_invoice_excel' %}" method="post">
+            {% csrf_token %}
+        <h5 class="card-title m-3"><i class='bx mb-1 me-2 bxs-save'></i>Download Invoices ExcelSheet</h5>
+        <div class="mb-3 col-md-10 ms-3 mt-3">
+            <label for="zipCode" class="form-label">Select Month</label>
+            <select id="country" name="monthnumber" required class="select2 form-select">
+              <option value="1">JANUARY</option>
+              <option value="2">FEBRUARY</option>
+              <option value="3">MARCH</option>
+              <option value="4">APRIL</option>
+              <option value="5">MAY</option>
+              <option value="6">JUNE</option>
+              <option value="7">JULY</option>
+              <option value="8">AUGUST</option>
+              <option value="9">SEPTEMBER </option>
+              <option value="10">OCTOBER</option>
+              <option value="11">NOVEMBER</option>
+              <option value="12">DECEMBER</option>
+        </select>
+
+          </div>
+          <input class="btn btn-primary w-50 ms-3 mb-5 mt-4" type="submit" value="DONWLOAD"/>
+    </div>
+</form>
+</div>
+
+
+<div class="col-6">
+    <div class="card">
+        <form action="{% url 'generate_eventinvoice_excel' %}" method="post">
+            {% csrf_token %}
+        <h5 class="card-title m-3"><i class='bx mb-1 me-2 bxs-save'></i>Download Event Invoice ExcelSheet</h5>
+        <div class="mb-3 col-md-10 ms-3 mt-3">
+            <label for="zipCode" class="form-label">Select Month</label>
+            <select id="country" name="monthnumber" required class="select2 form-select">
+              <option value="1">JANUARY</option>
+              <option value="2">FEBRUARY</option>
+              <option value="3">MARCH</option>
+              <option value="4">APRIL</option>
+              <option value="5">MAY</option>
+              <option value="6">JUNE</option>
+              <option value="7">JULY</option>
+              <option value="8">AUGUST</option>
+              <option value="9">SEPTEMBER </option>
+              <option value="10">OCTOBER</option>
+              <option value="11">NOVEMBER</option>
+              <option value="12">DECEMBER</option>
+        </select>
+
+          </div>
+          <input class="btn btn-primary w-50 ms-3 mb-5 mt-4" type="submit" value="DONWLOAD"/>
+    </div>   </form>
+</div>
+
+
+
+
+
+<div class="col-6 mt-5">
+    <div class="card">
+        <form action="{% url 'generate_aminitiesinvoice_excel' %}" method="post">
+            {% csrf_token %}
+        <h5 class="card-title m-3"><i class='bx mb-1 me-2 bxs-save'></i>Download Amenities Invoice ExcelSheet</h5>
+        <div class="mb-3 col-md-10 ms-3 mt-3">
+            <label for="zipCode" class="form-label">Select Month</label>
+            <select id="country" name="monthnumber" required class="select2 form-select">
+              <option value="1">JANUARY</option>
+              <option value="2">FEBRUARY</option>
+              <option value="3">MARCH</option>
+              <option value="4">APRIL</option>
+              <option value="5">MAY</option>
+              <option value="6">JUNE</option>
+              <option value="7">JULY</option>
+              <option value="8">AUGUST</option>
+              <option value="9">SEPTEMBER </option>
+              <option value="10">OCTOBER</option>
+              <option value="11">NOVEMBER</option>
+              <option value="12">DECEMBER</option>
+        </select>
+
+          </div>
+          <input class="btn btn-primary w-50 ms-3 mb-5 mt-4" type="submit" value="DONWLOAD"/>
+    </div>   </form>
+</div>
+
+</div>
+
+{%endblock%}

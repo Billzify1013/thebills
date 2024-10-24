@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+
+{% if employeedata%}
+{% for data in employeedata%}
+<div class="row mb-5">
+<div class="col-9" id="printableDiv">
+<div class="card  mb-0">
+   
+    <h5 class="card-title m-3 ms-4">Employee: <span class="badge bg-label-primary me-1"> {{data.employee.first_name}} {{data.employee.last_name}}</span>
+        <span class="float-end">Created Date:{{data.salary_date}}</span>
+    </h5>
+    <ul class="list-group list-group-flush">
+   
+      <li class="list-group-item">
+        <b><span class="text w-50">Start Date</span></b> 
+        <span class="text float-end"><strong>{{data.start_date}}</strong></span><br>
+        <b><span class="text w-50">End Date</span></b> 
+        <span class="text float-end"><strong>{{data.end_date}}</strong></span>
+      </li>
+      {% comment %} <li class="list-group-item">
+        <b><span class="text w-50">End Date</span></b> 
+        <span class="text float-end"><strong>{{last_date}}</strong></span>
+      </li> {% endcomment %}
+
+      <li class="list-group-item"><span class="text w-50">Total Days</span></b> 
+        <span class="text float-end">{{data.salary_days}}</span>
+      </li>
+      <li class="list-group-item">
+        <span class="text w-50">Bonus</span>
+        <span class="text float-end">{{data.bonus}}</span>
+      </li>
+      <li class="list-group-item">
+        <span class="text w-50">Deductions</span>
+        <span class="text float-end">{{data.deductions}}</span>
+      </li>
+      
+
+      <li class="list-group-item">
+        <span class="text w-50"><strong>Employee Salary</strong></span>
+        <span class="text float-end"><strong  id="totalamount">{{data.basic_salary}}</strong></span>
+      </li>
+      
+    </ul>
+  </div></div>
+<div class="col-3">
+<button class="btn btn-outline-primary w-100 mb-2" onclick="printDiv('printableDiv')"><i class='bx bxs-printer'></i> Print</button>
+</div>
+
+</div>
+{%endfor%}
+{% endif %}
+
+
+<!-- Bootstrap Table with Header - Light -->
+<div class="row">
+    <div class="col-12">
+ <div class="card">
+    <h5 class="card-header">All Employee</h5>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead class="table-light">
+          <tr>
+            <th>no</th>
+            <th>First name</th>
+            <th>Mobile</th>
+            <th>Department</th>
+            <th>PaySlip Day</th>
+            <th>Show</th>
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+
+         {% for data in empdata%}
+          <tr>
+            <td>{{forloop.counter}}</td>
+            <td><i class="fab fa-angular fa-lg text-danger "></i> <strong>{{data.employee.first_name}} {{data.employee.last_name}}</strong> </td>
+            <td>{{data.employee.employee_contact}}</td>
+            <td>{{data.employee.department}}</td>
+            <td>{{data.salary_date}}</td>
+            <td>
+                <a href="{% url 'showpayslip' eid=data.id %}" class="btn btn-outline-info " style=><i class='bx bx-show-alt'></i> Show</a>
+            </td>
+          </tr>
+          {%endfor%}
+    
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Bootstrap Table with Header - Light -->
+ 
+<script>
+    function printDiv(divId) {
+        // Get the content of the div
+        var divContent = document.getElementById(divId).innerHTML;
+        
+        // Create a new window
+        var printWindow = window.open('', '', 'height=600,width=800');
+        
+        // Write the content to the new window
+        printWindow.document.write('<html><head><title>Print Content</title>');
+        printWindow.document.write('<link rel="stylesheet" href="styles.css" type="text/css" />'); // Add CSS if needed
+        printWindow.document.write('</head><body>');
+        printWindow.document.write(divContent);
+        printWindow.document.write('</body></html>');
+        
+        // Close the document to finish loading the content
+        printWindow.document.close();
+        
+        // Wait for the content to load, then print
+        printWindow.onload = function() {
+            printWindow.focus(); // Required for some browsers
+            printWindow.print();
+            printWindow.close();
+        };
+    }
+
+
+   
+    
+</script>
+{%endblock%}

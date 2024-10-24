@@ -1,0 +1,582 @@
+{% extends "base.html" %}
+{% block content %}
+
+{%load static %}
+
+         
+          <!-- Content wrapper -->
+         
+            <!-- Content -->
+
+              <div class="row">
+                <div class="col-lg-8 mb-4 order-0">
+                  <div class="card">
+                    <div class="d-flex align-items-end row">
+                      <div class="col-sm-7">
+                        <div class="card-body">
+                          <h5 class="card-title text-primary">Congratulations! 🎉</h5>
+                          <p class="mb-4">
+                            You've boosted sales by <span class="fw-bold">{{ growth_json|safe }}%</span>
+                              from last week. Stay with Billzify and grow more!
+                          </p>
+
+                          <a href="{% url 'billingplanpage'%}" class="btn btn-sm btn-outline-primary">Upgrade Plan</a>
+                        </div>
+                      </div>
+                      <div class="col-sm-5 text-center text-sm-left">
+                        <div class="card-body pb-0 px-0 px-md-4">
+                          <img
+                            src="{% static 'undercss/assets/img/avatars/newsavtar.png'%}"
+                            height="140"
+                            alt="View Badge User"
+                            data-app-dark-img="illustrations/man-with-laptop-dark.png"
+                            data-app-light-img="illustrations/man-with-laptop-light.png"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-4 col-md-4 order-1">
+                  <div class="row">
+                    <div class="col-lg-6 col-md-12 col-6 mb-4">
+                      <div class="card">
+                        <div class="card-body">
+                          <div class="card-title d-flex align-items-start justify-content-between">
+                            <div class="avatar flex-shrink-0">
+                              <img
+                                src="{% static 'undercss/assets/img/icons/unicons/chart-success.png'%}"
+                                alt="chart success"
+                                class="rounded"
+                              />
+                            </div>
+                            <div class="dropdown">
+                              <button
+                                class="btn p-0"
+                                type="button"
+                                id="cardOpt3"
+                                data-bs-toggle="dropdown"
+                                aria-haspopup="true"
+                                aria-expanded="false"
+                              >
+                                <i class="bx bx-dots-vertical-rounded"></i>
+                              </button>
+                              <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt3">
+                                <a class="dropdown-item" href="javascript:void(0);">Its Total Sale Amount Without Taxes & Deduction</a>
+                              </div>
+                            </div>
+                          </div>
+                          <span class="fw-semibold d-block mb-1">Total Sales</span>
+                          <h5 class="card-title mb-2">₹ {{subtotalsale}}</h5>
+                          <small class="text-success fw-semibold"><i class="bx bx-up-arrow-alt"></i> Grow More</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-6 col-md-12 col-6 mb-4">
+                      <div class="card">
+                        <div class="card-body">
+                          <div class="card-title d-flex align-items-start justify-content-between">
+                            <div class="avatar flex-shrink-0">
+                              <img
+                                src="{% static 'undercss/assets/img/icons/unicons/wallet-info.png'%}"
+                                alt="Credit Card"
+                                class="rounded"
+                              />
+                            </div>
+                            <div class="dropdown">
+                              <button
+                                class="btn p-0"
+                                type="button"
+                                id="cardOpt6"
+                                data-bs-toggle="dropdown"
+                                aria-haspopup="true"
+                                aria-expanded="false"
+                              >
+                                <i class="bx mt-1 bx-dots-vertical-rounded"></i>
+                              </button>
+                              <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt6">
+                                <a class="dropdown-item" href="javascript:void(0);">Its Total Tax Amount.</a>
+                              </div>
+                            </div>
+                          </div>
+                          <span class="fw-semibold d-block mb-1">Taxes</span>
+                          <h5 class="card-title text-nowrap mb-2">₹{{totaltax}}</h5>
+                          <small class="text-success mb-2 fw-semibold"><i class="bx bx-up-arrow-alt"></i>Give More</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Total Revenue -->
+                <div class="col-12 col-lg-12 order-2 order-md-3 order-lg-2 mb-4">
+                  <div class="card">
+                    <div class="row row-bordered g-0">
+                      <div class="col-md-8">
+                        <h5 class="card-header m-0 me-2 pb-3">Total Revenue</h5>
+                        <div id="totalRevenueChart" class="px-2"></div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="card-body">
+                          <div class="text-center">
+                            <div class="dropdown">
+                              <button
+                                class="btn btn-sm btn-outline-primary "
+                                type="button"
+                                id="growthReportId"
+                                data-bs-toggle="dropdown"
+                                aria-haspopup="true"
+                                aria-expanded="false"
+                              >
+                              Your Growth
+                              </button>
+                              
+                            </div>
+                          </div>
+                        </div>
+                        <div class="pt-4" id="growthChart"></div>
+                        <div class="text-center fw-semibold pt-5 p-4 mb-2">Hotel growth increased by {{ growth_json|safe }}% 
+                           in the last 7 days.</div>
+
+                        <div class="d-flex px-xxl-4 px-lg-2 p-4 gap-xxl-3 gap-lg-1 gap-3 justify-content-between">
+                          <div class="d-flex">
+                            
+                              <h6  id="growth-data" style="display:none" class="mb-0">{{ growth_json|safe }}</h6>
+                           
+                          </div>
+                          <div class="d-flex">
+                            
+                           
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!--js here to this chart-->
+                 <!-- Hidden divs to hold the JSON data -->
+                 <div id="chart-labels" style="display: none;">{{ labels_json|safe }}</div>
+                 <div id="chart-data" style="display: none;">{{ data_json|safe }}</div>
+                 <div id="weeklychart-data" style="display: none;">{{ weeklys_data|safe }}</div>
+                 {% comment %} <script src="{% static 'undercss/assets/js/dashboards-analytics.j' %}"></script> {% endcomment %}
+             
+                
+
+
+                <!--/ Total Revenue -->
+                <div class="col-12 col-md-8 col-lg-4 order-3 order-md-2">
+                  <div class="row">
+                   
+                   </div>
+    <div class="row"> 
+                    
+                  </div>
+                </div>
+              </div>
+
+              <h4>All Deduction & Gross Profit</h4>
+
+              <div class="row">
+              <div class="col-lg-7 mb-4 order-0">
+                <div class="card">
+                  <div class="d-flex align-items-end row">
+                    <div class="col-sm-7 text-center text-sm-left">
+                      <div class="card-body pb-0 px-0 px-md-4">
+                        <img
+                          src="{% static 'undercss/assets/img/illustrations/man-with-laptop-light.png'%}"
+                          height="140"
+                          alt="View Badge User"
+                          data-app-dark-img="illustrations/man-with-laptop-dark.png"
+                          data-app-light-img="illustrations/man-with-laptop-light.png"
+                        />
+                      </div>
+                    </div>
+                    <div class="col-sm-5">
+                          <div class="card-body">
+                            <div class="card-title d-flex align-items-start justify-content-between">
+                              <div class="avatar flex-shrink-0">
+                                <img src="{% static 'undercss/assets/img/icons/unicons/paypal.png'%}" alt="User" class="rounded" />
+                              </div>
+                              <div class="dropdown">
+                                <button
+                                  class="btn p-0"
+                                  type="button"
+                                  id="cardOpt3"
+                                  data-bs-toggle="dropdown"
+                                  aria-haspopup="true"
+                                  aria-expanded="false"
+                                >
+                                  <i class="bx bx-dots-vertical-rounded"></i>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt3">
+                                  <a class="dropdown-item" href="javascript:void(0);">Employee total salary amount.</a>
+                                </div>
+                              </div>
+                            </div>
+                            <span class="fw-semibold d-block mb-1">Total Employee Salary.</span>
+                            <h5 class="card-title mb-2">₹ {{totalsalaryexpance}}</h5>
+                            <small class="text-danger fw-semibold"><i class="bx bx-up-arrow-alt"></i>Sales Deduction</small>
+                          </div>
+                    </div>
+
+                   
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-5 col-md-5 order-1">
+                <div class="row">
+                  
+                  <div class="col-lg-5 col-md-8 col-5 mb-4">
+                    <div class="card">
+                      <div class="card-body">
+                        <div class="card-title d-flex align-items-start justify-content-between">
+                          <div class="avatar flex-shrink-0">
+                            <img
+                              src="{% static 'undercss/assets/img/icons/unicons/wallet-info.png'%}"
+                              alt="Credit Card"
+                              class="rounded"
+                            />
+                          </div>
+                          <div class="dropdown">
+                            <button
+                              class="btn p-0"
+                              type="button"
+                              id="cardOpt6"
+                              data-bs-toggle="dropdown"
+                              aria-haspopup="true"
+                              aria-expanded="false"
+                            >
+                              <i class="bx mt-1 bx-dots-vertical-rounded"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt6">
+                              <a class="dropdown-item" href="javascript:void(0);">Its Total Tax Amount.</a>
+                            </div>
+                          </div>
+                        </div>
+                        <span class="fw-semibold d-block mb-1">Taxes</span>
+                        <h5 class="card-title text-nowrap mb-2">₹{{totaltax}}</h5>
+                        <small class="text-danger mb-2 fw-semibold"><i class="bx bx-up-arrow-alt"></i> Deduction</small>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="col-lg-7 col-md-12 col-7 mb-4">
+                    <div class="card">
+                      <div class="card-body">
+                        <div class="card-title d-flex align-items-start justify-content-between">
+                          <div class="avatar flex-shrink-0">
+                            <img src="{% static 'undercss/assets/img/icons/unicons/cc-success.png'%}" alt="User" class="rounded" /> </div>
+                          <div class="dropdown">
+                            <button
+                              class="btn p-0"
+                              type="button"
+                              id="cardOpt3"
+                              data-bs-toggle="dropdown"
+                              aria-haspopup="true"
+                              aria-expanded="false"
+                            >
+                              <i class="bx bx-dots-vertical-rounded"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt3">
+                              <a class="dropdown-item" href="javascript:void(0);">Net Profit Deduct All Expenses.</a>
+                            </div>
+                          </div>
+                        </div>
+                        <span class="fw-semibold d-block mb-1">Net Profit</span>
+                        <h5 class="card-title mb-2">₹ {{totalsalaryexcludedeductions}}</h5>
+                        <small class="text-success fw-semibold">🎉Great Stay With Billzify!</small>
+                      </div>
+                    </div>
+                  </div>
+                 
+                </div>
+              </div>
+            </div>
+
+              <div class="row">
+                <!-- Order Statistics -->
+                <div class="col-md-6 col-lg-4 col-xl-4 order-0 mb-4">
+                  <div class="card h-100">
+                    <div class="card-header d-flex align-items-center justify-content-between pb-0">
+                      <div class="card-title mb-0">
+                        <h5 class="m-0 me-2">Top Sellers In Your Hotel! </h5>
+                      </div>
+                      <div class="dropdown">
+                        
+                      </div>
+                    </div>
+                    <div class="card-body mt-5">
+                      
+                      <ul class="p-0 m-0">
+                        <li class="d-flex mb-4 pb-1">
+                          <div class="avatar flex-shrink-0 me-3">
+                            <span class="avatar-initial rounded bg-label-info"><i class="bx bx-home-alt"></i></span>
+                          </div>
+                          <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                            <div class="me-2">
+                              <h6 class="mb-0">Rooms</h6>
+                              <small class="text-muted">Rooms are Selling <br>Like Hotcakes!</small>
+                            </div>
+                            <div class="user-progress">
+                             <span class="badge bg-label-success me-1">{{most_booked_room}}</span>
+                            </div>
+                          </div>
+                        </li>
+                        <li class="d-flex mb-4 pb-1">
+                          <div class="avatar flex-shrink-0 me-3">
+                            <span class="avatar-initial rounded bg-label-success"><i class="bx bx-closet"></i></span>
+                          </div>
+                          <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                            <div class="me-2">
+                              <h6 class="mb-0">Fashion</h6>
+                              <small class="text-muted">Laundry Items</small>
+                            </div>
+                            <div class="user-progress">
+                              <small class="fw-semibold"><span class="badge bg-label-warning me-1">More</span></small>
+                            </div>
+                          </div>
+                        </li>
+                        <li class="d-flex mb-4 pb-1">
+                          <div class="avatar flex-shrink-0 me-3">
+                            <span class="avatar-initial rounded bg-label-info"><i class="bx bx-football"></i></span>
+                          </div>
+                          <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                            <div class="me-2">
+                              <h6 class="mb-0">Product</h6>
+                              <small class="text-muted">Items</small>
+                            </div>
+                            <div class="user-progress">
+                              <small class="fw-semibold"><span class="badge bg-label-warning me-1">More</span></small>
+                            </div>
+                          </div>
+                        </li>
+                        
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <!--/ Order Statistics -->
+
+                 <!-- Expense Overview -->
+                 <div class="col-md-6 col-lg-4 order-1 mb-4">
+                  <div class="card h-100">
+                    <div class="card-header">
+                      <ul class="nav nav-pills" role="tablist">
+                        <li class="nav-item">
+                          <button
+                            type="button"
+                            class="nav-link active"
+                            role="tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#navs-tabs-line-card-income"
+                            aria-controls="navs-tabs-line-card-income"
+                            aria-selected="true"
+                          >
+                            Income
+                          </button>
+                        </li>
+                        <li class="nav-item">
+                          <button
+                            type="button"
+                            class="nav-link "
+                            role="tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#navs-tabs-line-card-expanse"
+                            aria-controls="navs-tabs-line-card-expanse"
+                            aria-selected="true"
+                          >
+                            Expense
+                          </button>
+                        </li>
+                        <li class="nav-item">
+                          <button
+                          type="button"
+                          class="nav-link "
+                          role="tab"
+                          data-bs-toggle="tab"
+                          data-bs-target="#navs-tabs-line-card-Profit"
+                          aria-controls="navs-tabs-line-card-Profit"
+                          aria-selected="true"
+                        >
+                        Profit
+                        </button>
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="card-body px-0">
+                      <div class="tab-content p-0">
+                        <div class="tab-pane fade show active" id="navs-tabs-line-card-income" role="tabpanel">
+                          <div class="d-flex p-4 pt-3">
+                            <div class="avatar flex-shrink-0 me-3">
+                              <img src="{% static 'undercss/assets/img/icons/unicons/wallet.png'%}" alt="User" />
+                            </div>
+                            <div>
+                              <small class="text-muted d-block">Total Sales</small>
+                              <div class="d-flex align-items-center">
+                                <h6 class="mb-0 me-1">₹ {{subtotalsale}}</h6>
+                                
+                              </div>
+                            </div>
+                          </div>
+                          <div id="incomeChart"></div>
+                          
+                        </div>
+
+                        <div class="tab-pane fade show " id="navs-tabs-line-card-expanse" role="tabpanel">
+                          <div class="d-flex p-4 pt-3">
+                            <div class="avatar flex-shrink-0 me-3">
+                              <img src="{% static 'undercss/assets/img/icons/unicons/paypal.png'%}" alt="User" class="rounded" />
+                            </div>
+                            <div>
+                              <small class="text-muted d-block">Total Deduct Balance</small>
+                              <div class="d-flex align-items-center">
+                                <h6 class="mb-0 me-1">₹{{totaltax|add:totalsalaryexpance}}</h6>
+                                
+                              </div>
+                            </div>
+                          </div>
+                          <input type="hidden" id="totalsale" value="{{subtotalsale}}" />
+                          <input type="hidden" id="totalexpanse" value="{{totaltax|add:totalsalaryexpance}}" />
+                          <input type="hidden" id="totalprofit" value="{{totalsalaryexcludedeductions}}" />
+                          <input type="hidden" id="totalonlineamount" value="{{total_online_amount}}" />
+                          <input type="hidden" id="totalcash" value="{{total_cash_amount}}" />
+                        </div>
+                          
+
+                        <div class="tab-pane fade show " id="navs-tabs-line-card-Profit" role="tabpanel">
+                          <div class="d-flex p-4 pt-3">
+                            <div class="avatar flex-shrink-0 me-3">
+                              <img src="{% static 'undercss/assets/img/icons/unicons/cc-success.png'%}" alt="User" class="rounded" />
+                            </div>
+                            <div>
+                              <small class="text-muted d-block">Total Net Profit</small>
+                              <div class="d-flex align-items-center">
+                                <h6 class="mb-0 me-1">₹ {{totalsalaryexcludedeductions}}</h6>
+                                
+                              </div>
+                            </div>
+                          </div>
+                          
+                        </div>
+
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!--/ Expense Overview -->
+
+                <!-- Transactions -->
+                <div class="col-md-6 col-lg-4 order-2 mb-4">
+                  <div class="card h-100">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                      <h5 class="card-title m-0 me-2">Transactions</h5>
+                      <div class="dropdown">
+                        
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <ul class="p-0 m-0">
+                        <li class="d-flex mb-4 pb-1">
+                          <div class="avatar flex-shrink-0 me-3">
+                            <img src="{% static 'undercss/assets/img/icons/unicons/paypal.png'%}" alt="User" class="rounded" />
+                          </div>
+                          <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                            <div class="me-2">
+                              <small class="text-muted d-block mb-1">Total Money </small>
+                              <h6 class="mb-0">Online</h6>
+                            </div>
+                            <div class="user-progress d-flex align-items-center gap-1">
+                              <h6 class="mb-0">{{total_online_amount}}</h6>
+                              <span class="text-muted">̥₹</span>
+                            </div>
+                          </div>
+                        </li>
+                        <li class="d-flex mb-4 pb-1">
+                          <div class="avatar flex-shrink-0 me-3">
+                            <img src="{% static 'undercss/assets/img/icons/unicons/wallet.png'%}" alt="User" class="rounded" />
+                          </div>
+                          <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
+                            <div class="me-2">
+                              <small class="text-muted d-block mb-1">Total Money</small>
+                              <h6 class="mb-0">Cash</h6>
+                            </div>
+                            <div class="user-progress d-flex align-items-center gap-1">
+                              <h6 class="mb-0">{{total_cash_amount}}</h6>
+                              <span class="text-muted">̥₹</span>
+                            </div>
+                          </div>
+                        </li>
+                       
+                       
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <!--/ Transactions -->
+            </div>
+
+            
+            
+            <!-- / Content -->
+
+       <div class="row">
+            <div class="col-md-8 col-lg-4 order-1 mb-4">
+            <div class="card w-100">
+              <div class="card-body">
+                <div class="d-flex justify-content-between flex-sm-row flex-column gap-3">
+                  <div class="d-flex flex-sm-column flex-row align-items-start justify-content-between">
+                    <div class="card-title">
+                      <h5 class="text-nowrap mb-2">Weekly Report</h5>
+                      <span class="badge bg-label-warning rounded-pill">This week</span>
+                    </div>
+                    
+                 
+                  <div id="profileReportChart"></div> </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-8 col-lg-4 order-1 mb-4">
+            <div class="card">
+
+              
+  <form action="{% url 'finddatevisesales'%}" method="post">
+    {% csrf_token %}   
+  <div class="">
+  <div class="row card-body">
+    <h5>Search According to Sales Date</h5>
+    <div class="col-12" > 
+      <labal>Start Date</label>
+      <input  type="date" name="startdate" placeholder="select CheckIn Date" class="form-control "   required id="dateInput"/>
+    </div>
+
+    <div class="col-12 mt-3" >
+      <labal>End Date</label>
+    <input type="date" name="enddate" placeholder="select CheckOut Date" id="dateInputs" class=" form-control"  required/>
+  </div>
+  <div class="col-12 mt-4" >
+    <input type="submit" class="btn mb-1 w-100 btn-primary "/>
+  </div>
+ 
+  </div></div>
+     </form>
+            </div>
+          </div>
+
+          </div>
+    
+
+      
+
+   
+
+         {% comment %} all button fuction return login.html request
+         employee check in check out half day code saprated by vendor vise
+        <h1 class="text-danger">In pos calculate data correct invoice total subtotal gst and all with correct data
+            hourly and single checkin contains exclude tax total invoice amount and advance booking take including tax total amount because multiple rooms take diffrent diffrent tax
+        </h1> {% endcomment %}
+
+     
+
+
+         {% endblock %}

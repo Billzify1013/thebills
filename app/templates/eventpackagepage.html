@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<div class="card  mb-0">
+<h4 class="card-title m-3">
+    Create EventPackages
+    <button class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#backDropModal">Create  <i class='bx bxs-store-alt'></i></button>
+</h4>
+</div>
+
+
+{% if messages %}
+    {% for msg in messages %}
+    <div class="alert alert-danger alert-dismissible mt-2" role="alert">
+      {{msg}}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+        
+    {%endfor%}
+{%endif%}
+
+
+
+<!-- Bootstrap Table with Header - Light -->
+<div class="row mt-3">
+    <div class="col-12">
+ <div class="card">
+    <h5 class="card-header">ALL EVENTS</h5>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead class="table-light">
+          <tr>
+            <th>no</th>
+            <th>Event name</th>
+            <th>Price</th>
+            <th>Tax</th>
+            <th>description</th>
+            <th>Book</th>
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+
+         {% for data in eventdata%}
+          <tr>
+            <td>{{forloop.counter}}</td> 
+            <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{data.eventname}}</strong> </td>
+            <td>{{data.eventprice}}</td>
+            <td>{{data.eventax}}</td>
+            <td>{{data.description}}</td>
+            
+           <td>
+                <a href=""  data-bs-toggle="modal" onclick="getroomnumberpopup({{data.id}})" data-bs-target="#backDropModalsearchdate" class="btn btn-outline-info " style=>Book</a>
+            </td> 
+          </tr>
+          {%endfor%}
+    
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Bootstrap Table with Header - Light -->
+
+  <!--js of room no set to pop up button-->
+
+  <script type="text/javascript">
+    function getroomnumberpopup(e) {
+      var room_no = e
+      document.getElementById('roomnoidinput').value = e;
+    }
+  </script>
+  <!--js of discount button end-->
+
+
+
+
+
+
+
+
+ <!-- Modal add event -->
+ <div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'createevent' %}" method="POST" class="modal-content">
+            {% csrf_token %}
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Create Event</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Event Name</label>
+              <input
+                type="text"
+                name="eventname"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter Event Name"
+              />
+            </div>
+
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Event Price</label>
+              <input
+                type="number"
+                name="price"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter Price"
+              />
+            </div>
+
+        </div>
+            <div class="row">
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Hsn/Sac Code</label>
+                <input
+                  type="number"
+                  name="hsncode"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Enter hsn code"
+                />
+              </div>
+          
+
+            
+              <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Tax Category</label>
+                                        <select class="form-control" name="taxcategory" placeholder="Select Category">
+                                            {%for tx in tax%}
+                                            <option  value="{{tx.id}}">{{tx}}</option>
+                                            
+                                            {%endfor%}
+                                          </select>
+              </div>
+            </div>
+              
+              <div class="row">
+              <div class="col mb-3">
+                <label for="exampleFormControlTextarea1" class="form-label">discription</label>
+                        <textarea name="description" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+              </div>
+            </div>
+
+            <div class="row">
+                <div class="col mb-3">
+                  <label for="exampleFormControlTextarea1" class="form-label">Terms & Condition!</label>
+                          <textarea name="termscondition" class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                </div>
+              </div>
+
+          
+          
+          
+         
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+  <!-- Modal datesearch model -->
+  <div class="modal fade" id="backDropModalsearchdate" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'searchdateevent'%}" method="POST" class="modal-content">
+            {% csrf_token %}
+        
+            <input type="hidden" id="roomnoidinput" name="dataid"/>
+            
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Search Event Availability</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Start Date</label>
+              <input
+                type="date"
+                name="startdate"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter RoomName"
+              />
+            </div>
+
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">End Date</label>
+              <input
+                type="date"
+                name="enddate"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter RoomName"
+              />
+            </div>
+          </div>
+         
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+{%endblock%}

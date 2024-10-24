@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+
+{% for msg in messages %}
+<div class="container mt-5">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <div id="success-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%endif%}
+</div>
+{%endfor%}
+
+<script>
+    $(document).ready(function() {
+        // Fade out the alert after 5 seconds (5000 milliseconds)
+        setTimeout(function() {
+            $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+                $(this).remove(); 
+            });
+        }, 2000);
+    });
+</script>
+ 
+<!--product Create button-->
+        
+<div class="row mt-5"> 
+    <div class="col-10">
+        <h5 class="card-title  ms-2 mt-2">Add New Product</h5>
+    </div> 
+    <div class="col-2">
+        <button class="btn btn-primary  w-100 "   data-bs-toggle="modal"
+        data-bs-target="#backDropModal"> Add Product</button>
+    </div> 
+
+</div>  
+<!--product Create button end-->
+
+
+
+ <!-- Bootstrap Table with Header - Light -->
+ <div class="card mt-5">
+    <h5 class="card-header">Product Details</h5>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead class="table-light">
+          <tr>
+            <th>Product name</th>
+            <th>Price</th>
+            <th>HSN/SAC</th>
+            <th>Tax</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+            {%for data in iteams%}
+          <tr>
+            <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{data.description}}</strong></td>
+            
+            <td>₹ {{data.price}}</td>
+            <td>{{data.hsncode}}</td>
+            <td>
+                {%if data.category_tax.taxrate%}
+              {{data.category_tax.taxrate}} %
+              {%endif%}
+            </td>
+            <td>
+                
+                      <button
+                        type="button"
+                        class="btn  dropdown-toggle hide-arrow"
+                        data-bs-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        
+                      >
+                      <i class="bx bx-dots-vertical-rounded"></i>
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
+                          data-bs-target="#backDropModalupdate" onclick="getroomnumberpopup({{data.id}})"><i class="bx bx-edit-alt me-1"></i> Details</a></li>
+                        <li><a class="dropdown-item" href="{% url 'deleteproduct' id=data.id %}" ><i class="bx bx-trash me-1"></i> Delete</a></li>
+                        
+                      </ul>
+                    
+            </td>
+          </tr>
+          {%endfor%}
+   
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Bootstrap Table with Header - Light -->
+
+
+
+</div>
+
+
+
+
+<!-- Modal add produts -->
+<div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{%url 'additems'%}" method="POST" class="modal-content">
+            {% csrf_token %}
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Add Product</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Product Name</label>
+              <input
+                type="text"
+                name="description"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter product name"
+              />
+            </div>
+
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Price</label>
+                <input
+                  type="number"
+                  name="price"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Enter price"
+                />
+              </div>
+          </div>
+
+          <div class="row">
+
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Category</label>
+                <select class="form-control" name="category_tax" placeholder="Select tax" >
+                    <option  value="">Select tax</option>
+                    {%for t in tax%}
+                    <option  value="{{t.id}}">{{t}}</option>
+                    {%endfor%}
+                </select>
+              </div>
+              
+            <div class="col  mb-3">
+              <label for="nameBackdrop" class="form-label"> Hsn code</label>
+              <input
+                type="number"
+                name="hsncode"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter Hsn Code"
+              />
+            </div>
+
+           
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+<!--js of room no set to pop up button-->
+<script type="text/javascript">
+  function getroomnumberpopup(e) {
+    var room_no = e
+    document.getElementById('roomnoidinput').value = e;
+  }
+</script>
+
+<!-- Modal edit produts -->
+<div class="modal fade" id="backDropModalupdate" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog">
+      <form action="{%url 'updateitems'%}" method="POST" class="modal-content">
+          {% csrf_token %}
+          <input type="hidden" id="roomnoidinput" name="itemid" />
+      <div class="modal-header">
+        <h5 class="modal-title" id="backDropModalTitle">Update Product</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">Product Name</label>
+            <input
+              type="text"
+              name="description"
+              id="nameBackdrop"
+              class="form-control"
+              placeholder="Enter product name"
+            />
+          </div>
+
+          <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Price</label>
+              <input
+                type="number"
+                name="price"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter price"
+              />
+            </div>
+        </div>
+
+        <div class="row">
+
+          <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Category</label>
+              <select class="form-control" name="category_tax" placeholder="Select tax" >
+                  <option  value="">Select tax</option>
+                  {%for t in tax%}
+                  <option  value="{{t.id}}">{{t}}</option>
+                  {%endfor%}
+              </select>
+            </div>
+            
+          <div class="col  mb-3">
+            <label for="nameBackdrop" class="form-label"> Hsn code</label>
+            <input
+              type="number"
+              name="hsncode"
+              id="nameBackdrop"
+              class="form-control"
+              placeholder="Enter Hsn Code"
+            />
+          </div>
+
+         
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button  class="btn btn-warning">Update</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+{%endblock%}

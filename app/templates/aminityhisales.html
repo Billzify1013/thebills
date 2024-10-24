@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="row">
+    <div class="col-8 ">
+        <div class="row">
+            {%if searchdata%}
+            {%else%}
+            <div class="col-6">
+        <div class="card  p-2">
+            <h5>
+                This Month Total Sales<br><br>
+
+                <i class='bx bx-doughnut-chart mb-1'></i> ₹ {{total_sales}}
+            </h5>
+            
+        </div></div>
+
+        <div class="col-6">
+            <div class="card  p-2">
+                <h5>
+                    This Month Total Tax Amount<br><br>
+                    <i class='bx bxs-certification mb-1'></i> ₹ {{total_sgst|add:total_gst}}
+                </h5>
+                
+            </div></div>
+
+            <div class="col-6 mt-3">
+                <div class="card  p-2">
+                    <h5>
+                        This Month Total Cash Amount<br><br>
+                        <i class='bx bxl-mastercard mb-1'></i> ₹ {{total_cash}}
+                    </h5>
+                    
+                </div></div>
+
+                <div class="col-6 h-50 mt-3">
+                    <div class="card  p-2">
+                        <h5>
+                            This Month Total Online Amount<br><br>
+                            <i class='bx bxs-wallet-alt mb-1' ></i> ₹ {{online_amount}}
+                        </h5>
+                        
+                    </div></div>
+                    {%endif%}
+
+                {%if searchdata%}
+                    <div class="col-6">
+                        <div class="card  p-2">
+                            <h5>
+                                {{startdate}}  To {{enddate}} <br><br>Total Sales<br><br>
+                
+                                <i class='bx bx-doughnut-chart mb-1'></i> ₹ {{total_sales}}
+                            </h5>
+                            
+                        </div></div>
+                
+                        <div class="col-6">
+                            <div class="card  p-2">
+                                <h5>
+                                    {{startdate}}  To {{enddate}}<br><br> Total Tax Amount<br><br>
+                                    <i class='bx bxs-certification mb-1'></i> ₹ {{total_sgst|add:total_gst}}
+                                </h5>
+                                
+                            </div></div>
+                
+                            <div class="col-6 mt-3">
+                                <div class="card  p-2">
+                                    <h5>
+                                        {{startdate}}  To {{enddate}}<br><br> Total Cash Amount<br><br>
+                                        <i class='bx bxl-mastercard mb-1'></i> ₹ {{total_cash}}
+                                    </h5>
+                                    
+                                </div></div>
+                
+                                <div class="col-6 h-50 mt-3">
+                                    <div class="card  p-2">
+                                        <h5>
+                                            {{startdate}}  To {{enddate}}<br><br> Total Online Amount<br><br>
+                                            <i class='bx bxs-wallet-alt mb-1' ></i> ₹ {{online_amount}}
+                                        </h5>
+                                        
+                                    </div></div>
+
+                {%endif%}
+
+                    
+    </div>
+    </div>
+    <div class="col-4">
+        <form action="{%  url 'searchaminitiesinvoicedata' %}" method="post">
+            {% csrf_token %}
+        <div class="row  mt-0 mb-3 ">
+            <p>Search Amenities Invoice Data Via Dates</p>
+        <div class="col-12 ">
+            <span>Start Date</span>
+            <input type="date" id="dateInput" class="form-control" name="startdate">
+        </div>
+        <div class="col-12 mt-3">
+            <span>End Date</span>
+            <input type="date" id="dateInput" class="form-control" name="enddate">
+        </div>
+        <div class="col-12 mt-3">
+        <input type="submit" class="btn btn-primary w-100" value="Search Data" >
+    </div></div>
+</form>
+</div>
+
+{%endblock%}

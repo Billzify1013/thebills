@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Guest Registration Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            position: relative;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .header img {
+            max-width: 150px;
+            height: auto;
+        }
+        .header .buttons {
+            position: absolute;
+            top: 0;
+            right: 0;
+            margin: 10px;
+        }
+        .header .buttons button {
+            margin-left: 10px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        .header .buttons button:hover {
+            background-color: #0056b3;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group div {
+            border-bottom: 1px solid black;
+            padding: 5px;
+            margin-bottom: 5px;
+        }
+        .signature {
+            margin-top: 30px;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+        .signature label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        @media print {
+            .header .buttons {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+
+    <div class="container">
+        <div class="header">
+            <div class="buttons">
+                <button onclick="printForm()">Print Form</button>
+                <button onclick="downloadForm()">Download Form</button>
+                <button onclick="history.back()">Back</button>
+            </div>
+        </div>
+        <div id="registration-form">
+            {%for i in hoteldata%}
+            <div class="form-group">
+                <label for="full-name"><b>{{i.name}}</b></label>
+                <label for="full-name"><b>Phone:{{i.contact}}</b></label>
+                <label for="full-name"><b>Add:{{i.address}} {{i.zipcode}} {{i.counrty}}</b></label>
+
+                <div></div>
+            </div>
+            {%endfor%}
+            <h1> Guest Registration Form</h1>
+            {%for i in guestdata%}
+            <div class="form-group">
+                <label for="full-name">Guest Name:<B>{{i.guestname}}</b></label>
+                <div></div>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:<b>{{i.guestemail}}</b></label>
+                <div></div>
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone Number:<b>{{i.guestphome}}</b></label>
+                <div></div>
+            </div>
+            <div class="form-group">
+                <label for="check-in">Check-in Date:<b>{{i.checkindate}}</b></label>
+                <div></div>
+            </div>
+            <div class="form-group">
+                <label for="check-out">Check-out Date:<b>{{i.checkoutdate}}</b></label>
+                <div></div>
+            </div>
+            <div class="form-group">
+                <label for="room-type">Total Rooms:<b>{{i.noofrooms}}</b></label>
+                <div></div>
+            </div>
+            <div class="form-group">
+                <label for="special-requests">Total Guest:<b>{{i.noofguest}}</b></label>
+                <div ></div>
+            </div>
+           
+            <div class="form-group">
+                <label for="special-requests"> Guest City:<b>{{i.guestcity}}</b></label>
+                <div ></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="special-requests"> Guest Country:<b>{{i.guestcountry}}</b></label>
+                <div ></div>
+            </div>
+            <div class="form-group">
+                <label for="special-requests"> Guest Visit Purpose:<b>{{i.purposeofvisit}}</b></label>
+                <div ></div>
+            </div>
+           
+            <div class="signature">
+                <label for="guest-signature">Guest Signature:</label>
+                <div></div>
+            </div>
+            {%endfor%}
+        </div>
+    </div>
+
+    <script>
+        function printForm() {
+            var printContent = document.getElementById('registration-form').innerHTML;
+            var originalContents = document.body.innerHTML;
+
+            document.body.innerHTML = printContent;
+            window.print();
+            document.body.innerHTML = originalContents;
+        }
+
+        function downloadForm() {
+            var formHTML = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Guest Registration Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header img {
+            max-width: 150px;
+            height: auto;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group div {
+            border-bottom: 1px solid black;
+            padding: 5px;
+            margin-bottom: 5px;
+        }
+        .signature {
+            margin-top: 30px;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+        .signature label {
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+        </div>
+        <div id="registration-form">
+         {%for i in hoteldata%}
+            <div class="form-group">
+                <label for="full-name"><b>{{i.name}}</b></label>
+                <label for="full-name"><b>Phone:{{i.contact}}</b></label>
+                <label for="full-name"><b>Add:{{i.address}} {{i.zipcode}} {{i.counrty}}</b></label>
+
+                <div></div>
+            </div>
+            {%endfor%}
+            <h1>Hotel Guest Registration Form</h1>
+            {%for i in guestdata%}
+            <div class="form-group">
+                <label for="full-name">Guest Name:<B>{{i.guestname}}</b></label>
+                <div></div>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:<b>{{i.guestemail}}</b></label>
+                <div></div>
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone Number:<b>{{i.guestphome}}</b></label>
+                <div></div>
+            </div>
+            <div class="form-group">
+                <label for="check-in">Check-in Date:<b>{{i.checkindate}}</b></label>
+                <div></div>
+            </div>
+            <div class="form-group">
+                <label for="check-out">Check-out Date:<b>{{i.checkoutdate}}</b></label>
+                <div></div>
+            </div>
+            <div class="form-group">
+                <label for="room-type">Total Rooms:<b>{{i.noofrooms}}</b></label>
+                <div></div>
+            </div>
+            <div class="form-group">
+                <label for="special-requests">Total Guest:<b>{{i.noofguest}}</b></label>
+                <div ></div>
+            </div>
+           
+            <div class="form-group">
+                <label for="special-requests"> Guest City:<b>{{i.guestcity}}</b></label>
+                <div ></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="special-requests"> Guest Country:<b>{{i.guestcountry}}</b></label>
+                <div ></div>
+            </div>
+            <div class="form-group">
+                <label for="special-requests"> Guest Visit Purpose:<b>{{i.purposeofvisit}}</b></label>
+                <div ></div>
+            </div>
+           
+            <div class="signature">
+                <label for="guest-signature">Guest Signature:</label>
+                <div></div>
+            </div>
+            {%endfor%}
+        </div>
+    </div>
+</body>
+</html>`;
+            var blob = new Blob([formHTML], { type: 'text/html' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'registration-form.html';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

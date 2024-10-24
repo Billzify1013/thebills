@@ -1,0 +1,391 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="row">
+    <div class="col-6">
+        <div class="card">
+            <h5 class="card-title m-2"> <i class='bx  bx-dna pb-1'></i> Event-Package <span class="badge bg-label-success me-1">Available</span></h5>
+            {%for data in eventdata %}
+            <div class="col-lg-12 ms-1 mb-3">
+                <div class="demo-inline-spacing mt-3">
+                  <ul class="list-group">
+                    <li class="list-group-item d-flex align-items-center">
+                      <i class="bx bx-tv me-2"></i>
+                      <span class="w-50">Event Name:</span>
+                      <span class="text  w-50 float-end"> {{data.eventname}}</span>
+                    </li>
+                    <li class="list-group-item d-flex align-items-center">
+                        <i class='bx bxs-info-circle me-2'></i>
+                      <span class="w-50">Event Description:</span>
+                      <span class="text  w-50 float-end"> {{data.description}}</span>
+                    </li>
+                    <li class="list-group-item d-flex align-items-center">
+                        <i class='bx bxs-wallet-alt me-2'></i>
+                      <span class="w-50">Event Price:</span>
+                       <span class="text  w-50 float-end"> {{data.eventprice}}</span>
+                    </li>
+                    <li class="list-group-item d-flex align-items-center">
+                      <i class="bx bx-purchase-tag-alt me-2"></i>
+                      <span class="w-50">Event Tax:</span>
+                       <span class="text  w-50 float-end">{{data.eventax}}</span>
+                    </li>
+                    <li class="list-group-item d-flex align-items-center">
+                        <i class='bx bxl-codepen me-2'></i>
+                      <span class="w-50">Event Service Tax Code:</span>
+                     <span class="text  w-50 float-end">{{data.Hsn_sac}}</span>
+                    </li>
+                    <li class="list-group-item d-flex align-items-center">
+                        <i class='bx bxs-ruler me-2'></i>
+                        <span class="w-50">Event Terms&Conditions: </span>
+                         <span class="text  w-50 float-end"> {{data.termscondition}}</span>
+                      </li>
+                  </ul>
+                </div>
+
+                
+              </div>
+              {%endfor%}
+              
+        </div>
+    </div>
+    <div class=" col-6">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">Customer Booking Form</h5>
+              <small class="text-muted float-end">Invoicing</small>
+            </div>
+            <div class="card-body">
+              <form action="{%url 'createeventbooking' %}" method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                  <label class="form-label" for="basic-icon-default-fullname">Full Name</label>
+                  <div class="input-group input-group-merge">
+                    <span id="basic-icon-default-fullname2" class="input-group-text"
+                      ><i class="bx bx-user"></i
+                    ></span>
+                    <input
+                      type="text"
+                      name="customername"
+                      class="form-control"
+                      id="basic-icon-default-fullname"
+                      placeholder="John Doe"
+                      aria-label="John Doe"
+                      aria-describedby="basic-icon-default-fullname2"
+                    />
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <label class="form-label" for="basic-icon-default-email">Email</label>
+                  <div class="input-group input-group-merge">
+                    <span class="input-group-text"><i class="bx bx-envelope"></i></span>
+                    <input
+                      type="text"
+                      name="customeremail"
+                      id="basic-icon-default-email"
+                      class="form-control"
+                      placeholder="john.doe"
+                      aria-label="john.doe"
+                      aria-describedby="basic-icon-default-email2"
+                    />
+                    <span id="basic-icon-default-email2" class="input-group-text">@example.com</span>
+                  </div>
+                  <div class="form-text">You can use letters, numbers & periods</div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label" for="basic-icon-default-phone">Phone No</label>
+                  <div class="input-group input-group-merge">
+                    <span id="basic-icon-default-phone2" class="input-group-text"
+                      ><i class="bx bx-phone"></i
+                    ></span>
+                    <input
+                      type="text"
+                      name="customerphone"
+                      id="basic-icon-default-phone"
+                      class="form-control phone-mask"
+                      placeholder="658 799 8941"
+                      aria-label="658 799 8941"
+                      aria-describedby="basic-icon-default-phone2"
+                    />
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <label class="form-label" for="basic-icon-default-message">Address</label>
+                  <div class="input-group input-group-merge">
+                    <span id="basic-icon-default-message2" class="input-group-text"
+                      ><i class="bx bx-comment"></i
+                    ></span>
+                    <textarea
+                      id="basic-icon-default-message"
+                      name="customeraddress"
+                      class="form-control"
+                      placeholder="Billing Address"
+                      aria-label="Billing Address"
+                      aria-describedby="basic-icon-default-message2"
+                    ></textarea>
+                  </div>
+                </div>
+
+                <div class="mb-3 ">
+                
+                  <select id="country" name="STATE" required placeholder="select States" class="select2 form-select">
+                    <option value="">Select States</option>
+                    <optgroup label="Indian States">
+                    <option value="andhra_pradesh">Andhra Pradesh</option>
+                    <option value="arunachal_pradesh">Arunachal Pradesh</option>
+                    <option value="assam">Assam</option>
+                    <option value="bihar">Bihar</option>
+                    <option value="chhattisgarh">Chhattisgarh</option>
+                    <option value="goa">Goa</option>
+                    <option value="gujarat">Gujarat</option>
+                    <option value="haryana">Haryana</option>
+                    <option value="himachal_pradesh">Himachal Pradesh</option>
+                    <option value="jharkhand">Jharkhand</option>
+                    <option value="karnataka">Karnataka</option>
+                    <option value="kerala">Kerala</option>
+                    <option value="madhya_pradesh">Madhya Pradesh</option>
+                    <option value="maharashtra">Maharashtra</option>
+                    <option value="manipur">Manipur</option>
+                    <option value="meghalaya">Meghalaya</option>
+                    <option value="mizoram">Mizoram</option>
+                    <option value="nagaland">Nagaland</option>
+                    <option value="odisha">Odisha</option>
+                    <option value="punjab">Punjab</option>
+                    <option value="rajasthan">Rajasthan</option>
+                    <option value="sikkim">Sikkim</option>
+                    <option value="tamil_nadu">Tamil Nadu</option>
+                    <option value="telangana">Telangana</option>
+                    <option value="tripura">Tripura</option>
+                    <option value="uttar_pradesh">Uttar Pradesh</option>
+                    <option value="uttarakhand">Uttarakhand</option>
+                    <option value="west_bengal">West Bengal</option>
+                </optgroup>
+                <optgroup label="Union Territories">
+                    <option value="andaman_and_nicobar_islands">Andaman and Nicobar Islands</option>
+                    <option value="chandigarh">Chandigarh</option>
+                    <option value="dadra_and_nagar_haveli_and_daman_and_diu">Dadra and Nagar Haveli and Daman and Diu</option>
+                    <option value="lakshadweep">Lakshadweep</option>
+                    <option value="delhi">Delhi</option>
+                    <option value="puducherry">Puducherry</option>
+                    <option value="ladakh">Ladakh</option>
+                    <option value="jammu_and_kashmir">Jammu and Kashmir</option>
+                </optgroup>
+                <optgroup label="Other Locations">
+                    <option value="foreign">Foreign</option>
+                </optgroup>
+              </select>
+    
+                </div>
+
+                <div class="col-md mb-1 mb-md-2">
+                  <div class="accordion mt-3" id="accordionExample">
+                    
+                    <div class="card accordion-item">
+                      <h2 class="accordion-header" id="headingTwo">
+                        <button
+                          type="button"
+                          class="accordion-button collapsed"
+                          data-bs-toggle="collapse"
+                          
+                          data-bs-target="#accordionTwo"
+                          aria-expanded="false"
+                          aria-controls="accordionTwo"
+                        >
+                          Customer Have Gstin Number;
+                        </button>
+                      </h2>
+                      <div
+                        id="accordionTwo"
+                        class="accordion-collapse collapse"
+                        aria-labelledby="headingTwo"
+                        data-bs-parent="#accordionExample"
+                      >
+                        <div class="accordion-body">
+                              
+                <div class="mb-3">
+                  <label class="form-label" for="basic-icon-default-company">Customer Gstin</label>
+                  <div class="input-group input-group-merge">
+                    <span id="basic-icon-default-company2" class="input-group-text"
+                      ><i class="bx bx-buildings"></i
+                    ></span>
+                    <input
+                      type="text"
+                      name="customergstin"
+                      id="basic-icon-default-company"
+                      class="form-control"
+                      placeholder="gstIn."
+                      aria-label="ACME Inc."
+                      aria-describedby="basic-icon-default-company2"
+                    />
+                  </div>
+                </div>
+                       </div>
+                      </div>
+                    </div>
+                    
+                  </div>
+
+                <label class="form-label mt-4" for="basic-icon-default-message">Payment Details</label>
+                <div class="row">{%for data in eventdata %}
+                  <div class="col-6 mb-3">
+                    <label class="form-label" for="basic-icon-default-phone">Total</label>
+                    <div class="input-group input-group-merge">
+                      <span id="basic-icon-default-phone2" class="input-group-text"
+                        >₹</span>
+                      <input
+                        type="text"
+                        name="totalamount"
+                        id="basic-icon-default-phone"
+                        class="form-control phone-mask"
+                        placeholder="{{data.eventprice}}"
+                        value="{{data.eventprice}}"
+                        aria-label=""
+                        aria-describedby="basic-icon-default-phone2"
+                      />
+                    </div>
+                    <input type="hidden" name="eventid" value="{{data.id}}" />
+                    {%endfor%}
+                  </div>
+
+                  <div class="col-6 mb-3">
+                    <label class="form-label" for="basic-icon-default-phone">Discount</label>
+                    <div class="input-group input-group-merge">
+                      <span id="basic-icon-default-phone2" class="input-group-text"
+                        >₹</span>
+                      <input
+                        type="text"
+                        value=0
+                        name="discountamount"
+                        id="discountamountinput"
+                        class="form-control phone-mask"
+                        placeholder=""
+                        aria-label=""
+                        aria-describedby="basic-icon-default-phone2"
+                      />
+                    </div>
+                  </div>
+
+
+                </div>
+
+
+                <div class="row">
+                  <div class="col-6 mb-3">
+                    <label class="form-label" for="basic-icon-default-phone">Sub-Total </label>
+                    <div class="input-group input-group-merge">
+                      <span id="basic-icon-default-phone2" class="input-group-text"
+                        >₹</span>
+                      <input
+                      readonly
+                        type="text"
+                        name="subtotal"
+                        id="subtotal"
+                        class="form-control phone-mask"
+                        placeholder=""
+                        aria-label=""
+                        aria-describedby="basic-icon-default-phone2"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="col-6 mb-3">
+                    <label class="form-label" for="basic-icon-default-phone">TaxAmount</label>
+                    <div class="input-group input-group-merge">
+                      <span id="basic-icon-default-phone2" class="input-group-text"
+                        >₹</span>
+                      <input
+                      readonly
+                        type="text"
+                        name="taxamount"
+                        id="taxamount"
+                        class="form-control phone-mask"
+                        placeholder=""
+                        aria-label=""
+                        aria-describedby="basic-icon-default-phone2"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-6 mb-3">
+                    <label class="form-label" for="basic-icon-default-phone">Advance Amount</label>
+                    <div class="input-group input-group-merge">
+                      <span id="basic-icon-default-phone2" class="input-group-text"
+                        >₹</span>
+                      <input
+                        type="text"
+                        name="advanceamount"
+                        value=0
+                        id="advanceamount"
+                        class="form-control phone-mask"
+                        placeholder=""
+                        aria-label=""
+                        aria-describedby="basic-icon-default-phone2"
+                      />
+                      <button type="button" class="btn btn-primary" onClick="calculateamount()"><i class='bx bx-calculator'></i></button>
+                    </div>
+                  </div>
+
+                  <div class="col-6 mb-3">
+                    <label class="form-label" for="basic-icon-default-phone">Remaining Amount</label>
+                    <div class="input-group input-group-merge">
+                      <span id="basic-icon-default-phone2" class="input-group-text"
+                        >₹</span>
+                      <input
+                      readonly
+                        type="text"
+                        name="reamainingamount"
+                        id="reamainingamountinput"
+                        class="form-control phone-mask"
+                        placeholder=""
+                        aria-label=""
+                        aria-describedby="basic-icon-default-phone2"
+                      />
+                    </div>
+                  </div>
+                                     {% comment %} calculation Amount {% endcomment %}
+                <div class="mb-3">
+                  <input type="checkbox" class="form-check-input" onClick="calculateamount()" required/>
+                  <label class="form-label" for="basic-icon-default-phone">Check-It To calculate Data. </label>
+                </div>
+                </div>
+                <input type="hidden" value="{{startdate}}" name="startdate"/>
+                <input type="hidden" value="{{enddate}}" name="enddate"/>
+
+                <button type="submit" class="btn btn-primary">Booked</button>
+              </form>
+            </div>
+          </div>
+        </div>
+    </div>
+
+</div>
+{%for data in eventdata %}
+<input type="hidden" id="subamountinput" value="{{data.eventprice}}" /><br>
+<input type="hidden" id="Taxrate" value="{{data.eventax.taxrate}}" /><br>
+ {%endfor%}
+<script>
+  //calculate reamaning amt and discout 
+function calculateamount() {
+  var subtotalamt = $('#subamountinput').val();
+  var taxrate = $('#Taxrate').val();
+  var discamt = $('#discountamountinput').val();
+  var advanceamount = $('#advanceamount').val();
+  
+  var  subtotaldisct = subtotalamt - discamt
+  var taxableamount = (subtotaldisct*taxrate)/100
+  var totalamt = subtotaldisct + taxableamount
+  //subtotal = subtotal - discamt
+  reamainingamt = totalamt  - advanceamount
+  console.log(reamainingamt)
+
+  $('#reamainingamountinput').val(reamainingamt);
+  $('#subtotal').val(subtotaldisct);
+  $('#taxamount').val(taxableamount);
+  
+}
+</script>
+
+{%endblock%}

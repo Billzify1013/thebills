@@ -1,0 +1,802 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h5>Hourly Room / CheckIn Form /Room no {{roomdata.room_name}}</h5>
+
+<div class="row">
+    <div class="col-xl-12">
+    
+      <div class="nav-align-top mb-4">
+        <ul class="nav nav-pills mb-3 nav-fill" role="tablist">
+          <li class="nav-item">
+            <button
+              type="button"
+              class="nav-link active"
+              role="tab"
+              onclick=""
+              data-bs-toggle="tab"
+              data-bs-target="#navs-pills-justified-home"
+              aria-controls="navs-pills-justified-home"
+              aria-selected="true"
+            ><i class="tf-icons bx bx-user"></i>
+              Personal Information of Guest
+            </button>
+          </li>
+          <li class="nav-item">
+            <button
+              type="button"
+              class="nav-link"
+               onclick=""
+              role="tab"
+              data-bs-toggle="tab"
+              data-bs-target="#navs-pills-justified-profile"
+              aria-controls="navs-pills-justified-profile"
+              aria-selected="false"
+            >
+             
+              <i class='bx bxl-paypal mb-1'></i>&nbsp;&nbsp;&nbsp;Payment Details & Billing</button>
+          </li>
+         
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane fade show active" id="navs-pills-justified-home" role="tabpanel">
+            <!--guest information-->
+            <div class="card-body">
+                <h5>Room No:{{roomdata.room_name}}</h5>
+                <h5>Room Type:{{roomdata.room_type}}</h5>
+              <h5 class="mb-5 mt-0">Personal Information of Guest</h5>
+            <form action="{% url 'hourlycheckinroom'  %}" method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+              <input type="hidden" name="roomid" value={{roomdata.id}} />
+              <input type="hidden" name="roomno" value={{roomdata.room_name}} />
+              <input type="hidden" name="tax" value={{roomdata.tax}} />
+              <div class="row">
+                  <div class="col-6">
+                      <div class="mb-3">
+                          <div class="input-group input-group-merge">
+                            <span id="basic-icon-default-fullname2" class="input-group-text"
+                              ><i class="bx bx-user"></i
+                            ></span>
+                            <input
+                              type="text"
+                              name = "guestname"
+                              class="form-control"
+                              id="basic-icon-default-fullname"
+                              placeholder="John Doe"
+                              aria-label="John Doe"
+                              aria-describedby="basic-icon-default-fullname2"
+                            />
+                          </div>
+                        </div>
+                  </div>
+                  <div class="col-6">
+                      <div class="mb-3">
+                          <div class="input-group input-group-merge">
+                            <span id="basic-icon-default-company2" class="input-group-text"
+                              ><i class="bx bx-phone"></i
+                                  ></span>
+                            <input
+                              type="tel"  pattern="[6-9][0-9]{9}"
+                              name = "guestphone"
+                              required
+                              id="basic-icon-default-company"
+                              class="form-control"
+                              placeholder="Phone"
+                              aria-label="ACME Inc."
+                              aria-describedby="basic-icon-default-company2"
+                            />
+                          </div>
+                        </div>
+                  </div>
+              </div>
+    
+    
+              <div class="row">
+                  <div class="col-3">
+                      <div class="mb-3 mt-3">
+                          <div class="input-group input-group-merge">
+                            <span class="input-group-text"><i class="bx bx-envelope"></i></span>
+                            <input
+                              type="email"
+                              name = "guestemail"
+                              id="basic-icon-default-email"
+                              class="form-control"
+                              placeholder="john.doe"
+                              aria-label="john.doe"
+                              aria-describedby="basic-icon-default-email2"
+                            />
+                            <span id="basic-icon-default-email2" class="input-group-text">@example.com</span>
+                          </div>
+                        </div>
+                  </div>
+
+
+                  
+              <div class="mb-3 col-md-3 mt-3">
+                
+                <select id="country" name="STATE" required placeholder="select States" class="select2 form-select">
+                  <option value="">Select States</option>
+                  <optgroup label="Indian States">
+                  <option value="andhra_pradesh">Andhra Pradesh</option>
+                  <option value="arunachal_pradesh">Arunachal Pradesh</option>
+                  <option value="assam">Assam</option>
+                  <option value="bihar">Bihar</option>
+                  <option value="chhattisgarh">Chhattisgarh</option>
+                  <option value="goa">Goa</option>
+                  <option value="gujarat">Gujarat</option>
+                  <option value="haryana">Haryana</option>
+                  <option value="himachal_pradesh">Himachal Pradesh</option>
+                  <option value="jharkhand">Jharkhand</option>
+                  <option value="karnataka">Karnataka</option>
+                  <option value="kerala">Kerala</option>
+                  <option value="madhya_pradesh">Madhya Pradesh</option>
+                  <option value="maharashtra">Maharashtra</option>
+                  <option value="manipur">Manipur</option>
+                  <option value="meghalaya">Meghalaya</option>
+                  <option value="mizoram">Mizoram</option>
+                  <option value="nagaland">Nagaland</option>
+                  <option value="odisha">Odisha</option>
+                  <option value="punjab">Punjab</option>
+                  <option value="rajasthan">Rajasthan</option>
+                  <option value="sikkim">Sikkim</option>
+                  <option value="tamil_nadu">Tamil Nadu</option>
+                  <option value="telangana">Telangana</option>
+                  <option value="tripura">Tripura</option>
+                  <option value="uttar_pradesh">Uttar Pradesh</option>
+                  <option value="uttarakhand">Uttarakhand</option>
+                  <option value="west_bengal">West Bengal</option>
+              </optgroup>
+              <optgroup label="Union Territories">
+                  <option value="andaman_and_nicobar_islands">Andaman and Nicobar Islands</option>
+                  <option value="chandigarh">Chandigarh</option>
+                  <option value="dadra_and_nagar_haveli_and_daman_and_diu">Dadra and Nagar Haveli and Daman and Diu</option>
+                  <option value="lakshadweep">Lakshadweep</option>
+                  <option value="delhi">Delhi</option>
+                  <option value="puducherry">Puducherry</option>
+                  <option value="ladakh">Ladakh</option>
+                  <option value="jammu_and_kashmir">Jammu and Kashmir</option>
+              </optgroup>
+              <optgroup label="Other Locations">
+                  <option value="foreign">Foreign</option>
+              </optgroup>
+            </select>
+  
+              </div>
+
+
+
+                  <div class="col-3">
+                      <div class="mb-3 mt-3">
+                          <div class="input-group input-group-merge">
+                            <span id="basic-icon-default-company2" class="input-group-text"
+                              ><i class='bx bxs-edit-location'></i></span>
+                            <input
+                              type="text"
+                              name = "guestcity"
+                              id="basic-icon-default-company"
+                              class="form-control"
+                              placeholder="City."
+                              aria-label="ACME Inc."
+                              aria-describedby="basic-icon-default-company2"
+                            />
+                          </div>
+                        </div>
+                  </div>
+    
+                  <div class="col-3">
+                      <div class="mb-3 mt-3">
+                          <div class="input-group input-group-merge">
+                            <span id="basic-icon-default-company2" class="input-group-text"
+                              ><i class='bx bxs-edit-location'></i></span>
+                            <input
+                              type="text"
+                              name = "guestcountry"
+                              id="basic-icon-default-company"
+                              class="form-control"
+                              placeholder="Country"
+                              aria-label="ACME Inc."
+                              aria-describedby="basic-icon-default-company2"
+                            />
+                          </div>
+                        </div>
+                  </div>
+              </div>
+    
+              <div class="row">
+                <script>
+                  document.addEventListener('DOMContentLoaded', (event) => {
+                      // Get today's date in the format yyyy-mm-dd
+                      const today = new Date();
+                      const year = today.getFullYear();
+                      const month = ('0' + (today.getMonth() + 1)).slice(-2); // Adding leading zero
+                      const day = ('0' + today.getDate()).slice(-2); // Adding leading zero
+          
+                      const formattedDate = `${year}-${month}-${day}`;
+                      // Set the value of the date inputs to today's date
+                      document.getElementById('checkindate').value = formattedDate;
+                  });
+              </script>
+                  <div class="col-6">
+                      <div class="mb-3">
+                          <div class="input-group input-group-merge">
+                            <span id="basic-icon-default-company2" class="input-group-text"
+                              >Check-IN</span>
+                            <input
+                              type="date"
+                              readonly
+                              name = "guestcheckindate"
+                              id="checkindate"
+                              class="form-control"
+                              
+                            />
+                          </div>
+                        </div>
+                  </div>
+                  
+                  <div class="col-6">
+                    <div class="mb-3 ">
+                        <div class="input-group input-group-merge">
+                          <span id="basic-icon-default-company2" class="input-group-text"
+                            ><i class='bx bx-time-five' ></i></span>
+                          
+                          <select class="form-control" name="hourlystatus" placeholder="Chek-In Time" required>
+                           
+                            <option value="3hours" >3 hour</option>
+                            <option value="6hours" >6 hour</option>
+                            <option value="9hours" >9 hour</option>
+                            <option value="12hours" >12 hour</option>
+                            
+                          </select>
+                        </div>
+                      </div>
+                </div>
+              </div>
+    
+              <div class="row">
+             
+    
+              <div class="col-4">
+                  <div class="mb-3 ">
+                      <div class="input-group input-group-merge">
+                        <span id="basic-icon-default-company2" class="input-group-text"
+                          ><i class='bx bxs-group'></i></span>
+                        <input
+                          type="text"
+                          required
+                          name = "noofguest"
+                          id="basic-icon-default-company"
+                          class="form-control"
+                          placeholder="Number of Guests"
+                          aria-label="ACME Inc."
+                          aria-describedby="basic-icon-default-company2"
+                        />
+                      </div>
+                    </div>
+              </div>
+              <div class="col-4">
+                  <div class="mb-3 ">
+                      <div class="input-group input-group-merge">
+                        <span id="basic-icon-default-company2" class="input-group-text"
+                          ><i class='bx bxs-user'></i></span>
+                        <input
+                          type="text" 
+                          name = "guestadults"
+                          required
+                          id="basic-icon-default-company"
+                          class="form-control"
+                          placeholder="Adults"
+                          aria-label="ACME Inc."
+                          aria-describedby="basic-icon-default-company2"
+                        />
+                      </div>
+                    </div>
+              </div>
+    
+              <div class="col-4">
+                  <div class="mb-3 ">
+                      <div class="input-group input-group-merge">
+                        <span id="basic-icon-default-company2" class="input-group-text"
+                          ><i class='bx bx-child'></i></span>
+                        <input
+                          type="text"
+                          name = "guestchildren"
+                          required
+                          id="basic-icon-default-company"
+                          class="form-control"
+                          placeholder="Children"
+                          aria-label="ACME Inc."
+                          aria-describedby="basic-icon-default-company2"
+                        />
+                      </div>
+                    </div>
+              </div>
+          
+          </div>
+    
+          <div class="row">
+              <div class="col-6">
+                  <div class="mb-3">
+                      <div class="input-group input-group-merge">
+                        <span id="basic-icon-default-company2" class="input-group-text"
+                          >Id-Front</span>
+                          <input
+                        type="file"
+                        name = "guestid"
+                        class="form-control"
+                        id="inputGroupFile04"
+                        aria-describedby="inputGroupFileAddon04"
+                        aria-label="Upload"
+                      />
+                      <button class="btn btn-outline-primary" type="button" id="inputGroupFileAddon04">Button</button>
+                      </div>
+                    </div>
+              </div>
+              <div class="col-6">
+                  <div class="mb-3">
+                    <div class="input-group input-group-merge">
+                      <span id="basic-icon-default-company2" class="input-group-text"
+                        ><i class='bx bx-child'></i></span>
+                      <input
+                        type="text"
+                        name = "Purpose"
+                        id="basic-icon-default-company"
+                        class="form-control"
+                        placeholder="Purpose of Visit"
+                        aria-label="ACME Inc."
+                        aria-describedby="basic-icon-default-company2"
+                      />
+                    </div>
+                    </div>
+                    {% comment %} <button type="button" class="btn btn-primary float-end" onclick="">Save Information & Continue</button> {% endcomment %}
+              </div>
+    
+          </div>
+                  
+              
+            
+          </div> 
+    
+          <!--guest information end-->
+    
+          </div>
+          <div class="tab-pane fade" id="navs-pills-justified-profile" role="tabpanel">
+            
+    
+            <!--payment information start-->
+            <div class="">
+            
+              <div class="row">
+                
+                <!-- Basic -->
+                <div class="col-md-12 mb-4">
+                  <div class="">
+                    
+                    <div class="row " >
+                      <h5 class="mb-1 mt-3 ms-4"><i class="tf-icons bx bx-message-square"></i>  Room Information </h5>
+                      <div class="col-4">
+                        
+                        <h5 class="card-header mb-1">Room No: <span class="text-success fw-bold">{{roomdata.room_name}} </span>
+                            <br><br>Category : <span class="text-success fw-bold" >{{roomdata.room_type}}</span>
+                        </h5>
+                      </div>
+    
+                      <div class="col-4">
+    
+                        <h5 class="card-header mb-1">Room Price: <span class="text-success fw-bold">{{roomdata.price}} </span>
+                          
+                          <input type="hidden" id="roomprice" value="{{i.price}}" />
+                          
+                        </h5>
+                      </div>
+    
+                      <div class="col-4">
+    
+                        <h5 class="card-header mb-1">Room Tax: <span class="text-success fw-bold">{{roomdata.tax.taxrate}} %</span>
+                          <br><br>Total amount incl tax and days: <span class="text-success fw-bold" id="totalamounttext"></span>
+                        </h5>
+                      </div>
+    
+                    </div>
+    
+    
+                    <div class="row " >
+                      <!--payment form-->
+                      
+                      <h5 class="mb-1 mt-3 ms-4"><i class='bx bxl-paypal mb-1'></i>Payment Details </h5>
+                      
+                      <div class="row mt-4" >
+                        <div class="col-3 ms-4 ">
+                            <span class="text" id="basic-addon11">Enter Amount ₹</span>
+                        <div class="input-group">
+                          <input
+                            type="number"
+                            name = "Vendortotalamount"
+                            readonly
+                            id="subtotal"
+                            class="form-control"
+                            placeholder="Enter Price"
+                            value="{{roomdata.price}}"
+                            aria-label="Enter Given Room Pricce"
+                            aria-describedby="basic-addon11"
+                          />
+                          
+                        </div>
+                      </div>
+    
+                      <div class="col-4">
+    
+                        
+                        <span class="text" id="basic-addon11">Discount</span>
+                        <div class="input-group">
+                          
+                          <input
+                            type="text"
+                            value="0"
+                            name="discount"
+                            id="discountamount"
+                            class="form-control"
+                            placeholder="Enter Discount Amount"
+                            aria-label="Text input with segmented dropdown button"
+                          />
+                        </div>
+                      
+                      </div>
+    
+                      <div class="col-3">
+                        <div class="input-group mt-4">
+                          <span class="input-group-text" id="basic-addon11">Total ₹</span>
+                          <input
+                            type="number"
+                            name="total"
+                            class="form-control"
+                            placeholder="TOTAL AMOUNT"
+                            id="totalamount"
+                            value=""
+                            readonly
+                            aria-label="Username"
+                            aria-describedby="basic-addon11"
+                          />
+                        </div>
+                      </div>
+                  
+
+                    
+                     
+    
+                    </div><div class="row " >
+                        <input type="hidden" id="new" name="news"/>
+                        <span class="text ms-4 mt-3 mb-3">
+                            <input class="form-check-input" style="font-size:20px"  type="checkbox" onclick="ready()" id=""  required/>
+                        <span class="mt-5">Click To Get Correct Amount Data.</span> </span>
+                  
+                        <input type="hidden" id="taxamt" value="{{roomdata.tax.taxrate}}" />
+                        
+                        <script type="text/javascript">
+                            function ready() {
+                                var useramount = document.getElementById('subtotal').value;
+                                var taxamt = document.getElementById('taxamt').value;
+                                var discountamount = document.getElementById('discountamount').value;
+                                var total_amount = useramount - discountamount
+                                tax_amount = total_amount*taxamt/100
+                            total_amount = total_amount + tax_amount
+                            console.log(total_amount)
+                            document.getElementById('totalamount').value=total_amount;
+                                console.log("yes",useramount,taxamt,discountamount)
+                            }
+                        </script>
+                  
+                    </div>
+    
+                  <div class="row ms-2" >
+                    <p class="demo-inline-spacing ">
+                      <a
+                        class="btn btn-primary me-1"
+                        data-bs-toggle="collapse"
+                        href="#multiCollapseExample2"
+                        role="button"
+                        aria-expanded="false"
+                        aria-controls="multiCollapseExample2"
+                        >Add More Guest</a
+                      >
+                      
+                    </p>
+    
+                    <div class="col-12 col-md-6  mb-md-0">
+                      <div class="collapse multi-collapse" id="multiCollapseExample2">
+                          <div class="input-group">
+                            <div class="row">
+                              <div class="col mb-3">
+                                <label for="nameBackdrop" class="form-label">Guest Name</label>
+                                <input
+                                  type="text"
+                                  name="moreguestname"
+                                  id="nameBackdrop"
+                                  class="form-control"
+                                  placeholder="Enter Name"
+                                />
+                              </div>
+    
+                              <div class="col mb-3">
+                                <label for="nameBackdrop" class="form-label">Guest Phone</label>
+                                <input
+                                  type="number"
+                                  name="moreguestphone"
+                                  id="nameBackdrop"
+                                  class="form-control"
+                                  placeholder="Enter Phone"
+                                />
+                              </div>
+    
+                              <div class="col mb-3">
+                                <label for="nameBackdrop" class="form-label">Guest Address</label>
+                                <input
+                                  type="text"
+                                  name="moreguestaddress"
+                                  id="nameBackdrop"
+                                  class="form-control"
+                                  placeholder="Enter Address"
+                                />
+                              </div>
+    
+                            </div>
+                            
+                              
+                            <input class="form-check-input ms-2"  type="checkbox"  name="checkmoredatastatus"/>&nbsp;&nbsp;&nbsp;
+                              <p>If You Want To Save Data So Please Active The CheckBox.</p>
+                            </div>
+                      </div>
+                      <div class="row">
+                        <div class="col mb-3 w-50">
+                          <label for="nameBackdrop" class="form-label">Payment</label>
+                          <select class="form-control" name="paidstatus" id="selectValuepaid" onchange="showpaymentstatus()" placeholder="Select Payment" required>
+                            <option  value="Unpaid">Unpaid</option>  
+                            <option  value="Paid">Paid</option>
+                              
+                          </select>
+                        </div>
+      
+                        <div class="col mb-3 w-50" style="display:none" id="selectcashdiv">
+                          <label for="nameBackdrop" class="form-label">Payment Mode</label>
+                          <select class="form-control" name="paymentstatus"  id="selectValue" onchange="showinput()" placeholder="Select Payment" required>
+                              <option  value="cash">Cash</option>
+                              <option  value="online">Online</option>
+                              <option  value="Partly">Partially</option>
+                          </select>
+                        </div>
+                        <div class="col w-50 " id="inputcash" style="display:none">
+                          <label for="nameBackdrop" class="form-label">Cash Amount</label>
+                          <input type="number" class="form-control" name="cashamount" id="inputcash" placeholder="Cash Amount" />
+                          
+                      </div>
+                        <div class="col  w-50"  id="inputonline" style="display:none">
+                          <label for="nameBackdrop" class="form-label">Online  </label>
+                          <input type="number" class="form-control" name="onlineamount" id="inputonline" placeholder="Online Amount" />
+                        </div>
+                      </div>
+                  </div>
+                      
+                  
+                </div>
+                
+                <script>
+                  function showpaymentstatus() {
+                    var selectValuepaid = document.getElementById('selectValuepaid').value;
+                    if (selectValuepaid == "Paid"){
+                      document.getElementById('selectcashdiv').style.display="block";
+                      }
+                      if (selectValuepaid == "Unpaid"){
+                        document.getElementById('selectcashdiv').style.display="none";
+                        document.getElementById('inputcash').style.display="none";
+                      document.getElementById('inputonline').style.display="none";
+                        }
+                  }
+    
+    
+                  function showinput() {
+                      var selectElement = document.getElementById('selectValue');
+                      var selectedValue = selectElement.value;
+                      document.getElementById('inputcash').style.display="none";
+                      document.getElementById('inputonline').style.display="none";
+                      if (selectedValue == "Partly"){
+                      document.getElementById('inputcash').style.display="block";
+                      document.getElementById('inputonline').style.display="block";
+                      document.getElementById('nameBackdrop').style.display="block";
+                      }
+                  };
+                </script>
+                
+    
+                  <div class="row">
+    
+                    <div class="col-3">
+                      <button type="submit" class="btn btn-primary mt-4 mb-4 ms-4 w-100" > Booking Done</button>
+                    </div>
+                    
+                    
+                   
+    
+                  </div>
+                </form>
+                  
+                </div>
+            </div>
+        </div>
+     
+    </div>
+  </div>
+</div>
+</div>
+</div>
+{%if loyltydata%}
+<!--loylty data here-->
+<div class="row    mt-4" style="height:450px">
+  <div class="col-4 m-4 card">
+    
+    <label for="nameBackdrop" class="form-label ms-5 mt-5 ">Guest Phone Number To Check Loyalty Data</label>
+    <div class="input-group input-group-merge w-75 mt-2 ms-5">
+      <span id="basic-icon-default-company2" class="input-group-text"
+        ><i class="bx bx-phone"></i
+            ></span>
+      <input
+        type="number"
+        name = "guestphone"
+        id="phoneguest"
+        class="form-control "
+        placeholder="Phone"
+        aria-label="ACME Inc."
+        aria-describedby="basic-icon-default-company2"
+      />
+    </div>
+    
+    <button id="btnsavedate" class="btn btn-primary w-75 mt-4 ms-5">Check Loyalty Data</button>
+    <p class="text m-2 mt-5">
+      Please wait while it displays the loyalty data. If the information is incorrect, refresh the page and try again. </p>
+    <p class="text text-danger m-2">After adding loyalty data, please avoid refreshing the page or going back. Make sure all fields are filled before adding loyalty data, as it will be applied to discounts automatically and removed from loyalty records.
+    </p>
+  </div>
+  <div class="col-7 m-1 card">
+    
+     <!-- List group Icons -->
+     <div class="col-lg-12">
+      <div class="demo-inline-spacing mt-3">
+        <ul class="list-group">
+          <li class="list-group-item d-flex align-items-center">
+            <i class='bx bx-street-view'></i>
+            Guest Name  <span class="badge ms-5 w-25 bg-label-primary me-1" id="name"></span>
+          </li>
+          <li class="list-group-item d-flex align-items-center">
+            <i class="bx bx-phone me-2"></i
+              >
+            Guest Contact  <span class="badge ms-4 me-1 w-25 bg-label-primary me-1" id="contact"></span>
+          </li>
+          
+          <li class="list-group-item d-flex align-items-center">
+            <i class="bx bx-purchase-tag-alt me-2"></i>
+            loyalty Points In ₹ 
+            <span class="badge w-25 ms-2 bg-label-primary me-1" id="lyltyamount"></span>
+            <span class="badge w-25 ms-2 bg-label-danger me-1" id="lyltyamountdelete"></span>
+          </li>
+          
+          <!-- Error Display -->
+          <div class="text-danger" id="errorshowajax"></div>
+          <div class="row">
+            <span>
+            <i class='bx bxs-cube-alt m-2'></i><b>Add Discount</b> :Add automatically loyalty Amount  Data To Discount</span>
+            <span><i class='bx bxs-cube-alt m-2'></i>
+              <b>Data Redeem:</b>If you want to use these loyalty points, click the "Add Discount" button and check loyalty Ponits Added to Discount Amount and Applied on amount, After that click "Redeem" button to remove the loyalty data from the guest's contact. After that, submit the customer form.
+            </span>
+          <button class="btn btn-primary m-3 w-25" onClick="adddiscount()">Add Discount </button>
+          <button class="btn btn-success m-3 w-25" id="Deleteloyltydata">Points Redeem</button>
+          </div>
+        </ul>
+      </div>
+    </div>
+    <!--/ List group Icons -->
+
+
+  </div>
+  <!--end here-->
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script>
+    $("#btnsavedate").click(function(){
+        let phoneno = $("#phoneguest").val();
+        console.log(phoneno);
+  
+        // Clear previous data and error messages
+        $("#name").empty();
+        $("#contact").empty();
+        $("#loyltypoint").empty();
+        $("#lyltyamount").empty();
+        $("#loyltyid").val('');
+        $('#errorshowajax').empty();
+        $('#lyltyamountdelete').empty();
+        $.ajax ({
+          type: "POST",
+          url: "/getloyltydataajax",
+          data: {
+              Mobile: phoneno,
+          },
+          success: function (data) {
+            if (data.error) {
+                $('#errorshowajax').html('<p>Error: ' + data.error + '</p>');
+            } else {
+                var name, id, contact, loyltypoints;
+                // Assuming data is an array of objects
+                data.forEach(function(item) {
+                  name = item.guest_name; // Assign guest_name to name variable
+                  id = item.id; // Assign id to id variable
+                  contact = item.guest_contact; // Assign guest_contact to contact variable
+                  loyltypoints = item.loylty_point; // Assign loylty_point to loyltypoints variable
+                });
+                
+                console.log(name);
+                $("#name").html(name);
+                $("#contact").html(contact);
+                $("#loyltypoint").html(loyltypoints);
+                $("#lyltyamount").html(loyltypoints);
+                $("#loyltyid").val(id);
+                $("#discountamount").val(loyltypoints);
+            }
+          },
+          error: function(xhr, status, error) {
+            $('#errorshowajax').html('<p>Error: ' + xhr.statusText + '</p>');
+          }
+        });
+    });
+
+
+
+    //delete loylty data 
+    $("#Deleteloyltydata").click(function(){
+      let phoneno = $("#phoneguest").val();
+      console.log(phoneno);
+
+      // Clear previous data and error messages
+      $("#name").empty();
+      $("#contact").empty();
+      $("#loyltypoint").empty();
+      $("#lyltyamount").empty();
+      $("#loyltyid").val('');
+      $('#errorshowajax').empty();
+      console.log("worked")
+      $.ajax ({
+        type: "POST",
+        url: "/deleteloyltyajaxdata",
+        data: {
+            Mobile: phoneno,
+        },
+        success: function (data) {
+          if (data.error) {
+              $('#errorshowajax').html('<p>Error: ' + data.error + '</p>');
+          } else {
+              var name, id, contact, loyltypoints;
+              // Assuming data is an array of objects
+              data.forEach(function(item) {
+                name = item.guest_name; // Assign guest_name to name variable
+                id = item.id; // Assign id to id variable
+                contact = item.guest_contact; // Assign guest_contact to contact variable
+                loyltypoints = item.loylty_point; // Assign loylty_point to loyltypoints variable
+              });
+              
+              console.log(name);
+              $("#name").html(name);
+              $("#contact").html(contact);
+              $("#loyltypoint").html(loyltypoints);
+              $("#lyltyamountdelete").html(loyltypoints);
+              $("#discountamount").val(loyltypoints);
+          }
+        },
+        error: function(xhr, status, error) {
+          $('#errorshowajax').html('<p>Error: ' + xhr.statusText + '</p>');
+        }
+      });
+  });
+  </script>
+  
+  {%endif%}
+</div>
+</div>
+</div>
+</div>
+{%endblock%}

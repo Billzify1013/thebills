@@ -1,0 +1,363 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%endif%}
+</div>
+{%endfor%}
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 1000);
+      setTimeout(function() {
+        $("#danger-alert").fadeTo(500, 0).slideUp(500, function(){
+            $(this).remove(); 
+        });
+    }, 5000);
+      
+  });
+</script>
+{%endif%}
+
+
+<div class="card" >
+<button
+                      class="btn btn-primary m-4 mb-4 w-25 justify-content-end float-end"
+                      data-bs-toggle="collapse"
+                      href="#multiCollapseExample1"
+                      role="button"
+                      aria-expanded="false"
+                      aria-controls="multiCollapseExample1"
+
+                      ><i class="bx bx-search fs-4 lh-0"></i> Search... Guest Data!</button>
+<div class="collapse multi-collapse" id="multiCollapseExample1">
+<form action="{% url 'searchguestdataadvance' %}" method="post">
+  {% csrf_token %}
+  <div class="row m-2">
+    <div class="mb-3 ms-4 col-md-2">
+      <label for="firstName" class="form-label">Guest Name</label>
+      <input
+        class="form-control"
+        type="text"
+        id="firstName"
+        name="guestname"
+        placeholder="John"
+        
+      />
+    </div>
+
+    <div class="mb-3 col-md-2">
+      <label for="firstName" class="form-label">Guest Phone</label>
+      <input
+        class="form-control"
+        type="text"
+        id="firstName"
+        name="guestphone"
+        placeholder="9178XXXX13"
+        
+        
+      />
+    </div>
+
+    <div class="mb-3 col-md-2">
+      <label for="firstName" class="form-label">CheckIn Date</label>
+      <input
+        class="form-control"
+        type="date"
+        id="firstName"
+        name="checkindate"
+        value=""
+        
+        
+      />
+    </div>
+
+    <div class="mb-3 col-md-2">
+      <label for="firstName" class="form-label">CheckOut Date</label>
+      <input
+        class="form-control"
+        type="date"
+        id="firstName"
+        name="checkoutdate"
+        value="John"
+        
+        
+      />
+    </div>
+
+    <button type="submit" class=" col-md-3 mt-4 h-50 btn btn-primary">Search...</button>
+
+  </div>
+</form>
+
+</div>
+</div></div></div>
+<div class="container" >
+
+  {%if advancersoomdata%}
+ <!-- Bootstrap Table with Header - Light -->
+ <div class="card mt-4"  >
+    <h5 class="card-header" >Searched Data</h5>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead class="table-light">
+          <tr>
+            <th>Guest name</th>
+            <th>Phone</th>
+            <th>BookingFrom</th>
+            <th>Stay Dates</th>
+            <th>Total Amount</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+
+            {%for data in advancersoomdata%}
+          <tr>
+            <td><i class="fab fa-angular fa-lg text-danger"></i> <strong>{{data.bookingguest}}</strong></td>
+            <td>{{data.bookingguestphone}}</td>
+            <td>
+              {{data.channal.channalname}}
+            </td>
+              <td><span class="badge bg-label-primary me-1">{{data.bookingdate}}-{{data.checkoutdate}}</span></td>
+        
+            <td>{{data.total_amount}}</td>
+            <td>
+              {%if data.checkinstatus is True %}
+              <span class="badge bg-label-success text-center">Done</span>
+              {%else%}
+              <span class="badge bg-label-warning text-center">Panding</span>
+              {%endif%}
+            </td>
+            <td>
+                
+                      <button
+                        type="button"
+                        class="btn  dropdown-toggle hide-arrow"
+                        data-bs-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        
+                      >
+                      <i class="bx bx-dots-vertical-rounded"></i>
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'advancebookingdetails' id=data.id %}"><i class="bx bx-edit-alt me-1"></i>Details</a></li>
+                        <li><a class="dropdown-item" href="{% url 'advancebookingdelete' id=data.id %}"><i class="bx bx-trash me-1"></i> Delete</a></li>
+                        
+                      </ul>
+                    
+            </td>
+          </tr>
+          {%endfor%}
+   
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Bootstrap Table with Header - Light -->
+
+{%endif%}</div>
+
+<div class="container">
+  {%if filtered_orders%}
+ <!-- Bootstrap Table with Header - Light -->
+ <div class="card mt-4">
+  <h5 class="card-header">Advance Booking Today Arriwals </h5>
+  <div class="table-responsive text-nowrap">
+    <table class="table">
+      <thead class="table-light">
+        <tr>
+          <th>Guest name</th>
+          <th>Phone</th>
+          <th>Booking From</th>
+          <th>Stay Dates</th>
+          <th>Total Amount</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody class="table-border-bottom-0">
+
+          {%for data in filtered_orders%}
+        <tr>
+          <td><i class="fab fa-angular fa-lg text-danger "></i> <strong>{{data.bookingguest}}</strong></td>
+          <td>{{data.bookingguestphone}}</td>
+          <td>
+            {{data.channal.channalname}}
+          </td>
+          <td><span class="badge bg-label-primary me-1">{{data.bookingdate}}-{{data.checkoutdate}}</span></td>
+        
+          <td><b>{{data.total_amount}}</b></td>
+          <td>
+            {%if data.checkinstatus is True %}
+            <span class="badge bg-label-success text-center">Done</span>
+            {%else%}
+            <span class="badge bg-label-warning text-center">Pending</span>
+            {%endif%}
+          </td>
+          
+          <td>
+              
+                    <button
+                      type="button"
+                      class="btn  dropdown-toggle hide-arrow"
+                      data-bs-toggle="dropdown"
+                      aria-haspopup="true"
+                      aria-expanded="false"
+                      
+                    >
+                    <i class="bx bx-dots-vertical-rounded"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="{% url 'advancebookingdetails' id=data.id %}"><i class="bx bx-edit-alt me-1"></i>Details</a></li>
+                      <li><a class="dropdown-item" href="{% url 'advancebookingdelete' id=data.id %}"><i class="bx bx-trash me-1"></i> Delete</a></li>
+                      
+                    </ul>
+                  
+          </td>
+        </tr>
+        {%endfor%}
+ 
+      
+      </tbody>
+    </table>
+  </div>
+</div>
+<!-- Bootstrap Table with Header - Light -->
+ {%endif%}
+</div>
+{%if advanceroomdata%}
+<div class="container" >
+ <!-- Bootstrap Table with Header - Light -->
+ <div class="card mt-4">
+    <h5 class="card-header">Advance Booking History</h5>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead class="table-light">
+          <tr>
+            <th>Guest name</th>
+            <th>Phone</th>
+            <th>Booking From</th>
+            <th>Stay Dates</th>
+            <th>Total Amount</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+
+            {%for data in advanceroomdata%}
+          <tr>
+            <td><i class="fab fa-angular fa-lg text-danger"></i> <strong>{{data.bookingguest}}</strong></td>
+            <td>{{data.bookingguestphone}}</td>
+            <td>
+              {{data.channal.channalname}}
+            </td>
+              <td><span class="badge bg-label-primary me-1">{{data.bookingdate}}-{{data.checkoutdate}}</span></td>
+        
+            <td>{{data.total_amount}}</td>
+            <td>
+              {%if data.checkinstatus is True %}
+              <span class="badge bg-label-success text-center">Done</span>
+              {%else%}
+              <span class="badge bg-label-warning text-center">Pending</span>
+              {%endif%}
+            </td>
+            <td>
+                
+                      <button
+                        type="button"
+                        class="btn  dropdown-toggle hide-arrow"
+                        data-bs-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        
+                      >
+                      <i class="bx bx-dots-vertical-rounded"></i>
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'advancebookingdetails' id=data.id %}"><i class="bx bx-edit-alt me-1"></i>Details</a></li>
+                        <li><a class="dropdown-item" href="{% url 'advancebookingdelete' id=data.id %}"><i class="bx bx-trash me-1"></i> Delete</a></li>
+                        
+                      </ul>
+                    
+            </td>
+          </tr>
+          {%endfor%}
+   
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Bootstrap Table with Header - Light -->
+</div>
+{%endif%}
+  
+<!--pagination start here-->
+
+<nav aria-label="Page navigation">
+  {% if advanceroomdata.has_other_pages %}
+  <ul class="pagination justify-content-center  mt-5 ">
+      {% if advanceroomdata.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ advanceroomdata.previous_page_number }}">Previous</a></li>
+      {% else %}
+      <li class="page-item disabled"><span>&laquo;</span></li>
+      {% endif %}
+      {% for i in advanceroomdata.paginator.page_range %}
+          {% if i >= advanceroomdata.number|add:'-5' and i <= advanceroomdata.number|add:'5' %}
+              {% if advanceroomdata.number == i %}
+              <li class="page-item active">
+                  <span class="page-link">{{ i }}</span>
+              </li>
+              {% else %}
+              <li class="page-item">
+                  <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+              </li>
+              {% endif %}
+          {% endif %}
+      {% endfor %}
+      {% if advanceroomdata.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ advanceroomdata.next_page_number }}">Next</a></li>
+      {% else %}
+      <li class="page-item disabled"><span>&raquo;</span></li>
+      {% endif %}
+  </ul>
+  {% endif %}
+</nav>
+
+</div>
+</div>
+</div>
+
+
+
+
+   
+   
+
+        
+
+{% endblock %}

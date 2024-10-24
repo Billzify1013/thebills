@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+{% block content %}
+{% load static %}
+
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <a href="{% url 'billingplanpage' %}" style="text-decoration:none;">
+    <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div></a>
+    {%endif%}
+</div>
+{%endfor%}
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 1000);
+  });
+</script>
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#danger-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 3000);
+  });
+</script>
+{%endif%} 
+  <h5>Today Arrivals/Today CheckIn Rooms</h5>
+
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="row">
+                {%for i in advancebookdata%}
+                {%if i.roomno.checkin == 1 or i.roomno.checkin == 2%}
+                 <div class="col-2 ">
+            
+                    <a href="#" title="guest stay in room please checkout after do booking checkin" style="text-decoration:none " >
+                    <div class="card mt-3">
+                    <div class="card-body ">
+                      <center>
+                        <i class='bx bxs-store fs-center mb-2 text-danger' style="font-size:21px" ></i>
+                        <h4 class="card-title   mt- text-center">{{i.roomno.room_name}}</h4>
+                        {% comment %} <span class="badge bg-label-primary me-1">{{i.bookingguest}}</span>
+                        <span class="badge bg-label-primary mt-1">{{i.bookingguestphone}}</span>
+                        <span class="badge bg-label-primary mt-1">{{i.channal.channalname}}</span> {% endcomment %}
+                        <span>Guest Stay In This Rooms</span>
+                      </center>
+                           
+                    </div>
+                </div></a>
+                </div>  
+                <!--js of room no set to pop up button-->
+
+        
+        <!--js of discount button end-->
+
+                {%elif i.partly_checkin == True%}
+                <div class="col-2 ">
+            
+                  <a href="#" style="text-decoration:none  "data-bs-toggle="modal"
+                  data-bs-target="#basicModal" onclick="getroomnumberpopup({{i.roomno.room_name}}, {{i.id}})">
+                  <div class="card mt-3">
+                  <div class="card-body ">
+                    <center>
+                      <i class='bx bxs-store fs-center mb-2 text-primary' style="font-size:21px" ></i>
+                      <h4 class="card-title   mt- text-center">{{i.roomno.room_name}}</h4>
+                      <span class="badge bg-label-primary me-1">{{i.bookingguest}}</span>
+                      <span class="badge bg-label-primary mt-1">{{i.bookingguestphone}}</span>
+                      <span class="badge bg-label-primary mt-1">{{i.channal.channalname}}</span>
+                    </center>
+                         
+                  </div>
+              </div></a>
+              </div>
+                {%else%}
+                <div class="col-2 ">
+            
+                  <a href="{% url 'openroomclickformtodayarriwalspage' id=i.id %}" style="text-decoration:none " >
+                  <div class="card mt-3">
+                  <div class="card-body ">
+                      <center><i class='bx bxs-store fs-center mb-2 text-success' style="font-size:21px" ></i>
+                      <h4 class="card-title   mt- text-center">{{i.roomno.room_name}}</h4>
+                      <span class="badge bg-label-success me-1">{{i.bookingguest}}</span>
+                      <span class="badge bg-label-success mt-1">{{i.bookingguestphone}}</span>
+                      <span class="badge bg-label-success mt-1">{{i.channal.channalname}}</span>
+                    </center>
+                      
+                  </div>
+              </div></a>
+              </div>
+                {%endif%}
+                 {%endfor%}
+            </div>
+            </div>
+            <script type="text/javascript">
+              function getroomnumberpopup(e ,v) {
+                var room_no = e
+                var guest_id  = v
+                document.getElementById('roomnoid').innerHTML = e;
+                document.getElementById('roombooknoidinput').value = v;
+                document.getElementById('roomnoidinput').value = e;
+                console.log(guest_id)
+              }
+            </script>
+
+             <!-- Bootstrap modals -->
+             
+                      <!-- Modal -->
+                      <div class="modal fade" id="basicModal" tabindex="-1" aria-hidden="true">
+                        <form action="{% url 'chekinonebyoneguestdata' %}" method="post" >
+                          {% csrf_token %}
+                          
+                        <div class="modal-dialog" role="document">
+                          <div class="modal-content">
+                            <input type="hidden" id="roombooknoidinput" name="roombookadvanceiddata" />
+                            <input type="hidden" id="roomnoidinput" name="roomnodata" />
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="exampleModalLabel1">Room No:<span id="roomnoid"></span></h5>
+                              <button
+                                type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"
+                              ></button>
+                            </div>
+                            <div class="modal-body">
+                              <div class="row">
+                                <div class="col mb-3">
+                                  <label for="nameBasic" class="form-label">Name</label>
+                                  <input type="text"  class="form-control" name="name" placeholder="Enter Name" />
+                                </div>
+                              </div>
+                              <div class="row g-2">
+                                <div class="col mb-0">
+                                  <label for="number" class="form-label">Phone</label>
+                                  <input type="text" id="emailBasic" class="form-control" name="phone" placeholder="xxxxxxxxx" />
+                                </div>
+                                <div class="col mb-0">
+                                  <label for="dobBasic" class="form-label">Address</label>
+                                  <input type="text" id="dobBasic" class="form-control" name="address" placeholder="Enter Full Address" />
+                                </div>
+                              </div>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                Close
+                              </button>
+                              <button type="submit" class="btn btn-primary">Save changes</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+
+               
+                
+            </div>
+
+  
+
+<!-- Bottom Offcanvas -->
+<div class="col-lg-3 col-md-6">
+  
+    <div class="mt-3">
+     
+      <div
+        class="offcanvas offcanvas-end"
+        data-bs-scroll="true"
+        data-bs-backdrop="false"
+        tabindex="-1"
+        id="offcanvasBottom"
+        style="width:700px"
+        aria-labelledby="offcanvasBottomLabel"
+      >
+        <div class="offcanvas-header">
+          <h5 id="offcanvasBottomLabel" class="offcanvas-title">Offcanvas Bottom</h5>
+          <button
+            type="button"
+            class="btn-close text-reset"
+            data-bs-dismiss="offcanvas"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="offcanvas-body">
+          
+            {%for i in advancebookdata%}
+                {{i.id}} {{i.roomno.room_name}}
+            {%endfor%}
+
+
+          <button type="button" class="btn btn-primary me-2">Continue</button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="offcanvas">
+            Cancel
+          </button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+
+
+
+
+{%endblock%}

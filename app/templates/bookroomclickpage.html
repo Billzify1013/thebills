@@ -1,0 +1,1528 @@
+{% load static %}
+<html
+  lang="en"
+  class="light-style layout-menu-fixed"
+  dir="ltr"
+  data-theme="theme-default"
+  data-assets-path="{% static 'undercss/assets/'%}"
+  data-template="vertical-menu-template-free"
+>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+
+    <title>BILLZIFY</title>
+
+    <meta name="description" content="" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'undercss/assets/img/favicon/1.PNG'%}" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icons. Uncomment required icon fonts -->
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/fonts/boxicons.css'%}" />
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/css/core.css'%}" class="template-customizer-core-css'%}" />
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/css/theme-default.css'%}" class="template-customizer-theme-css'%}" />
+    <link rel="stylesheet" href="{% static 'undercss/assets/css/demo.css'%}" />
+
+    <!-- Vendors CSS -->
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css'%}" />
+
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/libs/apex-charts/apex-charts.css'%}" />
+
+    {% comment %} <link rel="stylesheet" href="{% static 'undercss/assets/vendor/libs/spinkit/spinkit.css'%}" /> {% endcomment %}
+
+    <!-- Page CSS -->
+
+    <!-- Helpers -->
+    <script src="{% static 'undercss/assets/vendor/js/helpers.js'%}"></script>
+
+    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+    <script src="{% static 'undercss/assets/js/config.js'%}"></script>
+  </head>
+
+  <style>
+    #dd1::-webkit-scrollbar {
+      width: 2px;
+    }
+   #dd1::-webkit-scrollbar-track {
+      background-color: none;
+    }
+    #dd1::-webkit-scrollbar-thumb {
+      background-color:#696cff;
+      border-radius:10px;
+    }
+  </style>
+
+  <body>
+
+<div class="content-wrapper">
+    <!--header start-->
+        <div class="container-xxl flex-grow-1 container-p-y">
+
+            <div class="col-xl m-25">
+                <div class="card mb-4">
+                  <div class="card-header d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0">Room no : <span class="text-success">{{id}}</span></h5>
+                    <input type=button value="Back" class="btn btn-outline-warning" onClick="javascript:history.go(-1);">
+                    
+                  </div></div></div>
+
+    <!--header start-->
+
+<div class="row">
+
+
+<div class="content-wrapper">
+  <!--header start-->
+      <div class="container-xxl flex-grow-1 container-p-y">
+        <div class="row">
+<div class="col-xl-12">
+
+  <div class="nav-align-top mb-4">
+    <ul class="nav nav-pills mb-3 nav-fill" role="tablist">
+      <li class="nav-item">
+        <button
+          type="button"
+          class="nav-link active"
+          role="tab"
+          onclick="adddayscalculation()"
+          data-bs-toggle="tab"
+          data-bs-target="#navs-pills-justified-home"
+          aria-controls="navs-pills-justified-home"
+          aria-selected="true"
+        ><i class="tf-icons bx bx-user"></i>
+          Personal Information of Guest
+        </button>
+      </li>
+      <li class="nav-item">
+        <button
+          type="button"
+          class="nav-link"
+           onclick="adddayscalculation()"
+          role="tab"
+          data-bs-toggle="tab"
+          data-bs-target="#navs-pills-justified-profile"
+          aria-controls="navs-pills-justified-profile"
+          aria-selected="false"
+        >
+         
+          <i class='bx bxl-paypal mb-1'></i>&nbsp;&nbsp;&nbsp;Payment Details & Billing</button>
+      </li>
+     
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane fade show active" id="navs-pills-justified-home" role="tabpanel">
+        <!--guest information-->
+        <div class="card-body">
+          <h5 class="mb-5 mt-0">Personal Information of Guest</h5>
+        <form action="{% url 'addguestdata'  %}" method="post" id="myForm" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="staydays" id="resultdaysinput" />
+          <div class="row">
+            <div class="col-6">
+              <div class="mb-3">
+                  <div class="input-group input-group-merge">
+                    <span id="basic-icon-default-company2" class="input-group-text"
+                      ><i class="bx bx-phone"></i
+                          ></span>
+                    <input
+                      type="tel"  pattern="[6-9][0-9]{9}"
+                      name = "guestphone"
+                      id="mobilenumber"
+                      class="form-control"
+                      placeholder="Phone"
+                      required
+                      aria-label="ACME Inc."
+                      aria-describedby="basic-icon-default-company2"
+                    />
+                  </div>
+                </div>
+                <div class="text-success" id="customerinfos"></div>
+          </div>  
+            
+            <div class="col-6">
+                  <div class="mb-3">
+                      <div class="input-group input-group-merge">
+                        <span id="basic-icon-default-fullname2" class="input-group-text"
+                          ><i class="bx bx-user"></i
+                        ></span>
+                        <input
+                          type="text"
+                          name = "guestname"
+                          class="form-control"
+                          id="mainguestname"
+                          placeholder="John Doe"
+                          aria-label="John Doe"
+                          aria-describedby="basic-icon-default-fullname2"
+                        />
+                      </div>
+                    </div>
+              </div>
+              
+          </div>
+
+
+          <div class="row">
+              <div class="col-3">
+                  <div class="mb-3 mt-3">
+                      <div class="input-group input-group-merge">
+                        <span class="input-group-text"><i class="bx bx-envelope"></i></span>
+                        <input
+                          type="email"
+                          name = "guestemail"
+                          id="mainguestemail"
+                          class="form-control"
+                          placeholder="john@gmail.com"
+                          aria-label="john.doe"
+                          aria-describedby="basic-icon-default-email2"
+                        />
+                        <span id="basic-icon-default-email2" class="input-group-text">Gmail</span>
+                      </div>
+                    </div>
+              </div>
+
+              <div class="mb-3 col-md-3 mt-3">
+                
+                <select id="country" name="STATE" required placeholder="select States" class="select2 form-select">
+                  <option  value="">Select States</option>
+                  <optgroup label="Indian States">
+                  <option value="andhra_pradesh">Andhra Pradesh</option>
+                  <option value="arunachal_pradesh">Arunachal Pradesh</option>
+                  <option value="assam">Assam</option>
+                  <option value="bihar">Bihar</option>
+                  <option value="chhattisgarh">Chhattisgarh</option>
+                  <option value="goa">Goa</option>
+                  <option value="gujarat">Gujarat</option>
+                  <option value="haryana">Haryana</option>
+                  <option value="himachal_pradesh">Himachal Pradesh</option>
+                  <option value="jharkhand">Jharkhand</option>
+                  <option value="karnataka">Karnataka</option>
+                  <option value="kerala">Kerala</option>
+                  <option value="madhya_pradesh">Madhya Pradesh</option>
+                  <option value="maharashtra">Maharashtra</option>
+                  <option value="manipur">Manipur</option>
+                  <option value="meghalaya">Meghalaya</option>
+                  <option value="mizoram">Mizoram</option>
+                  <option value="nagaland">Nagaland</option>
+                  <option value="odisha">Odisha</option>
+                  <option value="punjab">Punjab</option>
+                  <option value="rajasthan">Rajasthan</option>
+                  <option value="sikkim">Sikkim</option>
+                  <option value="tamil_nadu">Tamil Nadu</option>
+                  <option value="telangana">Telangana</option>
+                  <option value="tripura">Tripura</option>
+                  <option value="uttar_pradesh">Uttar Pradesh</option>
+                  <option value="uttarakhand">Uttarakhand</option>
+                  <option value="west_bengal">West Bengal</option>
+              </optgroup>
+              <optgroup label="Union Territories">
+                  <option value="andaman_and_nicobar_islands">Andaman and Nicobar Islands</option>
+                  <option value="chandigarh">Chandigarh</option>
+                  <option value="dadra_and_nagar_haveli_and_daman_and_diu">Dadra and Nagar Haveli and Daman and Diu</option>
+                  <option value="lakshadweep">Lakshadweep</option>
+                  <option value="delhi">Delhi</option>
+                  <option value="puducherry">Puducherry</option>
+                  <option value="ladakh">Ladakh</option>
+                  <option value="jammu_and_kashmir">Jammu and Kashmir</option>
+              </optgroup>
+              <optgroup label="Other Locations">
+                  <option value="foreign">Foreign</option>
+              </optgroup>
+            </select>
+  
+              </div>
+
+
+
+              
+              <div class="col-3">
+                  <div class="mb-3 mt-3">
+                      <div class="input-group input-group-merge">
+                        <span id="basic-icon-default-company2" class="input-group-text"
+                          ><i class='bx bxs-edit-location'></i></span>
+                        <input
+                          type="text"
+                          name = "guestcity"
+                          id="mainguestcity"
+                          class="form-control"
+                          placeholder="Address,City."
+                          aria-label="ACME Inc."
+                          aria-describedby="basic-icon-default-company2"
+                        />
+                      </div>
+                    </div>
+              </div>
+
+              <div class="col-3">
+                  <div class="mb-3 mt-3">
+                      <div class="input-group input-group-merge">
+                        <span id="basic-icon-default-company2" class="input-group-text"
+                          ><i class='bx bxs-edit-location'></i></span>
+                        <input
+                          type="text"
+                          name = "guestcountry"
+                          id="mainguestcountry"
+                          class="form-control"
+                          placeholder="Country"
+                          aria-label="ACME Inc."
+                          aria-describedby="basic-icon-default-company2"
+                        />
+                      </div>
+                    </div>
+              </div>
+          </div>
+
+          <div class="row">
+            <script>
+              document.addEventListener('DOMContentLoaded', () => {
+                // Check if element exists in the DOM
+                const guestCheckinDateInput = document.getElementById('checkindate');
+                if (!guestCheckinDateInput) {
+                    console.error("Element with ID 'guestcheckindate' not found in the DOM.");
+                    return;
+                }
+                
+                // Get today's date
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = ('0' + (today.getMonth() + 1)).slice(-2); // Adding leading zero if needed
+                const day = ('0' + today.getDate()).slice(-2); // Adding leading zero if needed
+                const formattedDate = `${year}-${month}-${day}`;
+                
+                // Set the value of the date input to today's date
+                guestCheckinDateInput.value = formattedDate;
+                
+                console.log(`Set guest check-in date to: ${formattedDate}`);
+            });
+          </script>
+              <div class="col-6">
+                  <div class="mb-3">
+                      <div class="input-group input-group-merge">
+                        <span id="basic-icon-default-company2" class="input-group-text"
+                          >Check-IN</span>
+                        <input
+                          type="date"
+                          readonly
+                          name = "guestcheckindate"
+                          id="checkindate"
+                          class="form-control"
+                          
+                        />
+                      </div>
+                    </div>
+              </div>
+              <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    const dateInput = document.getElementById("checkoutdate");
+                    const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
+                    dateInput.setAttribute("min", today); // Set minimum date to today
+                });
+            </script>
+
+            {% comment %} automatically date tomrow js {% endcomment %}
+            <script>
+              document.addEventListener('DOMContentLoaded', () => {
+                  // Check if element exists in the DOM
+                  const guestCheckoutDateInput = document.getElementById('checkoutdate');
+                  if (!guestCheckoutDateInput) {
+                      console.error("Element with ID 'checkindate' not found in the DOM.");
+                      return;
+                  }
+                  
+                  // Get today's date and add one day for tomorrow's date
+                  const today = new Date();
+                  today.setDate(today.getDate() + 1); // Add one day
+          
+                  const year = today.getFullYear();
+                  const month = ('0' + (today.getMonth() + 1)).slice(-2); // Adding leading zero if needed
+                  const day = ('0' + today.getDate()).slice(-2); // Adding leading zero if needed
+                  const formattedDate = `${year}-${month}-${day}`;
+                  
+                  // Set the value of the date input to tomorrow's date
+                  guestCheckoutDateInput.value = formattedDate;
+                  
+                  console.log(`Set guest check-in date to: ${formattedDate}`);
+              });
+          </script>
+          
+              <div class="col-6">
+                  <div class="mb-3">
+                      <div class="input-group input-group-merge" >
+                        <span id="basic-icon-default-company2" class="input-group-text"
+                          >Check-OUT</span>
+                        <input
+                          type="date"
+                          trigger: 'focus'
+                          name = "guestcheckoutdate"
+                          id="checkoutdate"
+                          class="form-control"
+                          placeholder="Phone"
+                          aria-label="ACME Inc."
+                          
+                          aria-describedby="basic-icon-default-company2"
+                          required
+                        />
+                      </div>
+                    </div>
+                    
+              </div>
+          </div>
+
+          <div class="row">
+          <div class="col-3">
+              <div class="mb-3 mt-3">
+                  <div class="input-group input-group-merge">
+                    <span id="basic-icon-default-company2" class="input-group-text"
+                      >Id Type <i class='bx bx-down-arrow-alt'></i></span>
+                    
+                    <select class="form-control" name="idtype" id="guestidtype" placeholder="Chek-In Time">
+                      <option>ID Type</option>
+                      <option>Aadhar Card</option>
+                      <option>Licence</option>
+                      <option>Passport</option>
+                      <option>VoterID Card</option>
+                    </select>
+                  </div>
+                </div>
+          </div>
+
+          <div class="col-3">
+            <div class="mb-3 mt-3">
+              <div class="input-group input-group-merge">
+                <span id="basic-icon-default-company2" class="input-group-text"
+                  ><i class='bx bxs-group'></i></span>
+                <input
+                  type="text"
+                  
+                  name = "iddetails"
+                  id="guestidetail"
+                  class="form-control"
+                  placeholder="Id Details"
+                  aria-label="ACME Inc."
+                  aria-describedby="basic-icon-default-company2"
+                />
+              </div>
+            </div>
+        </div>
+
+          <div class="col-2">
+              <div class="mb-3 mt-3">
+                  <div class="input-group input-group-merge">
+                    <span id="basic-icon-default-company2" class="input-group-text"
+                      ><i class='bx bxs-group'></i></span>
+                    <input
+                      type="number"
+                      required
+                      name = "noofguest"
+                      id="noofguesttotal"
+                      class="form-control"
+                      placeholder="Total Guests"
+                      aria-label="ACME Inc."
+                      aria-describedby="basic-icon-default-company2"
+                    />
+                  </div>
+                </div>
+          </div>
+          <div class="col-2">
+              <div class="mb-3 mt-3">
+                  <div class="input-group input-group-merge">
+                    <span id="basic-icon-default-company2" class="input-group-text"
+                      ><i class='bx bxs-user'></i></span>
+                    <input
+                      type="number" 
+                      required
+                      name = "guestadults"
+                      id="basic-icon-default-company"
+                      class="form-control"
+                      placeholder="Adults"
+                      aria-label="ACME Inc."
+                      aria-describedby="basic-icon-default-company2"
+                    />
+                  </div>
+                </div>
+          </div>
+
+          <div class="col-2">
+              <div class="mb-3 mt-3">
+                  <div class="input-group input-group-merge">
+                    <span id="basic-icon-default-company2" class="input-group-text"
+                      ><i class='bx bx-child'></i></span>
+                    <input
+                      type="number"
+                      required
+                      name = "guestchildren"
+                      id="basic-icon-default-company"
+                      class="form-control"
+                      placeholder="Children"
+                      aria-label="ACME Inc."
+                      aria-describedby="basic-icon-default-company2"
+                    />
+                  </div>
+                </div>
+          </div>
+      
+      </div>
+
+      <div class="row">
+          <div class="col-6">
+              <div class="mb-3">
+                  <div class="input-group input-group-merge">
+                    <span id="basic-icon-default-company2" class="input-group-text"
+                      >Id-Front</span>
+                      <input
+                    type="file"
+                    name = "guestid"
+                    class="form-control"
+                    id="inputGroupFile04"
+                    aria-describedby="inputGroupFileAddon04"
+                    aria-label="Upload"
+                  />
+                  <button class="btn btn-outline-primary" type="button" id="inputGroupFileAddon04">Browse</button>
+                  </div>
+                </div>
+          </div>
+          <div class="col-6">
+              <div class="mb-3">
+                <div class="input-group input-group-merge">
+                  <span id="basic-icon-default-company2" class="input-group-text"
+                    ><i class='bx bx-child'></i></span>
+                  <input
+                    type="text"
+                    name = "Purpose"
+                    id="basic-icon-default-company"
+                    class="form-control"
+                    placeholder="Purpose of Visit"
+                    aria-label="ACME Inc."
+                    aria-describedby="basic-icon-default-company2"
+                  />
+                </div>
+                </div>
+                {% comment %} <button type="button" class="btn btn-primary float-end" onclick="adddayscalculation()">Save Information & Continue</button> {% endcomment %}
+          </div>
+
+      </div>
+              
+          
+        
+      </div> 
+
+      <!--guest information end-->
+
+      </div>
+      <div class="tab-pane fade" id="navs-pills-justified-profile" role="tabpanel">
+        
+
+        <!--payment information start-->
+        <div class="card-body">
+          {%for i in room_data%}
+          <input type="hidden" value="{{i.room_name}} " name="roomno"/>
+          <div class="row">
+            
+            <!-- Basic -->
+            <div class="col-md-12 mb-4">
+              <div class="card">
+                
+                <div class="row " >
+                  <h5 class="mb-1 mt-3 ms-4"><i class="tf-icons bx bx-message-square"></i>  Room Information </h5>
+                  <div class="col-4">
+                    
+                    <h5 class="card-header mb-1">Room No: <span class="text-success fw-bold">{{i.room_name}} </span>
+                      <br><br>Total Stay Day : <span class="text-success fw-bold" id="resultdays"></span>
+                      <br><br>Rate Plan: <span class="text-success fw-bold" id="rateplansview">Room Only</span>
+                    </h5>
+                  </div>
+
+                  <div class="col-4">
+
+                    <h5 class="card-header mb-1">Room Price: <span class="text-success fw-bold">{{i.price}} </span>
+                      <br><br>Category : <span class="text-success fw-bold" >{{i.room_type}}</span>
+                      <input type="hidden" id="roomprice" value="{{i.price}}" />
+                      <input type="hidden" id="roomtax" value="{{i.tax.taxrate}}" />
+                      
+                    </h5>
+                  </div>
+
+                  <div class="col-4">
+
+                    <h5 class="card-header mb-1">Room Tax: <span class="text-success fw-bold">{{i.tax}}</span><span style="display:none" id="texamt"></span> 
+                      <br><br>Total amount incl tax and days: <span class="text-success fw-bold" id="totalamounttext"></span>
+                    </h5>
+                  </div>
+
+                </div>
+
+
+                <div class="row " >
+
+                  
+                  
+                  <!--payment form-->
+                  
+                  <h5 class="mb-1 mt-3 ms-4"><i class='bx bxl-paypal mb-1'></i>Payment Details </h5>
+                  
+                  <div class="row  " >
+
+                    <div class="col-4 ms-4 ">
+                      <div class="mb-3 ">
+                        <div id="loader" style="display:none;">Please Wait Loading...</div>
+                        <label class="col-sm-12  col-form-label" for="basic-icon-default-fullname">Select Rate Plan</label>
+                   
+                          <div class="input-group ">
+                            <span id="basic-icon-default-company2" class="input-group-text"
+                              >Rate-Plan <i class='bx bx-down-arrow-alt'></i></span>
+                            
+                            <select class="form-control" name="rateplan" onchange="pricechange()" id="rateplanselect" placeholder="Chek-In Time">
+                              <option>Only Room </option>
+                              {%for i in meal_plan%}
+                              <option  value="{{i.id}}">{{i.rate_plan_name}},{{i.rate_plan_code}}</option>
+                              {%endfor%}
+                            </select>
+
+                            <input type="hidden" name="rateplanname" id="rateplansviewinput" value="Room Only">
+                            <input type="hidden" name="rateplanprice" id="rateplansviewinputprice" value=0>
+                          </div>
+                        </div>
+                  </div>
+
+                  <script>
+                    //rate plan price work js
+                    
+
+                    function pricechange() {
+                      $('#loader').show();
+                      
+                      var rateplanid = $("#rateplanselect").val();
+                      var noofguesttotal = $("#noofguesttotal").val();
+                      var staydayscount = $("#resultdaysinput").val();
+                      var subtotalinvc = $("#subtotalinputsrp").val();
+                      var taxinvc = $("#roomtax").val();
+                      console.log(rateplanid,'chandan here');
+                      if (rateplanid == "Only Room"){
+                        $("#rateplansview").html('Room Only')
+                        $("#rateplansviewinput").val('Room Only')
+                        adddayscalculation();
+                      }
+                      else{
+
+                      $.ajax ({
+                        type: "POST",
+                        url: "/getrateplandata",
+                        data: {
+                          Rateplanid: rateplanid,
+
+                        },
+                        success: function (data) {
+                          if (data.error) {
+                              $('#errorshowajax').html('<p>Error: ' + data.error + '</p>');
+                          } else {
+                              var name, id, contact, loyltypoints;
+                              // Assuming data is an array of objects
+                              data.forEach(function(item) {
+                                baseprice = item.base_price; //base price
+                                maxperson = item.max_persons; // max person
+                                addpprice = item.additional_person_price; // additional person price
+                                rate_plan_name = item.rate_plan_name//plan name
+                                rate_plan_code = item.rate_plan_code
+                              });
+                              
+                              if (noofguesttotal > maxperson){
+                                console.log('jayda hai')
+                                var extraguest = noofguesttotal-maxperson
+                                var mealtotalamount = parseInt(extraguest) * parseInt(addpprice) + parseInt(baseprice)
+                                mealtotalamount = mealtotalamount * parseInt(staydayscount)
+                                console.log(mealtotalamount,'totalday by')
+                                var grandtmramt = mealtotalamount + parseInt(subtotalinvc)
+                                var taxamtrp = grandtmramt * parseInt(taxinvc)/100
+                                var vargrandtotalrp = parseInt(grandtmramt + taxamtrp)
+                                console.log(grandtmramt,taxamtrp,vargrandtotalrp)
+
+                                $("#subtotal").val(grandtmramt);
+                                $("#totalamount").val(vargrandtotalrp);
+                                $("#totalamounttext").html(vargrandtotalrp);
+                                $("#taxamountall").val(taxamtrp);
+                                $("#rateplansview").html(rate_plan_name+"  " +rate_plan_code+" ₹:"+mealtotalamount+" Extra Guest ("+ extraguest+")");
+                                $("#rateplansviewinput").val(rate_plan_name+"  " +rate_plan_code)
+                                $("#rateplansviewinputprice").val(parseInt(extraguest) * parseInt(addpprice) + parseInt(baseprice));
+
+                              }
+                              else{
+                                var mealtotalamounts = parseInt(baseprice) * parseInt(staydayscount) 
+                                var grandtmramts = mealtotalamounts + parseInt(subtotalinvc)
+                                var taxamtrps = grandtmramts * parseInt(taxinvc)/100
+                                var vargrandtotalrps = parseInt(grandtmramts + taxamtrps)
+                                $("#subtotal").val(grandtmramts);
+                                $("#totalamount").val(vargrandtotalrps);
+                                $("#totalamounttext").html(vargrandtotalrps);
+                                $("#taxamountall").val(taxamtrps);
+                                $("#rateplansview").html(rate_plan_name+"  " +rate_plan_code+" ₹:"+mealtotalamounts);
+                                $("#rateplansviewinput").val(rate_plan_name+"  " +rate_plan_code)
+                                $("#rateplansviewinputprice").val(parseInt(baseprice));
+                              
+                              }
+                             //calculation start here
+                             
+                             
+                            
+                          }
+                        },
+                        error: function(xhr, status, error) {
+                          $('#errorshowajax').html('<p>Error: ' + xhr.statusText + '</p>');
+                        }
+                      });
+                    }
+                    $('#loader').hide();
+      
+                    };
+
+                  </script>
+
+                  <div class="col-sm-4 ms-4 mb-3">
+                    <label class="col-sm-12  col-form-label" for="basic-icon-default-fullname">Excepted Amount₹</label>
+                    <div class="input-group">
+                        
+                        <input
+                          type="number"
+                          name = "reaminingamount"
+                          class="form-control"
+                          value=0
+                          id="excaptedamountinput"
+                          placeholder="Reamaining amount"
+                          aria-label="Recipient's username"
+                          aria-describedby="button-addon2"
+                          {% comment %} onClick="calculateamount()" {% endcomment %}
+                        />
+                        <button type="button" class="btn btn-primary" onclick="adddayscalculationfinder()">ADD</button>
+                      </div>
+                  </div>
+
+
+                  <h5 class="mb-1 mt-3 ms-4"><i class='bx bxl-paypal mb-1'></i>Payment breakdown </h5>
+
+                    <div class="col-4 ms-4 mb-2 ">
+                    
+                    <div class="input-group">
+                      <span class="input-group-text" id="basic-addon11">Subtotal ₹</span>
+                      <input
+                        type="number"
+                        name = "subtotal"
+                        id="subtotal"
+                        class="form-control"
+                        placeholder="subtotal"
+                        value="{{i.price}}"
+                        aria-label="Username"
+                        readonly
+                        aria-describedby="basic-addon11"
+                      />
+                      <input type="hidden"  id="subtotalinputsrp" />
+                      <input type="hidden" value="{{i.price}}" id="subtotalinput" />
+                    </div>
+                  </div>
+                  <div class="row">
+
+                  <div class="col-4 ms-4 mb-2">
+
+                    
+                  
+                    <div class="input-group" style="display:none">
+                      
+                      <select id="selectopt" class="form-control" style="display:none">
+                        <option value="Fixed" class="form-control">Discount ₹</option>
+                      </select> 
+                      <span class="input-group-text" id="basic-addon11">Discount &nbsp;&nbsp;&nbsp;&nbsp;₹</span>
+                      <input
+                        type="text"
+                        value="0"
+                        name="discount"
+                        readonly
+                        id="discountamount"
+                        class="form-control"
+                        aria-label="Text input with segmented dropdown button"
+                      />
+                      {% comment %} <button type="button" class="btn btn-primary" onclick="adddiscount()">Add</button> {% endcomment %}
+                    </div>
+                  
+                  </div></div>
+
+                  <div class="row">
+
+                    <div class="col-4 ms-4 mb-2">
+  
+                      
+                    
+                      <div class="input-group" style="display:none">
+                        
+                        
+                        <span class="input-group-text" id="basic-addon11">Taxes &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ₹</span>
+                        <input
+                          type="text"
+                          value="0"
+                          name=""
+                          id="taxamountall"
+                          class="form-control"
+                          readonly
+                          aria-label="Text input with segmented dropdown button"
+                        />
+                         </div>
+                    
+                    </div></div>
+
+                  <div class="col-4 ms-4 mb-2">
+                    <span>Incl Tax,Discount.</span>
+                    <div class="input-group">
+                      <span class="input-group-text" id="basic-addon11">Grand-Total ₹</span>
+                      <input
+                        type="number"
+                        name="total"
+                        class="form-control"
+                        placeholder="TOTAL AMOUNT"
+                        id="totalamount"
+                        value="{{i.price}}"
+                        aria-label="Username"
+                        aria-describedby="basic-addon11"
+                        readonly
+                      />
+                    </div>
+                  </div>
+                  <input type="hidden" name="tax" value="{{i.tax}} "/>
+                  
+
+                </div><div class="row " >
+              
+              </div>
+
+              <h5 class="mb-1 mt-4 ms-4"><i class='bx bxs-face'></i> More Guest </h5>
+
+              <div class="row ms-3" >
+                <p class="demo-inline-spacing ">
+                  <a
+                    class="btn btn-primary me-1"
+                    data-bs-toggle="collapse"
+                    href="#multiCollapseExample2"
+                    role="button"
+                    aria-expanded="false"
+                    aria-controls="multiCollapseExample2"
+                    >Add More Guest</a
+                  >
+                  
+                </p>
+
+                <div class="col-12 col-md-6  mb-md-0">
+                  <div class="collapse multi-collapse" id="multiCollapseExample2">
+                      <div class="input-group">
+                        <div class="row">
+                          <div class="col mb-3">
+                            <label for="nameBackdrop" class="form-label">Guest Name</label>
+                            <input
+                              type="text"
+                              name="moreguestname"
+                              id="nameBackdrop"
+                              class="form-control"
+                              placeholder="Enter Name"
+                            />
+                          </div>
+
+                          <div class="col mb-3">
+                            <label for="nameBackdrop" class="form-label">Guest Phone</label>
+                            <input
+                              type="number"
+                              name="moreguestphone"
+                              id="nameBackdrop"
+                              class="form-control"
+                              placeholder="Enter Phone"
+                            />
+                          </div>
+
+                          <div class="col mb-3">
+                            <label for="nameBackdrop" class="form-label">Guest Address</label>
+                            <input
+                              type="text"
+                              name="moreguestaddress"
+                              id="nameBackdrop"
+                              class="form-control"
+                              placeholder="Enter Address"
+                            />
+                          </div>
+
+                        </div>
+                        
+                          
+                        <input class="form-check-input ms-2"  type="checkbox"  name="checkmoredatastatus"/>&nbsp;&nbsp;&nbsp;
+                          <p>If You Want To Save Data So Please Active The CheckBox.</p>
+                        </div>
+                  </div>
+                
+
+                 
+                 
+                  
+              </div>
+                  
+              
+            </div>
+
+            
+            
+           
+
+              <div class="row">
+
+                <div class="col-3">
+                  <button id="submitButton" type="submit"  class="btn btn-primary mt-4 mb-4 ms-4 w-100" > Booking Done</button>
+                </div>
+                
+                
+              
+                <script>
+                  document.getElementById('myForm').addEventListener('submit', function(event) {
+                      var button = document.getElementById('submitButton');
+                      
+                      // Disable the button immediately when form is submitted
+                      button.disabled = true;
+                      
+                      // Re-enable the button after 4 seconds
+                      setTimeout(function() {
+                          button.disabled = false;
+                      }, 90000);
+                  });
+              </script>
+              </div>
+            </form>
+
+            <div style="display:none">
+            <span class="text fw-bold mt-5 m-4"><i class='bx bxs-discount'></i> Discount Finder</span>
+          <div class="col-sm-4 ms-4 mb-3">
+            <label class="col-sm-12  col-form-label" for="basic-icon-default-fullname">Excepted Amount₹</label>
+            <div class="input-group">
+                
+                <input
+                  type="number"
+                  name = "reaminingamount"
+                  class="form-control"
+                  value=0
+                  id="excaptedamountinput"
+                  placeholder="Reamaining amount"
+                  aria-label="Recipient's username"
+                  aria-describedby="button-addon2"
+                  {% comment %} onClick="calculateamount()" {% endcomment %}
+                />
+                <button type="button" class="btn btn-primary" onclick="adddayscalculationfinder()">ADD</button>
+              </div>
+          </div>
+          
+          <div class="col-sm-4 ">
+            <label class="col-sm-12 col-form-label" for="basic-icon-default-fullname">Avg Discount ₹</label>
+            <span id="showamts"></span>
+          </div></div>
+              
+            </div>{%endfor%}
+            
+
+            
+
+            <!--js of discount button-->
+
+            <script type="text/javascript">
+
+    
+
+              {% comment %} adddayscalculation {% endcomment %}
+              function adddayscalculation(){
+                var startDateStr = $("#checkindate").val();
+                var endDateStr = $("#checkoutdate").val();
+                
+                // Convert the input values to Date objects
+                var startDate = new Date(startDateStr);
+                var endDate = new Date(endDateStr);
+                
+                // Calculate the difference in milliseconds
+                var timeDiff = endDate.getTime() - startDate.getTime();
+                
+                // Convert milliseconds to days
+                var daysDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
+               
+
+                
+                console.log(daysDiff)
+                // Display the result
+                $("#resultdays").text( daysDiff);
+                daysDiff= parseFloat(daysDiff)
+                $("#resultdaysinput").val( daysDiff);
+                var subtotalamountbyinput = document.getElementById('subtotalinput').value
+                var roomprice = $("#roomprice").val();
+                roomprice = parseInt(roomprice)
+                subtotalamount = subtotalamountbyinput * daysDiff
+                var roomtax = $("#roomtax").val();
+                var taxamount = (roomprice * roomtax) /100
+                var totalamount = (taxamount + roomprice) * daysDiff
+                $("#totalamountdays").text(totalamount);
+                document.getElementById('totalamount').value = totalamount;
+                document.getElementById('subtotal').value = subtotalamount;
+                document.getElementById('subtotalinputsrp').value = subtotalamount;
+                document.getElementById('totalamounttext').innerHTML = parseInt(totalamount);
+                var taxcalcluatedamt = totalamount - subtotalamount
+                document.getElementById('texamt').innerHTML = parseInt(taxcalcluatedamt);
+                document.getElementById('discountamount').value=0;
+                document.getElementById('rateplanselect').value='Room Only';
+                document.getElementById('excaptedamountinput').value=0;
+                $("#taxamountall").val(parseInt(taxcalcluatedamt));
+                $("#rateplansview").html('Room Only');
+                $("#rateplansviewinput").val('Room Only')
+                $("#rateplansviewinputprice").val(0);
+                
+              }
+
+              function adddiscount() {
+                var subtotal = document.getElementById('subtotalinput').value
+                var selectopt = document.getElementById('selectopt').value;
+                var diffdays = document.getElementById('resultdays').innerHTML;
+                var roomtax = $("#roomtax").val();
+                if (selectopt == 'Fixed') {
+                  var discountamount = document.getElementById('discountamount').value;
+                  
+                }
+                else{
+                  var discountamount = document.getElementById('discountamount').value;
+                  discountamount = (subtotal * discountamount /100) 
+                
+                  
+                }
+                document.getElementById('totalamount').value = total;
+              
+                subtotal = subtotal * diffdays
+                subtotal = subtotal - discountamount
+
+                var total = subtotal 
+                var taxamount = (total * roomtax) /100
+                total = taxamount + total
+               
+                
+                document.getElementById('totalamount').value = parseInt(total);
+                document.getElementById('subtotal').value = subtotal;
+                document.getElementById('subtotalinputsrp').value = subtotal;
+                document.getElementById('totalamounttext').innerHTML = parseInt(total);
+                var taxcalcluatedamt = total - subtotal
+                document.getElementById('texamt').innerHTML = parseInt(taxcalcluatedamt);
+                
+
+              }
+
+
+
+              //discount Finder
+              function adddayscalculationfinder() {
+                // Get date values
+                var startDateStr = $("#checkindate").val();
+                var endDateStr = $("#checkoutdate").val();
+                
+                // Convert the input values to Date objects
+                var startDate = new Date(startDateStr);
+                var endDate = new Date(endDateStr);
+                
+                // Calculate the difference in milliseconds
+                var timeDiff = endDate.getTime() - startDate.getTime();
+                
+                // Convert milliseconds to days
+                var daysDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
+                if (daysDiff === 0) {
+                    daysDiff = 1; // Minimum of 1 day
+                }
+            
+                
+            
+                // Get subtotal and room pricing information
+                var subtotalamountbyinput = parseFloat(document.getElementById('subtotalinput').value);
+                var roomprice = parseFloat($("#roomprice").val());
+                var roomtax = parseFloat($("#roomtax").val());
+                
+                // Calculate subtotal amount
+                var subtotalamount = subtotalamountbyinput * daysDiff;
+                
+                // Calculate tax amount
+                var taxamount = (roomprice * roomtax) / 100;
+                
+                // Calculate total amount including tax
+                var totalamount_before_tax = (roomprice + taxamount) * daysDiff;
+                
+                // Get the expected amount from input
+                var excpatedamt = parseFloat($('#excaptedamountinput').val());
+            
+                // Function to calculate total including tax for a given pre-tax amount
+                function calculateTotalIncludingTax(amountBeforeTax) {
+                    var totalTax = (amountBeforeTax * roomtax / 100);
+                    return amountBeforeTax + totalTax;
+                }
+            
+                // Find the discount needed to match the expected amount
+                var discount_needed = 0;
+                var low = 0;
+                var high = subtotalamount;
+                var tolerance = 0.01; // Tolerance level for precision
+            
+                while (high - low > tolerance) {
+                    var mid = (low + high) / 2;
+                    var total_after_discount = calculateTotalIncludingTax(subtotalamount - mid);
+                    
+                    if (total_after_discount > excpatedamt) {
+                        low = mid;
+                    } else {
+                        high = mid;
+                    }
+                }
+            
+                discount_needed = (subtotalamount - high).toFixed(2);
+            
+                // Update the UI with results
+                
+                $("#showamts").text((subtotalamount - discount_needed).toFixed(2));
+                $("#discountamount").val(parseInt(subtotalamount - discount_needed));
+                adddiscount();
+
+                
+            }
+            </script>
+            <!--js of discount button end-->
+            
+
+       
+  </div> 
+      
+      <!--Payment information end-->
+
+
+      </div>
+     
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+{%if loyltydata%}
+<!--loylty data here-->
+<div class="row    mt-4" style="height:450px">
+  <div class="col-4 m-4 card">
+    
+    <label for="nameBackdrop" class="form-label ms-5 mt-5 ">Guest Phone Number To Check Loyalty Data</label>
+    <div class="input-group input-group-merge w-75 mt-2 ms-5">
+      <span id="basic-icon-default-company2" class="input-group-text"
+        ><i class="bx bx-phone"></i
+            ></span>
+      <input
+        type="number"
+        name = "guestphone"
+        id="phoneguest"
+        class="form-control "
+        placeholder="Phone"
+        aria-label="ACME Inc."
+        aria-describedby="basic-icon-default-company2"
+      />
+    </div>
+    
+    <button id="btnsavedate" class="btn btn-primary w-75 mt-4 ms-5">Check Loyalty Data</button>
+    <p class="text m-2 mt-5">
+      Please wait while it displays the loyalty data. If the information is incorrect, refresh the page and try again.</p>
+    <p class="text text-danger m-2">After adding loyalty data, please avoid refreshing the page or going back. Make sure all fields are filled before adding loyalty data, as it will be applied to discounts automatically and removed from loyalty records.
+    </p>
+  </div>
+  <div class="col-7 m-1 card">
+    
+     <!-- List group Icons -->
+     <div class="col-lg-12">
+      <div class="demo-inline-spacing mt-3">
+        <ul class="list-group">
+          <li class="list-group-item d-flex align-items-center">
+            <i class='bx bx-street-view'></i>
+            Guest Name  <span class="badge ms-5 w-25 bg-label-primary me-1" id="name"></span>
+          </li>
+          <li class="list-group-item d-flex align-items-center">
+            <i class="bx bx-phone me-2"></i
+              >
+            Guest Contact  <span class="badge ms-4 me-1 w-25 bg-label-primary me-1" id="contact"></span>
+          </li>
+          
+          <li class="list-group-item d-flex align-items-center">
+            <i class="bx bx-purchase-tag-alt me-2"></i>
+            Loyalty Points In ₹ 
+            <span class="badge w-25 ms-2 bg-label-primary me-1" id="lyltyamount"></span>
+            <span class="badge w-25 ms-2 bg-label-danger me-1" id="lyltyamountdelete"></span>
+          </li>
+          
+          <!-- Error Display -->
+          <div class="text-danger" id="errorshowajax"></div>
+          <div class="row">
+            <span>
+            <i class='bx bxs-cube-alt m-2'></i><b>Add Discount</b> :Add automatically Loyalty Amount  Data To Discount</span>
+            <span><i class='bx bxs-cube-alt m-2'></i>
+              <b>Data Redeem:</b>If you want to use these loyalty points, click the "Add Discount" button and check Loyalty Ponits Added to Discount Amount and Applied on amount, After that click "Redeem" button to remove the loyalty data from the guest's contact. After that, submit the customer form.
+            </span>
+          <button class="btn btn-primary m-3 w-25" onClick="adddiscount()">Add Discount </button>
+          <button class="btn btn-success m-3 w-25" id="Deleteloyltydata">Points Redeem</button>
+          </div>
+        </ul>
+      </div>
+    </div>
+    <!--/ List group Icons -->
+
+
+  </div>
+  <!--end here-->
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script>
+    $("#btnsavedate").click(function(){
+        let phoneno = $("#phoneguest").val();
+        console.log(phoneno);
+  
+        // Clear previous data and error messages
+        $("#name").empty();
+        $("#contact").empty();
+        $("#loyltypoint").empty();
+        $("#lyltyamount").empty();
+        $("#loyltyid").val('');
+        $('#errorshowajax').empty();
+        $('#lyltyamountdelete').empty();
+        $.ajax ({
+          type: "POST",
+          url: "/getloyltydataajax",
+          data: {
+              Mobile: phoneno,
+          },
+          success: function (data) {
+            if (data.error) {
+                $('#errorshowajax').html('<p>Error: ' + data.error + '</p>');
+            } else {
+                var name, id, contact, loyltypoints;
+                // Assuming data is an array of objects
+                data.forEach(function(item) {
+                  name = item.guest_name; // Assign guest_name to name variable
+                  id = item.id; // Assign id to id variable
+                  contact = item.guest_contact; // Assign guest_contact to contact variable
+                  loyltypoints = item.loylty_point; // Assign loylty_point to loyltypoints variable
+                });
+                
+                console.log(name);
+                $("#name").html(name);
+                $("#contact").html(contact);
+                $("#loyltypoint").html(loyltypoints);
+                $("#lyltyamount").html(loyltypoints);
+                $("#loyltyid").val(id);
+                $("#discountamount").val(loyltypoints);
+            }
+          },
+          error: function(xhr, status, error) {
+            $('#errorshowajax').html('<p>Error: ' + xhr.statusText + '</p>');
+          }
+        });
+    });
+
+
+
+    //delete loylty data 
+    $("#Deleteloyltydata").click(function(){
+      let phoneno = $("#phoneguest").val();
+      console.log(phoneno);
+
+      // Clear previous data and error messages
+      $("#name").empty();
+      $("#contact").empty();
+      $("#loyltypoint").empty();
+      $("#lyltyamount").empty();
+      $("#loyltyid").val('');
+      $('#errorshowajax').empty();
+      console.log("worked")
+      $.ajax ({
+        type: "POST",
+        url: "/deleteloyltyajaxdata",
+        data: {
+            Mobile: phoneno,
+        },
+        success: function (data) {
+          if (data.error) {
+              $('#errorshowajax').html('<p>Error: ' + data.error + '</p>');
+          } else {
+              var name, id, contact, loyltypoints;
+              // Assuming data is an array of objects
+              data.forEach(function(item) {
+                name = item.guest_name; // Assign guest_name to name variable
+                id = item.id; // Assign id to id variable
+                contact = item.guest_contact; // Assign guest_contact to contact variable
+                loyltypoints = item.loylty_point; // Assign loylty_point to loyltypoints variable
+              });
+              
+              console.log(name);
+              $("#name").html(name);
+              $("#contact").html(contact);
+              $("#loyltypoint").html(loyltypoints);
+              $("#lyltyamountdelete").html(loyltypoints);
+              $("#discountamount").val(loyltypoints);
+          }
+        },
+        error: function(xhr, status, error) {
+          $('#errorshowajax').html('<p>Error: ' + xhr.statusText + '</p>');
+        }
+      });
+  });
+  </script>
+  
+  {%endif%}
+
+
+
+
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+               <!-- build:js assets/vendor/js/core.js -->
+               <script src="{% static 'undercss/assets/vendor/libs/jquery/jquery.js'%}"></script>
+               <script src="{% static 'undercss/assets/vendor/libs/popper/popper.js'%}"></script>
+               <script src="{% static 'undercss/assets/vendor/js/bootstrap.js'%}"></script>
+               <script src="{% static 'undercss/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js'%}"></script>
+           
+               <script src="{% static 'undercss/assets/vendor/js/menu.js'%}"></script>
+               <!-- endbuild -->
+           
+               <!-- Vendors JS -->
+               <script src="{% static 'undercss/assets/vendor/libs/apex-charts/apexcharts.js'%}"></script>
+           
+               <!-- Main JS -->
+               <script src="{% static 'undercss/assets/js/main.js'%}"></script>
+           
+               <!-- Page JS -->
+               <script src="{% static 'undercss/assets/js/dashboards-analytics.js'%}"></script>
+           
+               <!-- Place this tag in your head or just before your close body tag. -->
+               <script async defer src="https://buttons.github.io/buttons.js"></script>
+             </body>
+           </html>
+           
+           
+
+<h1 id="check"></h1>
+
+           <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Elegant Light Lavender Loader</title>
+                <style>
+                    body {
+                        margin: 0;
+                        font-family: Arial, sans-serif;
+                        background-color: #f3f3f3;
+                    }
+            
+                    .loader-wrapper {
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
+                        z-index: 9998;
+                    }
+            
+                    .loader {
+                        position: relative;
+                        width: 60px;
+                        height: 60px;
+                    }
+            
+                    .loader div {
+                        position: absolute;
+                        border: 4px solid transparent;
+                        border-top-color: #c5a3ff; /* Light lavender color */
+                        border-radius: 50%;
+                        animation: spin 1.5s ease infinite;
+                    }
+            
+                    .loader div:nth-child(1) {
+                        width: 60px;
+                        height: 60px;
+                        animation-delay: -0.45s;
+                    }
+            
+                    .loader div:nth-child(2) {
+                        width: 45px;
+                        height: 45px;
+                        top: 7.5px;
+                        left: 7.5px;
+                        animation-delay: -0.3s;
+                    }
+            
+                    .loader div:nth-child(3) {
+                        width: 30px;
+                        height: 30px;
+                        top: 15px;
+                        left: 15px;
+                        animation-delay: -0.15s;
+                    }
+            
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+            
+                    #content {
+                        display: none; /* Hide content initially */
+                        opacity: 0;
+                        transition: opacity 0.5s ease;
+                    }
+            
+                    .loader-wrapper.hidden #content {
+                        display: block;
+                        opacity: 1;
+                    }
+                </style>
+            </head>
+            <body>
+                <div id="loader-wrapper" class="loader-wrapper">
+                    <div class="loader">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                </div>
+                <div id="content">
+                   
+                </div>
+            
+                <script>
+                    // Show the loader when the page is loading
+                    document.addEventListener('DOMContentLoaded', function() {
+                        document.getElementById('loader-wrapper').style.display = 'flex';
+                        document.getElementById('content').style.display = 'none'; // Hide the content
+                    });
+            
+                    // Hide the loader and show the content when the page has fully loaded
+                    window.addEventListener('load', function() {
+                        document.getElementById('loader-wrapper').style.display = 'none'; // Hide the loader
+                        document.getElementById('content').style.display = 'block'; // Show the content
+                        setTimeout(function() {
+                            document.getElementById('content').style.opacity = '1'; // Fade in the content
+                        }, 50); // Slight delay for the fade effect
+                    });
+                </script>
+            </body>
+            
+            {% comment %} <script type="text/javascript">
+              // Disable right-click
+              document.addEventListener('contextmenu', function(e) {
+                  e.preventDefault();
+              });
+            
+              // Disable common inspect shortcuts
+              document.addEventListener('keydown', function(e) {
+                  if (e.keyCode == 123) { // F12 key
+                      e.preventDefault();
+                  }
+                  if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { // Ctrl+Shift+I
+                      e.preventDefault();
+                  }
+                  if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) { // Ctrl+Shift+J
+                      e.preventDefault();
+                  }
+                  if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { // Ctrl+U
+                      e.preventDefault();
+                  }
+              });
+            </script> {% endcomment %}
+            </html>
+            
+
+
+            <script>
+              //mobile number validate ajax
+
+              $("#mobilenumber").on("change", function() {
+                var mobilenumber = $("#mobilenumber").val();
+                console.log(mobilenumber);
+
+                $.ajax ({
+                  type: "POST",
+                  url: "/getguestdatabyajaxinform",
+                  data: {
+                      Mobile: mobilenumber,
+                  },
+                  success: function (data) {
+                    if (data.error) {
+                        $('#errorshowajax').html('<p>Error: ' + data.error + '</p>');
+                    } else {
+                        var name, id, contact, loyltypoints;
+                        // Assuming data is an array of objects
+                        'guestname', 'guestemail', 'guestcity','guestcountry'
+                        data.forEach(function(item) {
+                          name = item.guestname; // Assign guest_name to name variable
+                          emal = item.guestemail; // Assign id to id variable
+                          city = item.guestcity; // Assign guest_contact to contact variable
+                          country = item.guestcountry; // Assign loylty_point to loyltypoints variable
+                          gueststate = item.gueststates;
+                          idtype = item.guestidtypes;
+                          iddetail = item.guestsdetails;
+                        });
+                        
+                        console.log(name);
+                        $("#mainguestname").val('');
+                        $("#mainguestname").val(name);
+                        $("#mainguestemail").val(emal);
+                        $("#mainguestcity").val(city);
+                        $("#mainguestcountry").val(country);
+                        $("#country").val(gueststate);
+                        $("#guestidtype").val(idtype);
+                        $("#guestidetail").val(iddetail);
+                        $('#customerinfos').html('<p>Repet Guest </p>');
+                    }
+                  },
+                  error: function(xhr, status, error) {
+                    $("#mainguestname").val('');
+                        $("#mainguestemail").val('');
+                        $("#mainguestcity").val('');
+                        $("#mainguestcountry").val('');
+                        $('#customerinfos').empty();
+                        $("#country").val('');
+                        $("#guestidtype").val();
+                        $("#guestidetail").val('');
+                  }
+                });
+          
+               
+            });
+        
+        
+
+
+            </script>

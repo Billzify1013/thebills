@@ -1,0 +1,733 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>BILLZIFY</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta name="description" content="Optimize Your Hotel's Performance with Our Intuitive, Customized Management Solutions, Enhancing Efficiency and Elevating Guest Experiences.">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    <!-- Favicon -->
+    <link href="{% static 'img/newshadowlogo.png'%}" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"> 
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="{% static 'lib/animate/animate.min.css'%}" rel="stylesheet">
+    <link href="{% static 'lib/lightbox/css/lightbox.min.css'%}" rel="stylesheet">
+    <link href="{% static 'lib/owlcarousel/assets/owl.carousel.min.css'%}" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="{% static 'css/bootstrap.min.css'%}" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="{% static 'css/style.css'%}" rel="stylesheet">
+</head>
+
+<body data-bs-spy="scroll" data-bs-target=".navbar" data-bs-offset="51">
+    <!-- Spinner Start -->
+    <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="sr-only"></span>
+        </div>
+    </div>
+    <!-- Spinner End -->
+
+
+    <!-- Navbar Start -->
+    <nav class="navbar navbar-expand-lg bg-white  navbar-light fixed-top shadow py-lg-0 px-4 px-lg-5 wow fadeIn" data-wow-delay="0.1s">
+        <a href="#" class="navbar-brand d-block d-lg-none">
+            <!-- <h1 class="text-primary fw-bold m-0">ProMan</h1> -->
+            <img class="img-fluid" src="{% static 'img/illfy.png'%}" style="height:35px" alt="">
+        </a>
+        <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div style="height:60px" class="collapse  navbar-collapse justify-content-between py-4 py-lg-0" id="navbarCollapse"><a href="#" style="height: 80px" class="navbar-brand  py-3 px-4 mx-3 d-none d-lg-block">
+                <!-- <h1 class="text-primary fw-bold m-0">ProMan</h1> -->
+
+            <img class="img-fluid" src="{% static 'img/illfy.png'%}" style="height:45px" alt="">
+            </a>
+            <div class="navbar-nav ms-auto py-0">
+                <a href="#home" class="nav-item nav-link active">Home</a>
+                <a href="#about" class="nav-item nav-link">About</a>
+                <a href="#service" class="nav-item nav-link">Services</a>
+                <a href="#price" class="nav-item nav-link">Pricing</a>
+                <a href="#contact" class="nav-item nav-link">Contact</a>
+            </div>
+        </div>
+    </nav>
+    <!-- Navbar End -->
+
+    {% if messages%}
+    {% for msg in messages %}
+    <div class="container mt-5">
+        <!-- Success Alert -->
+        {% if msg.tags == 'success' %}
+        <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+            {{msg}}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {%else%}
+        <div id="success-alert" class="alert alert-danger alert-dismissible" role="alert">
+            {{msg}}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {%endif%}
+    </div>
+    {%endfor%}
+    
+    <script>
+        $(document).ready(function() {
+            // Fade out the alert after 5 seconds (5000 milliseconds)
+            setTimeout(function() {
+                $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+                    $(this).remove(); 
+                });
+            }, 2000);
+        });
+    </script>
+    {%endif%}
+    <!-- Header Start -->
+    <div class="container-fluid bg-white my-0 mt-0 " id="newsmain" style="height: 600px;">
+        <div class="container">
+            <div class="row g-1  align-items-center" style="margin-top:95px">
+                <div class="col-lg-6 py-0 pb-0 pt-lg-0">
+                    <!-- <h3 class=" text-primary pe-3 me-3 mb-0"
+                    style="font-family: Brush Script" 
+                    >Billzify</h3> -->
+                    <img class="img-fluid" src="{% static 'img/3.png'%}" style="height:90px" alt="">
+                    <h1 class="mt-3 mb-3" style="font-family:'Poppins', sans-serif;color:#1f2937">Hotel Management System made simple!</h1>
+                    <p class=" pe-3 me-3 mb-0" style="font-weight: 500;color: #4b5563">Optimize Your Hotel's Performance with Our Intuitive, Customized Management Solutions, Enhancing Efficiency and Elevating Guest Experiences.
+
+                    </p>
+                    
+                     <a href="#contact"  class="btn btn-primary py-3 mt-5 px-4 ">Get A Free Demo</a>
+                      
+                </div>
+                <div class="col-lg-6">
+                    <img class="img-fluid" src="{% static 'img/5312964.jpg'%}" alt="">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Header End -->
+    
+
+    <!-- Video Modal Start -->
+    <div class="modal modal-video fade" id="videoModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content rounded-0">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="exampleModalLabel">Youtube Video</h3>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- 16:9 aspect ratio -->
+                    <div class="ratio ratio-16x9">
+                        <iframe class="embed-responsive-item" src="" id="video" allowfullscreen allowscriptaccess="always"
+                            allow="autoplay"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Video Modal End -->
+
+
+    <!-- About Start -->
+    <div class="container-xxl py-6 " id="about">
+        <div class="container">
+            <div class="row g-6">
+                <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="d-flex align-items-center mb-5">
+                        <div class="years flex-shrink-0 text-center me-4">
+                            <h1 class="display-1 mb-0">1k</h1>
+                            <h5 class="mb-0">Plus</h5>
+                        </div>
+                        <h3 class="lh-base mb-0">Preferred by leading hotels across India</h3>
+                    </div>
+                    <p class="mb-4">Billzify hotel reservation system is the preferred choice for leading hotels across India and renowned for its exceptional quality and reliability. Designed to streamline the booking process. Our system offers numerous benefits which enhance the guest experience and improve efficiency. Hotels trust our platform for its seamless integration user-friendly interface and robust features and comprehensive customer support to make it more reliable and easy to use..</p>
+                    <p class="mb-3"><i class="far fa-check-circle text-primary me-3"></i>Affordable price</p>
+                    <p class="mb-3"><i class="far fa-check-circle text-primary me-3"></i>User friendly interface </p>
+                    <a class="btn btn-primary py-3 px-5 mt-3" href="#contact">Get A Free Demo</a>
+                </div>
+                <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="row g-3 mb-4">
+                        <div class="col-sm-6">
+                            
+                        </div>
+                        <div class="col-sm-6">
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                    	<img class="img-fluid rounded" style="height: 80px" src="{% static 'img/SMILE.png'%}" alt="">
+                        <h5 class="border-end pe-3 ms-4 me-3 mb-0">Happy Users</h5>
+                        <h2 class="text-primary fw-bold mb-0" data-toggle="counter-up">1060</h2><span class="text-primary fw-bold"> + </span>
+                    </div>
+                    <p class="mb-4">Hotel owners across india are delighted with our hotel reservation system and also praising its efficiency and ease of use. Our platform streamlines the entire booking process and hotel management.</p>
+                    <div class="d-flex align-items-center mb-3">
+                    	<img class="img-fluid rounded" style="height: 80px" src="{% static 'img/BILL.png'%}" alt="">
+                        <h5 class="border-end pe-3 me-3 ms-4 mb-0">Bills processed everyday</h5>
+                        <h2 class="text-primary fw-bold mb-0" data-toggle="counter-up">10000</h2><span class="text-primary fw-bold"> + </span>
+                    </div>
+                    <p class="mb-0">We are dedicated to ensuring smooth experience from the momemt guest check in until guest check out.
+It ensures the process of billing is convenient and designed to enhance the overall guests stay.</p>
+
+                    <div class="d-flex align-items-center mb-3 mt-4">
+                    	<img class="img-fluid rounded" style="height: 80px" src="{% static 'img/watch.png'%}" alt="">
+                        <h5 class=" pe-3 me-3 ms-4 mb-0">100% on-time response</h5>
+                    </div>
+                    <p class="mb-0">Billzify deliver exceptional customer service. Our team is available 24/7 to promptly address your concerns. We offer multiple communication channels ensuring user can reach us conveniently.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- About End -->
+
+
+    <!-- Expertise Start -->
+    <div class="container-xxl py-6 pb-5" id="skill">
+        <div class="container">
+            <div class="row g-5">
+                <div class="col-lg-7 wow fadeInUp" data-wow-delay="0.1s">
+                    <h3 class="display-5 mb-5">Multiple integrations in single dashboard</h3>
+                  
+                    <img class="img-fluid" src="{% static 'img/Loylty.png'%}" alt="">
+                </div>
+                <div class="col-lg-5 wow fadeInUp" data-wow-delay="0.5s">
+                    <img class="img-fluid mt-5" style="" src="{% static 'img/intregation.png'%}" alt="">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Expertise End -->
+
+
+   
+    <!-- Service Start -->
+    <div class="container-fluid  my-5 py-6" id="service" style="background: #EFEFF6">
+        <div class="container">
+            <div class="row g-5 mb-5 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="col-lg-12">
+                    <h2 class=" text-gray mt-0 mb-0">The complete hotel management System <br> which offers everything.</h2>
+                </div>
+                
+            </div>
+            <div class="row g-4 ">
+                <div class="col-lg-5 wow fadeInUp" data-wow-delay="0.1s">
+                    
+                       <center> <img class="img-fluid " id="bestimg" style="height: 450px;width: 350px" src="{% static 'img/service1.png'%}" alt="">
+                    	</center>
+                </div>
+                
+                <div class="col-lg-7" style="margin-top: -25px">
+                    <div class="row g-4 align-items-center">
+                        <div class="col-md-6">
+                            <div class="row g-4">
+                                <div class="col-12 wow fadeIn" data-wow-delay="0.3s">
+                                    <div class="feature-box  card border rounded p-3">
+                                        <i class="fa fa-check fa-2x text-primary mb-1"></i>
+                                        <h6 class="mb-0">Serve up smiles</h6>
+                                        <p class="mb-3">Our reservation system provides a variety of customizable offers according to the preferences of hotel owners.</p>
+                                    </div>
+                                </div>
+                                <div class="col-12 wow fadeIn" data-wow-delay="0.5s">
+                                    <div class="feature-box  card border rounded p-3">
+                                        <i class="fa fa-check fa-2x text-primary mb-1"></i>
+                                        <h6 class="mb-0">Transparent details & promotional rates</h6>
+                                        <p class="mb-3">
+										Build trust with transparency—show booking restrictions and details to help guests book confidently. Entice guests with special offers.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 wow fadeIn" data-wow-delay="0.7s">
+                            <div class="feature-box  card border rounded p-3">
+                                        <i class="fa fa-check fa-2x text-primary mb-1"></i>
+                                        <h6 class="mb-0">Hotel reservation with offline and online bookings</h6>
+                                        <p class="mb-1">Simplify hotel reservations with our intuitive booking platform, supporting both offline and online bookings. </p>
+                                    </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <!-- Service End -->
+
+
+
+    <!-- Service Start -->
+    <div class="container-fluid  my-5 py-3" id="service" >
+        <div class="container">
+        	<div class="row g-5 mb-5 wow fadeInUp" data-wow-delay="0.1s">
+           <div class="col-lg-12">
+                    <h2 class=" text-gray mt-0 mb-0">Billzify <span class="text-primary"> DineFlow</span></h2>
+                </div>
+               </div>
+            <div class="row g-4 ">
+                
+
+
+                <div class="col-lg-7" style="margin-top: ">
+                    <div class="row g-4 align-items-center">
+                        <div class="col-md-6">
+                            <div class="row g-4">
+                                <div class="col-12 wow fadeIn" data-wow-delay="0.3s">
+                                    <div class="feature-box  card border rounded p-3">
+                                        <i class="fa fa-check fa-2x text-primary mb-1"></i>
+                                        <h6 class="mb-0">Billzify DineFlow</h6>
+                                        <p class="mb-1">Upgrade your food service with our easy-to-use POS system, offering advanced features, intuitive design, and reliable performance for top-notch customer experiences.</p>
+                                    </div>
+                                </div>
+                                <div class="col-12 wow fadeIn" data-wow-delay="0.5s">
+                                    <div class="feature-box  card border rounded p-3">
+                                        <i class="fa fa-check fa-2x text-primary mb-1"></i>
+                                        <h6 class="mb-0">Customer service- Always ready</h6>
+                                        <p class="mb-1">Our 24/7 customer service provides quick assistance and solutions to everything user asks.
+We are always ready and more than happy to answer your each query.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 wow fadeIn" data-wow-delay="0.7s">
+                            <div class="feature-box  card border rounded p-3">
+                                        <i class="fa fa-check fa-2x text-primary mb-1"></i>
+                                        <h6 class="mb-0">Introducing Food ordering system via qr code</h6>
+                                        <p class="mb-1">Elevate dining with our QR code ordering system. Guests scan to access the menu, streamlining the ordering process. Hoteliers can customize the menu based on food availability. Make dining a personalised and convenient experience for every guest! </p>
+                                    </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5 wow fadeInUp" data-wow-delay="0.1s">
+                    
+                     <center>   <img class="img-fluid " id="bestimg" style="height: 450px;width: 350px" src="{% static 'img/service3.png'%}" alt=""></center>
+                    
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <!-- Service End -->
+
+
+    <!-- Service Start -->
+    <div class="container-fluid  my-5 py-6 " id="service" style="background: #EFEFF6">
+        <div class="container">
+           
+            <div class="row g-4 ">
+                <div class="col-lg-5 pt-5 wow fadeInUp" data-wow-delay="0.1s">
+                    
+                     <center> <img class="img-fluid mt-5" id="bestimg" style="height: 450px;width: 350px" src="{% static 'img/service2.png'%}" alt=""></center>  
+                    
+                </div>
+               
+
+                <div class="col-lg-7 " style="margin-top:85px">
+                    <div class="row g-4 align-items-center">
+                        <div class="col-md-6">
+                            <div class="row g-4">
+                                <div class="col-12 wow fadeIn" data-wow-delay="0.3s">
+                                    <div class="feature-box  card border rounded p-3">
+                                        <i class="fa fa-check fa-2x text-primary mb-1"></i>
+                                        <h6 class="mb-0">Hourly stays made easy with automated scheduling</h6>
+                                        <p class="mb-1">Our innovative reservation system simplifies short-term bookings, ensuring efficient check-ins and check-outs for seamless guest transitions.</p>
+                                    </div>
+                                </div>
+                                <div class="col-12 wow fadeIn" data-wow-delay="0.5s">
+                                    <div class="feature-box  card border rounded p-3">
+                                        <i class="fa fa-check fa-2x text-primary mb-1"></i>
+                                        <h6 class="mb-0">Early check-in service</h6>
+                                        <p class="mb-1">
+										We prioritize flexibility for a great stay, offering early check-in options that let guests start on their schedule. Our advanced reservation system makes managing early arrivals effortless for hotel owners.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 wow fadeIn" data-wow-delay="0.7s">
+                            <div class="feature-box  card border rounded p-3">
+                                        <i class="fa fa-check fa-2x text-primary mb-1"></i>
+                                        <h6 class="mb-0">Make website of your own hotel</h6>
+                                        <p class="mb-1">Give your hotel a digital glow-up with our customizable website maker, because your online presence should also be unique.
+With our easy-to-use and customizable website builder - hotel owners can create stunning and professional websites which perfectly reflect their brand and charm. They can customize everything in the website to make it more unique. </p>
+                                    </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    <!-- Service End -->
+
+
+    <!-- Service Start -->
+    <div class="container-fluid bg-white my-5 py-6 mt-0 " id="" style="">
+        <div class="container">
+            <div class="row g-1  align-items-center">
+                <div class="col-lg-6 py-0 pb-0 pt-lg-0">
+                    
+                      <center><img class="img-fluid mt-5" src="{% static 'img/service5.png'%}" alt="">
+                      <a class="btn btn-primary py-3 px-5 mt-3" href="#contact">Get A Free Demo</a>
+                      </center>
+                </div>
+                <div class="col-lg-6" style="margin-top:50px">
+                    
+                    <center> <img class="img-fluid mt-5" id="bestimg" style="height: 450px;width: 350px" src="{% static 'img/service4.png'%}" alt=""></center> 
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- Service End -->
+
+     <!-- Service Start -->
+    <div class="container-fluid  my-5 py-6 " id="service" style="background: #EFEFF6">
+        <div class="container">
+        	<div class="row g-5 wow fadeInUp" data-wow-delay="0.1s">
+           <div class="col-lg-12" style="margin-top: -15px">
+                    <h2 class=" text-gray mt-0 mb-5">All-in-one<span class="text-primary"> PMS</span> and <span class="text-primary">POS!</span></h2>
+                </div>
+               </div>
+
+           <center>
+            <div class="row g-4 ">
+                 <div class="col-lg-4 " style="margin-top:35px">
+                    <div class="row g-4 align-items-center">
+                        <div class="col-md-6">
+                            <div class="row g-4">
+                                <div class="col-12 wow fadeIn" data-wow-delay="0.3s">
+                                    <div class="feature-box  card border rounded p-3" style="height: 180px;width: 180px">
+                                       <img class="img-fluid " id="bestimg"  src="{% static 'img/car1.png'%}" alt="">
+                                    </div>
+                                </div>
+                                <div class="col-12 wow fadeIn" data-wow-delay="0.5s">
+                                    <div class="feature-box  card border rounded p-3" style="height: 180px;width: 180px">
+                                       <img class="img-fluid " id="bestimg"  src="{% static 'img/car5.png'%}" alt="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 wow fadeIn" data-wow-delay="0.7s">
+                            <div class="feature-box  card border rounded p-3" style="height: 180px;width: 180px">
+                                       <img class="img-fluid " id="bestimg"  src="{% static 'img/car3.png'%}" alt="">
+                                    </div>
+                        </div>
+                        
+                    </div>
+                </div>
+
+
+               
+
+                <div class="col-lg-4 " style="margin-top:35px">
+                    <div class="row g-4 align-items-center">
+                        <div class="col-md-6">
+                            <div class="row g-4">
+                                <div class="col-12 wow fadeIn" data-wow-delay="0.3s">
+                                    <div class="feature-box  card border rounded p-3" style="height: 180px;width: 180px">
+                                       <img class="img-fluid " id="bestimg"  src="{% static 'img/car.png'%}" alt="">
+                                    </div>
+                                </div>
+                                <div class="col-12 wow fadeIn" data-wow-delay="0.5s">
+                                    <div class="feature-box  card border rounded p-3" style="height: 180px;width: 180px">
+                                       <img class="img-fluid " id="bestimg"  src="{% static 'img/car6.png'%}" alt="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 wow fadeIn" data-wow-delay="0.7s">
+                            <div class="feature-box  card border rounded p-3" style="height: 180px;width: 180px">
+                                       <img class="img-fluid " id="bestimg"  src="{% static 'img/car7.png'%}" alt="">
+                                    </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 " style="margin-top:35px">
+                    <div class="row g-4 align-items-center">
+                        <div class="col-md-6">
+                            <div class="row g-4">
+                                <div class="col-12 wow fadeIn" data-wow-delay="0.3s">
+                                    <div class="feature-box  card border rounded p-3" style="height: 180px;width: 180px">
+                                       <img class="img-fluid " id="bestimg"  src="{% static 'img/car9.png'%}" alt="">
+                                    </div>
+                                </div>
+                                <div class="col-12 wow fadeIn" data-wow-delay="0.5s">
+                                    <div class="feature-box  card border rounded p-3" style="height: 180px;width: 180px">
+                                       <img class="img-fluid " id="bestimg"  src="{% static 'img/car10.png'%}" alt="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 wow fadeIn" data-wow-delay="0.7s">
+                            <div class="feature-box  card border rounded p-3" style="height: 180px;width: 180px">
+                                       <img class="img-fluid " id="bestimg"  src="{% static 'img/car11.png'%}" alt="">
+                                    </div>
+                        </div>
+
+                    </div>
+                </div>
+                
+            </div>
+            </center>
+        </div>
+    </div>
+    <!-- Service End -->
+
+
+    <!-- Header Start -->
+    <div class="container-fluid bg-white my-6 mt-0 py-6 " id="price" >
+        <div class="container">
+        	<div class="row g-5 wow fadeInUp" data-wow-delay="0.1s">
+           <div class="col-lg-12" style="margin-top: -15px">
+                    <center><h1 class=" text-gray mt-0 mb-2">Simple and pocket-friendly pricing</h1>
+                    	<p style="color: gray">Save cost and improve efficiency in hotel management with our budget friendly pricing!</p>
+                    </center>
+                </div>
+               </div>
+            <div class="row g-1  align-items-center" style="margin-top:15px">
+                <div class="col-lg-6 py-0 pb-0 pt-lg-0">
+                    <!-- <h3 class=" text-primary pe-3 me-3 mb-0"
+                    style="font-family: Brush Script" 
+                    >Billzify</h3> -->
+                    
+                    <h1 class=" mb-2 " style="color:#8C52FF">Billzify Pricing </h1>
+                    <p class=" pe-3 me-3 mb-0" style="font-weight: 500;color: #4b5563">Explore our budget-friendly pricing - offering excellent value without compromising quality.</p>
+                    <h1 style="color:#4b5563;font-family: 'Nunito Sans', sans-serif;font-size:55px" class="mt-4">₹1</h1>
+                    <p class=" pe-3 me-3 mb-0" style="font-weight: 500;color: #4b5563">Per Day/Per Room.</p>
+                    
+                     <a href="#contact"  class="btn btn-primary py-3 mt-4 px-4 ">Get A Free Demo</a>
+                      <div id="leftp">
+                      <p class="mb-3 mt-4"><i class="far fa-check-circle text-primary me-3"></i>Affordable price</p>
+                    <p class="mb-3"><i class="far fa-check-circle text-primary me-3"></i>Seamless integration</p>
+                    <p class="mb-3"><i class="far fa-check-circle text-primary me-3"></i>User friendly interface </p>
+                    <p class="mb-3 "><i class="far fa-check-circle text-primary me-3"></i>Seamless online ordering system</p>
+                    <p class="mb-3"><i class="far fa-check-circle text-primary me-3"></i>Universal cloud-based system for all operating systems</p>
+                    <p class="mb-3"><i class="far fa-check-circle text-primary me-3"></i>24x7 support</p>
+                </div>
+                </div>
+                <div class="col-lg-6 mb-5 mt-5">
+                    <img class="img-fluid" src="{% static 'img/pricing1.png'%}" alt="">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Header End -->
+
+
+
+    <!-- Contact Start -->
+    <div class="container-xxl " id="contact" >
+        <div class="container py-1">
+            <div class="row g-5 mb-5 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="col-lg-6">
+                    <h1 class="display-5 mt-5 mb-0">Schedule a free demo</h1>
+                </div>
+                
+            </div>
+            <div class="row g-5">
+                <div class="col-lg-7 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
+                    <p class="mb-4">Get in touch with our team to clarify your queries</a>.</p>
+                    <form action="{% url 'addfreedemo' %}" method="post">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="text" required maxlength="90" class="form-control" name="name" id="name" placeholder="Your Name">
+                                    <label for="name">Your Name</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="email" class="form-control" name="email" id="email" placeholder="Your Email">
+                                    <label for="email">Your Email</label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <input type="tel" required pattern="[6-9][0-9]{9}" class="form-control" name="phone" id="subject" placeholder="Phone">
+                                    <label for="subject">Phone</label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <input type="text" required maxlength="300" class="form-control" name="businessname" id="subject" placeholder="Business Name">
+                                    <label for="subject">Business Name</label>
+                                </div>
+                            </div>
+                            <div class="col-12 mt-4 mb-5">
+                                <button class="btn btn-primary py-3 px-5" type="submit">Book Demo</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-lg-5 col-md-6 wow fadeInUp"  data-wow-delay="0.1s">
+                    <img class="img-fluid " src="{% static 'img/contactus.png'%}" style="margin-top: -85px" alt="">
+                   
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Contact End -->
+
+
+    
+   
+
+
+
+    <!-- Copyright Start -->
+    <div class="container-fluid  py-4" style="background: #EFEFF6">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-8 text-center text-md-start mb-3 mb-md-0">
+                    	 <img class="img-fluid" src="{% static 'img/illfy.png'%}" style="height:35px" alt=""><br><br>
+                         &copy; Billzify, All rights reserved.
+                         <span style="font-size:24px;">&middot;</span>
+                         <a href="{% url 'terms' %}" class="text-black-50">Terms</a>
+                         <span style="font-size:24px;">&middot;</span>
+                         <a href="{% url 'privcy' %}" class="text-black-50">Privacy</a>
+                         <span style="font-size:24px;">&middot;</span>
+                         <a href="{% url 'refund' %}" class="text-black-50">Refund policy</a>
+                    </div>
+
+
+                    <div class="col-md-4 text-center text-md-end">
+
+                    
+                    	<a class="btn btn-light mb-2"><small class="fab fa-facebook-f text-primary"></small></a>
+                    	<a class="btn btn-light mb-2"><small class="fab fa-twitter text-primary"></small></a>
+                    	<a class="btn btn-light mb-2"><small class="fab fa-linkedin-in text-primary"></small></a>
+
+                    	<br>
+                    	<a href="{% url 'loginpage' %}" class="btn btn-outline-primary ">Billzify</a>
+                    	<a href="https://www.dineflow.billzify.com" class="btn btn-outline-primary ">DineFlow</a>
+                    	
+                    </div>
+
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Copyright End -->
+
+
+    <!-- Back to Top -->
+    <!-- <a href="#" class="btn btn-sm btn-primary btn-sm-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+ -->
+    
+ 	<div class="chatnowdiv">
+ 		<div>
+ 		<img class="img-fluid" src="{% static 'img/chatboardheader.png'%}" style="width:100%;border-radius:8px;" alt="">
+ 		<a onclick="hidechatnowbtn()" ><span style="margin-top: -110px;position: relative;" class="text-dark float-end pe-2"><i class="bi bi-x" style="font-size:30px;color: white"></i></span></a>
+
+ 		<div class="ms-4 mt-3" style="margin-top:5px;width: 50% ">
+ 			<p class="p-2 card">How Can I Help You?</p>
+ 			<button class="btn btn-primary " id="openscanner" style="margin-top: -5px">Chat Now</button>
+ 			<button class="btn btn-primary" id="openhelp" style="margin-top: -5px">Help!</button>
+ 		</div>
+
+ 		<div class="float-end w-50 mt-3 card me-4" id="scannerdiv" style="display: none">
+				<center><span style="font-weight:500">Scan Me</span><br>
+					<img class="img-fluid" src="{% static 'img/chatscan.jpeg'%}" style=";border-radius:8px;height: 160px" alt="" /><br>
+					<span>OR</span>
+					<span>Click The Button</span><br>
+					<a href="https://wa.me/message/MV3I3S3JJCP3D1" class="btn mb-3 mt-2 btn-primary">Live Chat</a>
+
+				</center>
+ 		</div>
+
+ 		<div class="float-end w-75 mt-3 card me-4" id="helpdiv" style="display: none">
+ 			<p class="p-2" style="font-weight:500">For assistance, please send an email</p>
+ 			<p class="p-2">To,<b>Billzifyhelp@gmail.com</b>
+ 				Thanks!
+ 			</p>
+
+ 		</div>
+
+
+ 			
+ 		</div> 		
+<div style="height: 35px;width: 100%;background: #8C52FF;bottom: 0;position: fixed;position: absolute;border-radius: 0px 0px 8px 8px">
+	<div style="height: 5px;background: #5E17EB;"></div>
+ 			
+ 		</div>
+ 	</div>
+ 		
+ 	</div>
+
+    <a href="#" onclick="showchatnowbtn()" class="btn  btn-primary chat-withusicon" style="border-radius:15px;box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;"><i class="bi bi-chat-left"></i></a>
+
+  <!--  <a href="#" onclick="showchatnowbtn()" class="btn    chat-withus" style="box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;">
+    	Chat With US 👋
+    </a> -->
+
+<script>
+	function showchatnowbtn() {
+		$('.chatnowdiv').fadeIn('slow').css('display', 'block');
+		$('.chat-withusicon').fadeOut('slow').css('display', 'none');
+		$('.chat-withus').fadeOut('slow').css('display', 'none');
+	}
+
+	function hidechatnowbtn() {
+		$('.chatnowdiv').fadeOut('slow').css('display', 'none');
+		$('.chat-withusicon').fadeIn('slow').css('display', 'block');
+		$('.chat-withus').fadeIn('slow').css('display', 'block');
+	}
+</script>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'lib/wow/wow.min.js'%}"></script>
+    <script src="{% static 'lib/easing/easing.min.js'%}"></script>
+    <script src="{% static 'lib/waypoints/waypoints.min.js'%}"></script>
+    <script src="{% static 'lib/typed/typed.min.js'%}"></script>
+    <script src="{% static 'lib/counterup/counterup.min.js'%}"></script>
+    <script src="{% static 'lib/owlcarousel/owl.carousel.min.js'%}"></script>
+    <script src="{% static 'lib/isotope/isotope.pkgd.min.js'%}"></script>
+    <script src="{% static 'lib/lightbox/js/lightbox.min.js'%}"></script>
+
+    <!-- Template Javascript -->
+    <script src="{% static 'js/main.js'%}"></script>
+</body>
+<script type="text/javascript">
+    // Disable right-click
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
+
+    // Disable common inspect shortcuts
+    document.addEventListener('keydown', function(e) {
+        if (e.keyCode == 123) { // F12 key
+            e.preventDefault();
+        }
+        if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { // Ctrl+Shift+I
+            e.preventDefault();
+        }
+        if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) { // Ctrl+Shift+J
+            e.preventDefault();
+        }
+        if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { // Ctrl+U
+            e.preventDefault();
+        }
+    });
+</script>
+</html>

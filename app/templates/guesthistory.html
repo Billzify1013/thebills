@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%endif%}
+</div>
+{%endfor%}
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 1000);
+      setTimeout(function() {
+        $("#danger-alert").fadeTo(500, 0).slideUp(500, function(){
+            $(this).remove(); 
+        });
+    }, 1000);
+      
+  });
+</script>
+{%endif%}
+
+
+<div class="card">
+<button
+                      class="btn btn-primary m-4 mb-4 w-25 justify-content-end float-end"
+                      data-bs-toggle="collapse"
+                      href="#multiCollapseExample1"
+                      role="button"
+                      aria-expanded="false"
+                      aria-controls="multiCollapseExample1"
+
+                      ><i class="bx bx-search fs-4 lh-0"></i> Search... Guest Data!</button>
+<div class="collapse multi-collapse" id="multiCollapseExample1">
+<form action="{% url 'searchguestdata' %}" method="post">
+  {% csrf_token %}
+  <div class="row m-2">
+    <div class="mb-3 ms-4 col-md-2">
+      <label for="firstName" class="form-label">Guest Name</label>
+      <input
+        class="form-control"
+        type="text"
+        id="firstName"
+        name="guestname"
+        placeholder="John"
+        
+      />
+    </div>
+
+    <div class="mb-3 col-md-2">
+      <label for="firstName" class="form-label">Guest Phone</label>
+      <input
+        class="form-control"
+        type="text"
+        id="firstName"
+        name="guestphone"
+        placeholder="9178XXXX13"
+        
+        
+      />
+    </div>
+
+    <div class="mb-3 col-md-2">
+      <label for="firstName" class="form-label">CheckIn Date</label>
+      <input
+        class="form-control"
+        type="date"
+        id="firstName"
+        name="checkindate"
+        value=""
+        
+        
+      />
+    </div>
+
+    <div class="mb-3 col-md-2">
+      <label for="firstName" class="form-label">CheckOut Date</label>
+      <input
+        class="form-control"
+        type="date"
+        id="firstName"
+        name="checkoutdate"
+        value="John"
+        
+        
+      />
+    </div>
+
+    <button type="submit" class=" col-md-3 mt-4 h-50 btn btn-primary">Search...</button>
+
+  </div>
+</form>
+
+</div>
+</div></div>
+    
+{%if guesthistory%}
+<div class="container">
+ <!-- Bootstrap Table with Header - Light -->
+ <div class="card">
+    <h5 class="card-header">Guest Stay History
+
+      <a href=""  data-bs-toggle="modal" onclick="getroomnumberpopup({{data.id}})" data-bs-target="#backDropModalsearchdate" class="btn btn-outline-primary float-end" style=>Export Data</a>
+    </h5>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead class="table-light">
+          <tr>
+            <th>Guest name</th>
+            <th>Phone</th>
+            <th>Room</th>
+            <th>checkindate</th>
+            <th>checkoutdate</th>
+            <th>Invoice</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+
+            {%for data in guesthistory%}
+          <tr>
+            <td><i class="fab fa-angular fa-lg text-danger "></i> <strong>{{data.guestname}}</strong></td>
+            <td>{{data.guestphome}}</td>
+            {% if data.noofrooms == 1%}
+            <td><i class='bx bx-home-heart mb-1 text-warning'></i> {{data.roomno}}</td>
+            {%else%}
+            <td>Multiple</td>
+            {%endif%}
+           
+            <td><span class="badge bg-label-primary me-1">{{data.checkindate}}</span></td>
+            <td><span class="badge bg-label-primary me-1">{{data.checkoutdate}}</span></td>
+            <td><a class="btn btn-primary" href="{% url 'invoicepage' id=data.id %}">Invoice</a></td>
+            <td>
+                
+                      <button
+                        type="button"
+                        class="btn  dropdown-toggle hide-arrow"
+                        data-bs-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        
+                      >
+                      <i class="bx bx-dots-vertical-rounded"></i>
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'guestdetails' id=data.id %}"><i class="bx bx-edit-alt me-1"></i> Details</a></li>
+
+                        
+                      </ul>
+                    
+            </td>
+          </tr>
+          {%endfor%}
+   
+        
+        </tbody>
+
+        
+           
+      </table>
+    <!-- Pagination section -->
+    
+      
+    </div>
+   
+    
+  </div></div>
+  
+  <!-- Bootstrap Table with Header - Light -->
+   {%endif%}
+
+  <nav aria-label="Page navigation">
+    {% if guesthistory.has_other_pages %}
+    <ul class="pagination justify-content-center  mt-5 ">
+        {% if guesthistory.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ guesthistory.previous_page_number }}">Previous</a></li>
+        {% else %}
+        <li class="page-item disabled"><span>&laquo;</span></li>
+        {% endif %}
+        {% for i in guesthistory.paginator.page_range %}
+            {% if i >= guesthistory.number|add:'-5' and i <= guesthistory.number|add:'5' %}
+                {% if guesthistory.number == i %}
+                <li class="page-item active">
+                    <span class="page-link">{{ i }}</span>
+                </li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                </li>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        {% if guesthistory.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ guesthistory.next_page_number }}">Next</a></li>
+        {% else %}
+        <li class="page-item disabled"><span>&raquo;</span></li>
+        {% endif %}
+    </ul>
+    {% endif %}
+</nav>
+
+
+
+
+
+
+
+  <!-- Modal datesearch model -->
+  <div class="modal fade" id="backDropModalsearchdate" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'searchguestexportdta'%}" method="POST" class="modal-content">
+            {% csrf_token %}
+        
+            <input type="hidden" id="roomnoidinput" name="dataid"/>
+            
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Export Guest Data</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Start Date</label>
+              <input
+                type="date"
+                name="startdate"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter RoomName"
+              />
+            </div>
+
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">End Date</label>
+              <input
+                type="date"
+                name="enddate"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter RoomName"
+              />
+            </div>
+          </div>
+         
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+{% endblock %}
+
+   
+
+    

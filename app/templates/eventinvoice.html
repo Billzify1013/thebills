@@ -1,0 +1,375 @@
+    {% load static %}
+    <html
+    lang="en"
+    class="light-style layout-menu-fixed"
+    dir="ltr"
+    data-theme="theme-default"
+    data-assets-path="{% static 'undercss/assets/'%}"
+    data-template="vertical-menu-template-free"
+    >
+    <head>
+        <meta charset="utf-8" />
+        <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+        />
+
+        <title>BILLZIFY</title>
+
+        <meta name="description" content="" />
+    
+        <!-- Favicon -->
+        <link rel="icon" type="image/x-icon" href="{% static 'undercss/assets/img/favicon/1.PNG'%}" />
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+        href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+        rel="stylesheet"
+        />
+
+        <!-- Icons. Uncomment required icon fonts -->
+        <link rel="stylesheet" href="{% static 'undercss/assets/vendor/fonts/boxicons.css'%}" />
+
+        <!-- Core CSS -->
+        <link rel="stylesheet" href="{% static 'undercss/assets/vendor/css/core.css'%}" class="template-customizer-core-css'%}" />
+        <link rel="stylesheet" href="{% static 'undercss/assets/vendor/css/theme-default.css'%}" class="template-customizer-theme-css'%}" />
+        <link rel="stylesheet" href="{% static 'undercss/assets/css/demo.css'%}" />
+
+        <!-- Vendors CSS -->
+        <link rel="stylesheet" href="{% static 'undercss/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css'%}" />
+
+        <link rel="stylesheet" href="{% static 'undercss/assets/vendor/libs/apex-charts/apex-charts.css'%}" />
+
+        {% comment %} <link rel="stylesheet" href="{% static 'undercss/assets/vendor/libs/spinkit/spinkit.css'%}" /> {% endcomment %}
+
+        <!-- Page donwload link to pdf -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+        <!-- Helpers -->
+        <script src="{% static 'undercss/assets/vendor/js/helpers.js'%}"></script>
+
+        <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+        <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+        <script src="{% static 'undercss/assets/js/config.js'%}"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <style type="text/css">
+            body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+    }
+
+    .invoice-container {
+        width: 100%;
+        margin: 50px auto;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+    }
+
+    .header img,
+    .footer img {
+        width: 100%;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+    }
+
+    .invoice-details {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 5px;
+        margin-bottom: 5px;
+    }
+
+    .left h1 {
+        color: #333;
+        margin-top: 0;
+    }
+
+    .client-details h2,
+    .invoice-items h2,
+    .totals p {
+        margin-top: 0;
+    }
+
+    .right p {
+        margin: 2px 0;
+    }
+
+    .invoice-items,
+    .totals {
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 1px;
+        margin-bottom: 1px;
+    }
+
+    .item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2px;
+    }
+
+    .item p {
+        margin: 0;
+    }
+
+    .totals {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .footer img {
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+    }
+
+        </style>
+    </head>
+    </head>
+        <style>
+            @media print {
+                #contentToHide {
+                    display: none;
+                }
+                #eventinfodiv{
+                    display: none;
+                }
+            }
+        </style>
+
+    <body>
+        
+        
+            <div class="card mb-2 ms-4" style="height:100px;width:97%" id="contentToHide">
+            <div class="row">
+                <div class="col-2 m-4">
+                <button class="btn btn-primary w-100" onclick="window.print()">Print Invoice</button>
+                </div>
+                <div class="col-2 m-4">
+                <button class="btn btn-primary w-100" onclick="window.print()">Send Invoice</button>
+                </div>
+                <div class="col-2 m-4">
+                <button class="btn btn-primary w-100" onclick="downloadPDF()">Donwload Invoice</button>
+                </div>
+                
+                <div class="col-1 m-4">
+                    <a class="btn btn-primary w-100" href="{%url 'upcomingevent' %}">Back</a>
+                </div>
+            </div>     
+            </div>
+
+
+    
+
+        
+
+
+        
+            
+        <body>
+            <div class="invoice-container mt-0" id="invoice">
+                <div class="header">
+                    <div class="row">
+                        <div class="col-2" style="margin-top:-50px">
+                            {%for i in profiledata%}
+                            <img src="{{i.profile_image.url}}" class="mt-4 ms-2" alt="Header Image">
+                            {%endfor%} </div>
+                        <div class="col-10">
+                    <img src="{% static 'undercss/assets/img/avatars/inv1 - Copy.png'%}" style="margin-top:-28px" alt="Header Image">
+                </div></div></div>
+                <div class="invoice-details" style="margin-top:-0px">
+                    {%for i in eventdata%}
+                    <div class="left">
+                        <h6>Invoice</h6>
+                        <p>Invocie Date: {{i.invoice_date}}</p>
+                        <p>Invocie Number: {{i.invoice_number}}</p>
+                        <p>Event Start Date : {{i.start_date}}</p>
+                        <p>Event End Date: {{i.end_date}}</p>
+                        
+                        
+                    </div>
+                    
+                    <div class="center">
+                        <h6>Guest Information</h6>
+                    <p>Name: {{i.customername}}</p>
+                    <p>Phone: {{i.customer_contact}}</p>
+                    {%if i.customergst%}
+                    <p>gstin:{{i.customergst}} </p>
+                    {%endif%}
+                    </div>
+                    {%endfor%}
+                    
+                    <div class="right">
+                        {%for i in profiledata%}
+                    <h6>{{i.name}}</h6>
+                    <p>{{i.address}}</p>
+                    <p>{{i.counrty}}, {{i.zipcode}}</p>
+                    <p>Email:{{i.email}}</p>
+                    <p>Phone: {{i.contact}}</p>
+                    <p>GstIn: {{i.gstin}}</p>
+                    {%endfor%}
+                    </div>
+                </div>
+            
+
+            
+                <div class="invoice-items">
+                    <div class="table-responsive text-nowrap">
+                        <table class="table">
+                        <thead class="table-light">
+                                <tr>
+                            
+                                    <th>Event</th>
+                                    <th > description </th>
+                                    {%for i in eventdata%}
+                                    {%if i.taxtype == "GST" %}
+                                    <th>CGST & Sgst </th>
+                                    {%else%}
+                                    <th>IGST</th>
+                                    {%endif%}
+                                    {%endfor%}
+                                    
+                                    <th>HSN/SAC CODE</th>
+                                    <th>Price</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                                {%for iteams in eventdata%}
+                                <tr>
+                                    <td>
+                                        {{iteams.event}}                                     
+                                    </td>
+                                    <td>{{iteams.event.description}}</td>
+                                    <td>{{iteams.event.eventax.taxrate}} %</td>
+                                   
+                                    <td>{{iteams.event.Hsn_sac}}</td>
+                                    <td>{{iteams.event.eventprice}}</td>
+                                </tr>
+                                {%endfor%}
+
+                                {% if addmoreeventdata %}
+                                {%for iteams in addmoreeventdata%}
+                                <tr>
+                                    <td>
+                                        {{iteams.events.eventname}}                                     
+                                    </td>
+                                    <td>{{iteams.events.description}}</td>
+                                    <td>{{iteams.events.eventax.taxrate}} %</td>
+                                   
+                                    <td>{{iteams.events.Hsn_sac}}</td>
+                                    <td>{{iteams.events.eventprice}}</td>
+                                </tr>
+                                {%endfor%}
+                                {%endif%}
+                                
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            
+                <div class="card col-6 shadow-none mb-0 w-50 float-end">
+                    {%for data in eventdata%}
+            
+                    
+                    <li class="list-group-item">
+                        <span class="text w-50">Total</span> 
+                        <span class="text float-end">₹{{data.total}}</span><br>
+                        <span class="text w-50">Discount</span> 
+                        <span class="text float-end">₹ {{data.discount}}</span><br>
+                        <span class="text w-50">Subtotal</span> 
+                        <span class="text float-end">₹ {{data.subtotal}}</span><br>
+                        {%for i in eventdata%}
+                        {%if i.taxtype == "GST" %}
+                        <span class="text w-50">Tax (CGST & SGST) Total Amount</span> 
+                        <span class="text float-end">₹ {{data.taxamount}}</span><br>
+                        {%else%}
+                        <span class="text w-50">IGST Total Amount</span> 
+                        <span class="text float-end">₹ {{data.taxamount}}</span><br>
+                        {%endif%}
+                        {%endfor%}
+                        <span class="text w-50">Advance Amount</span> 
+                        <span class="text float-end">₹ {{data.advanceamount}}</span><br>
+                        <span class="text w-50">Reamaining Amount</span> 
+                        <span class="text float-end">₹ {{data.reamainingamount}}</span><br>
+                    </li> 
+                    
+                    
+                    
+                    <li class="list-group-item">
+                        <span class="text w-50"><b>Grand Total Amount</b></span> 
+                        <span class="text float-end"><b>₹ {{data.Grand_total_amount}}</b></span>
+                    </li> 
+                    
+                    <div class="mt-4" id="eventinfodiv">
+
+
+                    <span class="text w-50"><i class='bx bxs-info-circle'></i>  Settle the invoice after the event is completed, accept the remaining amount, and add it to sales.</span>
+                    <a class="btn btn-success w-100 mt-1 text-white" href="{% url 'createeventinvoice' id=data.id %}" onclick="downloadPDF()">Save/Eventdone & create Invoice  </a>
+                    </div>
+                    
+                    </ul>
+                    {%if data.reamainingamount == 0 %}
+                    <img src="{% static 'undercss/assets/img/avatars/u2.png'%}" class="col-10 mt-4 ms-5 " height="" width="" style="padding-left:200px" alt="Header Image">
+                    {%else%}
+                    <img src="{% static 'undercss/assets/img/avatars/u1.png'%}" class="col-10 mt-4 ms-5 " height="" width="" style="padding-left:200px" alt="Header Image">
+                    {%endif%}
+                </div>
+                {%endfor%}
+
+                <div class="footer" >
+                    <img src="{% static 'undercss/assets/img/avatars/inv2.png'%}" style="padding-top:-225px" width="100%" alt="Footer Image">
+                </div>
+            </div>
+    
+        
+
+        <script>
+            function downloadPDF() {
+                var elementToHide = document.getElementById('contentToHide');
+                var element = document.getElementById('invoice'); // Choose the element you want to convert to PDF
+            
+                // Hide the element
+                elementToHide.style.display = 'none';
+                document.getElementById('eventinfodiv').style.display='none';
+                // Use html2pdf to convert the element to PDF
+                html2pdf()
+                    .from(element)
+                    .save('downloaded_page.pdf')
+                    .then(() => {
+                        // Show the element after PDF generation
+                        elementToHide.style.display = 'block';
+                        document.getElementById('eventinfodiv').style.display='block';
+                    });
+            }
+            
+        </script>
+        <!-- build:js assets/vendor/js/core.js -->
+    <script src="{% static 'undercss/assets/vendor/libs/jquery/jquery.js'%}"></script>
+    <script src="{% static 'undercss/assets/vendor/libs/popper/popper.js'%}"></script>
+    <script src="{% static 'undercss/assets/vendor/js/bootstrap.js'%}"></script>
+    <script src="{% static 'undercss/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js'%}"></script>
+
+    <script src="{% static 'undercss/assets/vendor/js/menu.js'%}"></script>
+    <!-- endbuild -->
+
+    <!-- Vendors JS -->
+    <script src="{% static 'undercss/assets/vendor/libs/apex-charts/apexcharts.js'%}"></script>
+
+    <!-- Main JS -->
+    <script src="{% static 'undercss/assets/js/main.js'%}"></script>
+
+    <!-- Page JS -->
+    <script src="{% static 'undercss/assets/js/dashboards-analytics.js'%}"></script>
+
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    </body>
+
+
+        </html>

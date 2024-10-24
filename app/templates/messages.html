@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block content %}
+
+{%load static %}
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <a href="{% url 'billingplanpage' %}" style="text-decoration:none;">
+    <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div></a>
+    {%endif%}
+</div>
+{%endfor%}
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 1000);
+  });
+</script>
+{%endif%} 
+
+<div class="row">
+
+    <div class="col-5">
+        <img src="{% static 'undercss/assets/img/avatars/bggirl.jpg'%}" alt class="w-100 mb-3 rounded-3" />
+
+        <img src="{% static 'undercss/assets/img/avatars/27682.jpg'%}" alt class="w-100 rounded-3 mt-5" />
+    </div>
+
+    <div class="col-7">
+<div class="card">
+   
+    <h5 class="text fw-bold p-3">
+        <i class='menu-icon mb-1 bx bxs-home-smile text-success'></i><br>Stand out by giving each guest a warm, personalized welcome and exclusive loyalty messages. Let's elevate your hospitality experience together!
+    </h5>
+</div>
+
+<div class="card mt-4">
+    <h5 class="p-3 pb-0 mb-1" >
+        Welcome Messages!
+    </h5>
+    <div style="border:1px solid gray;border-radius:5px " class=" ms-3 p-3 w-75">
+    <span class="text  w-75 border-5">Message content-</span><br>
+    <span class="text  w-75 border-5">Dear [guest name], Welcome to {{profiledata.name}}. We are delighted to have you with us and look forward to making your stay enjoyable. Thank you for choosing us.</span>
+    </div>
+
+    <form action="{% url 'sendwelcomemsg' %}" method="post" class="p-3">
+        {% csrf_token %}
+        <label>Guest Name</label>
+        <input type="text" name="name" class="form-control w-50 " placeholder="Veeru ji" /><br>
+        <label>Guest Phone</label>
+        <input type="text" name="phone" class="form-control w-50" placeholder="9145895645" pattern="[6-9][0-9]{9}"/><br>
+        <input type="submit" class="btn btn-primary  w-50" />
+        
+    </form>
+
+</div>
+
+
+
+<div class="card mt-4">
+    <h5 class="p-3 pb-3 mb-1" >
+        Loyalty Messages!
+    </h5>
+    <div style="border:1px solid gray;border-radius:5px " class=" ms-3 p-3 w-75">
+    <span class="text  w-75 border-5">Message content-</span><br>
+    <span class="text  w-75 border-5">Dear Guest, you have earned loyalty points worth Rs [points] at {{profiledata.name}}. We look forward to welcoming you back soon. - Billzify</span>
+    </div>
+
+    <form action="{% url 'sendloyaltymsg' %}" method="post" class="p-3">
+        {% csrf_token %}
+        <label>Loyalty Points</label>
+        <input type="text" name="points" class="form-control w-50 " placeholder="like: 999" /><br>
+        <label>Guest Phone</label>
+        <input type="text" name="phone" class="form-control w-50" placeholder="9145895645" pattern="[6-9][0-9]{9}"/><br>
+        <input type="submit" class="btn btn-primary  w-50" />
+        
+    </form>
+
+</div>
+</div>
+
+
+</div>
+
+{%endblock%}

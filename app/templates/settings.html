@@ -1,0 +1,644 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <div id="success-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%endif%}
+</div>
+{%endfor%}
+
+<script>
+    $(document).ready(function() {
+        // Fade out the alert after 5 seconds (5000 milliseconds)
+        setTimeout(function() {
+            $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+                $(this).remove(); 
+            });
+        }, 1000);
+    });
+</script>
+{%endif%}
+
+<div class="row">
+
+    <div class="col-3 card">
+        
+        <div class="nav-align-top mb-4">
+            <ul class="nav nav-pills mb-3 nav-fill text-right" role="tablist" style="text-align:left">
+              <li class="nav-item w-100 m-1 mt-3 " >
+                <button
+                  type="button"
+                  class="nav-link active " 
+                 style="text-align:left"
+                  role="tab"
+                  data-bs-toggle="tab"
+                  data-bs-target="#navs-pills-justified-loylty"
+                  aria-controls="navs-pills-justified-loylty"
+                  aria-selected="true"
+                >
+                <i class='bx bxs-offer'></i> Loyalty Profile
+                </button>
+              </li>
+              <li class="nav-item w-100 m-1">
+                <button
+                  type="button"
+                  class="nav-link"
+                  style="text-align:left"
+                  role="tab"
+                  data-bs-toggle="tab"
+                  data-bs-target="#navs-pills-justified-profile"
+                  aria-controls="navs-pills-justified-profile"
+                  aria-selected="false"
+                >
+                <i class='bx bxs-purchase-tag'></i> Taxes
+                </button>
+              </li>
+              <li class="nav-item w-100 m-1">
+                <button
+                  type="button"
+                  class="nav-link"
+                  style="text-align:left"
+                  role="tab"
+                  data-bs-toggle="tab"
+                  data-bs-target="#navs-pills-justified-messages"
+                  aria-controls="navs-pills-justified-messages"
+                  aria-selected="false"
+                >
+                <i class='bx bxs-category-alt'></i> Category
+                </button>
+              </li>
+              <li class="nav-item w-100 m-1 m-1">
+                <button
+                  type="button"
+                  class="nav-link "
+                  style="text-align:left"
+                  role="tab"
+                  data-bs-toggle="tab"
+                  data-bs-target="#navs-pills-justified-sms"
+                  aria-controls="navs-pills-justified-sms"
+                  aria-selected="true"
+                >
+                <i class='bx bxs-home-smile mb-1'></i> SMS Marketing
+                  <span class="badge rounded-pill badge-center h-px-20 w-px-20 bg-danger">1</span>
+                </button>
+              </li>
+              
+             
+              <li class="nav-item w-100 m-1">
+                <button
+                  type="button"
+                  class="nav-link"
+                  style="text-align:left"
+                  role="tab"
+                  data-bs-toggle="tab"
+                  data-bs-target="#navs-pills-justified-helosupport"
+                  aria-controls="navs-pills-justified-helosupport"
+                  aria-selected="false"
+                >
+                  <i class="tf-icons bx bx-user mb-1"></i> Help & Support
+                </button>
+              </li>
+            </ul>
+            
+          </div>
+
+        
+    </div>
+    <div class="col-9">
+        <div class="card ">
+            <div class="tab-content">
+                <!--loylty div start-->
+                <div class="tab-pane fade show active" id="navs-pills-justified-loylty" role="tabpanel">
+
+                    {%if loyltydata%}
+
+                    <form action="{% url 'updateloylty' %}" method="POST" >
+                        {% csrf_token %}
+                    {%for i in loyltydata%}
+                      <div class="row">
+                        <div class="col mb-12">
+                          <label for="nameBackdrop" class="form-label">Loyalty Percentage</label>
+                          <input
+                            type="number"
+                            name="loyltypersantage"
+                            value="{{i.loylty_rate_prsantage}}"
+                            id="nameBackdrop"
+                            class="form-control"
+                            placeholder="Enter Loylty% Eg:10,20,30,25"
+                            required
+                          />
+                        </div>
+                    </div>
+                    
+                    
+                    <div class="row">
+                        <div class="col mb-6 mt-3">
+                            {% if i.Is_active is True %}
+                            <label for="nameBackdrop" class="form-label">Active</label>
+                            <div style="margin-left:-35px" class="col-8 form-check form-switch mb-2  border-danger" style="border:px solid red;border-radius:10px">
+                                
+                                <label class="form-check-label mt-1 text-danger" style="margin-left:px" for="flexSwitchCheckChecked"
+                                  ></label
+                                >
+                                <input class="form-check-input ms-1 mt-1" style="height:25px;width:60px" type="checkbox" id="flexSwitchCheckChecked" checked name="checkbox" />
+                                <span class="badge bg-label-danger mb-1 me-1 mt-1 ms-2  ">On/Off</span>
+                              </div>
+                            {%else%}
+                            <label for="nameBackdrop" class="form-label">De-Active</label>
+                            <div style="margin-left:-35px" class="col-8 form-check form-switch mb-2  border-danger" style="border:px solid red;border-radius:10px">
+                                
+                                <label class="form-check-label mt-1 text-danger" style="margin-left:px" for="flexSwitchCheckChecked"
+                                  ></label
+                                >
+                                <input class="form-check-input ms-0 mt-1" style="height:25px;width:60px" type="checkbox" id="flexSwitchCheckChecked"  name="checkbox" />
+                                <span class="badge bg-label-primary mb-1 me-1 mt-1 ms-2  ">On/Off</span>
+                              </div>
+                            {%endif%}
+                            
+                        </div>
+                        <div class="col mb-6 mt-4">
+                          <button class="btn btn-primary mt-1 w-50 float-end">Update</button>
+                        </div>
+                      </div>
+                      
+                    </form>
+                    {%endfor%}
+
+                    {%else%}
+                    <form action="{% url 'activeloylty' %}" method="POST" >
+                        {% csrf_token %}
+                    
+                      <div class="row">
+                        <div class="col mb-12">
+                          <label for="nameBackdrop" class="form-label">Loyalty Percentage</label>
+                          <input
+                            type="number"
+                            name="loyltypersantage"
+                            id="nameBackdrop"
+                            class="form-control"
+                            placeholder="Enter Loylty% Eg:10,20,30,25"
+                            required
+                          />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col mb-6 mt-3">
+                            <label for="nameBackdrop" class="form-label">Active</label>
+                            <br>
+                            <input class="form-check-input" id="checkboxinp" style="height:25px;width:25px"  type="checkbox" required/>
+                            <span class="text ms-2 mt-2">Please Active This To Start Services!</span>
+                        </div>
+                        <div class="col mb-6 mt-4">
+                          <button class="btn btn-primary mt-1 w-50 float-end">Save</button>
+                        </div>
+                      </div>
+                      
+                    </form>
+                    {%endif%}
+
+                    <h5 class="text-success"><i class='bx bxs-offer mb-1 me-2'></i>Offers Rewards Loyalty Points Service</h5>
+                    <h6 class="m-2 ms-3"><i class='bx bxl-jquery text-primary me-2'></i>An SMS will automatically be sent to the Your guest
+                     informing them about the Your Loyalty program,
+                    helping you build a strong and proud relationship with your customers.</h6>
+                    <h6 class="m-2 ms-3"><i class='bx bxl-jquery text-primary me-2'></i> Enhance Customer Lifetime Value.</h6>
+                    <h6 class="m-2 ms-3"><i class='bx bxl-jquery text-primary me-2'></i>Create Personalized Marketing Campaigns.</h6>
+                    <h6 class="m-2 ms-3"><i class='bx bxl-jquery text-primary me-2'></i>Incentivize Customers to Refer Friends.</h6>
+                    <h6 class="m-2 ms-3"><i class='bx bxl-jquery text-primary me-2'></i>Build a Loyal Customer Community.</h6>
+                    <h6 class="m-2 ms-3"><i class='bx bxl-jquery text-primary me-2'></i>Reward Customers for Social Sharing.</h6>
+                    <h6 class="m-2 ms-3"><i class='bx bxl-jquery text-primary me-2'></i>Boost Sales During Slow Periods.</h6>
+                    <h6 class="m-2 ms-3"><i class='bx bxl-jquery text-primary me-2'></i>Provide Exclusive VIP Experiences.</h6>
+                
+                    <span>If you wish to check your customer loyalty points, please visit any room, scroll down, and look for the loyalty check form.</span>
+                  </div>
+                <!--loylty div end-->
+
+
+
+                <!--tax div start-->
+                <div class="tab-pane fade show " id="navs-pills-justified-profile" role="tabpanel">
+                    <div class="col-12 mb-2">
+                        <button
+                          class="btn btn-primary mb-4 float-end"
+                          data-bs-toggle="collapse"
+                          href="#multiCollapseExample1"
+                          role="button"
+                          aria-expanded="false"
+                          aria-controls="multiCollapseExample1"
+
+                          ><i class='bx bxs-plus-circle mb-1'></i> Add Tax </button>
+                        
+                    </div>
+                    <br>
+                    <div class="col-12 mt-5  mb-md-0">
+                            <div class="collapse multi-collapse" id="multiCollapseExample1">
+                                
+                                <form action="{% url 'addtax' %}" method="POST" >
+                                    {% csrf_token %}
+                                
+                                  <div class="row">
+                                    <div class="col mb-12">
+                                      <label for="nameBackdrop" class="form-label">Tax Name</label>
+                                      <input
+                                        type="text"
+                                        name="taxname"
+                                        id="nameBackdrop"
+                                        class="form-control"
+                                        placeholder="Like vat-12%"
+                                        required
+                                      />
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col mb-12">
+                                      <label for="nameBackdrop" class="form-label mt-2">Tax Code</label>
+                                      <input
+                                        type="text"
+                                        name="taxcode"
+                                        id="nameBackdrop"
+                                        class="form-control"
+                                        placeholder="like 105,102,110"
+                                        required
+                                      />
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col mb-12">
+                                      <label for="nameBackdrop" class="form-label mt-2">Tax Rate</label>
+                                      <input
+                                        type="number"
+                                        name="taxrate"
+                                        min="1"
+                                        id="nameBackdrop"
+                                        class="form-control"
+                                        placeholder="Like  12%, 18%, 24%"
+                                        required
+                                      />
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    
+                                    <div class="col mb-6 mt-4">
+                                      <button class="btn btn-primary mt-1 w-25 float-end">Save</button>
+                                    </div>
+                                  </div>
+                                  
+                                </form>
+
+                            </div>
+                    </div>
+                   
+
+                    <table class="table mt-5">
+                      <span class="text text-danger">Note: Please do not delete a tax after creating an invoice, as it will delete all data related to this tax.</span>
+                        <thead class="table">
+                          <tr>
+                            <th>Tax name</th>
+                            <th>Code</th>
+                            <th>Rate</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody class="table-border-bottom-0">
+                
+                            {% for data in taxdata%}
+                          <tr>
+                            <td><i class="fab fa-angular fa-lg text-danger "></i> <strong>{{data.taxname}}</strong></td>
+                            <td>{{data.taxcode}}</td>
+                            <td>{{data.taxrate}}</td>
+                            <td>
+                                <a href="{% url 'deletetaxitem' id=data.id %}"><span class="badge bg-label-danger  "><i class='bx bxs-trash'></i></span></a>
+                            </td>
+                          </tr>
+                          {%endfor%}
+                   
+                        
+                        </tbody>
+                      </table>
+
+                  </div>
+                  <!--tax div end-->
+
+                  <!--category div start-->
+                <div class="tab-pane fade" id="navs-pills-justified-messages" role="tabpanel">
+                  
+
+                  <div class="col-12 mb-2">
+                    <button
+                      class="btn btn-primary mb-4 float-end"
+                      data-bs-toggle="collapse"
+                      href="#multiCollapseExample1"
+                      role="button"
+                      aria-expanded="false"
+                      aria-controls="multiCollapseExample1"
+
+                      ><i class='bx bxs-plus-circle mb-1'></i> Add Category </button>
+                    
+                </div>
+                <br>
+                <div class="col-12 mt-5  mb-md-0">
+                        <div class="collapse multi-collapse" id="multiCollapseExample1">
+                            <form action="{% url 'addcategory' %}" method="POST"  enctype="multipart/form-data">
+                                {% csrf_token %}
+                            
+                              <div class="row">
+                                <div class="col-6 mb-6">
+                                  <label for="nameBackdrop" class="form-label">Category Name</label>
+                                  <input
+                                    type="text"
+                                    name="catname"
+                                    id="nameBackdrop"
+                                    class="form-control"
+                                    placeholder="Like Delux Cottages!"
+                                    required
+                                  />
+                                </div>
+
+                                <div class="col-6 mb-12">
+                                  <label for="nameBackdrop" class="form-label ">Category Price</label>
+                                  <input
+                                    type="number"
+                                    name="price"
+                                    id="nameBackdrop"
+                                    class="form-control"
+                                    placeholder="For Room And Category price"
+                                    required
+                                  />
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-6 mb-6">
+                                  <label for="nameBackdrop" class="form-label mt-2">Upload Category Image</label>
+                                  <input
+                                    type="file"
+                                    name="Categoryimg"
+                                    id=""
+                                    class="form-control"
+                                    placeholder=""
+                                    required
+                                  />
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-6 mb-12">
+                                  <label for="nameBackdrop" class="form-label mt-2">Choose Tax</label>
+                                  <select class="form-control" name="taxcategory" required placeholder="Select Tax ">
+                                    {%for tx in taxdata%}
+                                    <option  value="{{tx.id}}">{{tx}}</option>
+                                    {%endfor%}
+                                  </select>
+                                </div>
+
+                                <div class="col-6 mb-12">
+                                  <label for="nameBackdrop" class="form-label mt-2">Enter HSN/SAC code</label>
+                                  <input
+                                    type="number"
+                                    name="hsccode"
+                                    id="nameBackdrop"
+                                    class="form-control"
+                                    placeholder="Like  12%, 18%, 24%"
+                                    required
+                                  />
+                                </div>
+                            </div>
+                            <div class="row">
+                                
+                                <div class="col mb-5 mt-4">
+                                  <button class="btn btn-primary mt-1 w-25 float-end">Save</button>
+                                </div>
+                              </div>
+                              
+                            </form>
+
+                        </div>
+                </div>
+               
+            
+                <table class="table mt-5">
+                    <thead class="table">
+                      <tr>
+                        <th>Category name</th>
+                        <th>Price</th>
+                        <th>Image</th>
+                        <th>Tax</th>
+                        <th>HSN/SAC</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+            
+                        {% for data in category%}
+                      <tr>
+                        <td><i class="fab fa-angular fa-lg text-danger "></i> <strong>{{data.category_name}}</strong></td>
+                        <td>{{data.catprice}}</td>
+                        <td>
+                          <img src="{{data.roomimg.url}}" alt="rooming" height="30" />
+                          </td>
+                        <td>{{data.category_tax.taxrate}}%</td>
+                        <td>{{data.Hsn_sac}}</td>
+                        <td>
+                
+                          <button
+                            type="button"
+                            class="btn  dropdown-toggle hide-arrow"
+                            data-bs-toggle="dropdown"
+                            aria-haspopup="true"
+                            aria-expanded="false"
+                            
+                          >
+                          <i class="bx bx-dots-vertical-rounded"></i>
+                          </button>
+                          <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
+                              data-bs-target="#backDropModalupdate" onclick="getroomnumberpopup({{data.id}})"><i class="bx bx-edit-alt me-1"></i> Edit</a></li>
+                            <li><a class="dropdown-item" href="{% url 'deletecategory' id=data.id %}" ><i class="bx bx-trash me-1"></i> Delete</a></li>
+                            
+                          </ul>
+                        
+                </td>
+                        
+                      </tr>
+                      {%endfor%}
+               
+                    
+                    </tbody>
+                  </table>
+
+
+
+                </div>
+                <!--category div end-->
+              
+              <!--sms marketing div start-->
+              <div class="tab-pane fade" id="navs-pills-justified-sms" role="tabpanel">
+                <p>
+                  SMS (Short Message Service):<br>
+Standard SMS messages are limited to 160 characters per message.
+Longer messages are typically split into multiple segments, each 160 characters long.
+Consider using concise language and abbreviations if appropriate.
+                </p><br>
+                <p>
+                  The messages we send via Billzify exceed 160 characters. Therefore, each message hit will count as 2 messages from your message limit. Additionally, you will need permission from the admin to start the message service.
+                </p>
+             </div>
+             <!--sms Marketing-->
+             
+
+             <!--help div start-->
+             <div class="tab-pane fade" id="navs-pills-justified-helosupport" role="tabpanel">
+              <h5>
+                For assistance, please email,<br><br>
+                <b>Billzifyhelp@gmail.com </b><br><br>
+                Thank you! We will respond shortly.
+              </h5>
+           </div>
+           <!--help Marketing-->
+              
+              
+              
+              </div>
+
+               
+        </div>
+    </div>
+
+</div>
+
+
+<div class="col-xl-6">
+    
+      
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+
+<!--js of room no set to pop up button-->
+<script type="text/javascript">
+  function getroomnumberpopup(e) {
+    var room_no = e
+    document.getElementById('roomnoidinput').value = e;
+  }
+</script>
+
+<!-- Modal edit Category -->
+<div class="modal fade" id="backDropModalupdate" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog">
+      <form action="{%url 'updatecategory'%}" method="POST" class="modal-content" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" id="roomnoidinput" name="categoryid" />
+      <div class="modal-header">
+        <h5 class="modal-title" id="backDropModalTitle">Update Category</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">Category Name</label>
+            <input
+              type="text"
+              name="catname"
+              id="nameBackdrop"
+              class="form-control"
+              placeholder="Enter product name"
+              required
+            />
+          </div>
+
+          <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Category Price</label>
+              <input
+                type="number"
+                name="price"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter price"
+                required
+              />
+            </div>
+        </div>
+
+        <div class="row">
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">Category Image</label>
+            <input
+              type="file"
+              name="Categoryimg"
+              id="nameBackdrop"
+              class="form-control"
+              placeholder="Enter price"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="row">
+          
+          <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Select Tax</label>
+              <select class="form-control" name="taxcategory" required placeholder="Select tax" >
+                  <option  value="">Select tax</option>
+                  {%for t in taxdata%}
+                  <option  value="{{t.id}}">{{t}}</option>
+                  {%endfor%}
+              </select>
+            </div>
+            
+          <div class="col  mb-3">
+            <label for="nameBackdrop" required class="form-label"> Hsn code</label>
+            <input
+              type="number"
+              name="hsccode"
+              id="nameBackdrop"
+              class="form-control"
+              placeholder="Enter Hsn Code"
+            />
+          </div>
+
+         
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button  class="btn btn-warning">Update</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+
+
+{%endblock%}

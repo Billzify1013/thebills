@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%endif%}
+</div>
+{%endfor%}
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 1000);
+      setTimeout(function() {
+        $("#danger-alert").fadeTo(500, 0).slideUp(500, function(){
+            $(this).remove(); 
+        });
+    }, 5000);
+      
+  });
+</script>
+{%endif%}
+
+
+<div class="card" >
+<button
+                      class="btn btn-primary m-4 mb-4 w-25 justify-content-end float-end"
+                      data-bs-toggle="collapse"
+                      href="#multiCollapseExample1"
+                      role="button"
+                      aria-expanded="false"
+                      aria-controls="multiCollapseExample1"
+
+                      ><i class="bx bx-search fs-4 lh-0"></i> Search... Invoice Data!</button>
+<div class="collapse multi-collapse" id="multiCollapseExample1">
+<form action="{% url 'searchaminitiesdata' %}" method="post">
+  {% csrf_token %}
+  <div class="row m-2">
+    <div class="mb-3 ms-4 col-md-2">
+      <label for="firstName" class="form-label">Customer Name</label>
+      <input
+        class="form-control"
+        type="text"
+        id="firstName"
+        name="guestname"
+        placeholder="John"
+        
+      />
+    </div>
+
+    <div class="mb-3 col-md-2">
+      <label for="firstName" class="form-label">Customer Phone</label>
+      <input
+        class="form-control"
+        type="text"
+        id="firstName"
+        name="guestphone"
+        placeholder="9178XXXX13"
+        
+        
+      />
+    </div>
+
+    <div class="mb-3 col-md-2">
+      <label for="firstName" class="form-label">Invoice Number</label>
+      <input
+        class="form-control"
+        type="number"
+        id="firstName"
+        name="invnumber"
+        value=""
+        
+        
+      />
+    </div>
+    <div class="mb-3 col-md-2">
+        <label for="firstName" class="form-label">Start Date</label>
+        <input
+          class="form-control"
+          type="date"
+          id="firstName"
+          name="checkindate"
+          value=""
+          
+          
+        />
+      </div>
+
+    <div class="mb-3 col-md-2">
+      <label for="firstName" class="form-label">End Date</label>
+      <input
+        class="form-control"
+        type="date"
+        id="firstName"
+        name="checkoutdate"
+        value="John"
+        
+        
+      />
+    </div>
+
+    <button type="submit" class=" col-md-1 mt-4 h-50 btn btn-primary">Search</button>
+
+  </div>
+</form>
+
+</div>
+</div></div></div>
+<div class="container" >
+
+  {%if advanceroomdata%}
+ <!-- Bootstrap Table with Header - Light -->
+ <div class="card ">
+    <h5 class="card-header" >Amenities Sales Data</h5>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead class="table-light">
+          <tr>
+            <th>Customer name</th>
+            <th>Phone</th>
+            <th>Billing Date</th>
+            <th>Total Amount</th>
+            <th>Invoices</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+
+            {%for data in advanceroomdata%}
+          <tr>
+            <td><i class="fab fa-angular fa-lg text-danger"></i> <strong>{{data.customername}}</strong></td>
+            <td>{{data.customercontact}}</td>
+            <td>
+              {{data.invoicedate}}
+            </td>
+              <td><span class="badge bg-label-primary me-1">{{data.grand_total_amount}}</span></td>
+        
+            <td>
+                <a href="{% url 'aminitiesinvoice' id=data.id %}" class="btn btn-primary text-white">INVOICE</a>
+            </td>
+            
+            <td>
+                {%if forloop.counter == 1 and checkdata %}
+                        <a class="btn btn-light" href="{% url 'deleteaminitesinvc' id=data.id %}"><i class="bx bx-trash me-1 text-danger"></i></a>
+                {%endif%}    
+            </td>
+          </tr>
+          {%endfor%}
+   
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Bootstrap Table with Header - Light -->
+
+
+  <!--pagination start here-->
+
+<nav aria-label="Page navigation">
+    {% if advanceroomdata.has_other_pages %}
+    <ul class="pagination justify-content-center  mt-5 ">
+        {% if advanceroomdata.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ advanceroomdata.previous_page_number }}">Previous</a></li>
+        {% else %}
+        <li class="page-item disabled"><span>&laquo;</span></li>
+        {% endif %}
+        {% for i in advanceroomdata.paginator.page_range %}
+            {% if i >= advanceroomdata.number|add:'-5' and i <= advanceroomdata.number|add:'5' %}
+                {% if advanceroomdata.number == i %}
+                <li class="page-item active">
+                    <span class="page-link">{{ i }}</span>
+                </li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                </li>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        {% if advanceroomdata.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ advanceroomdata.next_page_number }}">Next</a></li>
+        {% else %}
+        <li class="page-item disabled"><span>&raquo;</span></li>
+        {% endif %}
+    </ul>
+    {% endif %}
+  </nav>
+
+{%endif%}</div>
+
+
+{%endblock%}

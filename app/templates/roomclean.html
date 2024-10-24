@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if rooms %}
+{%else%}
+<div class="card">
+    <form>
+        <div class="row">
+            <div class="col-9 form-check form-switch mb-2 ms-3 border-danger" style="border:px solid red;border-radius:10px">
+              <label class="form-check-label mt-3 text-primary" style="margin-left:0px" for="flexSwitchCheckChecked"
+                >If you Want To Start Cleaning Service Please Trun On This Button. </label
+              >
+            </div>
+            <div class="col-2 form-check form-switch">
+                <input class="form-check-input ms-0 mt-3 float-end" style="height:25px;width:60px" type="checkbox" id="flexSwitchCheckChecked" name="roomcleanstatus" />
+          
+                <span class="badge bg-label-primary mb-1 me-1 mt-3 ms-0  ">On/Off</span>
+            </div>
+          </div>
+
+    </form>
+</div>
+{%endif%}
+
+
+
+<div class="row ">
+    <h5 class="text ms-2">Cleaned Rooms
+        <span class="float-end text-small me-3">Data Will Be Update Every-Day Automatically</span>
+    </h5>
+{% for i in cleanrooms %}
+<div class="col-2 col-outline-danger">
+    <div class="card mt-3">
+    <div class="card-body ">
+        <center><i class='bx bx-happy text-success ' style="font-size:25px"></i>
+            
+            
+        <h6 class="card-title  mt-1 mb-0 text-center">{{i.rooms.room_name}}</h6>
+        <p class="mt-0 text-center">{{i.rooms.room_type}}</p>
+        
+    </center>
+        
+    </div>
+</div>
+</div> 
+{%endfor%}
+</div>
+
+<div class="row mt-5">
+    <h5 class="text ms-2 ">Uncleaned Rooms</h5>
+    {% for i in uncleandroom %}
+    
+    <div class="col-2 col-outline-danger">
+        <a href="#" style="text-decoration:none "  data-bs-toggle="modal"
+        data-bs-target="#modalToggle" onclick="getroomnumberpopup({{i.id}})">
+        <div class="card mt-3">
+        <div class="card-body ">
+            <center>  <i class='bx bx-sad text-danger' style="font-size:25px"></i>
+                
+                
+            <h4 class="card-title   mt- text-center">{{i.room_name}}</h4>
+            <p class="card-title   mt- text-center">{{i.room_type}}</p>
+            
+        </center>
+            
+        </div>
+    </div></a>
+    </div> 
+    {%endfor%}
+    </div>
+    
+     <!--js of room no set to pop up button-->
+
+     <script type="text/javascript">
+        function getroomnumberpopup(e) {
+          var room_no = e
+          document.getElementById('roomnoidinput').value = e;
+        }
+      </script>
+      <!--js of discount button end-->
+
+
+     <!-- Toggle Between Modals -->
+                        <!-- Modal to open cancel reject  model-->
+                        <div
+                          class="modal fade"
+                          id="modalToggle"
+                          aria-labelledby="modalToggleLabel"
+                          tabindex="-1"
+                          style="display: none"
+                          aria-hidden="true"
+                        >
+                          <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="modalToggleLabel">Room Cleaning</h5>
+                                
+                                <button
+                                  type="button"
+                                  class="btn-close"
+                                  data-bs-dismiss="modal"
+                                  aria-label="Close"
+                                ></button>
+                              </div>
+                              <div class="modal-footer">
+                                <form action="{% url 'cleanroom' %}" method="post">
+                                  {% csrf_token %}
+                                <input type="hidden" id="roomnoidinput" name="roomno" />
+                                <button
+                                type="submit"
+                                  class="btn btn-primary"
+                                  data-bs-dismiss="modal"
+                                >
+                                  Room Cleaned
+                                </button>
+                              </form>
+
+                               
+
+                                <button
+                                  class="btn btn-outline-success"
+                                  data-bs-dismiss="modal"
+                                >
+                                  Close Popup
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+         <!--model end cancel reject-->
+
+
+
+
+{%endblock%}

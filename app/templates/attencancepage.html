@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <a href="{% url 'billingplanpage' %}" style="text-decoration:none;">
+    <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div></a>
+    {%endif%}
+</div>
+{%endfor%}
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 1000);
+  });
+</script>
+{%endif%}  
+<!-- Bootstrap Table with Header - Light -->
+<div class="row">
+    <div class="col-12">
+ <div class="card">
+    <h5 class="card-header">All Employee</h5>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead class="table-light">
+          <tr>
+            <th>no</th>
+            <th>First name</th>
+            <th>Joining Date</th>
+            <th>Mobile</th>
+            <th>Department</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+
+         {% for data in empdata%}
+          <tr>
+            <td>{{forloop.counter}}</td>
+            <td><i class="fab fa-angular fa-lg text-danger "></i> <strong>{{data.first_name}} {{data.last_name}}</strong> </td>
+            <td>{{data.date_of_joining}}</td>
+            <td>{{data.employee_contact}}</td>
+            <td>{{data.department}}</td>
+            
+            <td>
+                <a href="{% url 'employeereport' eid=data.id %}" class="btn btn-outline-info " style=><i class='bx bxs-credit-card'></i> Create Salary</a>
+            </td>
+          </tr>
+          {%endfor%}
+    
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Bootstrap Table with Header - Light -->
+ 
+
+{%endblock%}

@@ -1,0 +1,164 @@
+
+{% extends "publicbase.html" %}
+{% block content %}
+{%load static%}
+
+
+{% comment %} signup.html
+<form action="{% url 'signup'%}" method="post">
+    {% csrf_token %}
+    {{form}}
+    <input type="submit" placeholder="signup"/>
+
+</form>
+{% if messages %}
+    {% for msg in messages %}
+        {{msg}}
+    {%endfor%}
+{%endif%} 
+
+
+
+</form> {% endcomment %}
+
+<body>
+ <!-- Content -->
+
+ 
+
+  <div class="container">
+    <div class="box">
+      <img src="{% static 'undercss/assets/img/avatars/loginadd.png'%}" id="lgimg" alt height="500" class="" />
+       
+       </div>
+    <div class="box">
+
+      
+    <div class="container-xxl">
+        <div class="authentication-wrapper authentication-basic container-p-y">
+          <div class="authentication-inner">
+            <!-- Register Card -->
+            <div class="card">
+              <div class="card-body">
+               
+                <h4 class="mb-2">Adventure starts here 🚀</h4>
+<p class="mb-4">Make your Hotel management easy and fun!</p>
+<form action="{% url 'signup' %}" method="post">
+  {% csrf_token %}
+  <div class="mb-3">
+    <label for="username" class="form-label">Username</label>
+    <input
+      type="text"
+      class="form-control"
+      id="username"
+      name="username"
+      placeholder="Enter your username"
+    />
+    {% for error in form.username.errors %}
+    <div class="error">{{ error }}</div>
+    {% endfor %}
+  </div>
+
+  <div class="mb-3">
+    <label for="password1" class="form-label">Password</label>
+    <input
+      type="password"
+      class="form-control"
+      id="password1"
+      name="password1"
+      placeholder="Enter your password"
+    />
+    {% for error in form.password1.errors %}
+    <div class="error">{{ error }}</div>
+    {% endfor %}
+  </div>
+
+  <div class="mb-3">
+    <label for="password2" class="form-label">Confirm Password</label>
+    <input
+      type="password"
+      class="form-control"
+      id="password2"
+      name="password2"
+      placeholder="Confirm your password"
+    />
+    {% for error in form.password2.errors %}
+    <div class="error">{{ error }}</div>
+    {% endfor %}
+  </div>
+
+  <div class="mb-3">
+    <div class="form-check">
+      <input class="form-check-input" required type="checkbox" id="terms-conditions" name="terms" />
+      <label class="form-check-label" for="terms-conditions">
+        I agree to <a href="{% url 'privcy' %}">privacy policy</a> & <a href="{% url 'terms' %}">terms</a>
+      </label>
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary d-grid w-100">Sign up</button>
+</form>
+
+<p class="text-center mt-3">
+  <span>Already have an account?</span>
+  <a href="{% url 'loginpage' %}">
+    <span>Sign in instead</span>
+  </a>
+</p>
+
+                
+            <!-- Register Card -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+    
+</div>
+
+<style>
+  * {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+}
+
+
+
+.container {
+display: flex;
+flex-wrap: wrap; /* Allows the flex items to wrap to the next line */
+justify-content: space-between; /* Adjusts spacing between flex items */
+padding: 10px;
+}
+
+.box {
+flex: 1 1 30%; /* Grows and shrinks to 30% of the container's width */
+margin: 10px;
+padding: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+.box {
+  flex: 1 1 45%; /* Adjusts to 45% width on medium screens */
+}
+}
+
+@media (max-width: 480px) {
+.box {
+  flex: 1 1 100%; /* Stacks the divs vertically on small screens */
+}
+#lgimg{
+  height:300px;
+}
+}
+
+</style>
+</body>
+  <!-- / Content -->
+
+  {%endblock%}
+
+
+

@@ -1,0 +1,525 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <a href="{% url 'billingplanpage' %}" style="text-decoration:none;">
+    <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div></a>
+    {%endif%}
+</div>
+{%endfor%}
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 1000);
+  });
+</script>
+{%endif%} 
+
+
+
+{%if invcdata%}
+{%else%}
+<h6 class="text">Make Invoice For Spa,Gym,Food and Many More.</h6>
+<div class="row ">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <form action="{% url 'addaminitiesinvoice' %}" method="post">
+                {% csrf_token %}
+            <div class="bg-light m-5 mb-0">
+                <div class="row">
+                    <div class="col-8">
+                        {%for i in profiledata%}
+                        
+                        <p class="text fw-light ps-4 mt-4 p-2" style="font-size:12px">
+                            {{i.name}}<br>
+                            ADDRESS: {{i.address}} {{i.counrty}}<br>
+                            EMAIL: {{i.email}}<br>
+                            PHONE: {{i.contact}}<br>
+                            GST: {{i.gstin}}
+                        </p>
+
+                        {%endfor%}
+                    </div>
+                    
+
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function() {
+                            // Get today's date
+                            const today = new Date();
+                            
+                            // Format the date as YYYY-MM-DD
+                            const year = today.getFullYear();
+                            const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+                            const day = String(today.getDate()).padStart(2, '0');
+                            const formattedDate = `${year}-${month}-${day}`;
+                
+                            // Set the value of the date input
+                            document.getElementById('dateInput').value = formattedDate;
+                        });
+                    </script>
+                    <div class="col-2">
+                        <p class="text mt-3">
+                            INVOICE <br>
+                            Invoice Date:<input type="date" id="dateInput" class="form-control" name="invcdate"> <br>
+
+                        </p>
+                    </div>
+                    
+
+                </div>
+            </div>
+            
+            <!--customer data-->
+            <div class="row m-4 mt-0 p-3 mb-0">
+                <p>Customer Details</p>
+            <div class="col-4 ">
+                <span class="text"><i class='bx bx-user'></i>Customer Name</span>
+                <input  type="text" class="form-control mt-2 " name="cname" placeholder="customer name" required>
+            </div>
+            <div class="col-4 ">
+                <span class="text"><i class='bx bx-phone'></i>Customer Contact</span>
+                <input  type="tel"
+                pattern="[6-9][0-9]{9}" class="form-control mt-2 " name="contact" placeholder="customer contact" required>
+            </div>
+            <div class="col-4 ">
+                <span class="text"><i class='bx bx-mail-send'></i>Customer Email</span>
+                <input  type="email" class="form-control mt-2 " name="email" placeholder="customer email" required>
+            </div>
+      
+
+        
+            <div class="col-4 mt-3">
+                <span class="text"><i class='bx bx-location-plus'></i>Customer Address</span>
+                <input  type="text" class="form-control mt-2 " name="address" placeholder="customer address" required>
+            </div>
+
+            <div class="col-4 mt-3">
+                <span class="text"><i class='bx bx-location-plus'></i>Customer State</span>
+                <select id="country" name="STATE" required placeholder="select States" class="select2 form-select mt-2">
+                    <option value="">Select States</option>
+                    <optgroup label="Indian States">
+                    <option value="andhra_pradesh">Andhra Pradesh</option>
+                    <option value="arunachal_pradesh">Arunachal Pradesh</option>
+                    <option value="assam">Assam</option>
+                    <option value="bihar">Bihar</option>
+                    <option value="chhattisgarh">Chhattisgarh</option>
+                    <option value="goa">Goa</option>
+                    <option value="gujarat">Gujarat</option>
+                    <option value="haryana">Haryana</option>
+                    <option value="himachal_pradesh">Himachal Pradesh</option>
+                    <option value="jharkhand">Jharkhand</option>
+                    <option value="karnataka">Karnataka</option>
+                    <option value="kerala">Kerala</option>
+                    <option value="madhya_pradesh">Madhya Pradesh</option>
+                    <option value="maharashtra">Maharashtra</option>
+                    <option value="manipur">Manipur</option>
+                    <option value="meghalaya">Meghalaya</option>
+                    <option value="mizoram">Mizoram</option>
+                    <option value="nagaland">Nagaland</option>
+                    <option value="odisha">Odisha</option>
+                    <option value="punjab">Punjab</option>
+                    <option value="rajasthan">Rajasthan</option>
+                    <option value="sikkim">Sikkim</option>
+                    <option value="tamil_nadu">Tamil Nadu</option>
+                    <option value="telangana">Telangana</option>
+                    <option value="tripura">Tripura</option>
+                    <option value="uttar_pradesh">Uttar Pradesh</option>
+                    <option value="uttarakhand">Uttarakhand</option>
+                    <option value="west_bengal">West Bengal</option>
+                </optgroup>
+                <optgroup label="Union Territories">
+                    <option value="andaman_and_nicobar_islands">Andaman and Nicobar Islands</option>
+                    <option value="chandigarh">Chandigarh</option>
+                    <option value="dadra_and_nagar_haveli_and_daman_and_diu">Dadra and Nagar Haveli and Daman and Diu</option>
+                    <option value="lakshadweep">Lakshadweep</option>
+                    <option value="delhi">Delhi</option>
+                    <option value="puducherry">Puducherry</option>
+                    <option value="ladakh">Ladakh</option>
+                    <option value="jammu_and_kashmir">Jammu and Kashmir</option>
+                </optgroup>
+                <optgroup label="Other Locations">
+                    <option value="foreign">Foreign</option>
+                </optgroup>
+              </select> </div>
+
+            <div class="col-4 mt-3">
+                <span class="text">Customer Gstin</span>
+                <input  type="text" maxlength="15" class="form-control mt-2 " name="customergstno"  placeholder="customer Gst number">
+            </div>
+            <div class="col-4 mt-3">
+                <span class="text">Customer Company</span>
+                <input  type="text" maxlength="48" class="form-control mt-2 " name="companyname" placeholder="company name" >
+            </div>
+        </div>
+        <!--customer data end-->
+
+        <!--Product data-->
+        <div class="row m-4 mt-0 p-3">
+            <p>Product Details</p>
+        <div class="col-4 ">
+            <span class="text"><i class='bx bx-unite'></i>Product description</span>
+            <input  type="text" class="form-control mt-2 " name="productname" required>
+        </div>
+        <div class="col-4 ">
+            <span class="text"><i class='bx bx-money'></i>Selling  Price</span>
+            <input  type="number" class="form-control mt-2 " name="productprice" required>
+        </div>
+        <div class="col-4 ">
+            <span class="text">Quantity</span>
+            <input  type="number" class="form-control mt-2 " name="productqty" required>
+        </div>
+  
+
+    
+        <div class="col-4 mt-3">
+            <span class="text">Tax %</span>
+            <input  type="number" class="form-control mt-2 "  name="producttax" >
+        </div>
+        <div class="col-4 mt-3">
+            <span class="text">HSN/SAC</span>
+            <input  type="text" class="form-control mt-2 " name="producthsn" >
+        </div>
+        <div class="col-4 mt-3">
+            <span class="text"><i class='bx bxs-discount'></i>Discount</span>
+            <input  type="number" class="form-control mt-2 " name="productdiscount" >
+        </div>
+
+        <div class="col-4 mt-3 end-0">
+            <input  type="submit" class="btn btn-primary" value="Save Customer & Add More Item">
+        </div>
+    </div>
+    <!--product data end-->
+    </form>
+            
+        </div>
+    </div>
+    <div class=" col-3">
+        {% comment %} <button class="btn btn-primary w-100">Save</button>
+        <button class="btn btn-primary w-100 mt-1">Print</button>
+        <button class="btn btn-primary w-100 mt-1">Donwload</button>
+        <button class="btn btn-danger w-100 mt-1">Delete</button> {% endcomment %}
+    </div>
+</div>
+
+{%endif%}
+
+
+
+<!--existing invoice-->
+{%if invcdata%}
+
+<div class="row ">
+    <p class="text-danger">Invoice Already Exists! Please Sattle/Delete This Invoice.</p>
+    <div class="col-9 mb-4">
+        <div class="card">
+            <div class="bg-light m-5 mb-0">
+                <div class="row">
+                    <div class="col-8">
+                        {%for i in profiledata%}
+                        
+                        <p class="text fw-light ps-4 mt-4 p-2" style="font-size:12px">
+                            {{i.name}}<br>
+                            ADDRESS: {{i.address}} {{i.counrty}}<br>
+                            EMAIL: {{i.email}}<br>
+                            PHONE: {{i.contact}}<br>
+                            GST: {{i.gstin}}
+                        </p>
+
+                        {%endfor%}
+                    </div>
+                    <div class="col-2">
+                        <p class="text mt-3">
+                            INVOICE: {{invcdata.invoicenumber}} <br>
+                            Date Issued: {{invcdata.invoicedate}} <br>
+                            
+
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+            
+            <!--customer data-->
+            <div class="row m-4 mt-0 p-3 mb-0">
+                <p>Customer Details</p>
+            <div class="col-4 ">
+                <span class="text"><i class='bx bx-user'></i>Customer Name</span>
+                <input  type="text" class="form-control mt-2 " name="cname" value="{{invcdata.customername}}" placeholder="customer name" required>
+            </div>
+            <div class="col-4 ">
+                <span class="text"><i class='bx bx-phone'></i>Customer Contact</span>
+                <input  type="tel"
+                pattern="[6-9][0-9]{9}" class="form-control mt-2 " name="contact" value="{{invcdata.customercontact}}" placeholder="customer contact" required>
+            </div>
+            <div class="col-4 ">
+                <span class="text"><i class='bx bx-mail-send'></i>Customer Email</span>
+                <input  type="email" class="form-control mt-2 " name="email" value="{{invcdata.customeremail}}" placeholder="customer email" required>
+            </div>
+      
+
+        
+            <div class="col-4 mt-3">
+                <span class="text"><i class='bx bx-location-plus'></i>Customer Address</span>
+                <input  type="text" class="form-control mt-2 " name="address" value="{{invcdata.customeraddress}}" placeholder="customer address" required>
+            </div>
+
+            <div class="col-4 mt-3">
+                <span class="text"><i class='bx bx-location-plus'></i>Billing Type</span>
+                <input  type="text" class="form-control mt-2 " readonly name="" value="{{invcdata.taxtype}}" placeholder="customer address" required>
+              
+            </div>
+
+            <div class="col-4 mt-3">
+                <span class="text">Customer Gstin</span>
+                <input  type="text" maxlength="15" class="form-control mt-2 " value="{{invcdata.customergst}}"  name="customergstno"  placeholder="customer Gst number">
+            </div>
+            <div class="col-4 mt-3">
+                <span class="text">Customer Company</span>
+                <input  type="text" maxlength="48" class="form-control mt-2 " value="{{invcdata.customercompany}}" name="companyname" placeholder="company name" >
+            </div>
+        </div>
+        <!--customer data end-->
+
+        <!--existing products details -->
+
+        {%if invoiceitemsdata%}
+            <!-- Bootstrap Table with Header - Light -->
+ <div class="card mt-4 m-5"  >
+    <h5 class="card-header" >Existing Product</h5>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead class="table-light">
+          <tr>
+            <th>Iteam</th>
+            <th>Price</th>
+            <th>Qty</th>
+            <th>Tax HSN</th>
+            <th>Total</th>
+            <th>Discount</th>
+            <th>Subtotal</th>
+            <th>taxamount</th>
+            <th>Grandtotal</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+
+            {%for data in invoiceitemsdata%}
+          <tr>
+            <td><i class="fab fa-angular fa-lg text-danger"></i> <strong>{{data.description}}</strong></td>
+            <td>{{data.price}}</td>
+            <td>
+              {{data.quantity}}
+            </td>
+              <td><span class="badge bg-label-primary me-1">{{data.tax_rate}}% {{data.hsncode}}</span></td>
+        
+            <td>{{data.total_amount}}</td>
+            <td>
+              {{data.discount_amount}}
+            
+            </td>
+            <td>{{data.subtotal_amt}}</td>
+            <td>{{data.tax_amt}}</td>
+            <td>{{data.grand_total}}</td>
+            <td>
+                
+                      <button
+                        type="button"
+                        class="btn  dropdown-toggle hide-arrow"
+                        data-bs-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        
+                      >
+                      <i class="bx bx-dots-vertical-rounded"></i>
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'aminitiesitemdelete' id=data.id %}"><i class="bx bx-trash me-1"></i> Delete</a></li>
+                        
+                      </ul>
+                    
+            </td>
+          </tr>
+          {%endfor%}
+   
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Bootstrap Table with Header - Light -->
+
+{%endif%}
+  
+    <div class="col-7 p-4">
+        <div class="border-1  ps-4">
+            <li class="list-group-item">
+                <b><span class="text w-50">Total</span></b> 
+                <span class="text float-end"><strong>{{invcdata.total_item_amount}}</strong></span><br>
+                <b><span class="text w-50">Discount</span></b> 
+                <span class="text float-end"><strong>{{invcdata.discount_amount}}</strong></span><br>
+                <b><span class="text w-50">Subtotal</span></b> 
+                <span class="text float-end"><strong>{{invcdata.subtotal_amount}}</strong></span><br>
+                <b><span class="text w-50">Tax Amount</span></b> 
+                <span class="text float-end"><strong>{{invcdata.gst_amount|add:invcdata.sgst_amount}}</strong></span><hr>
+                <b><span class="text w-50">Grand Total</span></b> 
+                <span class="text float-end"><strong>{{invcdata.grand_total_amount}}</strong></span>
+               
+        </div>
+    </div>
+
+        <!--existing products data end-->
+
+
+        <div class="tab-content">
+            <!--loylty div start-->
+            <div class="tab-pane fade show active" id="navs-pills-justified-Amenities" role="tabpanel">
+                
+                <div class="col-12 mb-2">
+                    <button
+                    type="button"
+                      class="btn btn-primary mb-4 float-end"
+                      data-bs-toggle="collapse"
+                      href="#multiCollapseExample1"
+                      role="button"
+                      aria-expanded="false"
+                      aria-controls="multiCollapseExample1"
+
+                      ><i class='bx bxs-plus-circle mb-1'></i> Add More Products </button>
+                    
+                </div>
+                <br>
+                <div class="col-xxl mt-3  mb-md-0">
+                        <div class="collapse multi-collapse" id="multiCollapseExample1">
+                          
+    <form action="{% url 'addmoreaminitiesproductininvoice' %}" method="post">
+        {% csrf_token %}
+                
+        <input type="hidden" name="invcid" value="{{invcdata.id}}" >
+                  <!--Product data-->
+        <div class="row m-4 mt-0 p-3">
+            <p>Product Details</p>
+        <div class="col-4 ">
+            <span class="text"><i class='bx bx-unite'></i>Product desc..</span>
+            <input  type="text" class="form-control mt-2 " name="productname" required>
+        </div>
+        <div class="col-4 ">
+            <span class="text"><i class='bx bx-money'></i>Selling  Price</span>
+            <input  type="number" class="form-control mt-2 " name="productprice" required>
+        </div>
+        <div class="col-4 ">
+            <span class="text">Quantity</span>
+            <input  type="number" class="form-control mt-2 " name="productqty" required>
+        </div>
+  
+
+    
+        <div class="col-4 mt-3">
+            <span class="text">Tax %</span>
+            <input  type="number" class="form-control mt-2 "  name="producttax" >
+        </div>
+        <div class="col-4 mt-3">
+            <span class="text">HSN/SAC</span>
+            <input  type="text" class="form-control mt-2 " name="producthsn" >
+        </div>
+        <div class="col-4 mt-3">
+            <span class="text"><i class='bx bxs-discount'></i>Discount</span>
+            <input  type="number" class="form-control mt-2 " name="productdiscount" >
+        </div>
+
+        <div class="col-4 mt-3 end-0">
+            <input  type="submit" class="btn btn-primary" value="Save Customer & Add More Item">
+        </div>
+    </div>
+    <!--product data end-->
+    </form>
+    </div></div></div></div>
+
+
+        
+            
+        </div>
+    </div>
+    <div class=" col-3">
+        <form action="{%  url 'saveaminitiesinvoice' %}" method="post">
+            {% csrf_token %}
+        <div class="row  mt-0 mb-3 ">
+            <p>Payment Details</p>
+            <input type="hidden" value="{{invcdata.id}}"  name="invoiceid"/>
+        <div class="col-12 ">
+            <select  name="paymentmode" id="selectValue" onchange="showinput()" required placeholder="select Payment Mode" class="select2 form-select mt-2">
+                <option value="">Select Payment mode</option>
+                <option value="cash">Cash</option>
+                <option value="online">Online</option>
+                <option value="Partly">Partially</option>
+
+            </select>
+        </div>
+
+        <div class="col-12 mt-3" style="display:none" id="inputcash">
+            <span class="text">Cash Amount</span>
+            <input  type="number" class="form-control mt-2 " value=0.00 placeholder="Cash Amount" name="cashamount" >
+        </div>
+
+        <div class="col-12 mt-3" style="display:none" id="inputonline">
+            <span class="text">Online Amount</span>
+            <input  type="number" class="form-control mt-2 " value=0.00 placeholder="Online Amount" name="onlineamount" >
+        </div>
+    </div>
+
+       <button type="submit" class="btn btn-primary w-100">Save</button>
+
+</form>
+        <a href="{% url 'deleteaminitesinvc' id=invcdata.id %}"><button class="btn btn-danger w-100 mt-3">Delete</button> </a>
+    </div>
+</div>
+
+
+
+<script>
+function showinput() {
+    var selectElement = document.getElementById('selectValue');
+    var selectedValue = selectElement.value;
+    document.getElementById('inputcash').style.display="none";
+    document.getElementById('inputonline').style.display="none";
+    if (selectedValue == "Partly"){
+    document.getElementById('inputcash').style.display="block";
+    document.getElementById('inputonline').style.display="block";
+    document.getElementById('nameBackdrop').style.display="block";
+    document.getElementById('nameBackdrops').style.display="block";
+    document.getElementById('duedateinput').style.display="none";
+    }
+    else if (selectedValue == "unpaid"){
+        document.getElementById('duedateinput').style.display="block";
+    }
+    else {
+        document.getElementById('inputcash').style.display="none";
+    document.getElementById('inputonline').style.display="none";
+    document.getElementById('nameBackdrop').style.display="none";
+    document.getElementById('nameBackdrops').style.display="none";
+    document.getElementById('duedateinput').style.display="none";
+    }
+
+};
+</script>
+
+
+{%endif%}
+{%endblock%}

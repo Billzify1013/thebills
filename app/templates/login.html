@@ -1,0 +1,142 @@
+{% extends "publicbase.html" %}
+{% block content %}
+{%load static%}
+
+
+</form>
+
+<body>
+ <!-- Content -->
+
+ 
+
+  <div class="container">
+    <div class="box">
+      <img src="{% static 'undercss/assets/img/avatars/loginadd.png'%}" id="lgimg" alt height="500" class="" />
+       
+       </div>
+    <div class="box">
+
+      <!-- Register -->
+      <div class="card pt-4 mt-4" style="">
+        <div class="card-body">
+          <!-- Logo -->
+          
+          <!-- /Logo -->
+          
+          <h4 class="mb-2">Welcome to Billzify! 👋</h4>
+          <p class="mb-4">Please sign-in to your account and start the adventure</p>
+
+          <form action="{% url 'dologin'%}" method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="email" class="form-label">Username</label>
+              <input
+                type="text"
+                class="form-control"
+                id="email"
+                name="username"
+                placeholder="Enter your email or username"
+                autofocus
+              />
+            </div>
+            <div class="mb-3 form-password-toggle">
+              <div class="d-flex justify-content-between">
+                <label class="form-label" for="password">Password</label>
+                {% comment %} <a href="{% url 'password_reset' %}">
+                  <small>Forgot Password?</small>
+                </a> {% endcomment %}
+              </div>
+              <div class="input-group input-group-merge">
+                <input
+                  type="password"
+                  id="password"
+                  class="form-control"
+                  name="password"
+                  placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
+                  aria-describedby="password"
+                />
+                <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
+              </div>
+            </div>
+            {% if messages %}
+            {% for msg in messages %}
+            {% if msg.tags == 'success' %}
+            <span class='text-success '>{{msg}}</span>
+            {%else%}
+            <span class='text-danger '>{{msg}}</span>
+            {%endif%}
+            {%endfor%}
+            {%endif%}
+            <div class="mb-3 mt-3">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="remember-me" />
+                <label class="form-check-label" for="remember-me"> Remember Me </label>
+              </div>
+            </div>
+            <div class="mb-3">
+              <button class="btn btn-primary d-grid w-100" type="submit">Sign in</button>
+            </div>
+          </form>
+
+          <p class="text-center">
+            <span>New on our platform?</span>
+            <a href="{% url 'signuppage'  %}">
+              <span>Create an account</span>
+            </a>
+          </p>
+        </div>
+      </div>
+      <!-- /Register -->
+
+    </div>
+    
+</div>
+
+<style>
+  * {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+}
+
+
+
+.container {
+display: flex;
+flex-wrap: wrap; /* Allows the flex items to wrap to the next line */
+justify-content: space-between; /* Adjusts spacing between flex items */
+padding: 10px;
+}
+
+.box {
+flex: 1 1 30%; /* Grows and shrinks to 30% of the container's width */
+margin: 10px;
+padding: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+.box {
+  flex: 1 1 45%; /* Adjusts to 45% width on medium screens */
+}
+}
+
+@media (max-width: 480px) {
+.box {
+  flex: 1 1 100%; /* Stacks the divs vertically on small screens */
+}
+#lgimg{
+  height:300px;
+}
+}
+
+</style>
+</body>
+  <!-- / Content -->
+
+  {%endblock%}
+
+
+                        
+                                

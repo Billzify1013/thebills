@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <a href="{% url 'billingplanpage' %}" style="text-decoration:none;">
+    <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div></a>
+    {%endif%}
+</div>
+{%endfor%}
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 1000);
+  });
+
+  $(document).ready(function() {
+    // Fade out the alert after 5 seconds (5000 milliseconds)
+    setTimeout(function() {
+        $("#danger-alert").fadeTo(500, 0).slideUp(500, function(){
+            $(this).remove(); 
+        });
+    }, 1000);
+});
+</script>
+{%endif%} 
+<!--customer Create button-->
+
+
+
+        
+<div class="row"> 
+    <div class="col-9">
+        <h5 class="card-title  ms-2 mt-1">Customer Credit Page</h5>
+    </div> 
+    <div class="col-3">
+        <button class="btn btn-primary  w-100 "   data-bs-toggle="modal"
+        data-bs-target="#backDropModal"><i class='bx bx-buildings mb-1' ></i> Add Customer</button>
+    </div> 
+
+</div>  
+<!--Room Create button end-->
+
+<div class="card mt-3">
+    <form action="{%url 'searchcredit' %}" method="post">
+        {% csrf_token %}
+    <div class="row p-3">
+        <div class="col-3 p-2">
+            <input type="text" class="form-control" name="name" placeholder="Enter name" />
+        </div>
+        <div class="col-3 p-2">
+            <input type="text" class="form-control" name="phone" placeholder="Enter Phone" />
+        </div>
+        <div class="col-3 p-2">
+            <input type="date" class="form-control" name="date" placeholder="Enter name" />
+        </div>
+        <div class="col-3 p-2">
+            <input type="submit" class="btn btn-outline-primary w-100"  value="Search.." />
+        </div>
+    </div>
+</form>
+</div>
+
+
+ <!-- Bootstrap Table with Header - Light -->
+ <div class="card mt-3">
+    <h5 class="card-header">Credit Reports
+      {% if total_amount%}
+      <span class="text float-end">Total Credit Amount: {{total_amount}}</span>
+      {%endif%}
+    </h5>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead class="table-light">
+          <tr>
+            <th>Customer name</th>
+            <th>Phone</th>
+            <th>Amount</th>
+            <th>Due Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+            {%for data in customerdata%}
+          <tr>
+            <td><strong>{{data.customer_name}}</strong></td>
+            <td>{{data.phone}}</td>
+            <td>{{data.amount}}</td>
+            <td>{{data.due_date}}</td>
+            <td>
+                {%if data.invoice %}
+                <a href="{%url 'invoicepage' id=data.invoice.customer.id %}"  class="btn btn-primary">Invoice</a>
+                {%else%}
+                Admin-Create
+                {%endif%}
+            </td>
+         
+           
+            <td>
+              {%if data.invoice %}
+              <a href="{%url 'addpaymentininvoice' id=data.invoice.id %}"  class="btn btn-primary">AddPayment</a>
+              {%else%}
+              
+                      <button
+                        type="button"
+                        class="btn  dropdown-toggle hide-arrow"
+                        data-bs-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        
+                      >
+                      <i class="bx bx-dots-vertical-rounded"></i>
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'saveinvoicetocredit' id=data.id %}"><i class='bx mb-1 text-success me-3 bx-happy-heart-eyes'></i>Paid & Settle</a></li>
+                        
+                      </ul>
+                      {%endif%}
+                    
+            </td>
+          </tr>
+          {%endfor%}
+   
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Bootstrap Table with Header - Light -->
+
+
+
+
+
+<!-- Modal add rooms -->
+<div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'addcreditcustomer'  %}" method="POST" class="modal-content">
+            {% csrf_token %}
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Add Customer</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Customer Name</label>
+              <input
+                type="name"
+                name="name"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter Customer name"
+              />
+            </div>
+
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Customer phone</label>
+                <input
+                type="number"
+                name="phone"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter Phone"
+              />
+              </div>
+          </div>
+
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Amount</label>
+              <input
+                type="number"
+                name="amount"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter Amount"
+              />
+            </div>
+
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Due Date</label>
+                <input
+                type="date"
+                name="duedate"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder=""
+              />
+              </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+{%endblock%}

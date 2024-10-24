@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+{% block content %}
+ <!-- Bootstrap Table with Header - Light -->
+ <div class="row">
+    <div class="col-6">
+ <div class="card">
+    <h5 class="card-header">All Rooms</h5>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead class="table-light">
+          <tr>
+            <th>Room name</th>
+            <th>Category</th>
+            <th>Qr</th>
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+
+            {% for data in roomdata%}
+          <tr>
+            <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{data.room_name}}</strong></td>
+            <td>{{data.room_type}}</td>
+            
+            <td>
+                <a class="btn btn-info" href="{% url 'Showqr' id=data.id %}" >Show</a>  
+            </td>
+          </tr>
+          {%endfor%}
+   
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Bootstrap Table with Header - Light -->
+</div>
+<div class="col-6">
+
+  
+
+  <div class="card mb-4">
+    <div class="card-body">
+
+     
+        
+      {%if linkdatacount == 0 %}
+      <h4 class="card-title mt-5">Create Your Service Website</h4>
+      <form action="{% url 'addwebsitedata' %}" method="post">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+          <label class="form-label" for="basic-icon-default-fullname">Hotel Logo Name</label>
+          <div class="input-group input-group-merge">
+            <span id="basic-icon-default-fullname2" class="input-group-text"
+              ><i class='bx bxs-building-house'></i></span>
+            <input
+              type="text"
+              maxlength="30"
+              name="logoname"
+              class="form-control"
+              id="basic-icon-default-fullname"
+              placeholder="Marriot"
+              aria-label="John Doe"
+              aria-describedby="basic-icon-default-fullname2"
+            />
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="basic-icon-default-company">Google Review Link</label>
+          <div class="input-group input-group-merge">
+            <span id="basic-icon-default-company2" class="input-group-text"
+              ><i class='bx bxl-google'></i></span>
+            <input
+              type="text"
+              maxlength="195"
+              name="googlelink"
+              id="basic-icon-default-company"
+              class="form-control"
+              placeholder="Google Reviews Link"
+              aria-label="ACME Inc."
+              aria-describedby="basic-icon-default-company2"
+            />
+          </div>
+        </div>
+        
+
+        {% comment %} <div class="mb-3">
+          <label class="form-label" for="basic-icon-default-email">Webpage-link</label>
+          <div class="input-group input-group-merge">
+            <span class="input-group-text"><i class='bx bxl-sketch'></i></span>
+            <input
+              type="text"
+              
+              name="Websitelink"
+              id="basic-icon-default-email"
+              class="form-control"
+              placeholder="www.xyz.com"
+              aria-label="john.doe"
+              aria-describedby="basic-icon-default-email2"
+            />
+            <span id="basic-icon-default-email2" class="input-group-text">Webpage-link</span>
+          </div>
+        </div> {% endcomment %}
+        
+
+        <button type="submit" class="btn btn-primary">Save</button>
+      </form>
+
+      {%else%}
+
+      <h4 class="card-heatitleer"><i class='bx bxs-washer bx-flip-horizontal' style="font-size:30px"></i> Laundry Service Page</h4>
+      <div class="card-body">
+        <p class="demo-inline-spacing">
+          <a
+            class="btn btn-primary mt-0 text-white"
+            style="text-decoration:none"
+            href="{%url 'addlaundrypage' %}"
+            >
+            Go-to laundry Page
+          </a>
+         
+        </p>
+
+        <h4 class="card-title mt-5">Update Your Service Website</h4>
+      <form action="{% url 'updatewebsitedata' %}" method="post">
+        {% csrf_token %}
+        {%for i in linkdata%}
+        <div class="mb-3">
+          <label class="form-label" for="basic-icon-default-fullname">Hotel Logo Name</label>
+          <div class="input-group input-group-merge">
+            <span id="basic-icon-default-fullname2" class="input-group-text"
+              ><i class='bx bxs-building-house'></i></span>
+            <input
+              type="text"
+              maxlength="25"
+              value="{{i.logoname}}"
+              name="logoname"
+              class="form-control"
+              id="basic-icon-default-fullname"
+              placeholder="Marriot"
+              aria-label="John Doe"
+              aria-describedby="basic-icon-default-fullname2"
+              
+            />
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="basic-icon-default-company">Google Review Link</label>
+          <div class="input-group input-group-merge">
+            <span id="basic-icon-default-company2" class="input-group-text"
+              ><i class='bx bxl-google'></i></span>
+            <input
+              type="text"
+              value="{{i.googlelink}}"
+              maxlength="195"
+              name="googlelink"
+              id="basic-icon-default-company"
+              class="form-control"
+              placeholder="Google Reviews Link"
+              aria-label="ACME Inc."
+              aria-describedby="basic-icon-default-company2"
+              
+            />
+          </div>
+        </div>
+        
+
+        {% comment %} <div class="mb-3">
+          <label class="form-label" for="basic-icon-default-email">Webpage-link</label>
+          <div class="input-group input-group-merge">
+            <span class="input-group-text"><i class='bx bxl-sketch'></i></span>
+            <input
+              type="text"
+              name="Websitelink"
+              maxlength="195"
+              value="{{i.websitelink}}"
+              id="basic-icon-default-email"
+              class="form-control"
+              placeholder="www.xyz.com"
+              aria-label="john.doe"
+              aria-describedby="basic-icon-default-email2"
+              
+            />
+            <span id="basic-icon-default-email2" class="input-group-text">Webpage-link</span>
+          </div> {% endcomment %}
+        </div>
+        {%endfor%}
+        <div class="form-text">Your Data Already Exists If You Want To <b>Changes?</b> So Recent Data Will Replaced By New Data. </div>
+        <button type="submit" class="btn btn-warning mt-2">update</button>
+      </form>
+
+
+      
+      
+          
+       
+     
+  
+
+      {%endif%}
+
+
+
+    </div>
+  </div>
+</div>
+
+    
+  
+        
+        
+
+
+
+</div>
+</div>  
+
+
+{% endblock %}

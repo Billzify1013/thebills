@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Table Example</title>
+    <style>
+        /* Optional: CSS for styling the table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Search by date</h2>
+    <form action="{% url 'searchuserdata' %}" method="post">
+        {% csrf_token %}
+        startdate: <input type="date" name="startdate" /><br>
+        enddate: <input type="date" name="enddate" /><br>
+        <input type="submit" placeholder="search data" /><br>
+    </form>
+
+<h2>HTML Table Example</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>user</th>
+            <th>Hotel name</th>
+            <th>Mobile number</th>
+            <th>plan details</th>
+            <th>expiry date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {%for i in userdata%}
+        <tr>
+            <td>{{i.user.username}}</td>
+            <td>{{i.plan.name}}
+            {{i.plan.price}}</td>
+            <td>{{i.user.first_name}}</td>
+            <td>{{i.user.last_name}}</td>
+            <td>{{i.end_date}}</td>
+        </tr>
+        {%endfor%}
+        
+    </tbody>
+</table>
+
+</body>
+</html>

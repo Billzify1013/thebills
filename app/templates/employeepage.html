@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class=" mb-4">
+    <div class="card-body">
+        <h4 class="card-title"><i class='bx bx-sm bx-street-view '></i>  Employee </h4>
+        <button class="btn btn-primary  float-end  " style="margin-top:-50px"   data-bs-toggle="modal"
+                data-bs-target="#backDropModal"><i class='bx bxs-briefcase-alt-2'></i> ADD EMPLOYEE  </button>
+    </div>
+</div>
+
+<!-- Bootstrap Table with Header - Light -->
+<div class="row">
+    <div class="col-12">
+ <div class="card">
+    <h5 class="card-header">Employee</h5>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead class="table-light">
+          <tr>
+            <th>Employee name</th>
+            <th>Joining Date</th>
+            <th>Mobile</th>
+            <th>Position</th>
+            <th>Department</th>
+            <th>WorkTime</th>
+            <th>Salary</th>
+            <th>Action</th>
+          </tr>
+      
+        </thead>
+        <tbody class="table-border-bottom-0">
+
+         {% for data in empdata%}
+          <tr>
+            <td><strong>{{data.first_name}}</strong> {{data.last_name}}</td>
+            <td>{{data.date_of_joining}}</td>
+            <td>{{data.employee_contact}}</td>
+            <td>{{data.position}}</td>
+            <td>{{data.department}}</td>
+            <td>{{data.working_hours}}/HRS</td>
+            <td>{{data.salarybyday}}/Perday</td>
+            <td>
+                {% comment %} <a href="{% url 'updateemployee' id=data.id %}"><span class="badge bg-label-info  "><i class='bx bxs-edit-alt'></i></span></a> {% endcomment %}
+                <a href="{% url 'deleteemployee' id=data.id %}"><span class="badge bg-label-danger  "><i class='bx bxs-trash'></i></span></a>
+            </td>
+          </tr>
+          {%endfor%}
+    
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Bootstrap Table with Header - Light -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ <!-- Modal add employee -->
+ <div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'addemployee' %}" method="POST" class="modal-content">
+            {% csrf_token %}
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Add Employee</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">First Name</label>
+              <input
+                type="text"
+                name="firstname"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter First Name"
+              />
+            </div>
+
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Last Name</label>
+                <input
+                  type="text"
+                  name="lastname"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Enter Last Name"
+                />
+              </div>
+          </div>
+
+            <div class="row">
+              <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Date Of Birth</label>
+                <input
+                  type="date"
+                  name="dob"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Date Of Birth"
+                  required
+                />
+              </div>
+  
+              <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Joining Date</label>
+                <input
+                  type="date"
+                  name="joindate"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Enter Joining Date"
+                  required
+                />
+              </div>
+            </div>
+
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Position</label>
+              <input
+                type="text"
+                name="Position"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter Position"
+              />
+            </div>
+
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Department</label>
+                <input
+                  type="text"
+                  name="Department"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Enter Department"
+                />
+              </div>
+          </div>
+
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Contact Number</label>
+              <input
+                type="text"
+                pattern="[6-9]{1}[0-9]{9}"
+                name="phone"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter Contact Number"
+                title="Enter a valid 10-digit Indian phone number." required
+              />
+            </div>
+
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Salary Of One Day</label>
+              <input
+                type="number"
+                name="salarybyday"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter Salary Like ₹1000 Per Day"
+              />
+            </div>
+        </div>
+        <div class="col mb-3">
+          <label for="nameBackdrop" class="form-label">Working Hours</label>
+          <input
+            type="number"
+            name="workinghour"
+            id="nameBackdrop"
+            class="form-control"
+            placeholder="Enter Working Like 8 hours In a Day"
+          />
+      </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+{% endblock %}

@@ -1,0 +1,1278 @@
+{% load static %}
+<html
+  lang="en"
+  class="light-style layout-menu-fixed"
+  dir="ltr"
+  data-theme="theme-default"
+  data-assets-path="{% static 'undercss/assets/'%}"
+  data-template="vertical-menu-template-free"
+>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+
+    <title>BILLZIFY</title>
+
+    <meta name="description" content="" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'undercss/assets/img/favicon/1.PNG'%}" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icons. Uncomment required icon fonts -->
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/fonts/boxicons.css'%}" />
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/css/core.css'%}" class="template-customizer-core-css'%}" />
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/css/theme-default.css'%}" class="template-customizer-theme-css'%}" />
+    <link rel="stylesheet" href="{% static 'undercss/assets/css/demo.css'%}" />
+
+    <!-- Vendors CSS -->
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css'%}" />
+
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/libs/apex-charts/apex-charts.css'%}" />
+
+    {% comment %} <link rel="stylesheet" href="{% static 'undercss/assets/vendor/libs/spinkit/spinkit.css'%}" /> {% endcomment %}
+
+    <!-- Page CSS -->
+
+    <!-- Helpers -->
+    <script src="{% static 'undercss/assets/vendor/js/helpers.js'%}"></script>
+
+    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+    <script src="{% static 'undercss/assets/js/config.js'%}"></script>
+  </head>
+
+  <style>
+    #dd1::-webkit-scrollbar {
+      width: 2px;
+    }
+   #dd1::-webkit-scrollbar-track {
+      background-color: none;
+    }
+    #dd1::-webkit-scrollbar-thumb {
+      background-color:#696cff;
+      border-radius:10px;
+    }
+  </style>
+
+  <body onload="calculategst()">
+
+<div class="content-wrapper">
+    <!--header start-->
+        <div class="container-xxl flex-grow-1 container-p-y">
+
+            <div class="col-xl m-25">
+                <div class="card mb-4">
+                <div class="row">
+                    
+                    <div class="col-10 mt-3 mb-3 ms-5">
+                
+                    {% for i in roomguestdata%}
+                    <h6 class="mb-1">RoomNO : <span class="text-success">{{i.roomno.room_name}}</span></h6>
+                   
+                    <h6 class="mb-1">Guest Name : <span class="text-success">{{i.bookingguest}}</span></h6>
+                    <h6 class="mb-1">Guest Phone : <span class="text-success">{{i.bookingguestphone}}</span></h6>
+                    <h6 class="mb-1">CheckIn-date : <span class="text-success">{{i.bookingdate}}</span> CheckOut-Date : <span class="text-success">{{i.checkoutdate}}</span></h6>
+                    {%endfor%}
+                    <h6 class="mb-1">No Of Rooms : <span class="text-success">{{countrooms}}</span></h6>
+                   
+                    
+                    <h6 class="mb-1">Selected Rooms Of This Guests :
+                        {% for data in roomnumberdata%}
+                        <span class="text-success">{{data.roomno.room_name}},</span>
+                        {%endfor%}
+                    </h6>
+                    
+                    
+                 
+                </div>
+                
+                
+
+                <div class="col-1 mt-3">
+                    <input type=button value="Back" class="btn btn-outline-warning" onClick="javascript:history.go(-1);">
+                    
+                </div>
+                </div>
+            </div>
+
+    <!--header start-->
+
+<div class="row">
+
+
+<div class="content-wrapper">
+  <!--header start-->
+      <div class="container-xxl flex-grow-1 container-p-y">
+        <div class="row">
+<div class="col-xl-12">
+
+  <div class="nav-align-top mb-4">
+    <ul class="nav nav-pills mb-3 nav-fill" role="tablist">
+      <li class="nav-item">
+        <button
+          type="button"
+          class="nav-link active"
+          role="tab"
+          data-bs-toggle="tab"
+          data-bs-target="#navs-pills-justified-home"
+          aria-controls="navs-pills-justified-home"
+          aria-selected="true"
+        ><i class="tf-icons bx bx-user"></i>
+          Personal Information of Guest
+        </button>
+      </li>
+      <li class="nav-item">
+        <button
+          type="button"
+          class="nav-link"
+          role="tab"
+          data-bs-toggle="tab"
+          data-bs-target="#navs-pills-justified-profile"
+          aria-controls="navs-pills-justified-profile"
+          aria-selected="false"
+        >
+         
+          <i class='bx bxl-paypal mb-1'></i>&nbsp;&nbsp;&nbsp;Payment Details & Billing</button>
+      </li>
+     
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane fade show active" id="navs-pills-justified-home" role="tabpanel">
+        <!--guest information-->
+        <div class="card-body">
+          <h5 class="mb-5 mt-0">Personal Information of Guest</h5>
+        <form action="{% url 'addguestdatafromadvanceroombook'  %}" id="myForm" method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          {% for i in roomguestdata%}
+          <input type="hidden" value="{{i.roomno.room_name}} " name="roomno"/>
+          <input type="hidden" name="tax" value="{{i.roomno.tax}} "/>
+          <input type="hidden" name="noofrooms" value="{{countrooms}}"/>
+          
+          <div class="row">
+              <div class="col-6">
+                  <div class="mb-3">
+                      <div class="input-group input-group-merge">
+                        <span id="basic-icon-default-fullname2" class="input-group-text"
+                          ><i class="bx bx-user"></i
+                        ></span>
+                        <input
+                          type="text"
+                          name = "guestname"
+                          required
+                          readonly
+                          value="{{i.bookingguest}}"
+                          class="form-control"
+                          id="basic-icon-default-fullname"
+                          placeholder="John Doe"
+                          aria-label="John Doe"
+                          aria-describedby="basic-icon-default-fullname2"
+                          
+                        />
+                      </div>
+                      <div class="text-success" id="customerinfos"></div>
+                    </div>
+              </div>
+              <div class="col-6">
+                  <div class="mb-3">
+                      <div class="input-group input-group-merge">
+                        <span id="basic-icon-default-company2" class="input-group-text"
+                          ><i class="bx bx-phone"></i
+                              ></span>
+                        <input
+                          type="number"
+                          value="{{i.bookingguestphone}}"
+                          name = "guestphone"
+                          readonly
+                          required
+                        
+                          id="mobilenumber"
+                          class="form-control"
+                          placeholder="Phone"
+                          aria-label="ACME Inc."
+                          aria-describedby="basic-icon-default-company2"
+                        />
+                      </div>
+                    </div>
+              </div>
+          </div>
+
+          
+
+          <div class="row">
+              <div class="col-3">
+                  <div class="mb-3 mt-3">
+                      <div class="input-group input-group-merge">
+                        <span class="input-group-text"><i class="bx bx-envelope"></i></span>
+                        <input
+                          type="email"
+                          name = "guestemail"
+                          id="mainguestemail"
+                          class="form-control"
+                          placeholder="john.doe"
+                          aria-label="john.doe"
+                          aria-describedby="basic-icon-default-email2"
+                        />
+                        <span id="basic-icon-default-email2" class="input-group-text">@example.com</span>
+                      </div>
+                    </div>
+              </div>
+
+
+              <div class="mb-3 col-md-3 mt-3">
+                
+                <select id="country" name="STATE" required placeholder="select States" class="select2 form-select">
+                  <option value="">Select States</option>
+                  <optgroup label="Indian States">
+                  <option value="andhra_pradesh">Andhra Pradesh</option>
+                  <option value="arunachal_pradesh">Arunachal Pradesh</option>
+                  <option value="assam">Assam</option>
+                  <option value="bihar">Bihar</option>
+                  <option value="chhattisgarh">Chhattisgarh</option>
+                  <option value="goa">Goa</option>
+                  <option value="gujarat">Gujarat</option>
+                  <option value="haryana">Haryana</option>
+                  <option value="himachal_pradesh">Himachal Pradesh</option>
+                  <option value="jharkhand">Jharkhand</option>
+                  <option value="karnataka">Karnataka</option>
+                  <option value="kerala">Kerala</option>
+                  <option value="madhya_pradesh">Madhya Pradesh</option>
+                  <option value="maharashtra">Maharashtra</option>
+                  <option value="manipur">Manipur</option>
+                  <option value="meghalaya">Meghalaya</option>
+                  <option value="mizoram">Mizoram</option>
+                  <option value="nagaland">Nagaland</option>
+                  <option value="odisha">Odisha</option>
+                  <option value="punjab">Punjab</option>
+                  <option value="rajasthan">Rajasthan</option>
+                  <option value="sikkim">Sikkim</option>
+                  <option value="tamil_nadu">Tamil Nadu</option>
+                  <option value="telangana">Telangana</option>
+                  <option value="tripura">Tripura</option>
+                  <option value="uttar_pradesh">Uttar Pradesh</option>
+                  <option value="uttarakhand">Uttarakhand</option>
+                  <option value="west_bengal">West Bengal</option>
+              </optgroup>
+              <optgroup label="Union Territories">
+                  <option value="andaman_and_nicobar_islands">Andaman and Nicobar Islands</option>
+                  <option value="chandigarh">Chandigarh</option>
+                  <option value="dadra_and_nagar_haveli_and_daman_and_diu">Dadra and Nagar Haveli and Daman and Diu</option>
+                  <option value="lakshadweep">Lakshadweep</option>
+                  <option value="delhi">Delhi</option>
+                  <option value="puducherry">Puducherry</option>
+                  <option value="ladakh">Ladakh</option>
+                  <option value="jammu_and_kashmir">Jammu and Kashmir</option>
+              </optgroup>
+              <optgroup label="Other Locations">
+                  <option value="foreign">Foreign</option>
+              </optgroup>
+            </select>
+  
+              </div>
+
+
+              <div class="col-3">
+                  <div class="mb-3 mt-3">
+                      <div class="input-group input-group-merge">
+                        <span id="basic-icon-default-company2" class="input-group-text"
+                          ><i class='bx bxs-edit-location'></i></span>
+                        <input
+                          type="text"
+                          name = "guestcity"
+                          id="mainguestcity"
+                          class="form-control"
+                          placeholder="City."
+                          aria-label="ACME Inc."
+                          aria-describedby="basic-icon-default-company2"
+                        />
+                      </div>
+                    </div>
+              </div>
+
+              <div class="col-3">
+                  <div class="mb-3 mt-3">
+                      <div class="input-group input-group-merge">
+                        <span id="basic-icon-default-company2" class="input-group-text"
+                          ><i class='bx bxs-edit-location'></i></span>
+                        <input
+                          type="text"
+                          name = "guestcountry"
+                          id="mainguestcountry"
+                          class="form-control"
+                          placeholder="Country"
+                          aria-label="ACME Inc."
+                          aria-describedby="basic-icon-default-company2"
+                        />
+                      </div>
+                    </div>
+              </div>
+          </div>
+
+          <div class="row">
+              <div class="col-6">
+                  <div class="mb-3">
+                      <div class="input-group input-group-merge">
+                        <span id="basic-icon-default-company2" class="input-group-text"
+                          >Check-IN</span>
+                        <input
+                          type="date"
+                          value="{{i.bookingdate|date:'Y-m-d'}}"
+                          readonly
+                          name = "guestcheckindate"
+                          id="basic-icon-default-company"
+                          class="form-control"
+                        />
+                      </div>
+                    </div>
+              </div>
+              <div class="col-6">
+                  <div class="mb-3">
+                      <div class="input-group input-group-merge">
+                        <span id="basic-icon-default-company2" class="input-group-text"
+                          >Check-OUT</span>
+                        <input
+                          type="date"
+                          value="{{i.checkoutdate|date:'Y-m-d'}}"
+                          name = "guestcheckoutdate"
+                          id="basic-icon-default-company"
+                          class="form-control"
+                          placeholder="Phone"
+                          readonly
+                          aria-label="ACME Inc."
+                          aria-describedby="basic-icon-default-company2"
+                        />
+                      </div>
+                    </div>
+              </div>
+          </div>
+
+          <div class="row">
+            <div class="col-3">
+              <div class="mb-3 mt-3">
+                  <div class="input-group input-group-merge">
+                    <span id="basic-icon-default-company2" class="input-group-text"
+                      ><i class='bx bx-time-five' ></i></span>
+                    
+                    <select class="form-control" name="idtype" id="guestidtype" placeholder="Chek-In Time">
+                      <option>ID Type</option>
+                      <option>Aadhar Card</option>
+                      <option>Licence</option>
+                      <option>Passport</option>
+                      <option>VoterID Card</option>
+                    </select>
+                  </div>
+                </div>
+          </div>
+
+          <div class="col-3">
+            <div class="mb-3 mt-3">
+              <div class="input-group input-group-merge">
+                <span id="basic-icon-default-company2" class="input-group-text"
+                  ><i class='bx bxs-group'></i></span>
+                <input
+                  type="text"
+                  
+                  name = "iddetails"
+                  id="guestidetail"
+                  class="form-control"
+                  placeholder="Id Details"
+                  aria-label="ACME Inc."
+                  aria-describedby="basic-icon-default-company2"
+                />
+              </div>
+            </div>
+        </div>
+
+          <div class="col-2">
+              <div class="mb-3 mt-3">
+                  <div class="input-group input-group-merge">
+                    <span id="basic-icon-default-company2" class="input-group-text"
+                      ><i class='bx bxs-group'></i></span>
+                    <input
+                      type="number"
+                      required
+                      name = "noofguest"
+                      id="basic-icon-default-company"
+                      class="form-control"
+                      placeholder="Total Guests"
+                      aria-label="ACME Inc."
+                      aria-describedby="basic-icon-default-company2"
+                    />
+                  </div>
+                </div>
+          </div>
+          <div class="col-2">
+              <div class="mb-3 mt-3">
+                  <div class="input-group input-group-merge">
+                    <span id="basic-icon-default-company2" class="input-group-text"
+                      ><i class='bx bxs-user'></i></span>
+                    <input
+                      type="number" 
+                      required
+                      name = "guestadults"
+                      id="basic-icon-default-company"
+                      class="form-control"
+                      placeholder="Adults"
+                      aria-label="ACME Inc."
+                      aria-describedby="basic-icon-default-company2"
+                    />
+                  </div>
+                </div>
+          </div>
+
+          <div class="col-2">
+              <div class="mb-3 mt-3">
+                  <div class="input-group input-group-merge">
+                    <span id="basic-icon-default-company2" class="input-group-text"
+                      ><i class='bx bx-child'></i></span>
+                    <input
+                      type="number"
+                      required
+                      name = "guestchildren"
+                      id="basic-icon-default-company"
+                      class="form-control"
+                      placeholder="Children"
+                      aria-label="ACME Inc."
+                      aria-describedby="basic-icon-default-company2"
+                    />
+                  </div>
+                </div>
+          </div>
+      
+      </div>
+
+      <div class="row">
+          <div class="col-6">
+              <div class="mb-3">
+                  <div class="input-group input-group-merge">
+                    <span id="basic-icon-default-company2" class="input-group-text"
+                      >Id-Front</span>
+                      <input
+                    type="file"
+                    name = "guestid"
+                    class="form-control"
+                    id="inputGroupFile04"
+                    aria-describedby="inputGroupFileAddon04"
+                    aria-label="Upload"
+                  />
+                  <button class="btn btn-outline-primary" type="button" id="inputGroupFileAddon04">Button</button>
+                  </div>
+                </div>
+          </div>
+          <div class="col-6">
+              <div class="mb-3">
+                <div class="input-group input-group-merge">
+                  <span id="basic-icon-default-company2" class="input-group-text"
+                    ><i class='bx bx-child'></i></span>
+                  <input
+                    type="text"
+                    name = "Purpose"
+                    id="basic-icon-default-company"
+                    class="form-control"
+                    placeholder="Purpose of Visit"
+                    aria-label="ACME Inc."
+                    aria-describedby="basic-icon-default-company2"
+                  />
+                </div>
+                </div>
+          </div>
+          <div class="row" >
+            <div id="onebyonefullid" class="col-8 form-check form-switch mb-2 ms-3 border-danger" style="border:px solid red;border-radius:10px">
+              <span class="badge bg-label-danger mb-1 me-1 mt-1  ">*NOTE</span>
+              <label class="form-check-label mt-1 text-danger" style="margin-left:px;" for="flexSwitchCheckChecked"
+                >If your guest has booked multiple rooms and they want to <strong>check-in one room at a time</strong>, please turn on the button. By default, this button will check-in all the rooms that the guest has booked..</label
+              >
+              <input id="inponebyone" class="form-check-input ms-1 mt-1" style="height:25px;width:60px;display:block" type="checkbox" id="flexSwitchCheckChecked" name="roomalldefaultcheckinbutton" />
+              <span class="badge bg-label-danger mb-1 me-1 mt-1 ms-2  ">On/Off</span>
+            </div>
+          </div>
+      </div>
+      {%endfor%}
+
+      <script>
+        function hideonebyonedetail() {
+            document.getElementById('inponebyone').style.display = "none";
+            document.getElementById('onebyonefullid').style.display = "none";
+        }
+    </script>
+      
+          
+        
+      </div> 
+
+      <!--guest information end-->
+
+      </div>
+      <div class="tab-pane fade" id="navs-pills-justified-profile" role="tabpanel">
+        
+
+        <!--payment information start-->
+        <div class="card-body">
+          
+          {% comment %} <input type="hidden" value="{{i.room_name}} " name="roomno"/> {% endcomment %}
+          <div class="row">
+            
+            <!-- Basic -->
+            <div class="col-md-12 mb-4">
+              
+
+                <!-- Bootstrap Table with Header - Light -->
+ <div class="card">
+    <h5 class="card-header"><i class="tf-icons bx bx-message-square"></i> Room &  price ,Tax Information </h5>
+    <div class="table-responsive text-nowrap">
+      <table class="table" >
+        <thead class="table-light">
+          <tr>
+            <th>Room No</th>
+            <th>Price</th>
+            <th>Tax</th>
+            
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+
+            {%for data in roomnumberdata%}
+          <tr>
+            <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{data.roomno.room_name}} </strong></td>
+            <td>{{data.roomno.price}}</td>
+            <td>
+                {{data.roomno.tax}} 
+            </td>
+           
+
+            
+          {%endfor%}
+   
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Bootstrap Table with Header - Light -->
+
+
+            
+
+
+                <div class="row " >
+                  <!--payment form-->
+                  
+                  
+                  {% for i in paymentdatauserfromsaveadvancedata%}
+                  <div class="card mt-3">
+                    <div class="card-body">
+                      <input type="hidden" name="saveguestdata" value="{{i.id}}" />
+                        <h5 class=" mt-3 ms-4"><i class='bx bxl-paypal mb-1'></i>Payment Details </h5>
+
+                        <div class="row">
+                            <div class="col-12"><h6 class="ms-4">Total Stay Days : {{i.staydays}} <br>
+                            <span class="text-success  badge bg-label-success me-1">Total Amount Multiply By days(incl tax,discount) is: {{i.total_amount}}</span> </h6></div>
+                        </div>
+                  <div class="row mt-4 text-center" >
+                        <div class="col-3">
+                        <h6>Total Amount : <span class="text-success  badge bg-label-success me-1">{{i.total_amount}}</span></h6></div>
+                        <div class="col-3"><h6>Advance Amount : <span class="text-success  badge bg-label-success me-1">{{i.advance_amount}}</span></h6></div>
+                        <div class="col-3"><h6>Discount Amount : <span class="text-primary  badge bg-label-primary me-1">{{i.discount}}
+                        </span><br>
+                        <span id="morediscount" class="text-primary  badge bg-label-primary me-1"></span>
+                    </h6></div>
+                        <div class="col-3"><h6>Remaining Amount :  <span id="reamainingamt" class="text-warning  badge bg-label-warning me-1">{{i.reamaining_amount}}</span></h6></div>
+                    <input type="hidden" value="{{i.reamaining_amount}}" id="reamainingamount">
+
+                </div></div></div>
+                <!--total and subtotal input-->
+                <input type="hidden" value="{{i.total_amount}}" name="total"/>
+                <input type="hidden" value="{{i.reamaining_amount}}" id="reamainingamountinput" name="subtotal"/>
+                <input type="hidden" value="{{i.discount}}" id="discountinput" name="discount"/>
+                <input type="hidden" value="{{i.discount}}" id="discountinputfixed" />
+               
+                  {%endfor%}
+
+                  <div class="row mt-0" >
+                   
+
+                  <div class="col-8 ms-4">
+                    <div class="card-body">
+                        <p class="card-text" style="margin-bottom:-15px">If You Want To Add More Discount To Click.</p>
+  
+                        <p class="demo-inline-spacing">
+                          <a
+                            class="btn btn-primary me-1"
+                            data-bs-toggle="collapse"
+                            href="#multiCollapseExample1"
+                            role="button"
+                            aria-expanded="false"
+                            aria-controls="multiCollapseExample1"
+                            >Add More Discount</a
+                          >
+                          
+                        </p>
+                        <div class="row">
+                          <div class="col-12 col-md-6  mb-md-0">
+                            <div class="collapse multi-collapse" id="multiCollapseExample1">
+                                <div class="input-group">
+                      
+                                    <select id="selectopt" class="form-control">
+                                      <option value="Fixed" class="form-control">Fixed </option>
+                                    </select>
+                                    
+                                    <input
+                                      type="text"
+                                      id="discountamount"
+                                      class="form-control"
+                                      aria-label="Text input with segmented dropdown button"
+                                    /><button type="button" class="btn btn-primary" onclick="adddiscount()">Add Discount</button>
+                                  </div>
+                            </div>
+
+                            
+                        </div></div></div>
+
+                        <div class="row ms-2" >
+                  <p class="demo-inline-spacing ">
+                    <a
+                      class="btn btn-primary me-1"
+                      data-bs-toggle="collapse"
+                      href="#multiCollapseExample2"
+                      role="button"
+                      aria-expanded="false"
+                      aria-controls="multiCollapseExample2"
+                      >Add More Guest</a
+                    >
+                    
+                  </p>
+  
+                  <div class="col-12 col-md-6  mb-md-0">
+                    <div class="collapse multi-collapse" id="multiCollapseExample2">
+                        <div class="input-group">
+                          <div class="row">
+                            <div class="col-6 mb-3">
+                              <label for="nameBackdrop" class="form-label">Guest Name</label>
+                              <input
+                                type="text"
+                                name="moreguestname"
+                                id="nameBackdrop"
+                                class="form-control"
+                                placeholder="Enter Name"
+                              />
+                            </div>
+  
+                            <div class="col-6 mb-3">
+                              <label for="nameBackdrop" class="form-label">Guest Phone</label>
+                              <input
+                                type="number"
+                                name="moreguestphone"
+                                id="nameBackdrop"
+                                class="form-control"
+                                placeholder="Enter Phone"
+                              />
+                            </div>
+                            
+  
+                            <div class="col-6 mb-3">
+                              <label for="nameBackdrop" class="form-label">Guest Address</label>
+                              <input
+                                type="text"
+                                name="moreguestaddress"
+                                id="nameBackdrop"
+                                class="form-control"
+                                placeholder="Enter Address"
+                              />
+                            </div>
+  
+                          </div>
+                          
+                          <p>  
+                           
+                          <input  class="form-check-input ms-2"  type="checkbox"  name="checkmoredatastatus"/>&nbsp;&nbsp;&nbsp;
+                            If You Want To Save Data So Please Active The CheckBox.</p>
+                            
+                          </div>
+                    </div>
+                </div>
+                            
+                          </div>
+                          <div class="row ms-2">
+                            <div class="col mb-3 ">
+                              <label for="nameBackdrop" class="form-label">Payment</label>
+                              <select class="form-control" name="paidstatus" id="selectValuepaid" onchange="showpaymentstatus()" placeholder="Select Payment" required>
+                                <option  value="Unpaid">Unpaid</option>  
+                                <option  value="Paid">Paid</option>
+                                  
+                              </select>
+                            </div>
+          
+                            <div class="col mb-3 w-50" style="display:none" id="selectcashdiv">
+                              <label for="nameBackdrop" class="form-label">Payment Mode</label>
+                              <select class="form-control" name="paymentstatus"  id="selectValue" onchange="showinput()" placeholder="Select Payment" required>
+                                  <option  value="cash">Cash</option>
+                                  <option  value="online">Online</option>
+                                  <option  value="Partly">Partially</option>
+                              </select>
+                            </div>
+                            <div class="col w-100 " id="inputcash" style="display:none">
+                              <label for="nameBackdrop" class="form-label">Cash Amount</label>
+                              <input type="number" class="form-control" value=0 name="cashamount" id="inputcash" placeholder="Cash Amount" />
+                              
+                          </div>
+                            <div class="col  w-100"  id="inputonline" style="display:none">
+                              <label for="nameBackdrop" class="form-label">Online Payment </label>
+                              <input type="number" class="form-control" value=0 name="onlineamount" id="inputonline" placeholder="Online Amount" />
+                            </div>
+                          </div>
+                  <div class="col-6 mt-3">
+
+                 <button type="submit" class="btn btn-primary mt-4 mb-4 ms-3  w-100" id="submitButton" > Booking Done</button>
+                 <span class="text text-danger ms-3 text-left" style="font-size:15px"><b>Note</b>After you click 'Booking Done', any extra discounts or loyalty points will be added to your final bill shown in the folio. </span>
+                  
+                </div>
+
+                <script>
+                  document.getElementById('myForm').addEventListener('submit', function(event) {
+                      var button = document.getElementById('submitButton');
+                      
+                      // Disable the button immediately when form is submitted
+                      button.disabled = true;
+                      
+                      // Re-enable the button after 4 seconds
+                      setTimeout(function() {
+                          button.disabled = false;
+                      }, 50000);
+                  });
+              </script>
+                   
+                  
+                  </div>
+
+                </div>
+                <script>
+                  function showpaymentstatus() {
+                    var selectValuepaid = document.getElementById('selectValuepaid').value;
+                    if (selectValuepaid == "Paid"){
+                      document.getElementById('selectcashdiv').style.display="block";
+                      }
+                      if (selectValuepaid == "Unpaid"){
+                        document.getElementById('selectcashdiv').style.display="none";
+                        document.getElementById('inputcash').style.display="none";
+                      document.getElementById('inputonline').style.display="none";
+                        }
+                  }
+    
+    
+                  function showinput() {
+                      var selectElement = document.getElementById('selectValue');
+                      var selectedValue = selectElement.value;
+                      document.getElementById('inputcash').style.display="none";
+                      document.getElementById('inputonline').style.display="none";
+                      if (selectedValue == "Partly"){
+                      document.getElementById('inputcash').style.display="block";
+                      document.getElementById('inputonline').style.display="block";
+                      document.getElementById('nameBackdrop').style.display="block";
+                      }
+                  };
+                </script>
+                
+                    
+              </div>
+              <div class="row">
+
+                
+                
+                
+                
+
+              
+              
+            </form>
+              
+            </div>
+            {% comment %} {%endfor%} {% endcomment %}
+
+            <!--js of discount button-->
+
+            <script type="text/javascript">
+              function adddiscount() {
+               
+                var selectopt = document.getElementById('selectopt').value;
+                var discountamount = document.getElementById('discountamount').value;
+                var discountamountfixed = document.getElementById('discountinputfixed').value;
+                if (selectopt == 'Fixed') {
+                  
+                  
+                  var discamtnew =  parseInt(discountamount) +parseInt(discountamountfixed)
+                  
+                  
+                  document.getElementById('morediscount').innerHTML = "More Discount Rs:"+discountamount;
+                  document.getElementById('discountinput').value =discamtnew;
+                }
+                else{
+                    discamt = (subtotal * discountamount /100) 
+                    var newdiscamtnew = parseInt(discountamountfixed) + parseInt(discamt) 
+                  var total = subtotal - (subtotal * discountamount /100) 
+                  console.log(total)
+                  document.getElementById('morediscount').innerHTML = "More Discount Rs:"+discamt;
+                  
+                  document.getElementById('discountinput').value =newdiscamtnew;
+                }
+              }
+{% comment %} 
+              // Calculate and display tax amount for each item
+        document.addEventListener("DOMContentLoaded", function() {
+            var itemsRows = document.querySelectorAll("#items-table tbody tr");
+            itemsRows.forEach(function(row) {
+                var priceCell = row.querySelector("td:nth-child(2)");
+                var taxCell = row.querySelector("td:nth-child(3)");
+                var taxAmountCell = row.querySelector(".tax-amount");
+
+                var price = parseFloat(priceCell.textContent);
+                var taxRate = parseFloat(taxCell.textContent);
+                var taxAmount = (price * taxRate) / 100;
+
+                taxAmountCell.textContent = taxAmount.toFixed(2); // Display tax amount
+            });
+        }); {% endcomment %}
+            </script>
+            <!--js of discount button end-->
+            
+
+       
+  </div> 
+      
+      <!--Payment information end-->
+
+
+      </div>
+     
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+{%if loyltydata%}
+<!--loylty data here-->
+<div class="row    mt-4" style="height:450px">
+  <div class="col-4 m-4 card">
+    
+    <label for="nameBackdrop" class="form-label ms-5 mt-5 ">Guest Phone Number To Check Loyalty Data</label>
+    <div class="input-group input-group-merge w-75 mt-2 ms-5">
+      <span id="basic-icon-default-company2" class="input-group-text"
+        ><i class="bx bx-phone"></i
+            ></span>
+      <input
+        type="number"
+        name = "guestphone"
+        id="phoneguest"
+        class="form-control "
+        placeholder="Phone"
+        aria-label="ACME Inc."
+        aria-describedby="basic-icon-default-company2"
+      />
+    </div>
+    
+    <button id="btnsavedate" class="btn btn-primary w-75 mt-4 ms-5">Check Loyalty Data</button>
+    <p class="text m-2 mt-5">
+      Please wait while it displays the loyalty data. If the information is incorrect, refresh the page and try again.</p>
+    <p class="text text-danger m-2">After adding loyalty data, please avoid refreshing the page or going back. Make sure all fields are filled before adding loyalty data, as it will be applied to discounts automatically and removed from loyalty records.
+    </p>
+  </div>
+  <div class="col-7 m-1 card">
+    
+     <!-- List group Icons -->
+     <div class="col-lg-12">
+      <div class="demo-inline-spacing mt-3">
+        <ul class="list-group">
+          <li class="list-group-item d-flex align-items-center">
+            <i class='bx bx-street-view'></i>
+            Guest Name  <span class="badge ms-5 w-25 bg-label-primary me-1" id="name"></span>
+          </li>
+          <li class="list-group-item d-flex align-items-center">
+            <i class="bx bx-phone me-2"></i
+              >
+            Guest Contact  <span class="badge ms-4 me-1 w-25 bg-label-primary me-1" id="contact"></span>
+          </li>
+          
+          <li class="list-group-item d-flex align-items-center">
+            <i class="bx bx-purchase-tag-alt me-2"></i>
+            Loyalty Points In ₹ 
+            <span class="badge w-25 ms-2 bg-label-primary me-1" id="lyltyamount"></span>
+            <span class="badge w-25 ms-2 bg-label-danger me-1" id="lyltyamountdelete"></span>
+          </li>
+          
+          <!-- Error Display -->
+          <div class="text-danger" id="errorshowajax"></div>
+          <div class="row">
+            <span>
+            <i class='bx bxs-cube-alt m-2'></i><b>Add Discount</b> :Add automatically Loyalty Amount  Data To Discount</span>
+            <span><i class='bx bxs-cube-alt m-2'></i>
+              <b>Data Redeem:</b>If you want to use these loyalty points, click the "Add Discount" button and check Loyalty Ponits Added to Discount Amount and Applied on amount, After that click "Redeem" button to remove the loyalty data from the guest's contact. After that, submit the customer form.
+            </span>
+          <button class="btn btn-primary m-3 w-25" onClick="adddiscount()">Add Discount </button>
+          <button class="btn btn-success m-3 w-25" id="Deleteloyltydata">Points Redeem</button>
+          </div>
+        </ul>
+      </div>
+    </div>
+    <!--/ List group Icons -->
+
+
+  </div>
+  <!--end here-->
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script>
+    $("#btnsavedate").click(function(){
+        let phoneno = $("#phoneguest").val();
+        console.log(phoneno);
+  
+        // Clear previous data and error messages
+        $("#name").empty();
+        $("#contact").empty();
+        $("#loyltypoint").empty();
+        $("#lyltyamount").empty();
+        $("#loyltyid").val('');
+        $('#errorshowajax').empty();
+        $('#lyltyamountdelete').empty();
+        $.ajax ({
+          type: "POST",
+          url: "/getloyltydataajax",
+          data: {
+              Mobile: phoneno,
+          },
+          success: function (data) {
+            if (data.error) {
+                $('#errorshowajax').html('<p>Error: ' + data.error + '</p>');
+            } else {
+                var name, id, contact, loyltypoints;
+                // Assuming data is an array of objects
+                data.forEach(function(item) {
+                  name = item.guest_name; // Assign guest_name to name variable
+                  id = item.id; // Assign id to id variable
+                  contact = item.guest_contact; // Assign guest_contact to contact variable
+                  loyltypoints = item.loylty_point; // Assign loylty_point to loyltypoints variable
+                });
+                
+                console.log(name);
+                $("#name").html(name);
+                $("#contact").html(contact);
+                $("#loyltypoint").html(loyltypoints);
+                $("#lyltyamount").html(loyltypoints);
+                $("#loyltyid").val(id);
+                $("#discountamount").val(loyltypoints);
+            }
+          },
+          error: function(xhr, status, error) {
+            $('#errorshowajax').html('<p>Error: ' + xhr.statusText + '</p>');
+          }
+        });
+    });
+
+
+
+    //delete loylty data 
+    $("#Deleteloyltydata").click(function(){
+      let phoneno = $("#phoneguest").val();
+      console.log(phoneno);
+
+      // Clear previous data and error messages
+      $("#name").empty();
+      $("#contact").empty();
+      $("#loyltypoint").empty();
+      $("#lyltyamount").empty();
+      $("#loyltyid").val('');
+      $('#errorshowajax').empty();
+      console.log("worked")
+      $.ajax ({
+        type: "POST",
+        url: "/deleteloyltyajaxdata",
+        data: {
+            Mobile: phoneno,
+        },
+        success: function (data) {
+          if (data.error) {
+              $('#errorshowajax').html('<p>Error: ' + data.error + '</p>');
+          } else {
+              var name, id, contact, loyltypoints;
+              // Assuming data is an array of objects
+              data.forEach(function(item) {
+                name = item.guest_name; // Assign guest_name to name variable
+                id = item.id; // Assign id to id variable
+                contact = item.guest_contact; // Assign guest_contact to contact variable
+                loyltypoints = item.loylty_point; // Assign loylty_point to loyltypoints variable
+              });
+              
+              console.log(name);
+              $("#name").html(name);
+              $("#contact").html(contact);
+              $("#loyltypoint").html(loyltypoints);
+              $("#lyltyamountdelete").html(loyltypoints);
+              $("#discountamount").val(loyltypoints);
+          }
+        },
+        error: function(xhr, status, error) {
+          $('#errorshowajax').html('<p>Error: ' + xhr.statusText + '</p>');
+        }
+      });
+  });
+  </script>
+  
+  {%endif%}
+
+</div>
+</div>
+</div>
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+               <!-- build:js assets/vendor/js/core.js -->
+               <script src="{% static 'undercss/assets/vendor/libs/jquery/jquery.js'%}"></script>
+               <script src="{% static 'undercss/assets/vendor/libs/popper/popper.js'%}"></script>
+               <script src="{% static 'undercss/assets/vendor/js/bootstrap.js'%}"></script>
+               <script src="{% static 'undercss/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js'%}"></script>
+           
+               <script src="{% static 'undercss/assets/vendor/js/menu.js'%}"></script>
+               <!-- endbuild -->
+           
+               <!-- Vendors JS -->
+               <script src="{% static 'undercss/assets/vendor/libs/apex-charts/apexcharts.js'%}"></script>
+           
+               <!-- Main JS -->
+               <script src="{% static 'undercss/assets/js/main.js'%}"></script>
+           
+               <!-- Page JS -->
+               <script src="{% static 'undercss/assets/js/dashboards-analytics.js'%}"></script>
+           
+               <!-- Place this tag in your head or just before your close body tag. -->
+               <script async defer src="https://buttons.github.io/buttons.js"></script>
+             </body>
+           </html>
+           
+           
+
+
+
+           <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Elegant Light Lavender Loader</title>
+                <style>
+                    body {
+                        margin: 0;
+                        font-family: Arial, sans-serif;
+                        background-color: #f3f3f3;
+                    }
+            
+                    .loader-wrapper {
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
+                        z-index: 9998;
+                    }
+            
+                    .loader {
+                        position: relative;
+                        width: 60px;
+                        height: 60px;
+                    }
+            
+                    .loader div {
+                        position: absolute;
+                        border: 4px solid transparent;
+                        border-top-color: #c5a3ff; /* Light lavender color */
+                        border-radius: 50%;
+                        animation: spin 1.5s ease infinite;
+                    }
+            
+                    .loader div:nth-child(1) {
+                        width: 60px;
+                        height: 60px;
+                        animation-delay: -0.45s;
+                    }
+            
+                    .loader div:nth-child(2) {
+                        width: 45px;
+                        height: 45px;
+                        top: 7.5px;
+                        left: 7.5px;
+                        animation-delay: -0.3s;
+                    }
+            
+                    .loader div:nth-child(3) {
+                        width: 30px;
+                        height: 30px;
+                        top: 15px;
+                        left: 15px;
+                        animation-delay: -0.15s;
+                    }
+            
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+            
+                    #content {
+                        display: none; /* Hide content initially */
+                        opacity: 0;
+                        transition: opacity 0.5s ease;
+                    }
+            
+                    .loader-wrapper.hidden #content {
+                        display: block;
+                        opacity: 1;
+                    }
+                </style>
+            </head>
+            <body>
+                <div id="loader-wrapper" class="loader-wrapper">
+                    <div class="loader">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                    </div>
+                </div>
+                <div id="content">
+                   
+                </div>
+            
+                <script>
+                    // Show the loader when the page is loading
+                    document.addEventListener('DOMContentLoaded', function() {
+                        document.getElementById('loader-wrapper').style.display = 'flex';
+                        document.getElementById('content').style.display = 'none'; // Hide the content
+                    });
+            
+                    // Hide the loader and show the content when the page has fully loaded
+                    window.addEventListener('load', function() {
+                        document.getElementById('loader-wrapper').style.display = 'none'; // Hide the loader
+                        document.getElementById('content').style.display = 'block'; // Show the content
+                        setTimeout(function() {
+                            document.getElementById('content').style.opacity = '1'; // Fade in the content
+                        }, 50); // Slight delay for the fade effect
+                    });
+                </script>
+            </body>
+            
+            <script type="text/javascript">
+              {% comment %} // Disable right-click
+              document.addEventListener('contextmenu', function(e) {
+                  e.preventDefault();
+              });
+            
+              // Disable common inspect shortcuts
+              document.addEventListener('keydown', function(e) {
+                  if (e.keyCode == 123) { // F12 key
+                      e.preventDefault();
+                  }
+                  if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { // Ctrl+Shift+I
+                      e.preventDefault();
+                  }
+                  if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) { // Ctrl+Shift+J
+                      e.preventDefault();
+                  }
+                  if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) { // Ctrl+U
+                      e.preventDefault();
+                  }
+              }); {% endcomment %}
+            </script>
+            </html>
+
+
+
+            
+            <script>
+              //mobile number validate ajax
+
+              $(document).ready(function() {
+                var mobilenumber = $("#mobilenumber").val();
+                console.log(mobilenumber);
+
+                $.ajax ({
+                  type: "POST",
+                  url: "/getguestdatabyajaxinform",
+                  data: {
+                      Mobile: mobilenumber,
+                  },
+                  success: function (data) {
+                    if (data.error) {
+                        $('#errorshowajax').html('<p>Error: ' + data.error + '</p>');
+                    } else {
+                        var name, id, contact, loyltypoints;
+                        // Assuming data is an array of objects
+                        'guestname', 'guestemail', 'guestcity','guestcountry'
+                        data.forEach(function(item) {
+                          name = item.guestname; // Assign guest_name to name variable
+                          emal = item.guestemail; // Assign id to id variable
+                          city = item.guestcity; // Assign guest_contact to contact variable
+                          country = item.guestcountry; // Assign loylty_point to loyltypoints variable
+                          gueststate = item.gueststates;
+                          idtype = item.guestidtypes;
+                          iddetail = item.guestsdetails;
+                        });
+                        
+                        console.log(name);
+                        $("#mainguestemail").val(emal);
+                        $("#mainguestcity").val(city);
+                        $("#mainguestcountry").val(country);
+                        $("#country").val(gueststate);
+                        $("#guestidtype").val(idtype);
+                        $("#guestidetail").val(iddetail);
+                        $('#customerinfos').html('<p>Repet Guest </p>');
+                    }
+                  },
+                  error: function(xhr, status, error) {
+                    $("#mainguestname").val('');
+                        $("#mainguestemail").val('');
+                        $("#mainguestcity").val('');
+                        $("#mainguestcountry").val('');
+                        $('#customerinfos').empty();
+                        $("#country").val('');
+                        $("#guestidtype").val();
+                        $("#guestidetail").val('');
+                  }
+                });
+          
+               
+            });
+        
+        
+
+
+            </script>
+            

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+
+<div class="card">
+  <button
+                        class="btn btn-primary m-4 mb-4 w-25 justify-content-end float-end"
+                        data-bs-toggle="collapse"
+                        href="#multiCollapseExample1"
+                        role="button"
+                        aria-expanded="false"
+                        aria-controls="multiCollapseExample1"
+  
+                        ><i class="bx bx-search fs-4 lh-0"></i> Search... Folio Guest Data! workpendng by me full work for earch pending</button>
+  <div class="collapse multi-collapse" id="multiCollapseExample1">
+  <form action="{% url 'searchguestdata' %}" method="post">
+    {% csrf_token %}
+    <div class="row m-2">
+      <div class="mb-3 ms-4 col-md-2">
+        <label for="firstName" class="form-label">Guest Name</label>
+        <input
+          class="form-control"
+          type="text"
+          id="firstName"
+          name="guestname"
+          placeholder="John"
+          
+        />
+      </div>
+  
+      <div class="mb-3 col-md-2">
+        <label for="firstName" class="form-label">Guest Phone</label>
+        <input
+          class="form-control"
+          type="text"
+          id="firstName"
+          name="guestphone"
+          placeholder="9178XXXX13"
+          
+          
+        />
+      </div>
+  
+      <div class="mb-3 col-md-2">
+        <label for="firstName" class="form-label">CheckIn Date</label>
+        <input
+          class="form-control"
+          type="date"
+          id="firstName"
+          name="checkindate"
+          value=""
+          
+          
+        />
+      </div>
+  
+      <div class="mb-3 col-md-2">
+        <label for="firstName" class="form-label">CheckOut Date</label>
+        <input
+          class="form-control"
+          type="date"
+          id="firstName"
+          name="checkoutdate"
+          value="John"
+          
+          
+        />
+      </div>
+  
+      <button type="submit" class=" col-md-3 mt-4 h-50 btn btn-primary">Search...</button>
+  
+    </div>
+  </form>
+  
+  </div>
+  </div>
+
+
+ <!-- Bootstrap Table with Header - Light -->
+ <div class="card mt-3">
+    <h5 class="card-header">Guest/Room folio</h5>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead class="table-light">
+          <tr>
+            <th>Guest name</th>
+            <th>Phone</th>
+            <th>Room</th>
+            <th>City</th>
+            <th>checkindate</th>
+            <th>checkoutdate</th>
+            <th>Invoice</th>
+            <th>Reg-Form</th>
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+
+            {%for data in invoice_data%}
+          <tr>
+            <td><i class="fab fa-angular fa-lg text-danger "></i> <strong>{{data.customer.guestname}}</strong></td>
+            <td>{{data.customer.guestphome}}</td>
+            <td><i class='bx bx-home-heart mb-1 text-warning'></i> {{data.customer.roomno}}</td>
+            <td>
+              {{data.customer.guestcity}}
+            </td>
+            <td><span class="badge bg-label-primary me-1">{{data.customer.checkindate}}</span></td>
+            <td><span class="badge bg-label-primary me-1">{{data.customer.checkoutdate}}</span></td>
+            <td><a class="btn btn-primary" href="{% url 'invoicepage' id=data.customer.id %}">Folio</a></td>
+            <td><a class="btn btn-info" href="{% url 'guestregform' id=data.customer.id %}">Form</a></td>
+          </tr>
+          {%endfor%}
+   
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Bootstrap Table with Header - Light -->
+
+{%endblock%}

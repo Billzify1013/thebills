@@ -1,0 +1,711 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+
+{% load static %}
+<html
+  lang="en"
+  class="light-style layout-menu-fixed"
+  dir="ltr"
+  data-theme="theme-default"
+  data-assets-path="{% static 'undercss/assets/'%}"
+  data-template="vertical-menu-template-free"
+>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+
+    <title>Dashboard - Analytics | Sneat - Bootstrap 5 HTML Admin Template - Pro</title>
+
+    <meta name="description" content="" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'undercss/assets/img/favicon/favicon.ico'%}" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icons. Uncomment required icon fonts -->
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/fonts/boxicons.css'%}" />
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/css/core.css'%}" class="template-customizer-core-css'%}" />
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/css/theme-default.css'%}" class="template-customizer-theme-css'%}" />
+    <link rel="stylesheet" href="{% static 'undercss/assets/css/demo.css'%}" />
+
+    <!-- Vendors CSS -->
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css'%}" />
+
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/libs/apex-charts/apex-charts.css'%}" />
+
+    {% comment %} <link rel="stylesheet" href="{% static 'undercss/assets/vendor/libs/spinkit/spinkit.css'%}" /> {% endcomment %}
+
+    <!-- Page donwload link to pdf -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+    <!-- Helpers -->
+    <script src="{% static 'undercss/assets/vendor/js/helpers.js'%}"></script>
+
+    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+    <script src="{% static 'undercss/assets/js/config.js'%}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <style type="text/css">
+        body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+.invoice-container {
+    width: 100%;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+}
+
+.header img,
+.footer img {
+    width: 100%;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.invoice-details {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.left h1 {
+    color: #333;
+    margin-top: 0;
+}
+
+.client-details h2,
+.invoice-items h2,
+.totals p {
+    margin-top: 0;
+}
+
+.right p {
+    margin: 2px 0;
+}
+
+.invoice-items,
+.totals {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 0px;
+    margin-bottom: 10px;
+}
+
+.item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1px;
+}
+
+.item p {
+    margin: 0;
+}
+
+.totals {
+    display: flex;
+    justify-content: space-between;
+}
+
+.footer img {
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+    </style>
+</head>
+  </head>
+    
+
+<body>
+
+    
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-5">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <div id="success-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%endif%}
+</div>
+{%endfor%}
+
+<script>
+    $(document).ready(function() {
+        // Fade out the alert after 5 seconds (5000 milliseconds)
+        setTimeout(function() {
+            $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+                $(this).remove(); 
+            });
+        }, 2000);
+    });
+</script>
+{%endif%}
+
+    
+    
+    <div class=" row">
+        <div class="col-2">
+        {% comment %} <input type=button value="Back" class="btn btn-outline-warning" onClick="javascript:history.go(-1);"> {% endcomment %}
+        </div>
+        <div class="col-6">
+
+     <form  action="{% url 'cancelroom' %}" method="post">
+        {% csrf_token %}
+            {%for data in invoice_data%}
+            <input type="hidden" name="roomno" value="{{data.customer.roomno}}" />
+            <input type="hidden" name="invoice_id" value="{{data.id}}" />
+            <input type="hidden" name="guest_id" value="{{data.customer.id}}" />
+            {%endfor%} 
+    <button class="btn btn-danger float-end  me-3" type="submit">Cancel Booking & Delete Folio</button>
+     </form>
+    </div>
+    <div class="col-4">
+
+   
+    <button class="btn btn-primary w-100  float-end"  type="" data-bs-toggle="modal"
+    data-bs-target="#backDropModalcheckout">Checkout Room & Save Invoice</button>
+  
+
+    
+
+</div>
+    </div>
+        <div class="invoice-container mt-3" id="invoice" >
+            <div class="header" style="margin-top:-30px">
+                <div class="row">
+                    
+                    <div class="col-10">
+                      
+               
+            </div>
+            <div class="col-2 pt-4">
+              <div class="dropdown  ms-2">
+                <button
+                  class="btn btn-light shadow"
+                  type="button"
+                  id="cardOpt3"
+                  data-bs-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                <b><i class='bx bxs-edit'></i> edit</b>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt3">
+                  <form action="{%url 'openposforroom' %}" method="post">
+                    {% csrf_token %}
+                    {%for data in invoice_data%}
+                    <input type="hidden" name="invcid" value="{{data.id}}" style="display:none"/>
+                    <input type="hidden" name="roomno" value="{{data.room_no}}" style="display:none"/>
+                  <button class="dropdown-item btn" type="submit" href=""><i class='bx bx-sitemap mb-1'></i> Add Service</button>
+                  
+                  </form>
+                  <a class="btn dropdown-item " href="{% url 'guestregform' id=data.customer.id %}"><i class='bx bx-id-card mb-1'></i>Regstratrion Form</a>
+                
+                  {%endfor%}</div>
+              </div>
+            </div>
+            
+          </div>
+        
+        </div>
+            <div class="invoice-details">{%for data in invoice_data%}
+                
+                <div class="center m-4 mb-0">
+                  <h6>Guest Information</h6>
+                  <div class="row">
+                    <div class="col-6">
+                      <p>Name: {{data.customer.guestname}}  </p>
+                <p>Phone: {{data.customer.guestphome}}</p>
+                <p>Room NO: {{data.customer.roomno}}</p>
+                    </div>
+                    <div class="col-6">
+                      <p>rate_plan: {{data.customer.rate_plan}}</p>
+                <p>Source: {{data.customer.channel}}</p>
+                <p>Guests: T:{{data.customer.noofguest}},A:{{data.customer.adults}},C:{{data.customer.children}}</p>
+                    </div>
+                  </div>
+                    
+                
+                <p>CheckOut Date: {{data.customer.checkoutdate}} <span style="font-size:10px">Checkout time not update please check it</span></p>
+                {%if data.customer_gst_number%}
+                <p>gstin: {{data.customer_gst_number}}</p>
+                {%endif%}
+                </div>
+                {%endfor%}
+                
+            </div>
+            
+           
+            
+        
+           
+            <div class="invoice-items" >
+                <div class="table-responsive text-nowrap" >
+                    <table class="table " >
+                      <thead class="table-light">
+                            <tr>
+                                <th>Services</th>
+                                {%for data in invoice_data%}
+                                {%if data.taxtype == 'GST'%}
+                                <th>Cgst</th>
+                                <th>Sgst</th>
+                                {%else%}
+                                <th>Igst</th>
+                                {%endif%}
+                                {%endfor%}
+                                <th>HSN/SAC</th>
+                                <th>Price</th>
+                                <th>Qty/Day</th>
+                                <th>Total
+                                </th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {%for iteams in invoiceitemdata%}
+                            <tr >
+                                
+                                <td style="font-size:18px">
+                                    {% comment %} {%if iteams.paidstatus is True %}
+                                    <span class="badge bg-label-success me-1">Paid</span>
+                                    {%else%}
+                                    <span class="badge bg-label-warning me-1">UnPaid</span>
+                                   
+                                    {%endif%} {% endcomment %}
+                                    {{iteams.description}}</td>
+                                {%for data in invoice_data%}
+                                {%if data.taxtype == 'GST'%}
+                                <td style="font-size:18px">{{iteams.sgst_rate}} %  </td>
+                                <td style="font-size:18px">{{iteams.sgst_rate}} %  </td>
+                                {%else%}
+                                    {% if iteams.sgst_rate == 2.50 %}
+                                    <td style="font-size:18px"> 5% </td>
+                                    {%else%}
+                                    <td style="font-size:18px">{{iteams.sgst_rate|add:iteams.sgst_rate}}% </td>
+                                    {%endif%}    
+                                {%endif%}
+                                {%endfor%}
+                                <td style="font-size:18px">{{iteams.hsncode}}</td>
+                                <td style="font-size:18px">{{iteams.price}}</td>
+                                <td style="font-size:18px">{{iteams.quantity_likedays}}</td>
+                                <td style="font-size:18px">{{iteams.total_amount}}</td>
+                                <td>
+                                    {% comment %} <a href="{% url 'updateemployee' id=data.id %}"><span class="badge bg-label-info  "><i class='bx bxs-edit-alt'></i></span></a> {% endcomment %}
+                                    <form action="{% url 'deleteitemstofolio' %}" method="post">
+                                        {% csrf_token %}
+                                        {%for data in invoice_data%}
+                                        <input type="hidden" name="invoiceid" value="{{data.id}}" />
+                                        {%endfor%}
+                                        <input type="hidden" name="invoiceitemsid" value="{{iteams.id}}" />
+                                    <button class="btn" type="submit"><span class="badge bg-label-danger  "><i class='bx bxs-trash'></i></span></button>
+                                    </form>
+                                </td>
+
+                               
+                            </tr>
+                            {%endfor%}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row">
+                    <div class="col-5">
+                        
+                        
+                        {% comment %} <form action="{%url 'openposforroom' %}" method="post">
+                          {% csrf_token %}
+                          {%for data in invoice_data%}
+                          <input type="hidden" name="invcid" value="{{data.id}}" />
+                          <input type="hidden" name="roomno" value="{{data.room_no}}" />
+                        
+                        <button class="btn btn-warning w-100 m-2"  type="submit"><i class='bx bx-sitemap'></i> Add Services</button>
+                        </form> 
+                         {%endfor%}{% endcomment %}
+
+                        <button class="btn btn-primary w-100 m-2"    data-bs-toggle="modal"
+                        data-bs-target="#backDropModal"><i class='bx bxl-paypal'></i> Add Payment</button>
+                     
+                     
+                        
+                        <div class="container mt-2">
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                  Payments
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Amount</th>
+                                            <th> Mode</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {%for payment in invcpayments%}
+                                        <tr>
+                                            <td>{{payment.payment_date}}
+                                                
+                                            </td>
+                                            <td><span class="text w-50">{{payment.payment_amount}}</span></td>
+                                            <td><span class="text w-50">{{payment.payment_mode}}</span>
+                                            
+                                                {%if payment.transaction_id%}
+                                                <span class="text w-25" style="font-size:12px">D:{{payment.transaction_id}}<br>
+                                                    C:{{payment.descriptions}}</span>
+                                                {%endif%}</td>
+                                        </tr>
+                                        {%endfor%}
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                    </div> 
+
+                    <div class="col-1"></div>
+
+                <div class="card col-6 shadow-none mb-0 w-50  " style="margin-top:0px">
+                    {%for data in invoice_data%}
+                    <span>Payment Status</span>
+                    <span class="badge bg-label-success me-1 col-2">Paid</span>
+                    <span>Total Paid Amount:₹ <b>{{data.accepted_amount}}</b> </span>
+                    <hr>
+                    <span class="badge bg-label-warning me-1 float-end col-2">Due</span>
+                        <span>Overall Due Amount:₹ <b>{{data.Due_amount}}</b> </span>
+                    <hr>
+                        
+                    
+                    
+                      
+                      <li class="list-group-item" style="font-size:13px">
+                        <span class="text w-50">Total</span> 
+                        <span class="text float-end">₹{{data.total_item_amount}}</span><br>
+                        <span class="text w-50">Discount</span> 
+                        <span class="text float-end">₹ {{data.discount_amount}}</span><br>
+                        <span class="text w-50">Subtotal</span> 
+                        <span class="text float-end">₹ {{data.subtotal_amount}}</span><br>
+
+                        {%for data in invoice_data%}
+                                {%if data.taxtype == 'GST'%}
+                                    <span class="text w-50">Cgst Total</span> 
+                                    <span class="text float-end">₹ {{data.gst_amount}}</span><br>
+                                    <span class="text w-50">Sgst Total</span> 
+                                    <span class="text float-end">₹ {{data.sgst_amount}}</span>
+                                {%else%}
+                                <span class="text w-50">Igst Total</span> 
+                                    <span class="text float-end">₹ {{data.sgst_amount|add:data.sgst_amount}}</span>
+
+                                {%endif%}
+                        {%endfor%}
+                        
+                      </li> 
+                      
+                      
+                       
+                      <li class="list-group-item">
+                        <span class="text w-50"><b>Grand Total</b></span> 
+                        <span class="text float-end"><b>₹ {{data.grand_total_amount}}</b></span>
+                      </li> 
+                      {%endfor%}
+                    </ul>
+                    <span class="mt-2 mb-2 text " style="font-size:9px"><i class='bx bxs-info-circle'></i>Rooms have discount, so their tax calculation are done after applying the discount.</span>
+                
+                </div>
+                  
+                
+            </div>
+            </div>
+       
+            </div>
+           
+            {% if loyltydata%}
+            <div class="card mt-3" >
+               <h3 class="m-3 text-primary">Reward Program</h3>
+               {%for i in loyltydata%}
+                <h5 class="m-3">You will give {{i.loylty_rate_prsantage}}% loyalty points on the total billing amount. Are you sure you want to award loyalty points to this customer? Please On the button</h5>
+               {%endfor%}
+               
+
+            
+               <h6 class="m-2 ms-3"><i class='bx bxl-jquery text-primary me-2'></i>An SMS will automatically be sent to the Your guest.</h6>
+               <h6 class="m-2 ms-3"><i class='bx bxl-jquery text-primary me-2'></i> informing them about the Your loyalty program.,</h6>
+               <h6 class="m-2 ms-3"><i class='bx bxl-jquery text-primary me-2'></i> helping you build a strong and proud relationship with your customers.</h6>
+               <h6 class="m-2 ms-3"><i class='bx bxl-jquery text-primary me-2'></i> Enhance Customer Lifetime Value.</h6>
+               <h6 class="m-2 ms-3"><i class='bx bxl-jquery text-primary me-2'></i>Create Personalized Marketing Campaigns.</h6>
+               <h6 class="m-2 ms-3"><i class='bx bxl-jquery text-primary me-2'></i>Build a Loyal Customer Community.</h6>
+               <h6 class="m-2 ms-3"><i class='bx bxl-jquery text-primary me-2'></i>Boost Sales During Slow Periods.</h6>
+               <h6 class="m-2 ms-3"><i class='bx bxl-jquery text-primary me-2'></i>Provide Exclusive VIP Experiences.</h6>
+            </div>
+            {%endif%}
+            
+      
+           
+    
+        
+
+   
+</body>
+
+
+    </html>
+
+    
+
+
+<!-- Modal add Payments -->
+<div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'addpaymentfolio'  %}" method="POST" class="modal-content">
+            {% csrf_token %}
+
+            {%for i in invoice_data%}
+            <input type="hidden" name="invcids" value="{{i.id}}">
+            
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Add Payments</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Amount</label>
+              <input
+                type="text"
+                name="amount"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter Amount"
+                value="{{i.Due_amount}}"
+                required
+              />
+            </div>{%endfor%}
+
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Payment Mode</label>
+                <select class="form-control" name="paymentmode" required placeholder="Select Category" required>
+                    
+                    <option  value="cash">Cash</option>
+                    <option  value="UPI">UPI</option>
+                    <option  value="Chacks">Chacks</option>
+                    <option  value="Card">Card</option>
+                    <option  value="BankTransfer">BankTransfer</option>
+                  </select>
+              </div>
+              
+          </div>
+          <div class="row">
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Payment Details</label>
+                <input
+                  type="text"
+                  name="paymntdetails"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="utr,check no"
+                  
+                />
+              </div>
+  
+              <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Comments</label>
+                <input
+                  type="text"
+                  name="comment"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder=""
+                  
+                />
+              </div>
+          </div>
+        </div>
+
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+
+
+<!-- Modal aCheckout -->
+<div class="modal fade" id="backDropModalcheckout" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'checkoutroom'  %}" method="POST" class="modal-content">
+            {% csrf_token %}
+
+            {%for data in invoice_data%}
+            <input type="hidden" name="roomno" value="{{data.customer.roomno}}" />
+            <input type="hidden" name="invoice_id" value="{{data.id}}" />
+            {%endfor%}
+
+            {%for i in invoice_data%}
+            
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Checkout form</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+            
+          {%endfor%}
+          <div class="row">
+            
+            {%for data in invoice_data%}
+            <input type="hidden" name="dueamount" value="{{data.Due_amount}}"/>
+          {% if data.Due_amount == 0.00%}
+          
+          {%else%}
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Due Date</label>
+                <input
+                  type="date"
+                  name="duedate"
+                  id="checkindate"
+                  class="form-control"
+                  placeholder="utr,check no"
+                  
+                />
+              </div>
+              {%endif%}
+          {%endfor%}
+  
+              <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Guest Gst Number(optional)</label>
+                <input
+                  type="text"
+                  name="gstnumber"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder=""
+                  
+                />
+              </div>
+          </div>
+          {%for data in invoice_data%}
+          {% if data.Due_amount == 0.00%}
+          <h5 class="modal-title text-success" id="">Amount Paid</h5>
+          {%else%}
+          <h5 class="modal-title text-warning" id="">Due Amount:{{data.Due_amount}}</h5>
+          {%endif%}
+          {%endfor%}
+
+          {% if loyltydata%}
+                <div class=" form-check form-switch mt-3 mb-2 border-danger" style="border:px solid red;border-radius:10px">
+                    {%for i in loyltydata%}
+                    <input class="form-check-input ms-1  mt-1" style="height:25px;width:60px" type="checkbox" id="flexSwitchCheckChecked" name="loyltycheck" />
+                    <br>
+                    <br><span class="badge  bg-label-success mb-1 me-1 mt-1   ">On This Button To Save Loylty Points for This guest And<br><br> Send Speacial SMS.</span>
+                 <br><br> <span class="mt-1 ">You Will Give {{i.loylty_rate_prsantage}}% Loylty Points On The Billing Amount. </span>
+                </div>
+                {%endfor%}
+                {%endif%}
+        </div>
+
+        
+        
+        <div class="modal-footer">
+            
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary" id="submitButton">Checkout-Room</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Check if element exists in the DOM
+      const guestCheckinDateInput = document.getElementById('checkindate');
+      if (!guestCheckinDateInput) {
+          console.error("Element with ID 'guestcheckindate' not found in the DOM.");
+          return;
+      }
+      
+      // Get today's date
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = ('0' + (today.getMonth() + 1)).slice(-2); // Adding leading zero if needed
+      const day = ('0' + today.getDate()).slice(-2); // Adding leading zero if needed
+      const formattedDate = `${year}-${month}-${day}`;
+      
+      // Set the value of the date input to today's date
+      guestCheckinDateInput.value = formattedDate;
+      
+      console.log(`Set guest check-in date to: ${formattedDate}`);
+  });
+</script>
+
+
+<script>
+    document.getElementById('myForm').addEventListener('submit', function(event) {
+        var button = document.getElementById('submitButton');
+        
+        // Disable the button immediately when form is submitted
+        button.disabled = true;
+        
+        // Re-enable the button after 4 seconds
+        setTimeout(function() {
+            button.disabled = false;
+        }, 50000);
+    });
+</script>
+
+
+{%endblock%}

@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<!-- Bootstrap Table with Header - Light -->
+<div class="row">
+    <div class="col-7">
+      <p class="p-2">
+        <b>NOTE</b><br>
+        1. Our employee management system calculates salary effectively for both the working hours day and night. In night shifts while it shows the correct working hours - it displays the sign-out date as the same as the sign-in date even though sign-out will be on the next day. In both the working hours the data and calculations of both day and night shifts are proper and efficient.
+        <br>
+        2. When calculating an employee's salary - please ensure you click on checkout before making the payslip. This will ensure the correct amount is calculated.
+      </p>
+ <div class="card">
+    <h5 class="card-header">Dates Start To End</h5>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead class="table-light">
+          <tr>
+            <th>Date</th>
+            <th>Check-In Time</th>
+            <th>Check-OUT Time</th>
+            <th>status</th>
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+
+         {% for data in empattendancedata %}
+          <tr>
+            <td><i class="fab fa-angular fa-lg text-danger "></i> <strong>{{data.date}}</strong></td>
+            <td>{{data.check_in_time}}</td>
+            <td>{{data.check_out_time}}</td>
+            {%if data.halfday %}
+            <td><span class="badge bg-label-warning me-1">Halfday</span></td>
+            {%else%}
+            <td><span class="badge bg-label-success me-1">Duty Done</span></td>
+            {% endif %}
+          </tr>
+          {%endfor%}
+    
+        
+        </tbody>
+      </table>
+    </div>
+  </div></div>
+  <!-- Bootstrap Table with Header - Light -->
+  <div class=" col-5 h-100">
+    <div class="card mb-0">
+        {% for data in empattendancedata|slice:":1" %}
+        <h5 class="card-title m-3 ms-4">{{data.employee.first_name}} {{data.employee.last_name}}<br>
+           Ph:{{data.employee.employee_contact}}
+        </h5>
+        <ul class="list-group list-group-flush">
+          
+          <li class="list-group-item">
+            <b><span class="text w-50">Employee Working Hours</span></b> 
+            <span class="text float-end"><strong>{{data.employee.working_hours}}/HRS</strong></span><br>
+            <b><span class="text w-50">Avg Working Time(in total days)</span></b> 
+            <span class="text float-end"><strong>{{avg_working_time_in_hours}}/HRS</strong></span><br>
+            <b><span class="text w-50">Working Status</span></b> 
+            {% if data.employee.working_hours > avg_working_time_in_hours %}
+            <span class="badge float-end bg-label-warning ">not on time</span>
+            {% else %}
+            <span class="badge float-end bg-label-success ">Excellent On time</span>
+            {%endif%}
+          </li>
+          {%endfor%}
+          <li class="list-group-item">
+            <b><span class="text w-50">Start Date</span></b> 
+            <span class="text float-end"><strong>{{start_date}}</strong></span><br>
+            <b><span class="text w-50">End Date</span></b> 
+            <span class="text float-end"><strong>{{last_date}}</strong></span>
+          </li>
+          {% comment %} <li class="list-group-item">
+            <b><span class="text w-50">End Date</span></b> 
+            <span class="text float-end"><strong>{{last_date}}</strong></span>
+          </li> {% endcomment %}
+
+          <li class="list-group-item"><span class="text w-50">Total Days</span></b> 
+            <span class="text float-end">{{dayscount}}</span><br>
+            <span class="text w-50">Total Leave Day</span>
+            <span class="text float-end">{{leavsday}}</span><br>
+            <span class="text w-50">Total Duty Day</span>
+            <span class="text float-end">{{ comeday }}</span><br>
+            <span class="text w-50">Total Half Day</span>
+            <span class="text float-end">{{halfdaycount}}</span><br>
+            <span class="text w-50">Total Full Day</span>
+            <span class="text float-end">{{fulldaycount}}</span><br>
+            <span class="text w-50">Per Day Salary</span>
+            <span class="text float-end">{{salary}}</span><br>
+          </li>
+          <li class="list-group-item">
+            {% comment %} start js showing content {% endcomment %}
+            <span class="text w-50" id="extraleave">Employee Earn Leaves +</span>
+            <span class="text float-end" id="extraleaveno">0</span><br>
+            <span class="text w-50" id="bonusct">Employee Earn Bonus ₹ +</span>
+            <span class="text float-end" id="bonusno">0</span><br>
+            <span class="text w-50" id="deductct">Deductions Amount ₹ -</span>
+            <span class="text float-end" id="deductno">0</span><br>
+            <span class="text w-50" ><b>Grand Total Days</b></span>
+            <span class="text float-end" id="grandtotaldaysct">{{totalsalaryday}}</span><br>
+        </li>
+
+          {% comment %} <li class="list-group-item">
+            <span class="text w-50">Total Leave Day</span>
+            <span class="text float-end">{{leavsday}}</span><br>
+            <span class="text w-50">Total Duty Day</span>
+            <span class="text float-end">{{ comeday }}</span><br>
+            <span class="text w-50">Total Half Day</span>
+            <span class="text float-end">{{halfdaycount}}</span>
+          </li> {% endcomment %}
+          
+          {% comment %} <li class="list-group-item">
+            <span class="text w-50">Total Duty Day</span>
+            <span class="text float-end">{{ comeday }}</span>
+          </li>
+          
+          <li class="list-group-item">
+            <span class="text w-50">Total Half Day</span>
+            <span class="text float-end">{{halfdaycount}}</span>
+          </li>
+          
+          <li class="list-group-item">
+            <span class="text w-50">Grand Total Days</span>
+            <span class="text float-end">{{totalsalaryday}}</span>
+          </li> {% endcomment %}
+{% comment %} 
+          <li class="list-group-item">
+            <span class="text w-50">Per Day Salary</span>
+            <span class="text float-end">{{salary}}</span>
+          </li> {% endcomment %}
+
+          <li class="list-group-item">
+            <span class="text w-50"><strong>Employee Salary</strong></span>
+            <span class="text float-end"><strong  id="totalamount">{{totalsalary}}</strong></span>
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="row mt-0">
+        
+
+      </div>
+
+      <div class="col-md mb-1 mb-md-0">
+        <div class="accordion mt-3" id="accordionExample">
+          
+          <div class="card accordion-item">
+            <h2 class="accordion-header" id="headingTwo">
+              <button
+                type="button"
+                class="accordion-button collapsed"
+                data-bs-toggle="collapse"
+                data-bs-target="#accordionTwo"
+                aria-expanded="false"
+                aria-controls="accordionTwo"
+              >
+                Give Bonus/Deductions/Weekdays Leaves Like Sat/Sun/holidays
+              </button>
+            </h2>
+            <div
+              id="accordionTwo"
+              class="accordion-collapse collapse"
+              aria-labelledby="headingTwo"
+              data-bs-parent="#accordionExample"
+            >
+              <div class="accordion-body">
+                    <input type="number" class="form-control" id="defaultleaves" placeholder="leaves in number like 1,2,5,8"/>
+                    <input type="number" class="form-control mt-1" id="bonus" placeholder="Give bonus"/>
+                    <input type="number" class="form-control mt-1" id="deduct_money" placeholder="Deductions"/>
+                    
+                    <button onclick="calculate()" class="btn btn-outline-primary mt-2 float-end mb-2">Edit</button>
+             </div>
+            </div>
+          </div>
+          
+        </div>
+
+        <form action="{%url 'addsalary' %}" method="post">
+          {% csrf_token %}
+          {% for data in empattendancedata|slice:":1" %}
+          <input type='hidden' name="employeeid" value="{{data.employee.id}}" /><br>
+          {%endfor%}
+          <input type='hidden' name="startdate" value="{{start_date}}"/><br>
+          <input type='hidden' name="enddate" value="{{last_date}}" /><br>
+          <input type='hidden' name="salarytotalday" id="salarydayinput" value="{{totalsalaryday}}" /><br>
+          <input type='hidden' name="salary" id="totalsalary" value="{{totalsalary}}" /><br>
+          <input type='hidden' name="bonus" value=0 id="bonusamount" /><br>
+          <input type='hidden' name="descount" value=0 id="deductamount" /><br>
+          <input type='hidden' id="salarytotaldayinput" value="{{totalsalaryday}}" /><br>
+          <input type='hidden' id="salaryday" value="{{salary}}" /><br>
+          <input type='hidden'  id="totalsalaryinput" value="{{totalsalary}}" /><br>
+          {% comment %} <button type="hidden">done</button> {% endcomment %}
+
+          <button style="margin-top:-200px" class="btn btn-outline-success w-100">Payroll & Create Salary</button>
+
+        </form>
+
+  </div>
+  
+</div>
+
+<script>
+    function calculate()
+    {
+        var freeleaves = parseFloat(document.getElementById('defaultleaves').value);
+        var bonus = parseFloat(document.getElementById('bonus').value);
+        var deduct_money = parseFloat(document.getElementById('deduct_money').value);
+        var grandtotaldaysct = parseFloat(document.getElementById('salarytotaldayinput').value);
+        var salary = parseFloat(document.getElementById('salaryday').value); 
+        var totalsalary = parseFloat(document.getElementById('totalsalaryinput').value); 
+        
+        if (Number.isNaN(freeleaves)) {
+          freeleaves = 0
+        }
+        if (Number.isNaN(bonus)) {
+          bonus = 0
+        }
+        if (Number.isNaN(deduct_money)) {
+          deduct_money = 0
+        }
+        
+
+        document.getElementById('extraleave').innerHTML="Your Earn Leaves +";
+        document.getElementById('extraleaveno').innerHTML=freeleaves;
+        
+        document.getElementById('bonusct').innerHTML="Your Earn Bonus ₹ +";
+        document.getElementById('bonusno').innerHTML=+bonus;
+        document.getElementById('bonusamount').value=bonus;
+
+        
+        document.getElementById('deductct').innerHTML="Deductions Amount ₹ -";
+        document.getElementById('deductno').innerHTML=deduct_money;
+        document.getElementById('deductamount').value=deduct_money;
+
+        grandtotaldaysct = grandtotaldaysct + freeleaves
+        advancesalaryday = freeleaves * salary
+        total = (totalsalary + advancesalaryday + bonus) - deduct_money
+    
+        document.getElementById('grandtotaldaysct').innerHTML=grandtotaldaysct;
+        document.getElementById('salarydayinput').value=grandtotaldaysct;
+        document.getElementById('totalamount').innerHTML=total;
+        document.getElementById('totalsalary').value=total;
+    }
+
+</script>
+
+{%endblock%}

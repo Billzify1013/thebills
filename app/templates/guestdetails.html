@@ -1,0 +1,60 @@
+
+{% extends "base.html" %}
+{% block content %}
+
+
+
+
+
+
+
+<div class="row p-3">
+    <div class="col-6 ">
+        <div class="card">
+            <h5 class="text ps-3 pt-3">Guest Details</h5>
+            <p class="text p-3">
+            {%for data in guestdetails%}
+
+Name : {{data.guestname}}<br>
+Phone : {{data.guestphome}}<br>
+Email: {{data.guestemail}}<br>
+CheckIndate: {{data.checkindate}}<br>
+Checkoutdate: {{data.checkoutdate}}<br>
+No-of-guest : {{data.noofguest}}<br>
+Adults : {{data.adults}}<br>
+Children: {{data.children}}<br>
+City: {{data.guestcity}}<br>
+Country : {{data.guestcountry}}<br>
+Purpose of visit : {{data.purposeofvisit}}<br>
+Children: {{data.children}}<br><br>
+{%if data.guestidimg%}
+id-proof :<img src="{{data.guestidimg.url}}" height="450px" width="100%"/><br>
+<a href="{{ data.guestidimg.url }}" download="desired_filename.jpg">
+
+    <button class="m-2 btn btn-primary mt-4">Download Image</button>
+</a>
+{%endif%}
+
+{%endfor%}</p>
+        </div>
+    </div>
+
+    <div class="col-6">
+        <div class="card p-3">
+            <h5 class="text pt-3">More Guest Data</h5>
+            <p class="text ">
+                {%if MoreGuestData%}
+                {%for i in MoreGuestData%}
+
+                    Name: {{i.another_guest_name}}<br>
+                    Phone: {{i.another_guest_phone}}<br>
+                    Address: {{i.another_guest_address}}<hr>
+                {%endfor%}
+            </p>
+                {%endif%}
+            
+                    </div>
+    </div>
+</div>
+
+{%endblock%}

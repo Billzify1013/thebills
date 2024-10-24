@@ -1,0 +1,470 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-5">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <div id="success-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%endif%}
+</div>
+{%endfor%}
+
+<script>
+    $(document).ready(function() {
+        // Fade out the alert after 5 seconds (5000 milliseconds)
+        setTimeout(function() {
+            $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+                $(this).remove(); 
+            });
+        }, 2000);
+    });
+</script>
+{%endif%}
+
+<style>
+  .options {
+      max-height: 200px; /* Limit the height of the dropdown */
+      overflow-y: auto; /* Enable scrolling */
+      width: calc(100% - 1rem); /* Adjust width */
+      border: 1px solid #ced4da; /* Match Bootstrap input border */
+      z-index: 1000; /* Ensure it appears on top */
+      display: none; /* Initially hide options */
+      left:0;
+  }
+
+  .laundryOptions {
+    max-height: 200px; /* Limit the height of the dropdown */
+    overflow-y: auto; /* Enable scrolling */
+    width: calc(100% - 1rem); /* Adjust width */
+    border: 1px solid #ced4da; /* Match Bootstrap input border */
+    z-index: 1000; /* Ensure it appears on top */
+    display: none; /* Initially hide options */
+    left:0;
+}
+</style>
+   
+   <div class="row">
+    <h5>Room POS/Room NO:{{roomno}}</h5>
+    
+    <div class="col-6 ">
+        <!-- Bootstrap Table with Header - Light -->
+ 
+ <div class="card">
+    <form action="{% url 'additemstofolio' %}" method="post" >
+        {% csrf_token %}
+        <div class="row">
+            <span class="text ms-3 mt-2"><i class='bx bx-receipt'></i>Product Billing</span>
+
+            <h5 class="ms-3 mt-2">Room NO:{{roomno}}</h5>
+            <input type="hidden" name="invoiceid" value="{{invoiceid}}">
+    <div class="col-11 m-4 mb-4">
+        {% comment %} <span class="text "><i class='bx bx-receipt'></i> Folio Bill</span>
+        <select class="form-select mt-2 " name="foliocustomer" required placeholder="Select Category" id="inputGroupSelect01">
+            <option value="">Select Room No</option> 
+          {%for t in folio%}
+          <option  value="{{t.id}}">Room:{{t.room_no}}</option>
+          {%endfor%}
+        </select> {% endcomment %}
+        <div>
+
+          <div class="col-12 mt-4">
+            <span class="text mb-2"><i class='bx bxs-cart-alt'></i> Search and Select Product</span>
+            <div class="form-group position-relative"> <!-- Added position-relative -->
+                <input type="text" class="form-control" placeholder="Search..." id="search">
+                <div class="options list-group" id="options">
+                    {% for item in iteams %}
+                        <div class="option left-0 list-group-item list-group-item-action" data-value="{{ item.id }}">
+                            {{ item.description }} ₹{{ item.price }} <!-- Display description and price -->
+                        </div>
+                    {% empty %}
+                        <div class="option list-group-item">No items available</div>
+                    {% endfor %}
+                </div>
+                <input type="hidden" name="iteamid" id="selectedItemId"> <!-- Hidden input for selected item ID -->
+            </div>
+        </div>
+        
+
+            {% comment %} <div class="mt-4">
+                <span class="text mb-2"><i class='bx bxs-cart-alt'></i> Select Product</span>
+            <select class="form-select  mt-2 col-12" name="iteamid" required placeholder="Select Iteam" id="inputGroupSelect01">
+                <option value="">Select Product</option> 
+              {%for data in iteams%}
+              <option  value="{{data.id}}">{{data.description}} ₹{{data.price}}</option>
+              {%endfor%}
+            </select>
+        </div> {% endcomment %}
+        <div class="col-12 mt-3">
+            <span class="text"><i class='bx bx-unite'></i>Enter Quantity</span>
+            <input  type="number" class="form-control mt-2 " name="qty" required>
+        </div>
+    </div></div>
+</div>
+
+    <button class="btn btn-primary mb-3 ms-4" type="submit" >Add Folio Bill</button>
+
+        </form>
+       
+    
+     
+    </div>
+</div>
+
+
+<!--laundry biling-->
+<div class="col-6 " style="width:49%">
+    <!-- Bootstrap Table with Header - Light -->
+
+<div class="card">
+<form action="{% url 'addlaundryitems' %}" method="post" >
+    {% csrf_token %}
+    <div class="row">
+        <span class="text ms-3 mt-2"><i class='bx bx-receipt'></i>Laundry Billing</span>
+        <h5 class="ms-3 mt-2">Room NO:{{roomno}}</h5>
+            <input type="hidden" name="foliocustomer" value="{{invoiceid}}">
+<div class="col-11 m-4 mb-4">
+
+  
+    {% comment %} <span class="text "><i class='bx bx-receipt'></i> Folio Bill</span>
+    <select class="form-select mt-2" name="foliocustomer" required placeholder="Select Category" id="inputGroupSelect01">
+        <option value="">Select Room No</option> 
+      {%for t in folio%}
+      <option  value="{{t.id}}">Room:{{t.room_no}}</option>
+      {%endfor%}
+    </select> {% endcomment %}
+    <div>
+
+      <div class="col-12 mt-4">
+        <span class="text mb-2"><i class='bx bxs-cart-alt'></i> Search and Select Laundry Items</span>
+        <div class="form-group position-relative"> <!-- Second Searchable Input -->
+            <input type="text" class="form-control" placeholder="Search..." id="laundrySearch">
+            <div class="laundryoptions list-group" id="laundryOptions">
+                {% for data in laundry %}
+                    <div class="laundry-option list-group-item list-group-item-action" data-value="{{ data.id }}">
+                        {{ data.name }} {{ data.gencategory }} {{ data.sercategory }} ₹{{ data.price }} <!-- Display laundry details -->
+                    </div>
+                {% empty %}
+                    <div class="laundry-option list-group-item">No items available</div>
+                {% endfor %}
+            </div>
+            <input type="hidden" name="iteamid" id="selectedLaundryItemId"> <!-- Hidden input for selected laundry item ID -->
+        </div>
+    </div>
+
+        {% comment %} <div class="mt-4">
+            <span class="text mb-2"><i class='bx bxs-cart-alt'></i> Select Product</span>
+        <select class="form-select w-100 mt-2 col-12" name="iteamid" required placeholder="Select Iteam" id="inputGroupSelect01">
+            <option value="">Select Product</option> 
+          {%for data in laundry%}
+          <option  value="{{data.id}}">{{data.name}} {{data.gencategory}} {{data.sercategory}} ₹ {{data.price}}</option>
+          {%endfor%}
+        </select>
+    </div> {% endcomment %}
+    <div class="col-12 mt-3">
+        <span class="text"><i class='bx bx-unite'></i>Enter Quantity</span>
+        <input  type="number" class="form-control mt-2 " name="qty" required>
+    </div>
+</div></div>
+</div>
+
+<button class="btn btn-primary mb-3 ms-4" type="submit" >Add Folio Bill</button>
+
+    </form>
+   
+
+ 
+</div>
+</div></div>  
+
+{% comment %} 
+
+<!--product Create button-->
+        
+<div class="row mt-5"> 
+    <div class="col-10">
+        <h5 class="card-title  ms-2 mt-2">Add New Product</h5>
+    </div> 
+    <div class="col-2">
+        <button class="btn btn-primary  w-100 "   data-bs-toggle="modal"
+        data-bs-target="#backDropModal"> Add Product</button>
+    </div> 
+
+</div>  
+<!--product Create button end-->
+
+
+
+ <!-- Bootstrap Table with Header - Light -->
+ <div class="card mt-5">
+    <h5 class="card-header">Product Details</h5>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead class="table-light">
+          <tr>
+            <th>Product name</th>
+            <th>Price</th>
+            <th>HSN/SAC</th>
+            <th>Tax</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+            {%for data in iteams%}
+          <tr>
+            <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{data.description}}</strong></td>
+            
+            <td>₹ {{data.price}}</td>
+            <td>{{data.hsncode}}</td>
+            <td>
+              {{data.category_tax.taxrate}} %
+            </td>
+            <td>
+                
+                      <button
+                        type="button"
+                        class="btn  dropdown-toggle hide-arrow"
+                        data-bs-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        
+                      >
+                      <i class="bx bx-dots-vertical-rounded"></i>
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#"><i class="bx bx-edit-alt me-1"></i> Details</a></li>
+                        <li><a class="dropdown-item" href="" ><i class="bx bx-trash me-1"></i> Delete</a></li>
+                        
+                      </ul>
+                    
+            </td>
+          </tr>
+          {%endfor%}
+   
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Bootstrap Table with Header - Light -->
+
+
+
+</div>
+
+
+
+
+<!-- Modal add rooms -->
+<div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{%url 'additems'%}" method="POST" class="modal-content">
+            {% csrf_token %}
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Add Product</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Product Name</label>
+              <input
+                type="text"
+                name="description"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter product name"
+              />
+            </div>
+
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Price</label>
+                <input
+                  type="number"
+                  name="price"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Enter price"
+                />
+              </div>
+          </div>
+
+          <div class="row">
+
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Category</label>
+                <select class="form-control" name="category_tax" placeholder="Select tax" >
+                    <option  value="">Select tax</option>
+                    {%for t in tax%}
+                    <option  value="{{t.id}}">{{t}}</option>
+                    {%endfor%}
+                </select>
+              </div>
+              
+            <div class="col  mb-3">
+              <label for="nameBackdrop" class="form-label"> Hsn code</label>
+              <input
+                type="number"
+                name="hsncode"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter Hsn Code"
+              />
+            </div>
+
+           
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals --> {% endcomment %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    const $searchInput = $('#search');
+    const $options = $('#options');
+    const $selectedItemId = $('#selectedItemId'); // Reference to hidden input
+
+    $searchInput.on('focus', function() {
+        $options.show(); // Show options when input is focused
+    });
+
+    $searchInput.on('input', function() {
+        const searchTerm = $searchInput.val().trim().toLowerCase(); // Trim spaces
+        const searchWords = searchTerm.split(/\s+/); // Split into words
+        let matchFound = false;
+
+        // Clear hidden ID if search term is empty
+        if (searchTerm.length === 0) {
+            $selectedItemId.val(''); // Clear the hidden input
+        }
+
+        $options.children('.option').each(function() {
+            const itemText = $(this).text().toLowerCase();
+            const allWordsMatch = searchWords.every(word => itemText.includes(word)); // Check if all words match
+
+            if (allWordsMatch && searchTerm.length > 0) {
+                $(this).show(); // Show matching options
+                matchFound = true; // Set flag to true
+            } else {
+                $(this).hide(); // Hide non-matching options
+            }
+        });
+
+        if (!matchFound) {
+            $options.hide(); // Hide options if no match found
+        } else {
+            $options.show(); // Show options if matches found
+        }
+    });
+
+    $(document).on('click', '.option', function() {
+        const selectedText = $(this).text();
+        const selectedId = $(this).data('value'); // Get the selected item's ID
+        $searchInput.val(selectedText); // Set input value to the selected option
+        $selectedItemId.val(selectedId); // Set the hidden input to the selected item's ID
+        $options.hide(); // Hide options after selection
+    });
+
+    // Hide options when clicking outside
+    $(document).click(function(event) {
+        if (!$(event.target).closest('.form-group').length) {
+            $options.hide();
+        }
+    });
+});
+
+
+
+
+// Laundry Search Functionality
+$(document).ready(function() {
+  const $laundrySearchInput = $('#laundrySearch');
+  const $laundryOptions = $('#laundryOptions');
+  const $selectedLaundryItemId = $('#selectedLaundryItemId');
+
+  $laundrySearchInput.on('focus', function() {
+      $laundryOptions.show(); // Show options when input is focused
+  });
+
+  $laundrySearchInput.on('input', function() {
+      const searchTerm = $laundrySearchInput.val().trim().toLowerCase(); // Trim spaces
+      const searchWords = searchTerm.split(/\s+/); // Split into words
+      let matchFound = false;
+
+      if (searchTerm.length === 0) {
+          $selectedLaundryItemId.val(''); // Clear the hidden input
+      }
+
+      $laundryOptions.children('.laundry-option').each(function() {
+          const itemText = $(this).text().toLowerCase();
+          const allWordsMatch = searchWords.every(word => itemText.includes(word)); // Check if all words match
+
+          if (allWordsMatch && searchTerm.length > 0) {
+              $(this).show(); // Show matching options
+              matchFound = true; // Set flag to true
+          } else {
+              $(this).hide(); // Hide non-matching options
+          }
+      });
+
+      if (!matchFound) {
+          $laundryOptions.hide(); // Hide options if no match found
+      } else {
+          $laundryOptions.show(); // Show options if matches found
+      }
+  });
+
+  $(document).on('click', '.laundry-option', function() {
+      const selectedText = $(this).text();
+      const selectedId = $(this).data('value'); // Get the selected laundry item's ID
+      $laundrySearchInput.val(selectedText); // Set input value to the selected laundry option
+      $selectedLaundryItemId.val(selectedId); // Set the hidden input to the selected laundry item's ID
+      $laundryOptions.hide(); // Hide options after selection
+  });
+
+  // Hide options when clicking outside
+  $(document).click(function(event) {
+      if (!$(event.target).closest('.form-group').length) {
+          $laundryOptions.hide();
+      }
+  });
+});
+</script>
+
+
+
+<style>
+  .options {
+      left: 0; /* Align options to the left */
+  }
+  </style>
+   
+{%endblock%}

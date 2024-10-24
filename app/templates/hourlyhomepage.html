@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="row">
+<div class="col-4">
+</div>
+<div class="col-8">
+    <button class="btn btn-primary  w-25 ms-4 float-end"   data-bs-toggle="modal" data-bs-target="#backDropModal"><i class='bx bx-buildings mb-1' ></i> Add Room</button>
+    <button class="btn btn-outline-primary  w-25 ms-4 float-end"   data-bs-toggle="modal" data-bs-target="#backDropModaldelete"><i class='bx bx-buildings mb-1' ></i>Remove Room</button>
+
+</div>
+</div>
+
+
+
+<div class="row ">
+    <h5 class="text ms-2 mt-5">
+        AVAILABLE ROOMS
+    </h5>
+{% for i in hourlydata %}
+<div class="col-2 col-outline-danger">
+    <a href="{% url 'hourlyroomclickform' id=i.rooms.id %}" style="text-decoration:none">
+    <div class="card mt-3">
+    <div class="card-body ">
+        <center><i class='bx bxs-store fs-center mb-2 text-success' style="font-size:21px" ></i>
+            
+            
+        <h6 class="card-title  mt-1 mb-0 text-center">{{i.rooms.room_name}}</h6>
+        <p class="mt-0 text-center text-secondary">{{i.rooms.room_type}}</p>
+        
+    </center>
+        
+    </div>
+</div></a>
+</div> 
+{%endfor%}
+</div>
+
+
+<div class="row ">
+    <h5 class="text ms-2 MT-5">
+        CHECKIN ROOMS
+    </h5>
+{% for i in checkinhourlydata %}
+<div class="col-2 col-outline-danger">
+    <a href="{% url 'gotofoliobyhome' id=i.rooms.room_name %}" style="text-decoration:none "
+    >
+    <div class="card mt-3">
+    <div class="card-body ">
+        <center><i class='bx bxs-store fs-center mb-2 text-warning' style="font-size:21px" ></i>
+            
+            
+        <p class="card-title  mt-1 mb-0 text-secondary text-center"><b>{{i.rooms.room_name}}</b></p>
+        <P class="mt-0 text-center text-secondary"> 
+        In <b>{{i.checkIntime}}</b>
+        <BR>
+        Out <b>{{i.checkottime}}</b>
+            <b>{{i.time}}</b> <br>
+        </p>
+    </center>
+        
+    </div>
+</div></a>
+</div> 
+{%endfor%}
+</div>
+
+
+
+
+
+
+
+
+ <!-- Modal add rooms -->
+ <div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'addroomtohourlyrooms'  %}" method="POST" class="modal-content">
+            {% csrf_token %}
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Add Room</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Select Room Name</label>
+              <select class="form-control" name="roomno" placeholder="Select Room To Add">
+                {%for room in roomdata%}
+                <option  value="{{room.id}}">{{room.room_name}} {{room.room_type}}</option>
+                
+                {%endfor%}
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Add Room To Hourly Rooms</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+
+ <!-- Modal Delete rooms -->
+ <div class="modal fade" id="backDropModaldelete" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog">
+      <form action="{% url 'removeroomfromhourly' %}" method="POST" class="modal-content">
+          {% csrf_token %}
+      
+      <div class="modal-header">
+        <h5 class="modal-title" id="backDropModalTitle">Remove Room</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">Select Room Name</label>
+            <select class="form-control" name="roomno" placeholder="Select Room To Add">
+              {%for room in hourlyallrooms%}
+              <option  value="{{room.id}}">{{room.rooms.room_name}} {{room.rooms.room_type}}</option>
+              
+              {%endfor%}
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button  class="btn btn-primary">Remove Room To Hourly Rooms</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+{%endblock%}

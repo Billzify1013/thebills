@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif; /* Default font style */
+            font-size: 16px; /* Optional: set a default font size */
+            color: #333; /* Optional: set a default font color */
+        }
+    </style>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact; /* Prevent color adjustments for printing */
+                margin: 0; /* Remove margins for printing */
+                padding: 20px; /* Add padding for printing */
+            }
+            .table-responsive {
+                display: block; /* Ensure the table is displayed in print */
+                overflow: visible !important; /* Disable overflow */
+            }
+            thead {
+                display: table-header-group; /* Ensure the header repeats on new pages */
+            }
+            img {
+                max-width: 100px; /* Limit the image size for printing */
+                height: auto; /* Maintain aspect ratio */
+            }
+            /* Table adjustments */
+            table {
+                width: 100%; /* Ensure the table takes full width */
+                table-layout: auto; /* Allow auto layout to accommodate content */
+            }
+            th, td {
+                word-wrap: break-word; /* Break long words to prevent overflow */
+                white-space: normal; /* Allow text to wrap */
+            }
+        }
+    </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    
+    <!-- jsPDF and html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.min.js"></script>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="mb-4 mt-4">
+            <span>Start Date:<b> {{startdate}}</b></span>
+            <span>End Date:<b> {{enddate}}</b></span>
+            <button class="btn btn-primary ms-3" onclick="window.print()">Print Page</button>
+            <input type=button value="Back" class="btn btn-outline-warning ms-3" onClick="javascript:history.go(-1);">
+        </div>
+        <hr>
+
+        <div class="container-fluid mt-5" id="tableDiv">
+            <h2>Guest Information</h2>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Guest Name</th>
+                            <th>Guest Phone,<br>email</th>
+                            <th>Check-in Date</th>
+                            <th>Check-out Date</th>
+                            <th>Guest Address, City, Country</th>
+                            <th>Guest ID Type</th>
+                            <th>Guest ID Details/Number</th>
+                            <th>Total No. of Guests</th>
+                            <th>Adults</th>
+                            <th>Children</th>
+                            <th>Purpose of Visit</th>
+                            <th>ID Image</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in guestdata %}
+                        <tr>
+                            <td>{{ i.guestname }}</td>
+                            <td>{{ i.guestphome }}<br>
+                                {{ i.guestemail }}</td>
+                            <td>{{ i.checkindate }}</td>
+                            <td>{{ i.checkoutdate }}</td>
+                            <td>{{ i.guestcity }}, {{ i.guestcountry }}</td>
+                            <td>{{ i.guestidtypes }}</td>
+                            <td>{{ i.guestsdetails }}</td>
+                            <td>{{ i.noofguest }}</td>
+                            <td>{{ i.adults }}</td>
+                            <td>{{ i.children }}</td>
+                            <td>{{ i.purposeofvisit }}</td>
+                            <td>
+                                {% if i.guestidimg %}
+                                <img src="{{ i.guestidimg.url }}" height="100px" alt="ID Image">
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            const { jsPDF } = window.jspdf;
+
+            html2canvas(document.getElementById('tableDiv')).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('l', 'mm', 'a4');
+                const imgWidth = 290; // Adjust width for A4 paper
+                const pageHeight = pdf.internal.pageSize.height;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+
+                let position = 0;
+
+                pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                pdf.save('guest_information.pdf');
+            });
+        });
+    </script>
+</body>
+</html>

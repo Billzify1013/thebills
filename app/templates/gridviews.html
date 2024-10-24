@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room Inventory for {{ current_month }} {{ current_year }}</title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+            background-color: #f4f8fb;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px; /* Slightly smaller font size */
+            color: #333;
+        }
+
+        /* Calendar grid styling */
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr); /* 7 columns for 7 days */
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        /* Weekday header styling */
+        .calendar-header {
+            font-weight: bold;
+            text-align: center;
+            padding: 10px; /* Reduced padding */
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Card (Date slot) styling */
+        .card {
+            border-radius: 10px;
+            background-color: #fff;
+            padding:; /* Reduced padding */
+            text-align: center;
+            height: auto; /* Height will adjust to content */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Center content vertically */
+            transition: box-shadow 0.2s;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Empty date slot */
+        .empty-slot {
+            background-color: #f0f0f0;
+            color: #ccc;
+        }
+
+        /* Card Header (Date) */
+        .card-header {
+            font-weight: bold;
+            margin-bottom: 5px; /* Reduced margin */
+            font-size: 20px; /* Slightly smaller font size */
+            color: #007bff;
+        }
+
+        /* Card body (data fields) */
+        .card-body {
+            flex: 1; /* Allow text to grow and shrink */
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Center content vertically */
+            gap: 5px; /* Reduced gap */
+        }
+
+        /* Card Text */
+        .card-text {
+            font-size: 14px; /* Smaller font size */
+            color: #333;
+            margin: 0; /* Reset margin */
+            line-height: 1.2; /* Line height for better spacing */
+        }
+
+        /* Styling for revenue and room counts */
+        .availability, .booked, .revenue {
+            font-size: 14px; /* Smaller text size for compactness */
+            color: #333;
+            margin: 0; /* Remove margin */
+            display: inline-block; /* Keep them inline */
+            white-space: nowrap; /* Prevent line breaks */
+            text-align: center; /* Center text */
+        }
+
+        .revenue {
+            font-weight: bold; /* Highlight revenue */
+            color: #28a745; /* Green color for revenue */
+        }
+
+        /* Style buttons */
+        button, .btn {
+            display: inline-block;
+            padding: 8px 12px; /* Reduced button padding */
+            font-size: 14px; /* Smaller font size for buttons */
+            border: none;
+            background-color: ;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: ;
+        }
+
+        button:hover, .btn:hover {
+            background-color: ;
+        }
+
+        /* Remove button styling from weekday headers */
+        .calendar-header {
+            background-color: #007bff !important;
+            color: #fff !important;
+            font-size: 14px; /* Smaller font size for headers */
+        }
+
+        /* Adjustments to body cards for better readability */
+        .card-body p {
+            margin: 2px 0; /* Reduced margin for compactness */
+        }
+
+        /* Responsive styling */
+        @media (max-width: 768px) {
+            .calendar {
+                grid-template-columns: repeat(2, 1fr); /* Two columns for smaller screens */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .calendar {
+                grid-template-columns: 1fr; /* Single column for mobile */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="row">
+        <div class="col-6">
+            <h1 class="mb-5 float-start text-start" >Room Inventory for : {{ current_month }} {{ current_year }} <br> Room Type : {{ room_type }}</h1>
+
+        </div>
+        <div class="col-6">
+            <button class="btn btn-primary float-end" href="#" data-bs-toggle="modal"
+                          data-bs-target="#backDropModalupdate" onclick="getroomnumberpopup({{data.id}})"><i class="bx bx-search-alt me-1"></i>
+                            Change Month and Category
+                        </button>
+        </div>
+    </div>
+    
+    <!-- Weekdays Header -->
+    <div class="calendar mt-5">
+        {% for day in weekdays %}
+            <div class="calendar-header">{{ day }}</div>
+        {% endfor %}
+    </div>
+
+    <!-- Calendar Grid with Weeks -->
+    <div class="calendar">
+        <!-- Add empty slots for days before the first day of the month -->
+        {% for _ in empty_slots|make_list %}
+            <div class="card empty-slot"></div>
+        {% endfor %}
+
+        <!-- Calendar days with room data -->
+        {% for inventory in inventory_for_template %}
+            <div class="card {% if inventory.available_rooms is None %} empty-slot {% endif %}">
+                <div class="card-header">
+                    {{ inventory.date.day }}
+                </div>
+                <div class="card-body">
+                    {% if inventory.available_rooms is not None %}
+                        <p class="availability">Available:<b> {{ inventory.available_rooms }}</b> <br> 
+                            Booked: <b>{{ inventory.booked_rooms }}</b> <br> 
+                            {% comment %} Revenue: <br>₹
+                            <b>{{ inventory.revenue }}</b>{% endcomment %}
+                        </p> 
+                    {% else %}
+                        <p class="card-text">No data</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+
+    
+
+<!-- Modal update rooms -->
+<div class="modal fade" id="backDropModalupdate" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'gridviewviasearch'  %}" method="POST" class="modal-content">
+            {% csrf_token %}
+        <input type="hidden" id="roomnoidinput" name="roomid" />
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Search Category And Month Availibity</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Month & Year</label>
+              <input
+                type="month"
+                name="monthyear"
+                id="month"
+                class="form-control"
+                placeholder="Enter RoomName"
+                required
+              />
+            </div>
+  
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Category</label>
+                <select class="form-control" name="category" required placeholder="Select Category">
+                    {%for cat in room_categorys%}
+                    <option  value="{{cat.id}}">{{cat}}</option>
+                    
+                    {%endfor%}
+                  </select>
+              </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Search...</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  </div>
+  </div>
+  </div>
+  </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const monthInput = document.getElementById('month');
+        if (!monthInput.value) {  // Only set value if it's not already set
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = ("0" + (today.getMonth() + 1)).slice(-2);
+            const currentMonthYear = `${year}-${month}`;
+            monthInput.value = currentMonthYear;
+        }
+    });
+</script>
+</body>
+</html>
+
+
+
+{%endblock%}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+
+
+
+
+
+
+
+
+<div class="row p-3">
+    
+
+    <div class="col-6">
+        <div class="card p-3">
+            <h5 class="text pt-3">Advance Booking Details</h5>
+            <p class="text ">
+                {%if guestdata%}
+                {%for i in guestdata%}
+                Name: {{i.bookingguest}}<br>
+                Phone: {{i.bookingguestphone}}<br>
+                Booking Date: {{i.bookingdate}}<br>
+                Advance amount: {{i.advance_amount}}<br>
+                Reamaining amount: {{i.reamaining_amount}}<br>
+                Discount amount: {{i.discount}}<br>
+                TOTAL amount (incl discount): {{i.total_amount}}<br>
+                Stay Days: {{i.staydays}}<br>
+                Booking From: {{i.channal.channalname}}<br>
+                Stay Days: {{i.staydays}}<br>
+                {%endfor%}
+                {%endif%}
+               
+                
+                <h5>Rooms Details</h5>
+                <hr>
+                {%if roomdata%}
+                {%for i in roomdata%}
+
+                    {{forloop.counter}}<br>
+                    Room {{i.roomno.room_name}}<br>
+                    Room-price {{i.roomno.price}}<br><hr>
+                {%endfor%}
+            </p>
+                {%endif%}
+            
+                    </div>
+    </div>
+</div>
+
+{%endblock%}

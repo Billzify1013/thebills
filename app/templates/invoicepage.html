@@ -1,0 +1,488 @@
+{% load static %}
+<html
+  lang="en"
+  class="light-style layout-menu-fixed"
+  dir="ltr"
+  data-theme="theme-default"
+  data-assets-path="{% static 'undercss/assets/'%}"
+  data-template="vertical-menu-template-free"
+>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+    <title>BILLZIFY</title>
+
+    <meta name="description" content="" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'undercss/assets/img/favicon/1.PNG'%}" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icons. Uncomment required icon fonts -->
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/fonts/boxicons.css'%}" />
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/css/core.css'%}" class="template-customizer-core-css'%}" />
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/css/theme-default.css'%}" class="template-customizer-theme-css'%}" />
+    <link rel="stylesheet" href="{% static 'undercss/assets/css/demo.css'%}" />
+
+    <!-- Vendors CSS -->
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css'%}" />
+
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/libs/apex-charts/apex-charts.css'%}" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    {% comment %} <link rel="stylesheet" href="{% static 'undercss/assets/vendor/libs/spinkit/spinkit.css'%}" /> {% endcomment %}
+
+    <!-- Page donwload link to pdf -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+    <!-- Helpers -->
+    <script src="{% static 'undercss/assets/vendor/js/helpers.js'%}"></script>
+
+    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+    <script src="{% static 'undercss/assets/js/config.js'%}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <style type="text/css">
+        body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+.invoice-container {
+    width: 100%;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+}
+
+.header img,
+.footer img {
+    width: 100%;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.invoice-details {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.left h1 {
+    color: #333;
+    margin-top: 0;
+}
+
+.client-details h2,
+.invoice-items h2,
+.totals p {
+    margin-top: 0;
+}
+
+.right p {
+    margin: 2px 0;
+}
+
+.invoice-items,
+.totals {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 0px;
+    margin-bottom: 10px;
+}
+
+.item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1px;
+}
+
+.item p {
+    margin: 0;
+}
+
+.totals {
+    display: flex;
+    justify-content: space-between;
+}
+
+.footer img {
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+    </style>
+</head>
+  </head>
+    <style>
+        @media print {
+            #contentToHide {
+                display: none;
+            }
+            
+        }
+    </style>
+
+<body>
+
+
+    
+    
+        <div class="card mb-2 ms-4" style="height:100px;width:97%;margin-bottom:-120px" id="contentToHide">
+        <div class="row">
+            <div class="col-2 m-4">
+            <button class="btn btn-primary w-100" onclick="window.print()">Print Invoice</button>
+            </div>
+           
+            <div class="col-2 m-4">
+            <button class="btn btn-primary w-100" onclick="downloadPDF()">Donwload Invoice</button>
+            </div>
+
+            <div class="col-2 m-4">
+                <button class="btn btn-primary w-100" data-bs-toggle="modal"
+                data-bs-target="#backDropModal">Edit Customer  Details</button>
+                </div>
+            <div class="col-2 m-4">
+                <a class="btn btn-primary text-white w-100" onClick="javascript:history.go(-1);">Back</a>
+            </div>
+        </div>     
+        </div>
+
+        
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-5">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <div id="success-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%endif%}
+</div>
+{%endfor%}
+
+<script>
+    $(document).ready(function() {
+        // Fade out the alert after 5 seconds (5000 milliseconds)
+        setTimeout(function() {
+            $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+                $(this).remove(); 
+            });
+        }, 7000);
+    });
+</script>
+{%endif%}
+
+
+
+   
+        <div class="invoice-container mt-0" id="invoice" >
+            <div class="header" style="margin-top:-30px">
+                <div class="row">
+                    <div class="col-2">
+                        {%for i in profiledata%}
+                        <img src="{{i.profile_image.url}}" class="mt-4 ms-2" alt="Header Image">
+                        {%endfor%}
+                    </div>
+                    <div class="col-10">
+                <img src="{% static 'undercss/assets/img/avatars/inv1 - Copy.png'%}" alt="Header Image">
+            </div></div></div>
+            <div class="invoice-details">{%for data in invoice_data%}
+                <div class="left">
+                    <h6>Invoice</h6>
+                    <p>Invoice #: {{data.invoice_number}}</p>
+                    <p>Date: {{data.invoice_date}}<br>
+                        CheckIn date: {{data.customer.checkindate}}<br>
+                        CheckOut date: {{data.customer.checkoutdate}}</p>
+                    
+                    
+                </div> 
+                <div class="center">
+                    <h6>Guest Information</h6>
+                <p>Name: {{data.customer.guestname}}<br>
+                Phone: {{data.customer.guestphome}}<br>
+                    address: {{data.customer.guestcity}}<br>
+                    Guests: {{data.customer.noofguest}}<br>
+
+                </p>
+                {%if data.customer_gst_number%}
+                <p>gstin: {{data.customer_gst_number}}</p>
+                {%endif%}
+                </div>
+                {%endfor%}
+                <div class="right">
+                    {%for i in profiledata%}
+                    <h6>{{i.name}}</h6>
+                    <p>{{i.address}}</p>
+                    <p>{{i.counrty}}, {{i.zipcode}}</p>
+                    <p>Email:{{i.email}}</p>
+                    <p>Phone: {{i.contact}}</p>
+                    <p>GstIn: {{i.gstin}}</p>
+                    {%endfor%}
+                </div>
+            </div>
+           
+
+           
+            <div class="invoice-items" >
+                <div class="table-responsive text-nowrap" >
+                    <table class="table " >
+                      <thead class="table-light">
+                            <tr>
+                                <th>Room No</th>
+                                {%for data in invoice_data%}
+                                {%if data.taxtype == 'GST'%}
+                                <th>Cgst</th>
+                                <th>Sgst</th>
+                                {%else%}
+                                <th>Igst</th>
+                                {%endif%}
+                                {%endfor%}
+                                <th>HSN/SAC</th>
+                                <th>Price</th>
+                                <th>Qty/Day</th>
+                                <th>Total
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {%for iteams in invoiceitemdata%}
+                            <tr >
+                                <td style="font-size:13px">{{iteams.description}}</td>
+                                {%for data in invoice_data%}
+                                {%if data.taxtype == 'GST'%}
+                                <td style="font-size:13px">{{iteams.sgst_rate}} %  </td>
+                                <td style="font-size:13px">{{iteams.sgst_rate}} %  </td>
+                                {%else%}
+                                    {% if iteams.sgst_rate == 2.50 %}
+                                    <td style="font-size:13px"> 5% </td>
+                                    {%else%}
+                                    <td style="font-size:13px">{{iteams.sgst_rate|add:iteams.sgst_rate}}% </td>
+                                    {%endif%}  
+                                {%endif%}
+                                {%endfor%}
+                                <td style="font-size:13px">{{iteams.hsncode}}</td>
+                                <td style="font-size:13px">{{iteams.price}}</td>
+                                <td style="font-size:13px">{{iteams.quantity_likedays}}</td>
+                                <td style="font-size:13px">{{iteams.total_amount}}</td>
+                            </tr>
+                            {%endfor%}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {%for data in invoice_data%}
+           <div class="row">
+            {% comment %} <div class="w-50">
+                {% if data.modeofpayment == "Partly" %}
+                <p class="text ms-3">Payment Mode : {{data.modeofpayment}}</p>
+                <p class="text ms-3">Cash Amount : {{data.cash_amount}}</p>
+                <p class="text ms-3">Online Amount : {{data.online_amount}}</p>
+                {%else%}
+                <p class="text ms-3">Payment Mode : {{data.modeofpayment}}</p>
+                {%endif%}
+            </div> {% endcomment %}
+
+            <div class="container mt-4 w-50">
+                <div class="table-responsive">
+                    Payments
+                    <table class="table table-bordered">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th> Mode</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {%for payment in invcpayments%}
+                            <tr>
+                                <td>{{payment.payment_date}}
+                                    
+                                </td>
+                                <td><span class="text w-50">{{payment.payment_amount}}</span></td>
+                                <td><span class="text w-50">{{payment.payment_mode}}</span>
+                                
+                                    {%if payment.transaction_id%}
+                                    <span class="text w-25" style="font-size:12px">D:{{payment.transaction_id}}<br>
+                                        C:{{payment.descriptions}}</span>
+                                    {%endif%}</td>
+                            </tr>
+                            {%endfor%}
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            
+
+            <div class="card shadow-none mb-0 w-50 float-end">
+                
+                {%for data in invoice_data%}
+                {%if data.Due_amount == 0 %}
+                {%else%}
+                    <span>Payment Status</span>
+                    <span class="badge bg-label-success me-1 col-2">Paid</span>
+                    <span>Total Paid Amount:₹ <b>{{data.accepted_amount}}</b> </span>
+                    <hr>
+                    <span class="badge bg-label-warning me-1 float-end col-2">Due</span>
+                        <span>Overall Due Amount:₹ <b>{{data.Due_amount}}</b> </span>
+                    <hr>
+                    {%endif%}
+                {%endfor%}
+                  
+                  <li class="list-group-item" style="font-size:13px">
+                    <span class="text w-50">Total</span> 
+                    <span class="text float-end">₹{{data.total_item_amount}}</span><br>
+                    <span class="text w-50">Discount</span> 
+                    <span class="text float-end">₹ {{data.discount_amount}}</span><br>
+                    <span class="text w-50">Subtotal</span> 
+                    <span class="text float-end">₹ {{data.subtotal_amount}}</span><br>
+                    {%for data in invoice_data%}
+                            {%if data.taxtype == 'GST'%}
+                                <span class="text w-50">Cgst Total</span> 
+                                <span class="text float-end">₹ {{data.gst_amount}}</span><br>
+                                <span class="text w-50">Sgst Total</span> 
+                                <span class="text float-end">₹ {{data.sgst_amount}}</span>
+                            {%else%}
+                            <span class="text w-50">Igst Total</span> 
+                            <span class="text float-end">₹ {{data.gst_amount|add:data.sgst_amount}}</span><br>
+                            
+                            {%endif%}
+                    {%endfor%}
+                  </li> 
+                  
+                  
+                   
+                  <li class="list-group-item">
+                    <span class="text w-50"><b>Grand Total</b></span> 
+                    <span class="text float-end"><b>₹ {{data.grand_total_amount}}</b></span>
+                  </li> 
+                  {%endfor%}
+                </ul>
+                <span class="mt-2 mb-2 text " style="font-size:9px"><i class='bx bxs-info-circle'></i>Rooms have discount, so their tax calculation are done after applying the discount.</span>
+            
+              </div>
+            </div>
+
+            <div class="footer" >
+                <img src="{% static 'undercss/assets/img/avatars/inv2.png'%}" style="padding-top:-225px" class="mb-3" width="100%" alt="Footer Image">
+            <span class="text mb-2 float-end" >WWW.Billzify.com</span>
+            </div>
+        </div>
+   
+    
+
+    <script>
+        function downloadPDF() {
+            var elementToHide = document.getElementById('contentToHide');
+            var element = document.getElementById('invoice'); // Choose the element you want to convert to PDF
+        
+            // Hide the element
+            elementToHide.style.display = 'none';
+        
+            // Use html2pdf to convert the element to PDF
+            html2pdf()
+                .from(element)
+                .save('downloaded_page.pdf')
+                .then(() => {
+                    // Show the element after PDF generation
+                    elementToHide.style.display = 'block';
+                });
+        }
+        
+    </script>
+</body>
+
+
+
+
+<!-- Modal add rooms -->
+<div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'editcustomergstnumber'  %}" method="POST" class="modal-content">
+            {% csrf_token %}
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Edit Customer Information Room</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        {%for data in invoice_data%}
+        <input type="hidden" name="invcid" value="{{data.customer.id}}" >
+        
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Customer Mobile Number </label>
+                <input
+                  type="tel"
+                    pattern="[6-9][0-9]{9}"
+                  name="customerphone"
+                  maxlength="15"
+                  value="{{data.customer.guestphome}}"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Enter  Mobile Number"
+                  required
+                  
+                />
+              </div>
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Customer Gst Number </label>
+              <input
+                type="text"
+                name="gstnumber"
+                maxlength="15"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter Full Gst Number"
+                required
+              />
+            </div>
+            {%endfor%}
+           
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Update</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+    </html>

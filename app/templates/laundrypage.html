@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h4 class="card-title">Laundry Items Page</h4>
+        <button class="btn btn-primary  float-end  " style="margin-top:-40px"   data-bs-toggle="modal"
+                data-bs-target="#backDropModal"><i class='bx bxs-washer bx-flip-horizontal'></i> Add Laundry Item</button>
+    </div>
+</div>
+
+<!-- Bootstrap Table with Header - Light -->
+<div class="row">
+    <div class="col-12">
+ <div class="card">
+    <h5 class="card-header">Laundry Items</h5>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead class="table-light">
+          <tr>
+            <th>Item name</th>
+            <th>price</th>
+            <th>Gender</th>
+            <th>Service Category</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+
+            {% for data in laundrydata%}
+          <tr>
+            <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{data.name}}</strong></td>
+            <td>{{data.price}}</td>
+            <td>{{data.gencategory}}</td>
+            <td>{{data.sercategory}}</td>
+            <td>
+                <a href="{% url 'deletelaundryitem' id=data.id %}"><span class="badge bg-label-danger  "><i class='bx bxs-trash'></i></span></a>
+            </td>
+          </tr>
+          {%endfor%}
+   
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Bootstrap Table with Header - Light -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ <!-- Modal add rooms -->
+ <div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'addlaundryitem' %}" method="POST" class="modal-content">
+            {% csrf_token %}
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Add Laundry Item</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Item Name</label>
+              <input
+                type="text"
+                name="itemname"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter ItemName"
+              />
+            </div>
+
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Service Category</label>
+                <select class="form-control" name="servicecategory" placeholder="Select Category">
+                    <option  value="laundry">laundry</option>
+                    <option  value="drycleaning">drycleaning</option>
+                  </select>
+              </div>
+          </div>
+
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Price</label>
+              <input
+                type="number"
+                name="itemprice"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter item Price"
+              />
+            </div>
+
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Gender-Category</label>
+                <select class="form-control" name="gendercategory" placeholder="Select Category">
+                    <option  value="mens">mens</option>
+                    <option  value="womens">womens</option>
+                  </select>
+              </div>
+          </div>
+
+          
+          
+         
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div></div>
+<!--/ Bootstrap modals -->
+
+{% endblock %}
