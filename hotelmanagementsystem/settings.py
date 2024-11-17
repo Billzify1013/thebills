@@ -82,6 +82,20 @@ WSGI_APPLICATION = 'hotelmanagementsystem.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+
+# main database aws free tier
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'thebillstm',
+        'USER':'postgresBills',
+        'PASSWORD':'Billzifydata',
+        'HOST':'thebillstm.cpy6g6quw55m.ap-south-1.rds.amazonaws.com',
+        'PORT':'5432'
+    }
+}
+
+
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
@@ -94,15 +108,15 @@ WSGI_APPLICATION = 'hotelmanagementsystem.wsgi.application'
 
 # testing postgress connection
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'thebillsdatabase',
-        'USER':'postgres',
-        'PASSWORD':'1013',
-        'HOST':'localhost'
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'thebillsdatabase',
+#         'USER':'postgres',
+#         'PASSWORD':'1013',
+#         'HOST':'localhost'
+#     }
+# }
 
 
 # # testng database
