@@ -89,7 +89,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'thebillstm',
         'USER':'postgresBills',
-        'PASSWORD':'Billzifydata',
+        'PASSWORD':'billzifydata',
         'HOST':'thebillstm.cpy6g6quw55m.ap-south-1.rds.amazonaws.com',
         'PORT':'5432'
     }
