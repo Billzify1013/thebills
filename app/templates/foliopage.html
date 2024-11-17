@@ -3,7 +3,7 @@
 
 
 
-<div class="card">
+{% comment %} <div class="card">
   <button
                         class="btn btn-primary m-4 mb-4 w-25 justify-content-end float-end"
                         data-bs-toggle="collapse"
@@ -12,9 +12,9 @@
                         aria-expanded="false"
                         aria-controls="multiCollapseExample1"
   
-                        ><i class="bx bx-search fs-4 lh-0"></i> Search... Folio Guest Data! workpendng by me full work for earch pending</button>
+                        ><i class="bx bx-search fs-4 lh-0"></i> Search... </button>
   <div class="collapse multi-collapse" id="multiCollapseExample1">
-  <form action="{% url 'searchguestdata' %}" method="post">
+  <form action="{% url 'searchguestdatabyfolio' %}" method="post">
     {% csrf_token %}
     <div class="row m-2">
       <div class="mb-3 ms-4 col-md-2">
@@ -67,17 +67,63 @@
           
         />
       </div>
+
+      <div class="mb-3 col-md-2">
+        <label for="firstName" class="form-label">Room no</label>
+        <input
+          class="form-control"
+          type="number"
+          id="firstName"
+          name="roomno"
+          value="John"
+          
+          
+        />
+      </div>
   
-      <button type="submit" class=" col-md-3 mt-4 h-50 btn btn-primary">Search...</button>
+      <button type="submit" class=" col-md-3 mt-4 ms-5 h-50 btn btn-primary">Search...</button>
   
     </div>
   </form>
   
   </div>
-  </div>
+  </div> {% endcomment %}
+
+  <div class="card ">
+    <h5 class="text m-2 ms-5">Search...</h5>
+    <form id="searchForm">
+        {% csrf_token %}
+        <div class="row m-2">
+            <div class="mb-1 ms-4 col-md-3">
+                <label for="guestname" class="form-label">Guest Name</label>
+                <input class="form-control" type="text" id="guestname" name="guestname" placeholder="John" />
+            </div>
+
+            <div class="mb-1 col-md-3">
+                <label for="guestphone" class="form-label">Guest Phone</label>
+                <input class="form-control" type="text" id="guestphone" name="guestphone" placeholder="9178XXXX11" />
+            </div>
+
+            {% comment %} <div class="mb-1 col-md-3">
+                <label for="checkindate" class="form-label">CheckIn Date</label>
+                <input class="form-control" type="date" id="checkindate" name="checkindate" />
+            </div>
+
+            <div class="mb-1 col-md-3">
+                <label for="checkoutdate" class="form-label">CheckOut Date</label>
+                <input class="form-control" type="date" id="checkoutdate" name="checkoutdate" />
+            </div> {% endcomment %}
+
+            <div class="mb-1 col-md-3">
+                <label for="roomno" class="form-label">Room No</label>
+                <input class="form-control" type="number" id="roomno" name="roomno" />
+            </div>
+        </div>
+    </form>
+</div>
 
 
- <!-- Bootstrap Table with Header - Light -->
+ {% comment %} <!-- Bootstrap Table with Header - Light -->
  <div class="card mt-3">
     <h5 class="card-header">Guest/Room folio</h5>
     <div class="table-responsive text-nowrap">
@@ -98,7 +144,7 @@
 
             {%for data in invoice_data%}
           <tr>
-            <td><i class="fab fa-angular fa-lg text-danger "></i> <strong>{{data.customer.guestname}}</strong></td>
+            <td><strong>{{data.customer.guestname}}</strong></td>
             <td>{{data.customer.guestphome}}</td>
             <td><i class='bx bx-home-heart mb-1 text-warning'></i> {{data.customer.roomno}}</td>
             <td>
@@ -116,6 +162,80 @@
       </table>
     </div>
   </div>
-  <!-- Bootstrap Table with Header - Light -->
+  <!-- Bootstrap Table with Header - Light --> {% endcomment %}
+
+
+  <div class="card mt-3">
+    <h5 class="card-header">Guest/Room folio</h5>
+    <div class="table-responsive text-nowrap">
+        <table class="table">
+            <thead class="table-light">
+                <tr>
+                    <th>Guest name</th>
+                    <th>Phone</th>
+                    <th>Room</th>
+                    <th>City</th>
+                    <th>CheckIn Date</th>
+                    <th>CheckOut Date</th>
+                    <th>Invoice</th>
+                    {% comment %} <th>Reg-Form</th> {% endcomment %}
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0" id="tableData">
+                {% for data in invoice_data %}
+                <tr>
+                    <td><strong>{{ data.customer.guestname }}</strong></td>
+                    <td>{{ data.customer.guestphome }}</td>
+                    <td><i class="bx bx-home-heart mb-1 text-warning"></i> {{ data.customer.roomno }}</td>
+                    <td>{{ data.customer.guestcity }}</td>
+                    <td><span class="badge bg-label-primary me-1">{{ data.customer.checkindate }}</span></td>
+                    <td><span class="badge bg-label-primary me-1">{{ data.customer.checkoutdate }}</span></td>
+                    <td><a class="btn btn-primary" href="{% url 'invoicepage' id=data.customer.id %}">Folio</a></td>
+                    {% comment %} <td><a class="btn btn-info" href="{% url 'guestregform' id=data.customer.id %}">Form</a></td> {% endcomment %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('searchForm');
+
+        // Event listener for form input changes
+        form.addEventListener('input', function() {
+            filterTable();
+        });
+
+        function filterTable() {
+            const guestname = document.getElementById('guestname').value.toLowerCase();
+            const guestphone = document.getElementById('guestphone').value.toLowerCase();
+            const roomno = document.getElementById('roomno').value;
+
+            const rows = document.querySelectorAll('#tableData tr');
+
+            rows.forEach(row => {
+                const guestNameCell = row.cells[0].textContent.toLowerCase();
+                const guestPhoneCell = row.cells[1].textContent.toLowerCase();
+                const roomNoCell = row.cells[2].textContent.toLowerCase();
+
+                // Check if the row matches all filter criteria
+                const matchesGuestname = guestNameCell.includes(guestname);
+                const matchesGuestphone = guestPhoneCell.includes(guestphone);
+                const matchesRoomno = roomno ? roomNoCell.includes(roomno) : true;
+
+                // Show or hide the row based on the filters
+                if (matchesGuestname && matchesGuestphone && matchesRoomno) {
+                    row.style.display = '';  // Show the row
+                } else {
+                    row.style.display = 'none';  // Hide the row
+                }
+            });
+        }
+    });
+</script>
+
+
 
 {%endblock%}

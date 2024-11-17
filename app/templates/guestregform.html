@@ -140,11 +140,25 @@
                 <div ></div>
             </div>
            
-            <div class="signature">
-                <label for="guest-signature">Guest Signature:</label>
+            <div class="signature " >
+                <label for="guest-signature" style="margin:15px;text-align:right">Guest Signature:</label>
+                
+            </div>
+
+            
+            {%endfor%}
+
+
+           
+            <div class="form-group ">
+                <label for="full-name"><b>Terms & Conditions</b><br>
+                    {% for line in terms_lines %}
+                    <p>{{ line }}</p>
+                {% endfor %}
+
                 <div></div>
             </div>
-            {%endfor%}
+           
         </div>
     </div>
 

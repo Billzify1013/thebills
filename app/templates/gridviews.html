@@ -178,9 +178,9 @@
     <!-- Calendar Grid with Weeks -->
     <div class="calendar">
         <!-- Add empty slots for days before the first day of the month -->
-        {% for _ in empty_slots|make_list %}
-            <div class="card empty-slot"></div>
-        {% endfor %}
+               {% for _ in empty_slots_range %}
+    <div class="card empty-slot"></div>
+{% endfor %}
 
         <!-- Calendar days with room data -->
         {% for inventory in inventory_for_template %}
@@ -192,8 +192,9 @@
                     {% if inventory.available_rooms is not None %}
                         <p class="availability">Available:<b> {{ inventory.available_rooms }}</b> <br> 
                             Booked: <b>{{ inventory.booked_rooms }}</b> <br> 
-                            {% comment %} Revenue: <br>₹
-                            <b>{{ inventory.revenue }}</b>{% endcomment %}
+                            Price:₹ {{ inventory.price }}<br>
+                            Occupancy: {{ inventory.occupancy }} %<br>
+                            <b>{{ inventory.revenue }}</b>
                         </p> 
                     {% else %}
                         <p class="card-text">No data</p>
@@ -275,7 +276,6 @@
 </script>
 </body>
 </html>
-
 
 
 {%endblock%}

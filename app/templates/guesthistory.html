@@ -136,7 +136,7 @@
 
             {%for data in guesthistory%}
           <tr>
-            <td><i class="fab fa-angular fa-lg text-danger "></i> <strong>{{data.guestname}}</strong></td>
+            <td><strong>{{data.guestname}}</strong></td>
             <td>{{data.guestphome}}</td>
             {% if data.noofrooms == 1%}
             <td><i class='bx bx-home-heart mb-1 text-warning'></i> {{data.roomno}}</td>

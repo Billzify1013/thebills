@@ -133,6 +133,35 @@
     </div>   </form>
 </div>
 
+
+
+
+<div class="col-6 mt-5">
+    <div class="card">
+        <form action="{% url 'generate_purchesinvoice_excel' %}" method="post">
+            {% csrf_token %}
+        <h5 class="card-title m-3"><i class='bx mb-1 me-2 bxs-save'></i>Download Purches Invoice ExcelSheet</h5>
+        <div class="mb-3 col-md-10 ms-3 mt-3">
+            <label for="zipCode" class="form-label">Select Month</label>
+            <select id="country" name="monthnumber" required class="select2 form-select">
+              <option value="1">JANUARY</option>
+              <option value="2">FEBRUARY</option>
+              <option value="3">MARCH</option>
+              <option value="4">APRIL</option>
+              <option value="5">MAY</option>
+              <option value="6">JUNE</option>
+              <option value="7">JULY</option>
+              <option value="8">AUGUST</option>
+              <option value="9">SEPTEMBER </option>
+              <option value="10">OCTOBER</option>
+              <option value="11">NOVEMBER</option>
+              <option value="12">DECEMBER</option>
+        </select>
+
+          </div>
+          <input class="btn btn-primary w-50 ms-3 mb-5 mt-4" type="submit" value="DONWLOAD"/>
+    </div>   </form>
+</div>
 </div>
 
 {%endblock%}

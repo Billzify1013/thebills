@@ -404,6 +404,7 @@
                       required
                       name = "noofguest"
                       id="basic-icon-default-company"
+                      value="{{i.saveguestdata.totalguest}}"
                       class="form-control"
                       placeholder="Total Guests"
                       aria-label="ACME Inc."
@@ -537,6 +538,9 @@
             <th>Room No</th>
             <th>Price</th>
             <th>Tax</th>
+            <th>Sell Rate</th>
+            <th>Adults</th>
+            <th>Children</th>
             
           </tr>
         </thead>
@@ -548,6 +552,17 @@
             <td>{{data.roomno.price}}</td>
             <td>
                 {{data.roomno.tax}} 
+            </td>
+            <td>{{data.sell_rate}}</td>
+            <td>
+              <form action="" method="post">
+                <input type="number" value="{{data.id}}" />
+              <input type="number" value="{{data.adults}}" />
+            </td>
+
+            <td>
+              <input type="number" value="{{data.children}}" />
+            </input>
             </td>
            
 

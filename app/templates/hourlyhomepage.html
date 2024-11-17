@@ -15,23 +15,23 @@
 
 <div class="row ">
     <h5 class="text ms-2 mt-5">
-        AVAILABLE ROOMS
+         ROOMS
     </h5>
 {% for i in hourlydata %}
 <div class="col-2 col-outline-danger">
-    <a href="{% url 'hourlyroomclickform' id=i.rooms.id %}" style="text-decoration:none">
     <div class="card mt-3">
     <div class="card-body ">
-        <center><i class='bx bxs-store fs-center mb-2 text-success' style="font-size:21px" ></i>
+        <center><i class='bx bxs-store fs-center mb-2 ' style="font-size:21px" ></i>
             
             
         <h6 class="card-title  mt-1 mb-0 text-center">{{i.rooms.room_name}}</h6>
         <p class="mt-0 text-center text-secondary">{{i.rooms.room_type}}</p>
+        <p class="mt-0 text-center text-secondary">Blocked</p>
         
     </center>
         
     </div>
-</div></a>
+</div>
 </div> 
 {%endfor%}
 </div>
@@ -39,11 +39,11 @@
 
 <div class="row ">
     <h5 class="text ms-2 MT-5">
-        CHECKIN ROOMS
+        
     </h5>
 {% for i in checkinhourlydata %}
 <div class="col-2 col-outline-danger">
-    <a href="{% url 'gotofoliobyhome' id=i.rooms.room_name %}" style="text-decoration:none "
+    <a href="" style="text-decoration:none "
     >
     <div class="card mt-3">
     <div class="card-body ">

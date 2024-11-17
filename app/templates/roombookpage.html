@@ -120,6 +120,25 @@
 </div>
 
 
+{%if inventorydata%}
+<div class="card mt-3 p-2">
+  <span><b>Rates on this date</b></span>
+ {%for i in inventorydata%}
+  <div class="row">
+    <div class="col-4">
+      <span>{{i.date}} <b>{{i.room_category.category_name}}</b></span>
+    </div>
+    <div class="col-4">
+      <span>price: {{i.price}}</span>
+    </div>
+  </div>
+  
+ {%endfor%}
+  
+  
+</div>
+{%endif%}
+
 <!--\Advance booking data -->
 <div class="row">
   <h5 class="title mb-0 mt-4">Advance Booking</h5> 
@@ -180,7 +199,7 @@
       <div
         class="offcanvas offcanvas-end my-auto mx-1 flex-grow-0"
         tabindex="-1"
-        style="width:550px"
+        style="width:650px"
         id="offcanvasBackdrop"
         aria-labelledby="offcanvasBackdropLabel"
       >
@@ -194,9 +213,12 @@
           ></button>
         </div>
        
+    
          <!-- Basic Layout & Basic with Icons -->
  <div class="row offcanvas-body " >
     <!-- Basic Layout -->
+     <div class="row">
+      <div class="col-12">
         <div  class="card-header d-flex align-items-center justify-content-between" style="margin-top:-25px">
             <div class="container-fluid"> 
             <small class="text-muted  badge bg-label-primary me-1">Total ₹: <span id="totalamt"></span></small>
@@ -208,7 +230,7 @@
         </div>
         <div style="margin-top:-110px" class="card-body">
             <div class="container-fluid">
-          <form action="{% url 'addadvancebooking'%}" method="post" id="myForm">
+          <form action="{% url 'addadvancebooking'%}" method="post" id="myForm"  >
             {% csrf_token %}
 
        {% comment %} <input type="hidden" name="startdate" id="startDate" value="{{startdate}}"/><br>
@@ -259,6 +281,28 @@
               </div>
 
              
+              <div class="col-sm-6 mt-2">
+                <label class="col-sm-12 col-form-label" for="basic-icon-default-fullname">Total Guest count</label>
+                <div class="input-group input-group-merge">
+                  <span id="basic-icon-default-fullname2" class="input-group-text"
+                    ><i class="bx bx-user"></i
+                  ></span>
+                  <input
+                    type="text"
+                    name = "guestcount"
+                    class="form-control"
+                    id="guestcount"
+                    
+                    placeholder="like:2,3,4,5,6"
+                    aria-label="John Doe"
+                    aria-describedby="basic-icon-default-fullname2"
+                    onclick="resetamountdata()"
+                    required
+                  />
+                </div>
+              </div>
+
+             
 
               <div class="col-sm-6 mt-2">
                 <label class="col-sm-12 col-form-label" for="basic-icon-default-fullname">Booking-Gives</label>
@@ -274,6 +318,26 @@
                 </div>
               </div>
 
+              <div class="col-sm-6 mt-2">
+                <label class="col-sm-12 col-form-label"  for="basic-icon-default-fullname">Rate Plan</label>
+                <div class="input-group input-group-merge">
+                  <span id="basic-icon-default-fullname2" class="input-group-text"
+                    ><i class='bx bxs-down-arrow'></i></span>
+                    <select class="form-control" onchange="pricechange()" id="rateplanselect" name="" placeholder="Select Category" required>
+                      
+                      {%for i in meal_plan%}
+                      <option  value="{{i.rate_plan_name}}" data-price="{{i.base_price}}">{{i.rate_plan_name}},{{i.rate_plan_code}}</option>
+                      {%endfor%}
+                      </select>
+                </div>
+              </div>
+
+              <div class="col-sm-6 mt-2">
+                <h6 id="showmealplan" class="text mt-5"></h6>
+               <input type="hidden" id="showmealplaninput" name="mealplan">
+               
+              </div>
+             
               
 
               <div class="col-sm-6 mt-2">
@@ -309,11 +373,28 @@
                     placeholder="Advance-Amount"
                     aria-label="John Doe"
                     aria-describedby="basic-icon-default-fullname2"
+                    onClick="hidecheck()"
                   />
                 </div>
               </div>
 
-              <div class="col-sm-6 mt-2">
+              <div class="col-sm-6 mt-2" style="">
+                <label class="col-sm-12 col-form-label"  for="basic-icon-default-fullname">Payment Mode</label>
+                <div class="input-group input-group-merge">
+                  <span id="basic-icon-default-fullname2" class="input-group-text"
+                    ><i class='bx bxs-down-arrow'></i></span>
+                    <select class="form-control"   name="paymentmode" placeholder="Select Payment Mode">
+                      <option value="Cash">Cash</option>
+                      <option value="UPI">UPI</option>
+                      <option value="Card">Card</option>
+                      <option value="Bank Transfer">Bank Transfer</option>
+                      <option value="Refund">Refund</option>
+                      </select>
+                </div>
+              </div>
+
+
+              <div class="col-sm-6 mt-2" style="display:none">
                 <label class="col-sm-12 col-form-label" for="basic-icon-default-fullname">Discount-Amount</label>
                 <div class="input-group input-group-merge">
                   <span id="basic-icon-default-fullname2" class="input-group-text"
@@ -331,7 +412,27 @@
                 </div>
                </div>
 
-              <div class="col-sm-12 mt-2">
+
+               <div class="col-sm-6 mt-2">
+                <label class="col-sm-12 col-form-label" for="basic-icon-default-fullname">Sattelment-Amount</label>
+              <div class="input-group">
+                  
+                  <input
+                    type="number"
+                    
+                    class="form-control"
+                    value=0
+                    id="excaptedamountinput"
+                    placeholder="Excepted amount"
+                    aria-label="Recipient's username"
+                    aria-describedby="button-addon2"
+                    onClick="hidecheck()"
+                  />
+                  <button type="button" class="btn btn-primary" onclick="adddiscountcheck()">=</button>
+                </div>
+               </div>
+
+              <div class="col-sm-6 mt-2">
                 <label class="col-sm-12 col-form-label" for="basic-icon-default-fullname">Reamaining-Amount</label>
                 <div class="input-group">
                     <span id="basic-icon-default-fullname2" class="input-group-text"
@@ -346,6 +447,7 @@
                       placeholder="Reamaining amount"
                       aria-label="Recipient's username"
                       aria-describedby="button-addon2"
+                      required
                       {% comment %} onClick="calculateamount()" {% endcomment %}
                     />
                   </div>
@@ -354,13 +456,13 @@
               <div class="col-sm-12 mt-3">
                 <div class="input-group">
                     <input type="hidden" id="new" name="news"/>
-                    <input class="form-check-input" id="checkboxinp"  type="checkbox" onClick="calculateamount()"  required/>
+                    <input class="form-check-input" id="checkboxinp"  type="checkbox"  onClick="calculateamount()"  required/>
                     <span class="text ms-2">Click To Get Correct Data. </span>
                   </div>
               </div>
 
              
-
+                
             
             
               <div class="col-sm-12 mt-4">
@@ -384,8 +486,7 @@
         </script>
 
           
-          <span class="text fw-bold mt-5">Discount Finder</span>
-          <div class="col-sm-7 ">
+          <div class="col-sm-7 " style="display:none">
             <label class="col-sm-12 col-form-label" for="basic-icon-default-fullname">Excepted Amount₹</label>
             <div class="input-group">
                 
@@ -404,17 +505,33 @@
               </div>
           </div>
           
-          <div class="col-sm-4 ">
+          <div class="col-sm-4 " style="display:none">
             <label class="col-sm-12 col-form-label" for="basic-icon-default-fullname">Avg Discount ₹</label>
             <span id="showamts"></span>
           </div>
         </div>
+        
 <!-- / Content -->
+
+
+ 
     
     </div>
+    
     </div>
   </div>
+  {% comment %} second col start here {% endcomment %}
+    
+   </div>
+  </div> 
 
+  <script>
+                 
+                function hidecheck() {
+                  document.getElementById('checkboxinp').checked=false;
+                } 
+
+  </script>
 
 <script>
 
@@ -491,8 +608,185 @@ $(document).ready(function(){
         $('#noofroom').val(l);
         selectedData = []
         document.getElementById('checkboxinp').checked = false;
+        $('#guestcount').val('')
+        $("#rateplanselect").val('Room Only')
+        $("#showmealplan").text('No Plan Select').css('color', 'red')
+        $("#showmealplaninput").val('Room Only')
     });
 });
+
+//reset amount va changing guest amount
+function resetamountdata() {
+   //counting date data
+        // Get the values of the input fields
+        var startDateStr = $("#startDate").val();
+        var endDateStr = $("#endDate").val();
+
+        // Convert the input values to Date objects
+        var startDate = new Date(startDateStr);
+        var endDate = new Date(endDateStr);
+
+        // Calculate the difference in milliseconds
+        var timeDiff = endDate.getTime() - startDate.getTime();
+
+        // Convert milliseconds to days
+        var daysDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
+        
+        if (daysDiff === 0){
+          daysDiff = 1
+        }
+        // Display the result
+        $("#result").text("Number of days: " + daysDiff);
+       
+
+        //room counting data start
+        var selectedData = [];
+        var total_amount = 0;
+        var taxamount = 0;
+        $("input[name='object']:checked").each(function(){
+            var value = $(this).val();
+            var id = value.split(',')[0];
+            var price = value.split(',')[1];
+            var tax = value.split(',')[2];
+            price = parseInt(price)
+            tax = parseInt(tax)
+            selectedData.push({id: id, price: price, tax:tax});
+            taxamount = (price * tax) /100;
+            var total_price = price + taxamount;
+            total_amount += total_price;
+           // taxamount = total_amount * tax /100
+           // console.log(taxamount)
+           // total_amount = total_amount + taxamount
+           // console.log(total_amount)
+     
+        });
+        
+        total_amount = total_amount * daysDiff
+        total_amount = parseInt(total_amount)
+        // Do something with the selected data (ID and name)
+        var l =selectedData.length;
+        $('#totalamt').html(total_amount);
+        $('#totalamountinput').val(total_amount);
+        var serializedArray = JSON.stringify(selectedData);
+        $('#new').val(serializedArray);
+        $('#totalroom').html(l);
+        $('#dayoffs').html(daysDiff);
+        $('#dayoffsinput').val(daysDiff);
+        $('#noofroom').val(l);
+        selectedData = []
+        document.getElementById('checkboxinp').checked = false;
+        $("#rateplanselect").val('Room Only')
+        $("#showmealplan").text('No Plan Select').css('color', 'red')
+        $("#showmealplaninput").val('Room Only')
+        
+        
+}
+
+//for rate plan
+function pricechange() {
+  console.log('run')
+  var guestcount = parseInt($('#guestcount').val());
+  document.getElementById('checkboxinp').checked=false;
+  document.getElementById('discountamountinput').value=0;
+  document.getElementById('excaptedamountinput').value=0;
+
+
+  if (guestcount > 0) {
+
+    var rateplanid = $("#rateplanselect").val();
+    var selectElement = document.getElementById("rateplanselect");
+    var selectedOption = selectElement.options[selectElement.selectedIndex];
+    var selectedplanname = selectElement.value; 
+    var selectedPrice = parseInt(selectedOption.getAttribute("data-price")); // Get the price
+    console.log(guestcount,selectedPrice,selectedplanname,"chandan hai")
+    var mealpriceguest = guestcount*selectedPrice
+    if (selectedplanname == "Only Room" ){
+      console.log('chandan room only')
+      resetamountdata();
+      
+    }
+    else {
+      
+      var guestcount = parseInt($('#guestcount').val());
+      $("#showmealplan").text(selectedplanname).css('color', 'green')
+      $("#showmealplaninput").val(selectedplanname)
+      updaterateplanprice(mealpriceguest);
+      
+    }
+
+  }
+  else {console.log('nahi hai')
+ // $("#rateplanselect").val('Room Only')
+  $("#showmealplan").text('Add count of Guest').css('color', 'red')
+  
+  
+}
+}
+
+//createing new price
+function updaterateplanprice(mealpriceguest) {
+          //counting date data
+        // Get the values of the input fields
+        var startDateStr = $("#startDate").val();
+        var endDateStr = $("#endDate").val();
+        var selectedPrice = parseInt(mealpriceguest)
+        // Convert the input values to Date objects
+        var startDate = new Date(startDateStr);
+        var endDate = new Date(endDateStr);
+
+        // Calculate the difference in milliseconds
+        var timeDiff = endDate.getTime() - startDate.getTime();
+
+        // Convert milliseconds to days
+        var daysDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
+        
+        if (daysDiff === 0){
+          daysDiff = 1
+        }
+        // Display the result
+        $("#result").text("Number of days: " + daysDiff);
+        var mealpriceguest = guestcount*selectedPrice
+        var roomcountsorg = parseInt(document.getElementById('totalroom').innerHTML)
+        var mealprice = selectedPrice / roomcountsorg
+
+        //room counting data start
+        var selectedData = [];
+        var total_amount = 0;
+        var taxamount = 0;
+        $("input[name='object']:checked").each(function(){
+            var value = $(this).val();
+            var id = value.split(',')[0];
+            var price = value.split(',')[1];
+            var tax = value.split(',')[2];
+            price = parseInt(price) + mealprice;
+            tax = parseInt(tax)
+            selectedData.push({id: id, price: price, tax:tax});
+            taxamount = (price * tax) /100;
+            var total_price = price + taxamount;
+            total_amount += total_price;
+           // taxamount = total_amount * tax /100
+           // console.log(taxamount)
+           // total_amount = total_amount + taxamount
+           // console.log(total_amount)
+            
+        });
+        
+        total_amount = total_amount * daysDiff
+        total_amount = parseInt(total_amount)
+        // Do something with the selected data (ID and name)
+        var l =selectedData.length;
+        $('#totalamt').html(total_amount);
+        $('#totalamountinput').val(total_amount);
+        var serializedArray = JSON.stringify(selectedData);
+        $('#new').val(serializedArray);
+        $('#totalroom').html(l);
+        $('#dayoffs').html(daysDiff);
+        $('#dayoffsinput').val(daysDiff);
+        $('#noofroom').val(l);
+        selectedData = []
+        document.getElementById('checkboxinp').checked = false;
+}
+
 
 //nw code caalculate discount and All
 
@@ -523,15 +817,28 @@ function calculateamount() {
   var totalAmount = 0;
   var taxAmount = 0;
   var remainingDiscount = discAmt;
-
+//mealrate manage
+  var guestcount = parseInt($('#guestcount').val());
+  var selectElement = document.getElementById("rateplanselect");
+  var selectedOption = selectElement.options[selectElement.selectedIndex];
+  var selectedplanname = selectElement.value; 
+  var selectedPrice = parseInt(selectedOption.getAttribute("data-price")); // Get the price
+  console.log(guestcount,selectedPrice,selectedplanname)
+  
+  var mealpriceguest = guestcount*selectedPrice
+  var roomcountsorg = parseInt(document.getElementById('totalroom').innerHTML)
+  var mealprice = mealpriceguest / roomcountsorg
+  
+console.log(mealprice)
   $("input[name='object']:checked").each(function() {
     var value = $(this).val();
     var parts = value.split(',');
     var id = parts[0];
-    var price = parseFloat(parts[1]);
+    var price = parseFloat(parts[1]) + mealprice;
     var tax = parseFloat(parts[2]);
 
     // Calculate price per day and apply discount
+    
     price *= daysDiff;
     if (remainingDiscount > 0) {
       if (remainingDiscount >= price) {
@@ -548,9 +855,9 @@ function calculateamount() {
     var totalPrice = price + taxAmount;
     totalAmount += totalPrice;
 
-    selectedData.push({ id: id, price: price, tax: tax });
+    selectedData.push({ id: id, price: price.toFixed(2), tax: tax });
   });
-
+  console.log(selectedData,"array")
   // Convert totalAmount to a number with two decimal places
   totalAmount = totalAmount.toFixed(2);
 
@@ -566,6 +873,7 @@ function calculateamount() {
   // Calculate subtotal and remaining amount
   var subtotal = totalAmount - advanceAmt;
   $('#reamainingamountinput').val(parseInt(subtotal.toFixed(2)));
+  
 } 
 
 {% comment %} 
@@ -790,6 +1098,17 @@ function adddiscountcheck() {
   }
   $("#result").text("Number of days: " + daysDiff);
 
+  //mealrate manage
+  var guestcount = parseInt($('#guestcount').val());
+  var selectElement = document.getElementById("rateplanselect");
+  var selectedOption = selectElement.options[selectElement.selectedIndex];
+  var selectedPrice = parseInt(selectedOption.getAttribute("data-price")); // Get the price
+  console.log(guestcount,selectedPrice)
+  var mealpriceguest = guestcount*selectedPrice
+  var roomcountsorg = parseInt(document.getElementById('totalroom').innerHTML)
+  var mealprice = mealpriceguest / roomcountsorg
+
+
   // Room counting data start
   var selectedData = [];
   var totalAmountBeforeTax = 0;
@@ -798,7 +1117,7 @@ function adddiscountcheck() {
     var value = $(this).val();
     var parts = value.split(',');
     var id = parts[0];
-    var price = parseFloat(parts[1]);
+    var price = parseFloat(parts[1]) + mealprice;
     var tax = parseFloat(parts[2]);
     selectedData.push({ id: id, price: price, tax: tax });
     totalAmountBeforeTax += price;
@@ -837,6 +1156,8 @@ function adddiscountcheck() {
 
   // Display results
   $('#showamts').text((totalAmountBeforeTax - discountNeeded).toFixed(2));
+  $('#discountamountinput').val(parseInt(totalAmountBeforeTax - discountNeeded));
+  calculateamount();
 }
 
 

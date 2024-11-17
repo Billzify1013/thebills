@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%endif%}
+</div>
+{%endfor%}
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 1000);
+      setTimeout(function() {
+        $("#danger-alert").fadeTo(500, 0).slideUp(500, function(){
+            $(this).remove(); 
+        });
+    }, 1000);
+      
+  });
+</script>
+{%endif%}
+
+
+</div>
+
+
+<div class="container mb-3 mt-0">
+<div class="card" >
+<div class="row">
+  <div class="col-8">
+  <h5 class="card-header">Invoices Month: {{current_month}} {{current_year}}  </h5>
+</div>
+
+<div class="col-3 m-2">
+  <a href=""  data-bs-toggle="modal"  data-bs-target="#backDropModalsearchdate" class="btn btn-outline-primary float-end" style=>Change Month/Year</a>
+   
+
+
+
+</div>
+
+</div>
+
+
+
+  <div class="row m-4 p-4 " style="border:2px solid lightgray;border-radius:8px">
+
+
+    <div class="col-7 ">
+    
+      <!-- Summary Section -->
+  <div id="summary" >
+    <p>Total Invoice:<b> <span id="totalRows">0</span></b></p>
+    <p>Total Amount: <b><span id="totalAmount">0</span></b></p>
+    <p>Total Tax: <b><span id="totalTax">0</span></b></p>
+    <p>Grand Total: <b><span id="grandTotal">0</span></b></p>
+  </div>
+
+</div>
+
+
+    <div class="col-3">
+      
+        <label id="basic-icon-default-company2" class=""
+              >All Channel</label>
+          <div class="input-group input-group-merge">
+            
+            
+            <select class="form-control"  id="channelFilter" >
+              <option value="">All</option>
+              {% for channel in channels %}
+                <option value="{{ channel }}">{{ channel }}</option>
+              {% endfor %}
+            </select>
+          </div>
+       
+  </div>
+</div>
+
+ 
+ 
+</div></div>
+    
+{%if guesthistory%}
+<div class="container">
+ <!-- Bootstrap Table with Header - Light -->
+ <div class="card">
+    <h5 class="card-header">Invoices Month: {{current_month}} {{current_year}}
+
+    </h5>
+    <div class="table-responsive text-nowrap">
+      <table id="guestHistoryTable" class="table">
+        <thead class="table-light">
+          <tr>
+            <th>Guest</th>
+            <th>GST-No</th>
+            <th>Total ₹</th>
+            <th>Tax ₹</th>
+            <th>With Tax ₹</th>
+            <th>Channel</th>
+            <th>Invoice</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+          {% for data in guesthistory %}
+          <tr data-channel="{{ data.customer.channel }}">
+            <td>
+              <strong>{{ data.customer.guestname }}</strong><br>
+              <small><i class="bx bxs-phone-call"></i> {{ data.customer.guestphome }}</small><br>
+              <small>{{ data.invoice_date }}</small>
+            </td>
+            <td>{{ data.customer_gst_number }}</td>
+            <td class="subtotal">{{ data.subtotal_amount }}</td>
+            <td class="tax">{{ data.gst_amount|add:data.sgst_amount }}</td>
+            <td class="grandtotal">{{ data.grand_total_amount }}</td>
+            <td>{{ data.customer.channel }}</td>
+            <td><a class="btn btn-primary" href="{% url 'invoicepage' id=data.customer.id %}">Invoice</a></td>
+            <td>
+              <button type="button" class="btn dropdown-toggle hide-arrow" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="bx bx-dots-vertical-rounded"></i>
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'guestdetails' id=data.id %}"><i class="bx bx-edit-alt me-1"></i> Details</a></li>
+              </ul>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    <!-- Pagination section -->
+    
+      
+    </div>
+   
+    
+  </div></div>
+  
+  <!-- Bootstrap Table with Header - Light -->
+   {%endif%}
+
+  <nav aria-label="Page navigation">
+    {% if guesthistory.has_other_pages %}
+    <ul class="pagination justify-content-center  mt-5 ">
+        {% if guesthistory.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ guesthistory.previous_page_number }}">Previous</a></li>
+        {% else %}
+        <li class="page-item disabled"><span>&laquo;</span></li>
+        {% endif %}
+        {% for i in guesthistory.paginator.page_range %}
+            {% if i >= guesthistory.number|add:'-5' and i <= guesthistory.number|add:'5' %}
+                {% if guesthistory.number == i %}
+                <li class="page-item active">
+                    <span class="page-link">{{ i }}</span>
+                </li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                </li>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        {% if guesthistory.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ guesthistory.next_page_number }}">Next</a></li>
+        {% else %}
+        <li class="page-item disabled"><span>&raquo;</span></li>
+        {% endif %}
+    </ul>
+    {% endif %}
+</nav>
+
+
+
+
+
+
+
+ 
+
+
+{% if guesthistory %}
+  
+<script>
+  // Function to calculate totals based on the filter
+  function calculateTotals() {
+    let totalRows = 0;
+    let totalAmount = 0;
+    let totalTax = 0;
+    let grandTotal = 0;
+    
+    // Get the selected filter value
+    const channelFilter = document.getElementById('channelFilter').value;
+
+    // Loop through all rows
+    document.querySelectorAll('#guestHistoryTable tbody tr').forEach(row => {
+      const channel = row.getAttribute('data-channel');
+      
+      // Check if the row should be displayed based on the selected filter
+      if (channelFilter === '' || channel === channelFilter) {
+        row.style.display = '';
+        totalRows++;
+
+        // Sum up amounts
+        totalAmount += parseFloat(row.querySelector('.subtotal').innerText) || 0;
+        totalTax += parseFloat(row.querySelector('.tax').innerText) || 0;
+        grandTotal += parseFloat(row.querySelector('.grandtotal').innerText) || 0;
+      } else {
+        row.style.display = 'none';
+      }
+    });
+
+    // Display totals
+    document.getElementById('totalRows').innerText = totalRows;
+    document.getElementById('totalAmount').innerText = totalAmount.toFixed(2);
+    document.getElementById('totalTax').innerText = totalTax.toFixed(2);
+    document.getElementById('grandTotal').innerText = grandTotal.toFixed(2);
+  }
+
+  // Event listener for the filter dropdown
+  document.getElementById('channelFilter').addEventListener('change', calculateTotals);
+
+  // Initial calculation
+  calculateTotals();
+</script>
+{% endif %}
+
+
+
+
+  <!-- Modal datesearch model -->
+  <div class="modal fade" id="backDropModalsearchdate" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'searchmonthinvoice'%}" method="POST" class="modal-content">
+            {% csrf_token %}
+        
+            <input type="hidden" id="roomnoidinput" name="dataid"/>
+            
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Search Month Via Invoice  </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Month</label>
+              <input
+                type="month"
+                name="monthname"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter RoomName"
+              />
+            </div>
+
+           
+          </div>
+         
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+{% endblock %}
+
+   
+
+    

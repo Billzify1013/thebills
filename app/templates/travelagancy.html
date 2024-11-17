@@ -1,0 +1,342 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <a href="{% url 'billingplanpage' %}" style="text-decoration:none;">
+    <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div></a>
+    {%endif%}
+</div>
+{%endfor%}
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 1000);
+  });
+</script>
+{%endif%}
+
+<!--Room Create button-->
+        
+<div class="row"> 
+    <div class="col-9">
+        <h5 class="card-title  ms-2 mt-1">Add New Travel Partner</h5>
+    </div> 
+    <div class="col-3">
+        <button class="btn btn-primary  w-100 "   data-bs-toggle="modal"
+        data-bs-target="#backDropModal"><i class='bx bx-buildings mb-1' ></i> Add Travel Partner</button>
+    </div> 
+
+</div>  
+<!--Room Create button end-->
+
+
+
+ <!-- Bootstrap Table with Header - Light -->
+ <div class="card mt-5">
+    <h5 class="card-header">Travel Agency</h5>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead class="table-light">
+          <tr>
+            <th>Travel Partner </th>
+            <th>Contact Person</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Commission Rate</th>
+            <th>Book-Link</th>
+            <th>Dashboard</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+          
+            {%for data in agencydata%}
+          <tr>
+            <td> <strong>{{data.name}}</strong></td>
+            <td>{{data.contact_person}}</td>
+            <td>{{data.phone_number}}</td>
+            <td>{{data.email}}</td>
+         
+            <td>
+              {{data.commission_rate}} %
+            </td>
+            <td>
+              <a class="dropdown-item" href="{% url 'bookrooms' user_name=data.vendor.username mids=data.id %}" >
+                <button class="btn btn-primary" ><i class='bx bx-link'></i>Link</button>
+              </a>
+
+            </td>
+            <td>
+                <a href="{%url 'opentravelagencydata' id=data.id %}"><button class="btn btn-primary" >Dashboard</button></a>
+              </td>
+            <td>
+                
+                      <button
+                        type="button"
+                        class="btn  dropdown-toggle hide-arrow"
+                        data-bs-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        
+                      >
+                      <i class="bx bx-dots-vertical-rounded"></i>
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item " href="#" data-bs-toggle="modal"
+                          data-bs-target="#backDropModalupdate" onclick="getroomnumberpopup({{data.id}})"><i class="bx bx-edit-alt me-1"></i>Edit</a></li>
+                          
+                        <li><a class="dropdown-item" href="{% url 'bookrooms' user_name=data.vendor.username mids=data.id %}" ><i class='bx bx-link'></i> Booking-Link</a></li>
+                        <li><a class="dropdown-item" href="{%url 'deletetravelagency' id=data.id %}" ><i class="bx bx-trash me-1"></i> Delete</a></li>
+                        
+                      </ul>
+                    
+            </td>
+          </tr>
+          {%endfor%}
+   
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Bootstrap Table with Header - Light -->
+
+
+
+
+<!-- Modal add rooms -->
+<div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{%url 'createtravelagancy' %}" method="POST" class="modal-content">
+            {% csrf_token %}
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Add TravelAgency</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">TravelAgency Name</label>
+              <input
+                type="text"
+                name="agencyname"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter TravelAgency Name"
+                required
+              />
+            </div>
+
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Contact Person Name</label>
+                <input
+                  type="text"
+                  name="contactname"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Enter Contact Person Name"
+                  required
+                />
+              </div>
+          </div>
+
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Phone Number</label>
+              <input
+                type="number"
+                name="Phone"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter Phone Number"
+                required
+              />
+            </div>
+
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Email </label>
+                <input
+                  type="email"
+                  name="email"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Enter Email"
+                  required
+                />
+              </div>
+          </div>
+
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Commission Rate</label>
+              <input
+                type="number"
+                name="Commission"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter Commission Rate"
+                required
+              />
+            </div>
+
+            
+          </div>
+
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+
+
+
+
+<!-- Modal updated -->
+<div class="modal fade" id="backDropModalupdate" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{%url 'updatetravelagancy' %}" method="POST" class="modal-content">
+            {% csrf_token %}
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Add TravelAgency</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            {% comment %} <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">TravelAgency Name</label>
+              <input
+                type="text"
+                name=""
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter TravelAgency Name"
+                required
+              />
+            </div> {% endcomment %}
+            <input type="hidden" name="ids" id="roomnoidinput" >
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Contact Person Name</label>
+                <input
+                  type="text"
+                  name="contactname"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Enter Contact Person Name"
+                  required
+                />
+              </div>
+          </div>
+
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Phone Number</label>
+              <input
+                type="number"
+                name="Phone"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter Phone Number"
+                required
+              />
+            </div>
+
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Email </label>
+                <input
+                  type="email"
+                  name="email"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Enter Email"
+                  required
+                />
+              </div>
+          </div>
+
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Commission Rate</label>
+              <input
+                type="number"
+                name="Commission"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter Commission Rate"
+                required
+              />
+            </div>
+
+            
+          </div>
+
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+<script type="text/javascript">
+    function getroomnumberpopup(e) {
+      var room_no = e
+      document.getElementById('roomnoidinput').value = e;
+    }
+  </script>
+  
+
+{%endblock%}

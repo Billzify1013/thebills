@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'app',
-    'app2',
     
 ]
 
@@ -56,6 +55,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'app.middleware.DailySessionExpiryMiddleware',
     'app.middleware.OneSessionPerUserMiddleware',
+    'django.middleware.gzip.GZipMiddleware', # Add this line for Gzip compression
 ]
 
 ROOT_URLCONF = 'hotelmanagementsystem.urls'
@@ -92,13 +92,26 @@ WSGI_APPLICATION = 'hotelmanagementsystem.wsgi.application'
 #     }
 # }
 
-# testng database
+# testing postgress connection
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'thebillsdatabase',
+        'USER':'postgres',
+        'PASSWORD':'1013',
+        'HOST':'localhost'
     }
 }
+
+
+# # testng database
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 
@@ -147,7 +160,6 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'app/static'),
-    os.path.join(BASE_DIR, 'app2/static'),
 ]
 
 # Default primary key field type

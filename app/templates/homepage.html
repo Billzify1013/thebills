@@ -192,7 +192,7 @@
         </div>
         {%endfor%}
         {%endif%}
-
+{% comment %} 
     {%for i,j in roomsdict.items%}
     <div class="row mt-3">
         
@@ -206,15 +206,30 @@
 
         </div> 
 
-        
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
     
         {%for room in j%}
+      
         {%if room.1 == 1%}
 
         <div class="col-2 col-outline-danger">
-          <a href="{% url 'gotofoliobyhome' id=room.0 %}" style="text-decoration:none "
-          >
+          
+          
+
+
+          
+
+          
             <div class="card mt-3">
+              {%if room.2 == True%}
+              <a href="{%url 'cleanroombtn' id=room.0%}"><i class="bi bi-stars fs-5 m-2 text-end text-info float-end"></i></a>
+              {%else%}
+              <a href="{%url 'cleanroombtn' id=room.0%}"><i class="fa fa-broom text-danger fs-5  m-2 text-end float-end"></i></a>
+              {%endif%}
+              <a href="{% url 'gotofoliobyhome' id=room.0 %}" style="text-decoration:none "
+          >
             <div class="card-body ">
                 <center><i class='bx bxs-store fs-center mb-2 text-danger' style="font-size:21px"></i>
                     
@@ -223,30 +238,43 @@
                 
             </center>
                 
-            </div>
-        </div></a>
+            </div></a>
+        </div>
         </div> 
        
 
         {% elif room.1 == 2 %}
         <div class="col-2 ">
+         
             
-            <a href="{% url 'gotofoliobyhome' id=room.0 %}" style="text-decoration:none "
-            >
             <div class="card mt-3">
+              {%if room.2 == True%}
+              <a href="{%url 'cleanroombtn' id=room.0%}"><i class="bi bi-stars fs-5 m-2 text-end text-info float-end"></i></a>
+              {%else%}
+              <a href="{%url 'cleanroombtn' id=room.0%}"><i class="fa fa-broom text-danger fs-5  m-2 text-end float-end"></i></a>
+              {%endif%}
+              
+              <a href="{% url 'gotofoliobyhome' id=room.0 %}" style="text-decoration:none "
+            >
             <div class="card-body ">
                 <center><i class='bx bxs-store fs-center mb-2 text-warning' style="font-size:21px" ></i>
                 <h4 class="card-title   mt- text-center">{{room.0}}</h4></center>
                 
-            </div>
-        </div></a>
+            </div></a>
+        </div>
         </div> 
 
         {% elif room.1 == 6 %}
+
         <div class="col-2 ">
-            
+         
            
             <div class="card mt-3">
+              {%if room.2 == True%}
+              <a href="{%url 'cleanroombtn' id=room.0%}"><i class="bi bi-stars fs-5 m-2 text-info text-end float-end"></i></a>
+              {%else%}
+              <a href="{%url 'cleanroombtn' id=room.0%}"><i class="fa fa-broom text-danger fs-5  m-2 text-end float-end"></i></a>
+              {%endif%}
             <div class="card-body ">
                 <center><i class='bx bxs-store fs-center mb-2 text-secondary' style="font-size:21px" ></i>
                 <h4 class="card-title   mt- text-center">Hourly</h4></center>
@@ -258,26 +286,38 @@
         {% elif room.1 == 4 or room.1 == 5 %}
         <div class="col-2 ">
             
-            <a href="#" style="text-decoration:none ">
+            
             <div class="card mt-3">
+              {%if room.2 == True%}
+              <a href="{%url 'cleanroombtn' id=room.0%}"><i class="bi bi-stars fs-5 m-2 text-info text-end float-end"></i></a>
+              {%else%}
+              <a href="{%url 'cleanroombtn' id=room.0%}"><i class="fa fa-broom text-danger fs-5  m-2 text-end float-end"></i></a>
+              {%endif%}
+              <a href="{% url 'todaybookingpage' %}" style="text-decoration:none ">
             <div class="card-body ">
                 <center><i class='bx bxs-store fs-center mb-2 text-muted' style="font-size:21px" ></i>
                 <h6 class="card-title   mb-1 text-center">{{room.0}}</h6>
                   <span class="badge bg-label-primary text-secondary mb-0" style="font-size:10px">Reserved</span></center>
                 
-            </div>
-        </div></a>
+            </div></a>
+        </div>
         </div> 
         {%else%}
         <div class="col-2 ">
-            <a href="{% url 'openroomclickformpage' id=room.0 %}" style="text-decoration:none ">
+          
+            
             <div class="card mt-3">
-            <div class="card-body ">
+              {%if room.2 == True%}
+              <a href="{%url 'cleanroombtn' id=room.0%}"><i class="bi bi-stars fs-5 m-2 text-info text-end float-end"></i></a>
+              {%else%}
+              <a href="{%url 'cleanroombtn' id=room.0%}"><i class="fa fa-broom text-danger fs-5  m-2 text-end float-end"></i></a>
+              {%endif%}
+              <a href="{% url 'openroomclickformpage' id=room.0 %}" style="text-decoration:none "><div class="card-body ">
                 <center><i class='bx bxs-store fs-center mb-2 text-success' style="font-size:21px"></i>
                 <h4 class="card-title   mt- text-center">{{room.0}}</h4></center>
                 
-            </div>
-        </div></a>
+            </div></a>
+        </div>
         </div> 
 
         {% endif %}
@@ -292,7 +332,136 @@
 
     </div>
     {%endfor%}
-        
+         {% endcomment %}
+
+
+
+
+{% comment %} our new search work start here {% endcomment %}
+
+<!-- Ensure you have Bootstrap CSS included in the <head> section -->
+  <!-- Search Input: Add this at the top of your page, before your room display loop -->
+<div class="row mb-4 mt-4">
+  <div class="col-4"></div>
+  <div class="col-3"></div>
+  <div class="col-5 end">
+      <input type="text" id="search-input" class="form-control" placeholder="Search by room name...">
+  </div>
+</div>
+
+<!-- Room Cards Display -->
+<!-- Room Cards Display -->
+{% for i, j in roomsdict.items %}
+  <!-- Category Header Row -->
+  <div class="row mt-3 mb-3">
+    <div class="col-9">
+      <h5 class="card-title ms-2">
+        <span class="ms-2">{{ i }}</span> <i class='bx bxs-down-arrow'></i>
+      </h5>
+    </div>
+    <div class="col-3">
+      <button class="btn btn-outline-primary w-100">{{ i }} <i class='bx bx-buildings mb-1'></i></button>
+    </div>
+  </div>
+
+  <!-- Room Cards for Each Category -->
+  <div class="d-flex flex-wrap mt-3">
+    {% for room in j %}
+      <div class="col-2 room-card p-2 mb-3" data-room-name="{{ room.0 }}">
+        <div class="card">
+          <!-- Clean Room Button with Condition -->
+          {% if room.2 == True %}
+            <a href="{% url 'cleanroombtn' id=room.0 %}"><i class="bi bi-stars fs-5 m-2 text-info float-end"></i></a>
+          {% else %}
+            <a href="{% url 'cleanroombtn' id=room.0 %}"><i class="fa fa-broom text-danger fs-5 m-2 float-end"></i></a>
+          {% endif %}
+
+          <!-- Card Body with Conditional URLs and Icons -->
+          {% if room.1 == 1 %}
+            <a href="{% url 'gotofoliobyhome' id=room.0 %}" style="text-decoration:none">
+              <div class="card-body">
+                <center>
+                  <i class='bx bxs-store mb-2 text-danger' style="font-size:21px"></i>
+                  <h4 class="card-title text-center">{{ room.0 }}</h4>
+                </center>
+              </div>
+            </a>
+
+          {% elif room.1 == 2 %}
+            <a href="{% url 'gotofoliobyhome' id=room.0 %}" style="text-decoration:none">
+              <div class="card-body">
+                <center>
+                  <i class='bx bxs-store mb-2 text-warning' style="font-size:21px"></i>
+                  <h4 class="card-title text-center">{{ room.0 }}</h4>
+                </center>
+              </div>
+            </a>
+
+          {% elif room.1 == 6 %}
+            <a href="" style="text-decoration:none">
+              <div class="card-body">
+                <center>
+                  <i class='bx bxs-store mb-2 text-secondary' style="font-size:21px"></i>
+                  <h4 class="card-title text-center">Block</h4>
+                </center>
+              </div>
+            </a>
+
+          {% elif room.1 == 4 or room.1 == 5 %}
+            <a href="{% url 'todaybookingpage' %}" style="text-decoration:none">
+              <div class="card-body">
+                <center>
+                  <i class='bx bxs-store mb-2 text-muted' style="font-size:21px"></i>
+                  <h6 class="card-title mb-1 text-center">{{ room.0 }}</h6>
+                  <span class="badge bg-label-primary text-secondary mb-0" style="font-size:10px">Reserved</span>
+                </center>
+              </div>
+            </a>
+
+          {% else %}
+            <a href="{% url 'openroomclickformpage' id=room.0 %}" style="text-decoration:none">
+              <div class="card-body">
+                <center>
+                  <i class='bx bxs-store mb-2 text-success' style="font-size:21px"></i>
+                  <h4 class="card-title text-center">{{ room.0 }}</h4>
+                </center>
+              </div>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endfor %}
+
+
+
+<!-- JavaScript for live search -->
+<script>
+  // JavaScript for live search
+  document.getElementById("search-input").addEventListener("input", function() {
+      const searchQuery = this.value.toLowerCase();
+      const roomCards = document.querySelectorAll(".room-card");
+
+      // Loop through each room card to check if it matches the search query
+      roomCards.forEach(card => {
+          const roomName = card.getAttribute("data-room-name").toLowerCase();
+          if (roomName.includes(searchQuery)) {
+              card.style.display = "block";
+          } else {
+              card.style.display = "none";
+          }
+      });
+  });
+</script>
+
+  
+
+
+
+
+
+
      <!--js of room no set to pop up button-->
 
         <script type="text/javascript">
@@ -436,6 +605,17 @@
                 <!--/ Bootstrap modals -->
    
    
+
+
+
+
+
+
+
+
+
+
+                
                 {% endblock %}
         
 

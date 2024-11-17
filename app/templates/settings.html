@@ -111,6 +111,32 @@
                   <i class="tf-icons bx bx-user mb-1"></i> Help & Support
                 </button>
               </li>
+              {%if vendorcms%}
+              {%for i in vendorcms%}
+              <li class="nav-item w-100 m-1">
+                <a
+                  type="button"
+                  class="nav-link"
+                  style="text-align:left"
+                 href="{%url 'dynamicformpage' %}"
+                >
+                  <i class="tf-icons bx bxl-paypal mb-1"></i> Dynamic Rates
+                </a>
+              </li>
+              {%endfor%}
+              {%endif%}
+
+              <li class="nav-item w-100 m-1">
+                <a
+                  type="button"
+                  class="nav-link"
+                  style="text-align:left"
+                 href="{%url 'rateplanpage' %}"
+                >
+                <i class='bx bx-registered'></i> Rates Plan
+                </a>
+              </li>
+
             </ul>
             
           </div>
@@ -378,19 +404,7 @@
                                   />
                                 </div>
                             </div>
-                            <div class="row mt-2">
-                                <div class="col-6 mb-6">
-                                  <label for="nameBackdrop" class="form-label mt-2">Upload Category Image</label>
-                                  <input
-                                    type="file"
-                                    name="Categoryimg"
-                                    id=""
-                                    class="form-control"
-                                    placeholder=""
-                                    required
-                                  />
-                                </div>
-                            </div>
+                           
                             <div class="row mt-2">
                                 <div class="col-6 mb-12">
                                   <label for="nameBackdrop" class="form-label mt-2">Choose Tax</label>
@@ -431,7 +445,6 @@
                       <tr>
                         <th>Category name</th>
                         <th>Price</th>
-                        <th>Image</th>
                         <th>Tax</th>
                         <th>HSN/SAC</th>
                         <th>Action</th>
@@ -441,11 +454,9 @@
             
                         {% for data in category%}
                       <tr>
-                        <td><i class="fab fa-angular fa-lg text-danger "></i> <strong>{{data.category_name}}</strong></td>
+                        <td><strong>{{data.category_name}}</strong></td>
                         <td>{{data.catprice}}</td>
-                        <td>
-                          <img src="{{data.roomimg.url}}" alt="rooming" height="30" />
-                          </td>
+                        
                         <td>{{data.category_tax.taxrate}}%</td>
                         <td>{{data.Hsn_sac}}</td>
                         <td>
@@ -582,19 +593,7 @@ Consider using concise language and abbreviations if appropriate.
             </div>
         </div>
 
-        <div class="row">
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Category Image</label>
-            <input
-              type="file"
-              name="Categoryimg"
-              id="nameBackdrop"
-              class="form-control"
-              placeholder="Enter price"
-              required
-            />
-          </div>
-        </div>
+       
 
         <div class="row">
           

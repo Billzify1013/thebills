@@ -20,9 +20,9 @@ import calendar
 from django.db.models import Count
 from django.shortcuts import redirect, get_object_or_404
 import threading
-from .newcode import update_inventory_task
+from .newcode import *
 # Create your views here.
-
+from .dynamicrates import *
 
 
 
@@ -35,41 +35,45 @@ from django.core.serializers.json import DjangoJSONEncoder
 def custom_404(request, exception):
     return render(request, '404.html',{'error_message': str("Page Not Found")}, status=404)
 
+
 def index(request):
     try:
         if request.user.is_authenticated:
             user = request.user
             
-            # Fetch data for Gueststay model
-            subtotalsale = Invoice.objects.filter(vendor=user).aggregate(total_sales=Sum('grand_total_amount'))['total_sales'] or 0
-            totaltax = Invoice.objects.filter(vendor=user).aggregate(total_sales=Sum('gst_amount'))['total_sales'] or 0
+            # Get the current year
+            now = timezone.now()
+            current_year = now.year 
+            
+            # Fetch data for the selected year (current_year)
+            subtotalsale = Invoice.objects.filter(vendor=user, invoice_date__year=current_year).aggregate(total_sales=Sum('grand_total_amount'))['total_sales'] or 0
+            totaltax = Invoice.objects.filter(vendor=user, invoice_date__year=current_year).aggregate(total_sales=Sum('gst_amount'))['total_sales'] or 0
             subtotalsale = int(subtotalsale)
-            totaltax = int(totaltax*2)
+            totaltax = int(totaltax * 2)
             totalsalaryexpance = SalaryManagement.objects.filter(vendor=user).aggregate(total_sales=Sum('basic_salary'))['total_sales'] or 0
             totalsalaryexpance = int(totalsalaryexpance)
             totaltaxandsalary = totalsalaryexpance + totaltax
             totalsalaryexcludedeductions = subtotalsale - totaltaxandsalary
-            subtotalsalereal = Invoice.objects.filter(vendor=user).aggregate(total_sales=Sum('subtotal_amount'))['total_sales'] or 0
-            # fetch highly hot rooms
-            print(subtotalsalereal)
-            most_booked_room = Gueststay.objects.filter(vendor=user).values('roomno').annotate(bookings_count=Count('roomno')).order_by('-bookings_count').values_list('roomno', flat=True).first()
-            # Fetch monthly sales data for Invoice model
+            subtotalsalereal = Invoice.objects.filter(vendor=user, invoice_date__year=current_year).aggregate(total_sales=Sum('subtotal_amount'))['total_sales'] or 0
             
-            monthly_data = Invoice.objects.filter(vendor=user) \
+            # Fetch highly booked room for the current year
+            most_booked_room = Gueststay.objects.filter(vendor=user, checkindate__year=current_year).values('roomno') \
+                .annotate(bookings_count=Count('roomno')) \
+                .order_by('-bookings_count') \
+                .values_list('roomno', flat=True).first()
+            
+            # Fetch monthly sales data for the current year
+            monthly_data = Invoice.objects.filter(vendor=user, invoice_date__year=current_year) \
                                         .annotate(month=ExtractMonth('invoice_date')) \
                                         .values('month') \
                                         .annotate(total_sales=Sum('grand_total_amount')) \
                                         .order_by('month')
-            # total amount via cash
-            # total_cash_amount = Invoice.objects.filter(vendor=user, ).aggregate(total_cash=Sum('cash_amount'))['total_cash'] or 0
-            # total_online_amount = Invoice.objects.filter(vendor=user,).aggregate(total_cash=Sum('online_amount'))['total_cash'] or 0
-            
+
             # Prepare data for Chart.js
             labels = []
             data = []
-
-            # Prepare a dictionary to hold the sales data for each month
             sales_data = {month: 0 for month in range(1, 13)}
+
             for entry in monthly_data:
                 month = entry['month']
                 total_sales = float(entry['total_sales'])  # Convert Decimal to float
@@ -80,8 +84,8 @@ def index(request):
                 labels.append(datetime(2024, month, 1).strftime('%b'))
                 data.append(total_sales)
 
-            # Simulate the growth percentage
-            growth = sum(data) / 12  # Example calculation
+            # Calculate growth (example)
+            growth = sum(data) / 12 if data else 0
 
             # Convert data to JSON format for Chart.js
             labels_json = json.dumps(labels)
@@ -104,14 +108,13 @@ def index(request):
             sales_percent = int(sales_percent)
             growth_json = json.dumps(sales_percent)
 
-                    
-                        # Get the last Sunday and the upcoming Saturday
+            # Weekly data for the current week (Sun to Sat)
             today = datetime.now().date()
             last_sunday = today - timedelta(days=today.weekday() + 1)
             next_saturday = last_sunday + timedelta(days=6)
 
-            # Fetch invoices from last Sunday to next Saturday
-            invoices = Invoice.objects.filter(vendor=user, invoice_date__range=[last_sunday, next_saturday])
+            # Fetch invoices from last Sunday to next Saturday for the current year
+            invoices = Invoice.objects.filter(vendor=user, invoice_date__year=current_year, invoice_date__range=[last_sunday, next_saturday])
 
             # Initialize a list for Sun to Sat with zeros
             weekly_data = [0] * 7
@@ -132,9 +135,16 @@ def index(request):
             # Convert dictionary to JSON string with custom encoder
             weeklys_data = json.dumps(data_dict, cls=DjangoJSONEncoder)
 
-          
-            
 
+            # Filter the Supplier model based on the year and sattle status
+            total_purches_settled = Supplier.objects.filter(
+                vendor=user,
+                sattle=True,
+                invoicedate__year=current_year
+            ).aggregate(total_sales=Sum('grand_total_amount'))['total_sales'] or 0
+
+            # Sum the grand_total_amount for the filtered suppliers
+           
             # Pass data to the template
             return render(request, 'index.html', {
                 'subtotalsale': subtotalsale,
@@ -142,18 +152,146 @@ def index(request):
                 'labels_json': labels_json,
                 'data_json': data_json,
                 'growth_json': growth_json,
-                'totaltax':totaltax,
-                'totalsalaryexpance':totalsalaryexpance,
-                'totalsalaryexcludedeductions':totalsalaryexcludedeductions,
-                'most_booked_room':most_booked_room,
-                # 'total_cash_amount':total_cash_amount,
-                # 'total_online_amount':total_online_amount,
-                 'weeklys_data': weeklys_data,
+                'totaltax': totaltax,
+                'totalsalaryexpance': totalsalaryexpance,
+                'totalsalaryexcludedeductions': totalsalaryexcludedeductions,
+                'most_booked_room': most_booked_room,
+                'weeklys_data': weeklys_data,
+                'current_year': current_year,
+                'total_purches_settled':total_purches_settled,
             })
         else:
             return render(request, 'login.html')
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)
+
+
+
+# pahle wla code
+# def index(request):
+#     try:
+#         if request.user.is_authenticated:
+#             user = request.user
+            
+#             # Fetch data for Gueststay model
+#             subtotalsale = Invoice.objects.filter(vendor=user).aggregate(total_sales=Sum('grand_total_amount'))['total_sales'] or 0
+#             totaltax = Invoice.objects.filter(vendor=user).aggregate(total_sales=Sum('gst_amount'))['total_sales'] or 0
+#             subtotalsale = int(subtotalsale)
+#             totaltax = int(totaltax*2)
+#             totalsalaryexpance = SalaryManagement.objects.filter(vendor=user).aggregate(total_sales=Sum('basic_salary'))['total_sales'] or 0
+#             totalsalaryexpance = int(totalsalaryexpance)
+#             totaltaxandsalary = totalsalaryexpance + totaltax
+#             totalsalaryexcludedeductions = subtotalsale - totaltaxandsalary
+#             subtotalsalereal = Invoice.objects.filter(vendor=user).aggregate(total_sales=Sum('subtotal_amount'))['total_sales'] or 0
+#             # fetch highly hot rooms
+#             print("index run")
+#             most_booked_room = Gueststay.objects.filter(vendor=user).values('roomno').annotate(bookings_count=Count('roomno')).order_by('-bookings_count').values_list('roomno', flat=True).first()
+#             # Fetch monthly sales data for Invoice model
+            
+#             monthly_data = Invoice.objects.filter(vendor=user) \
+#                                         .annotate(month=ExtractMonth('invoice_date')) \
+#                                         .values('month') \
+#                                         .annotate(total_sales=Sum('grand_total_amount')) \
+#                                         .order_by('month')
+#             # total amount via cash
+#             # total_cash_amount = Invoice.objects.filter(vendor=user, ).aggregate(total_cash=Sum('cash_amount'))['total_cash'] or 0
+#             # total_online_amount = Invoice.objects.filter(vendor=user,).aggregate(total_cash=Sum('online_amount'))['total_cash'] or 0
+            
+
+#             # get current year
+#             now = timezone.now()
+#             current_year = now.year 
+#             # Prepare data for Chart.js
+#             labels = []
+#             data = []
+
+#             # Prepare a dictionary to hold the sales data for each month
+#             sales_data = {month: 0 for month in range(1, 13)}
+#             for entry in monthly_data:
+#                 month = entry['month']
+#                 total_sales = float(entry['total_sales'])  # Convert Decimal to float
+#                 sales_data[month] = total_sales
+
+#             # Sort the sales_data dictionary by month and prepare labels and data
+#             for month, total_sales in sorted(sales_data.items()):
+#                 labels.append(datetime(2024, month, 1).strftime('%b'))
+#                 data.append(total_sales)
+
+#             # Simulate the growth percentage
+#             growth = sum(data) / 12  # Example calculation
+
+#             # Convert data to JSON format for Chart.js
+#             labels_json = json.dumps(labels)
+#             data_json = json.dumps(data)
+
+#             # Calculate total sales for all time
+#             total_sales_all_time = Invoice.objects.filter(vendor=user) \
+#                                                 .aggregate(total_sales=Sum('grand_total_amount'))['total_sales'] or 0
+            
+#             # Calculate total sales for the last 7 days
+#             total_sales_last_7_days = Invoice.objects.filter(vendor=user, 
+#                                                             invoice_date__gte=(datetime.now())-timedelta(days=7)) \
+#                                                     .aggregate(total_sales=Sum('grand_total_amount'))['total_sales'] or 0
+            
+#             # Calculate sales percentage
+#             if total_sales_all_time > 0:
+#                 sales_percent = 100 * total_sales_last_7_days / total_sales_all_time
+#             else:
+#                 sales_percent = 0
+#             sales_percent = int(sales_percent)
+#             growth_json = json.dumps(sales_percent)
+
+                    
+#                         # Get the last Sunday and the upcoming Saturday
+#             today = datetime.now().date()
+#             last_sunday = today - timedelta(days=today.weekday() + 1)
+#             next_saturday = last_sunday + timedelta(days=6)
+
+#             # Fetch invoices from last Sunday to next Saturday
+#             invoices = Invoice.objects.filter(vendor=user, invoice_date__range=[last_sunday, next_saturday])
+
+#             # Initialize a list for Sun to Sat with zeros
+#             weekly_data = [0] * 7
+
+#             # Fill the weekly data
+#             for invoice in invoices:
+#                 day_index = (invoice.invoice_date - last_sunday).days
+#                 weekly_data[day_index] += float(invoice.grand_total_amount)  # Convert Decimal to float
+
+#             # Create a dictionary to hold the data
+#             data_dict = {
+#                 'today': today.isoformat(),
+#                 'last_sunday': last_sunday.isoformat(),
+#                 'next_saturday': next_saturday.isoformat(),
+#                 'weekly_data': weekly_data
+#             }
+
+#             # Convert dictionary to JSON string with custom encoder
+#             weeklys_data = json.dumps(data_dict, cls=DjangoJSONEncoder)
+
+          
+            
+
+#             # Pass data to the template
+#             return render(request, 'index.html', {
+#                 'subtotalsale': subtotalsale,
+#                 'active_page': 'index',
+#                 'labels_json': labels_json,
+#                 'data_json': data_json,
+#                 'growth_json': growth_json,
+#                 'totaltax':totaltax,
+#                 'totalsalaryexpance':totalsalaryexpance,
+#                 'totalsalaryexcludedeductions':totalsalaryexcludedeductions,
+#                 'most_booked_room':most_booked_room,
+#                 # 'total_cash_amount':total_cash_amount,
+#                 # 'total_online_amount':total_online_amount,
+#                  'weeklys_data': weeklys_data,
+#                  'current_year':current_year,
+#             })
+#         else:
+#             return render(request, 'login.html')
+#     except Exception as e:
+#         return render(request, '404.html', {'error_message': str(e)}, status=500)
     
 def guestregform(request,id):
     try:
@@ -162,7 +300,9 @@ def guestregform(request,id):
             if Gueststay.objects.filter(vendor=user,id=id).exists():
                 guestdata = Gueststay.objects.filter(vendor=user,id=id)
                 hoteldata = HotelProfile.objects.filter(vendor=user)
-                return render(request,"guestregform.html",{'guestdata':guestdata,'hoteldata':hoteldata})
+                hoteldatas = HotelProfile.objects.get(vendor=user)
+                terms_lines = hoteldatas.termscondition.splitlines() if hoteldatas else []
+                return render(request,"guestregform.html",{'guestdata':guestdata,'hoteldata':hoteldata,'terms_lines':terms_lines})
             else:
                 return render(request,"homepage.html")
         else:
@@ -441,9 +581,9 @@ def homepage(request):
             # Filter data
             category = RoomsCategory.objects.filter(vendor=user).order_by('id')
             rooms = Rooms.objects.filter(vendor=user).order_by('id')
-            # desired_date = datetime.now().date() + timedelta(days=4)
+            # desired_date = datetime.now().date() + timedelta(days=1)
             desired_date = datetime.now().date()
-            print(desired_date)
+            
             # Update checkout status for guests
             Gueststay.objects.filter(Q(vendor=user, checkoutdate__date__lte=desired_date) | Q(vendor=user, checkoutdate__date=desired_date)).update(checkoutstatus=True)
 
@@ -455,10 +595,20 @@ def homepage(request):
                   # Include the vendor condition
                 Q(vendor=user,bookingdate=desired_date,checkinstatus=False) | 
                 Q(vendor=user,bookingdate__lte=desired_date, checkoutdate__gt=desired_date,checkinstatus=False)
-            )
-            bookedmisseddata = RoomBookAdvance.objects.filter(vendor=user, checkoutdate__lte=desired_date, checkinstatus=False)
-            saveguestallroomcheckout = RoomBookAdvance.objects.filter(vendor=user, checkoutdate=desired_date, checkinstatus=True)
+            ).exclude(vendor=user,saveguestdata__action='cancel')
             
+            bookedmisseddata = RoomBookAdvance.objects.filter(vendor=user, checkoutdate__lte=desired_date, checkinstatus=False).exclude(vendor=user,saveguestdata__action='cancel')
+            saveguestallroomcheckout = RoomBookAdvance.objects.filter(vendor=user, checkoutdate=desired_date, checkinstatus=True).exclude(vendor=user,saveguestdata__action='cancel')
+            
+            # find to clour red
+            reddata = Gueststay.objects.filter(vendor=user, checkoutdate__date__gt=desired_date, checkoutstatus=False, checkoutdone=False)
+            for i in reddata:
+                if Rooms.objects.filter(vendor=user, room_name=i.roomno,checkin=1).exists():
+                    pass
+                else:
+                    Rooms.objects.filter(vendor=user, room_name=i.roomno).exclude(checkin=6).update(checkin=1)
+                    print(i.roomno,"in red data")
+
             # Update rooms based on filtered data
             for i in saveguestallroomcheckout:
                 roomnumber = i.roomno.room_name
@@ -479,10 +629,27 @@ def homepage(request):
             for i in bookedmisseddata:
                 if i.roomno.checkin == 5 or i.roomno.checkin == 4:
                     Rooms.objects.filter(vendor=user, id=i.roomno.id).update(checkin=0)
+            
+            print(arriwaldata,"booking data")
+            # filter cancel booking jo cancel hai vo yaha filter ho rahe hai
+            arriwalcanceldata = RoomBookAdvance.objects.filter(
+                 
+                Q(vendor=user,bookingdate=desired_date,checkinstatus=False) | 
+                Q(vendor=user,bookingdate__lte=desired_date, checkoutdate__gt=desired_date,checkinstatus=False)
+            ).exclude(vendor=user,saveguestdata__action='book')
+            print(arriwalcanceldata,'camcel hai ye booking')
+            
+            # or jo book hai vo yaha
 
+
+            for data in  arriwalcanceldata:
+                    if data.roomno.checkin not in [1, 2, 6]:
+                        data = Rooms.objects.filter(vendor=user, id=data.roomno.id).update(checkin=0)
+                        
             for data in arriwaldata:
                 if data.roomno.checkin not in [1, 2, 5]:
                     Rooms.objects.filter(vendor=user, id=data.roomno.id).update(checkin=4)
+            
 
             # Additional queries
             checkintimedata = HotelProfile.objects.filter(vendor=user)
@@ -495,8 +662,9 @@ def homepage(request):
             # Create rooms dictionary
             roomsdict = {}
             for cat in category:
-                roomsdict[cat.category_name] = [[room.room_name, room.checkin] for room in rooms.filter(room_type=cat)]
+                roomsdict[cat.category_name] = [[room.room_name, room.checkin,room.is_clean] for room in rooms.filter(room_type=cat)]
 
+            
             return render(request, 'homepage.html', {
                 'active_page': 'homepage',
                 'category': category,
@@ -547,15 +715,13 @@ def addcategory(request):
                 price = request.POST.get('price')
                 taxcategory = request.POST.get('taxcategory')
                 hsccode = request.POST.get('hsccode')
-                category_img = request.FILES.get('Categoryimg')
 
                 RoomsCategory.objects.create(
                     vendor=user,
                     category_name=roomcategory,
                     catprice=price,
                     category_tax_id=taxcategory,
-                    Hsn_sac=hsccode,
-                    roomimg=category_img
+                    Hsn_sac=hsccode
                 )
 
                 messages.success(request, 'Category added successfully')
@@ -575,7 +741,6 @@ def updatecategory(request):
             price = request.POST.get('price')
             taxcategory = request.POST.get('taxcategory')
             hsccode = request.POST.get('hsccode')
-            Categoryimg = request.FILES.get('Categoryimg')
 
             profile = RoomsCategory.objects.get(vendor=user, id=categoryid)
             tax = Taxes.objects.get(vendor=user, id=taxcategory)
@@ -585,8 +750,7 @@ def updatecategory(request):
             profile.category_tax = tax
             profile.Hsn_sac = hsccode
 
-            if Categoryimg:
-                profile.roomimg = Categoryimg  # Update the image only if a new one is provided
+             # Update the image only if a new one is provided
 
             profile.save()
 
@@ -621,6 +785,7 @@ def addroom(request):
             user = request.user
             roomname = request.POST.get('roomname')
             category = request.POST.get('category')
+            maxperson = request.POST.get('maxperson')
             catdata = RoomsCategory.objects.get(vendor=user, id=category)
             tax_price = catdata.category_tax.taxrate
             roomprice = catdata.catprice
@@ -636,7 +801,8 @@ def addroom(request):
                     room_type_id=category,
                     price=roomprice,
                     tax_id=tax_type,
-                    tax_amount=taxprice
+                    tax_amount=taxprice,
+                    max_person=maxperson
                 )
 
             category = RoomsCategory.objects.filter(vendor=user)
@@ -673,6 +839,7 @@ def updaterooms(request):
             roomname = request.POST.get('roomname')
             category = request.POST.get('category')
             roomid = request.POST.get('roomid')
+            maxperson = request.POST.get('maxperson')
 
             catdata = RoomsCategory.objects.get(vendor=user, id=category)
             tax_price = catdata.category_tax.taxrate
@@ -686,7 +853,8 @@ def updaterooms(request):
                     room_type_id=category,
                     price=roomprice,
                     tax_id=tax_type,
-                    tax_amount=taxprice
+                    tax_amount=taxprice,
+                    max_person=maxperson
                 )
 
             category = RoomsCategory.objects.filter(vendor=user)
@@ -744,11 +912,17 @@ def openroomclickformpage(request, id):
             roomscategory_id = cat_data.room_type.id
             loyltydata = loylty_data.objects.filter(vendor=user, Is_active=True)
             meal_plan = RatePlan.objects.filter(vendor=user,room_category=roomscategory_id)
+            current_date = datetime.now()
+            ratedata = RoomsInventory.objects.none()
+            if RoomsInventory.objects.filter(vendor=user,date=current_date,room_category=roomscategory_id):
+                ratedata = RoomsInventory.objects.filter(vendor=user,date=current_date,room_category=roomscategory_id)
+                print(ratedata,'ratedata',type(ratedata))
             return render(request, 'bookroomclickpage.html', {
                 'id': roomno,
                 'room_data': room_data,
                 'loyltydata': loyltydata,
-                'meal_plan':meal_plan
+                'meal_plan':meal_plan,
+                'ratedata':ratedata
             })
         else:
             return redirect('loginpage')
@@ -844,7 +1018,7 @@ def addguestdata(request):
                                         checkindate=current_date,checkoutdate=checkoutdate ,noofguest=noofguest,adults=adults,children=children
                                         ,purposeofvisit=purposeofvisit,roomno=roomno,tax=tax,discount=discount,subtotal=subtotal,total=total,noofrooms=1
                                         ,guestidtypes=idtype,guestsdetails=iddetails,gueststates=state,rate_plan=rateplanname,
-                                        channel='PMS')
+                                        channel='PMS',saveguestid=None)
                 gsid=guestdata.id
                 if checkmoredatastatus == 'on':
                     moreguestname = request.POST.get('moreguestname')
@@ -889,6 +1063,17 @@ def addguestdata(request):
                 
                 roominventorydata = RoomsInventory.objects.filter(vendor=user,date__range = [checkindate,checkoutdate])
                 
+                
+                # add to bookings
+                roomids = Rooms.objects.get(vendor=user,room_name=roomno)
+                current_time = datetime.now().time()
+                noon_time_str = "12:00 PM"
+                noon_time = datetime.strptime(noon_time_str, "%I:%M %p").time()
+                Booking.objects.create(vendor=user,room_id=roomids.id,guest_name=guestname,check_in_date=checkindate,
+                                      check_out_date=checkoutdate,check_in_time= current_time,segment="PMS",
+                                      totalamount=grandtotal_amount,totalroom='1',check_out_time=noon_time,
+                                      gueststay=guestdata,advancebook=None,status="CHECK IN")
+
                 # Convert date strings to date objects
                 checkindate = datetime.strptime(checkindate, '%Y-%m-%d').date()
                 checkoutdate = (datetime.strptime(checkoutdate, '%Y-%m-%d').date() - timedelta(days=1))
@@ -906,7 +1091,7 @@ def addguestdata(request):
                 missing_dates = [date for date in all_dates if date not in existing_dates]
 
                 # If there are missing dates, create new entries for those dates in the RoomsInventory model
-                roomcount = Rooms.objects.filter(vendor=user,room_type_id=roomtype).count()
+                roomcount = Rooms.objects.filter(vendor=user,room_type_id=roomtype).exclude(checkin=6).count()
                 print(roomcount,'total room')
                 
                 for inventory in existing_inventory:
@@ -915,7 +1100,9 @@ def addguestdata(request):
                         inventory.booked_rooms += 1
                         inventory.save()
                 
-                
+                catdatas = RoomsCategory.objects.get(vendor=user,id=roomtype)
+                totalrooms = Rooms.objects.filter(vendor=user,room_type_id=roomtype).exclude(checkin=6).count()
+                occupancccy = (1 *100 //totalrooms)
                 if missing_dates:
                     for missing_date in missing_dates:
                        
@@ -925,6 +1112,8 @@ def addguestdata(request):
                                 room_category_id=roomtype,  # Use the appropriate `roomtype` or other identifier here
                                 total_availibility=roomcount-1,       # Set according to your logic
                                 booked_rooms=1,                # Set according to your logic
+                                price=catdatas.catprice,
+                                occupancy=occupancccy,
                             )
                     print(f"Missing dates have been created for: {missing_dates}")
                 else:
@@ -937,6 +1126,13 @@ def addguestdata(request):
                     end_date = str(checkoutdate)
                     thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
                     thread.start()
+                    # for dynamic pricing
+                    if  VendorCM.objects.filter(vendor=user,dynamic_price_active=True):
+                        thread = threading.Thread(target=rate_hit_channalmanager, args=(user.id, start_date, end_date))
+                        thread.start()
+                    else:
+                        pass
+
                 else:
                     pass
                 
@@ -955,7 +1151,7 @@ def addguestdata(request):
 
 
 def addguestdatafromadvanceroombook(request):
-    try:
+    # try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
             guestname = request.POST.get('guestname')
@@ -988,7 +1184,7 @@ def addguestdatafromadvanceroombook(request):
             paymentstatus = request.POST['paymentstatus']
             total=int(total)
             saveguestdata =  SaveAdvanceBookGuestData.objects.get(vendor=user,id=saveguestdata)
-            guestcheckinstatus= Gueststay.objects.filter(vendor=user,guestname=guestname,guestphome=guestphome,checkindate=checkindate,checkoutdate=checkoutdate).exists()
+            guestcheckinstatus= False
             userstatedata = HotelProfile.objects.get(vendor=user)
             userstate = userstatedata.zipcode
             roomsdatas = RoomBookAdvance.objects.filter(vendor=user,saveguestdata=saveguestdata)
@@ -1002,18 +1198,20 @@ def addguestdatafromadvanceroombook(request):
                 else:
                     taxtypes = "IGST"
                 if guestcheckinstatus is True:
+                    
                     messages.error(request,'recently Check In this Room With Same Data Please Change Address Mobile And Guest Name heckIn CheckOut Date / Room No to CheckIn this Room')
                 else:
                     current_date = datetime.now()
+                    rateplansdata = RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id=saveguestdata).first()
                     guestdata=Gueststay.objects.create(vendor=user,guestname=guestname,guestphome=guestphome,guestemail=guestemail,guestcity=guestcity,guestcountry=guestcountry,guestidimg=guestidimg,
                                             checkindate=current_date,checkoutdate=checkoutdate ,noofguest=noofguest,adults=adults,children=children
                                             ,purposeofvisit=purposeofvisit,roomno=roomno,tax=tax,discount=discount,subtotal=subtotal,total=total,noofrooms=noofrooms
-                                            ,guestidtypes=idtype,guestsdetails=iddetails,gueststates=state)
+                                        ,rate_plan=rateplansdata.rateplan_code,guestidtypes=idtype,guestsdetails=iddetails,gueststates=state,saveguestid=saveguestdata.id,channel=saveguestdata.channal.channalname)
                     Invoiceid = Invoice.objects.create(vendor=user,customer=guestdata,customer_gst_number="",
-                                                online_amount=0.00 ,cash_amount=0.00,  invoice_number="",invoice_date=checkindate,total_item_amount=0.0,discount_amount=discount,
-                                                    subtotal_amount=0.0,gst_amount=0.0,sgst_amount=0.0,
-                                                    grand_total_amount=0.0,modeofpayment=paymentstatus,room_no=0.0,taxtype=taxtypes)
-                
+                                              invoice_number="",invoice_date=checkindate,total_item_amount=0.0,discount_amount=discount,
+                                                    subtotal_amount=0.0,gst_amount=0.0,sgst_amount=0.0,accepted_amount=0.00,
+                                                    Due_amount=0.00,grand_total_amount=0.0,modeofpayment=paymentstatus,room_no=0.0,taxtype=taxtypes)
+                    
                     totalrooms = RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id=saveguestdata).all()
                     print(len(totalrooms))
                     updatediscountamount = int(discount)
@@ -1049,21 +1247,40 @@ def addguestdatafromadvanceroombook(request):
                     Invtaxamt = Invtaxamt /2
 
                     # amount split
-                    cashamount = 0.00
-                    onlineamount = 0.00
-                    if paidstatus == "Paid":
-                        statuspaid = True
-                        if paymentstatus == "cash":
-                            cashamount = Invgrandtotal
-                        elif paymentstatus == "online":
-                            onlineamount = Invgrandtotal
-                        else:
-                            cashamount = float(request.POST.get('cashamount'))
-                            onlineamount = float(request.POST.get('onlineamount'))
+                    # cashamount = 0.00
+                    # onlineamount = 0.00
+                    # if paidstatus == "Paid":
+                    #     statuspaid = True
+                    #     if paymentstatus == "cash":
+                    #         cashamount = Invgrandtotal
+                    #     elif paymentstatus == "online":
+                    #         onlineamount = Invgrandtotal
+                    #     else:
+                    #         cashamount = float(request.POST.get('cashamount'))
+                    #         onlineamount = float(request.POST.get('onlineamount'))
+                    # else:
+                    #     statuspaid = False
+                    
+                    if InvoicesPayment.objects.filter(vendor=user,advancebook_id=saveguestdata.id).exists():
+                        InvoicesPayment.objects.filter(vendor=user,advancebook_id=saveguestdata.id).update(invoice=Invoiceid)
+                        invcdatas= InvoicesPayment.objects.get(vendor=user,advancebook_id=saveguestdata.id)
+                        advncspt = int(float(invcdatas.payment_amount))
+                        chechtotalamt = int(float(Invgrandtotal))
+                        if advncspt == chechtotalamt:
+                            Invoice.objects.filter(vendor=user,customer=guestdata).update(
+                             Due_amount=0.00,accepted_amount=float(advncspt)
+                            )
+                        elif advncspt < chechtotalamt:
+                            dueamts = chechtotalamt - advncspt
+                            Invoice.objects.filter(vendor=user,customer=guestdata).update(
+                             Due_amount=float(dueamts),accepted_amount=float(advncspt)
+                            )
                     else:
-                        statuspaid = False
+                        Invoice.objects.filter(vendor=user,customer=guestdata).update(
+                             Due_amount=float(Invgrandtotal),accepted_amount=0.00
+                            )
                     Invoice.objects.filter(vendor=user,id=Invoiceid.id).update(total_item_amount=Invtotal_amount,discount_amount=discount,subtotal_amount=Invsub_total,
-                                    modeofpayment=paymentstatus,online_amount=onlineamount ,cash_amount=cashamount,grand_total_amount=Invgrandtotal,gst_amount=Invtaxamt,sgst_amount=Invtaxamt,room_no=roomno)
+                                    modeofpayment=paymentstatus,grand_total_amount=Invgrandtotal,gst_amount=Invtaxamt,sgst_amount=Invtaxamt,room_no=roomno)
 
             
                 #Invoice start here
@@ -1094,7 +1311,9 @@ def addguestdatafromadvanceroombook(request):
                             Rooms.objects.filter(vendor=user,id=data.roomno.id).all().update(checkin=5)
                             print(data.roomno.room_name,data.roomno.checkin)
                             RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id=saveguestdata).update(partly_checkin=True)
-                        print(roomdata)
+                            Booking.objects.filter(vendor=user,advancebook_id=saveguestdata,room=roomid).update(
+                                                                             gueststay=guestdata)
+                        
                     else:
                         for data in roomdata:
                             print(data.roomno.id)
@@ -1102,20 +1321,24 @@ def addguestdatafromadvanceroombook(request):
                             Rooms.objects.filter(vendor=user,id=data.roomno.id).update(checkin=1)
                             print(data.roomno.room_name,data.roomno.checkin)
                             RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id=saveguestdata).update(checkinstatus=True)
+                            ctime = datetime.now().time()
+                            Booking.objects.filter(vendor=user,advancebook_id=saveguestdata,room=roomid).update(status="CHECK IN",check_in_time=ctime,
+                                                                             gueststay=guestdata)
+                
                 return redirect('todaybookingpage')
             else:
                 messages.error(request,"Please check out the room that has not been checked out yet for the same guest before you can check in to a new room.")
                 return redirect('todaybookingpage')
         else:
             return redirect('loginpage')
-    except Exception as e:
-        return render(request, '404.html', {'error_message': str(e)}, status=500)
+    # except Exception as e:
+    #     return render(request, '404.html', {'error_message': str(e)}, status=500)
    
 
 # checkout button function
 from django.db.models import Max
 def checkoutroom(request):
-    # try:
+    try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
             roomno = request.POST.get('roomno')
@@ -1195,16 +1418,57 @@ def checkoutroom(request):
 
                     Invoice.objects.filter(vendor=user,id=invoice_id).update(invoice_date=invccurrentdate)
 
-                    if RoomBookAdvance.objects.filter(vendor=user,roomno__room_name = roomno,bookingguestphone = guestdatas.guestphome,bookingdate__range = [guestdatas.checkindate , guestdatas.checkoutdate]).exists():
-                        saveguestid = RoomBookAdvance.objects.get(vendor=user,roomno__room_name = roomno,bookingguestphone = guestdatas.guestphome,bookingdate__range = [guestdatas.checkindate , guestdatas.checkoutdate])
-                        print(saveguestid.saveguestdata.id)
-                        multipleroomsdata = RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id=saveguestid.saveguestdata.id).all()
+                    if RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id = GUESTIDs.customer.saveguestid).exists():
+                        
+                        ctime = datetime.now().time()
+                        saveguestid = GUESTIDs.customer.saveguestid
+                        multipleroomsdata = RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id=saveguestid).all()
                         print(multipleroomsdata,"rooms data")
                         for i in multipleroomsdata:
                             print(i.roomno.id)
                             Rooms.objects.filter(vendor=user,id=i.roomno.id).update(checkin=0)
+                            Booking.objects.filter(vendor=user,advancebook_id=GUESTIDs.customer.saveguestid
+                                               ,room_id=i.roomno.id).update(status="CHECK OUT",check_out_time=ctime,check_out_date=current_date,advancebook=None)
+
+                        # update occupancy
+                        roomdata = RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id=saveguestid).all()
+                        if roomdata: 
+                            for data in roomdata:
+                                # Rooms.objects.filter(vendor=user,id=data.roomno.id).update(checkin=0)
+                                checkindate = data.bookingdate
+                                checkoutdate = data.checkoutdate
+                                while checkindate < checkoutdate:
+                                    roomscat = Rooms.objects.get(vendor=user,id=data.roomno.id)
+                                    invtdata = RoomsInventory.objects.get(vendor=user,date=checkindate,room_category=roomscat.room_type)
+                                    print(checkindate)
+                                    invtavaible = invtdata.total_availibility + 1
+                                    invtabook = invtdata.booked_rooms - 1
+                                    total_rooms = Rooms.objects.filter(vendor=user, room_type=roomscat.room_type).exclude(checkin=6).count()
+                                    occupancy = invtabook * 100//total_rooms
+                                                                            
+
+                                    RoomsInventory.objects.filter(vendor=user,date=checkindate,room_category=roomscat.room_type).update(booked_rooms=invtabook,
+                                                total_availibility=invtavaible,occupancy=occupancy)
+                        
+                                    checkindate += timedelta(days=1)
+
+                            if VendorCM.objects.filter(vendor=user):
+                                start_date = str(data.bookingdate)
+                                end_date = str(data.checkoutdate)
+                                thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
+                                thread.start()
+                                # for dynamic pricing
+                                if  VendorCM.objects.filter(vendor=user,dynamic_price_active=True):
+                                    thread = threading.Thread(target=rate_hit_channalmanager, args=(user.id, start_date, end_date))
+                                    thread.start()
+                                else:
+                                    pass
+                            else:
+                                pass
+
+                        
                         Invoice.objects.filter(vendor=user,id=invoice_id).update(foliostatus=True,invoice_number=invoice_number,modeofpayment=paymentstatus)
-                        SaveAdvanceBookGuestData.objects.filter(id=saveguestid.saveguestdata.id).delete()
+                        SaveAdvanceBookGuestData.objects.filter(id=saveguestid).delete()
                         Gueststay.objects.filter(vendor=user,id=GUESTID).update(checkoutdone=True,checkoutstatus=True,checkoutdate=current_date)
                     elif HourlyRoomsdata.objects.filter(vendor=user,rooms__room_name=guestdatas.roomno).exists():
                         HourlyRoomsdata.objects.filter(vendor=user,rooms__room_name=guestdatas.roomno).update(checkinstatus=False)
@@ -1212,9 +1476,41 @@ def checkoutroom(request):
                         Gueststay.objects.filter(vendor=user,id=GUESTID).update(checkoutdone=True,checkoutstatus=True,checkoutdate=current_date)
                 
                     else:
+                        room_no = guestdatas.roomno
+                        room_dats= Rooms.objects.get(vendor=user,room_name=room_no)
+                        r_category_id = room_dats.room_type.id
+                        checkindatedlt = guestdatas.checkindate
+                        checkoutdatedlt = guestdatas.checkoutdate- timedelta(days=1)
+                        
+                        
+                        rinvrdata = RoomsInventory.objects.filter(vendor=user,room_category_id=r_category_id,date__range=[checkindatedlt,checkoutdatedlt])
+                        
+                        for date in rinvrdata:
+                            avalblty = RoomsInventory.objects.get(id=date.id)
+                            avlcount = avalblty.total_availibility
+                            RoomsInventory.objects.filter(id=date.id).update(total_availibility=avlcount+1)
+                            
+                        # not minus1 to add new var with s
+                        checkoutdatedlts = guestdatas.checkoutdate
+                        if VendorCM.objects.filter(vendor=user):
+                            start_date = str(datetime.now().date())
+                            end_date = str(checkoutdatedlts.date())
+                            thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
+                            thread.start()
+                            # for dynamic pricing
+                            if  VendorCM.objects.filter(vendor=user,dynamic_price_active=True):
+                                thread = threading.Thread(target=rate_hit_channalmanager, args=(user.id, start_date, end_date))
+                                thread.start()
+                            else:
+                                pass
+                        else:
+                            pass
+                        # booking datahandle
+                        ctime = datetime.now().time()
+                        Booking.objects.filter(vendor=user,gueststay_id=GUESTID).update(status="CHECK OUT",check_out_time=ctime,check_out_date=current_date)
                         Gueststay.objects.filter(vendor=user,id=GUESTID).update(checkoutdone=True,checkoutstatus=True,checkoutdate=current_date)
                         Invoice.objects.filter(vendor=user,id=invoice_id).update(foliostatus=True,invoice_number=invoice_number,modeofpayment=paymentstatus)
-                        Rooms.objects.filter(vendor=user,room_name=roomno).update(checkin=0)
+                        Rooms.objects.filter(vendor=user,room_name=roomno).update(checkin=0,is_clean=False)
 
                     if int(float(dueamount)) == 0 :
                             pass
@@ -1232,7 +1528,8 @@ def checkoutroom(request):
                                     existsamount = loyltdatas.loylty_point + totalloyltyamount
                                     loylty_Guests_Data.objects.filter(vendor=user,guest_contact=guestphonenumber).update(loylty_point = existsamount)
                         else:
-                                    loylty_Guests_Data.objects.create(vendor=user,guest_name=guestnameformsg,guest_contact=guestphonenumber,loylty_point=totalloyltyamount)
+                                    loylty_Guests_Data.objects.create(vendor=user,guest_name=guestnameformsg,guest_contact=guestphonenumber,loylty_point=totalloyltyamount
+                                                                      ,smscount='0')
                         # msg content 
                         usermsglimit = Messgesinfo.objects.get(vendor=user)
                         if usermsglimit.defaultlimit > usermsglimit.changedlimit :
@@ -1282,8 +1579,8 @@ def checkoutroom(request):
                 return redirect('invoicepage', id=GUESTID)
         else:
             return redirect('loginpage')
-    # except Exception as e:
-    #     return render(request, '404.html', {'error_message': str(e)}, status=500)
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
     
 
 
@@ -1296,16 +1593,54 @@ def cancelroom(request):
             guest_id = request.POST.get('guest_id')
             guestdatas = Gueststay.objects.get(vendor=user,id=guest_id)
             if Gueststay.objects.filter(vendor=user,id=guest_id).exists():
-                if RoomBookAdvance.objects.filter(vendor=user,roomno__room_name = roomno,bookingguestphone = guestdatas.guestphome,bookingdate__range = [guestdatas.checkindate , guestdatas.checkoutdate]).exists():
+                if RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id=guestdatas.saveguestid).exists():
                     print("haan bhai booking hai")
-                    saveguestid = RoomBookAdvance.objects.filter(vendor=user,roomno__room_name = roomno,bookingguestphone = guestdatas.guestphome,bookingdate__range = [guestdatas.checkindate , guestdatas.checkoutdate])
-                    for i in saveguestid:
-                        saveguestidfilter = i.saveguestdata.id
+                    # saveguestid = RoomBookAdvance.objects.filter(vendor=user,roomno__room_name = roomno,bookingguestphone = guestdatas.guestphome,bookingdate__range = [guestdatas.checkindate , guestdatas.checkoutdate])
+                    # for i in saveguestid:
+                    saveguestidfilter = guestdatas.saveguestid
                     multipleroomsdata = RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id=saveguestidfilter).all()
                     print(multipleroomsdata,"rooms data")
                     for i in multipleroomsdata:
                             print(i.roomno.id)
                             Rooms.objects.filter(vendor=user,id=i.roomno.id).update(checkin=0)
+
+                    # update occupancy
+                    roomdata = RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id=saveguestidfilter).all()
+                    if roomdata: 
+                        for data in roomdata:
+                            # Rooms.objects.filter(vendor=user,id=data.roomno.id).update(checkin=0)
+                            checkindate = data.bookingdate
+                            checkoutdate = data.checkoutdate
+                            while checkindate < checkoutdate:
+                                roomscat = Rooms.objects.get(vendor=user,id=data.roomno.id)
+                                invtdata = RoomsInventory.objects.get(vendor=user,date=checkindate,room_category=roomscat.room_type)
+                                print(checkindate)
+                                invtavaible = invtdata.total_availibility + 1
+                                invtabook = invtdata.booked_rooms - 1
+                                total_rooms = Rooms.objects.filter(vendor=user, room_type=roomscat.room_type).exclude(checkin=6).count()
+                                occupancy = invtabook * 100//total_rooms
+                                                                        
+
+                                RoomsInventory.objects.filter(vendor=user,date=checkindate,room_category=roomscat.room_type).update(booked_rooms=invtabook,
+                                            total_availibility=invtavaible,occupancy=occupancy)
+                    
+                                checkindate += timedelta(days=1)
+
+                        if VendorCM.objects.filter(vendor=user):
+                            start_date = str(data.bookingdate)
+                            end_date = str(data.checkoutdate)
+                            thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
+                            thread.start()
+                            # for dynamic pricing
+                            if  VendorCM.objects.filter(vendor=user,dynamic_price_active=True):
+                                thread = threading.Thread(target=rate_hit_channalmanager, args=(user.id, start_date, end_date))
+                                thread.start()
+                            else:
+                                pass
+                        else:
+                            pass
+
+
                     SaveAdvanceBookGuestData.objects.filter(id=saveguestidfilter).delete()
                     Gueststay.objects.filter(vendor=user,id=guest_id).delete()
                 elif HourlyRoomsdata.objects.filter(vendor=user,rooms__room_name=guestdatas.roomno).exists():
@@ -1334,9 +1669,16 @@ def cancelroom(request):
                         end_date = str(checkoutdatedlts.date())
                         thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
                         thread.start()
+                        # for dynamic pricing
+                        if  VendorCM.objects.filter(vendor=user,dynamic_price_active=True):
+                                thread = threading.Thread(target=rate_hit_channalmanager, args=(user.id, start_date, end_date))
+                                thread.start()
+                        else:
+                                pass
                     else:
                         pass
-                
+                    Booking.objects.filter(vendor=user,gueststay_id=guest_id).delete()
+
                     Gueststay.objects.filter(vendor=user,id=guest_id).delete()
                     Rooms.objects.filter(vendor=user,room_name=roomno).update(checkin=0)
                     
@@ -1359,13 +1701,16 @@ def gotofoliobyhome(request,id):
             if Gueststay.objects.filter(vendor=user,roomno=roomno,checkoutdone=False).exists():
                 custid = Gueststay.objects.filter(vendor=user,roomno=roomno,checkoutdone=False).last()
                 customerid = custid.id
+                print(customerid)
                 if Invoice.objects.filter(vendor=user,customer_id=customerid).exists():
                     invcid = Invoice.objects.get(vendor=user,customer_id=customerid)
                     urlid = custid.id
                     # invoicepage
+                    
                     return redirect('invoicepage', id=urlid)
                 else:
                     Rooms.objects.filter(vendor=user,room_name=roomno).update(checkin=0)
+                    print('here haan bhai')
                     return redirect('homepage')
             else:
                 current_date = datetime.now().date()
@@ -1526,7 +1871,7 @@ def bookingdate(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
-            startdate = request.POST['startdate']
+            startdate = request.POST.get('startdate')
             enddate = request.POST.get('enddate')
 
             bookingdate = datetime.strptime(startdate, '%Y-%m-%d').date()
@@ -1549,7 +1894,7 @@ def bookingdate(request):
                 bookedroomsdata = RoomBookAdvance.objects.filter(
                     Q(vendor=user) &
                     (Q(bookingdate__lte=checkoutdate) & Q(checkoutdate__gte=newbookdateminus))
-                )
+                ).exclude(vendor=user,saveguestdata__action='cancel')
 
                 # Collecting room numbers from guest stays
                 occupied_rooms = set(guest.roomno for guest in guestroomsdata)
@@ -1569,9 +1914,14 @@ def bookingdate(request):
                     if room.room_name not in occupied_rooms and room not in booked_rooms
                 ]
 
-                channal = onlinechannls.objects.all()
+                channal = onlinechannls.objects.filter(vendor=user)
+                meal_plan = RatePlanforbooking.objects.filter(vendor=user)
                 lenoflist = len(availableroomdata)
                 emptymessage = "No Rooms Available On This Day!" if lenoflist == 0 else ""
+
+                inventorydata = RoomsInventory.objects.none()
+                if VendorCM.objects.filter(vendor=user,dynamic_price_active=True):
+                    inventorydata = RoomsInventory.objects.filter(vendor=user,date__range=[startdate,enddate])
 
                 return render(request, 'roombookpage.html', {
                     'active_page': 'advanceroombookpage',
@@ -1581,7 +1931,9 @@ def bookingdate(request):
                     'enddate': enddate,
                     'channal': channal,
                     'bookedroomsdata': bookedroomsdata,
-                    'guestroomsdata': guestroomsdata
+                    'guestroomsdata': guestroomsdata,
+                    'meal_plan': meal_plan,
+                    'inventorydata':inventorydata
                 })
         else:
             return redirect('loginpage')
@@ -1692,7 +2044,7 @@ def bookingdate(request):
 from datetime import datetime, timedelta
 
 def addadvancebooking(request):
-    try:
+    # try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
             bookingdate = request.POST.get('bookingdate')
@@ -1705,6 +2057,9 @@ def addadvancebooking(request):
             advanceamount = request.POST.get('advanceamount')
             discountamount = float(request.POST.get('discountamount'))
             reaminingamount = request.POST.get('reaminingamount',0)
+            mealplan = request.POST.get('mealplan')
+            guestcount = request.POST.get('guestcount')
+            paymentmode = request.POST.get('paymentmode')
             serialized_array = request.POST['news']
             channal=onlinechannls.objects.get(id=channal)
             my_array = json.loads(serialized_array)
@@ -1721,16 +2076,130 @@ def addadvancebooking(request):
             # while bookingdate <= checkoutdate:
             #         print(bookingdate,"working")
             #         bookingdate += delta
+            current_date = datetime.now()
             Saveadvancebookdata = SaveAdvanceBookGuestData.objects.create(vendor=user,bookingdate=bookingdate,noofrooms=noofrooms,bookingguest=guestname,
-                bookingguestphone=phone,staydays=totalstaydays,
-                                                advance_amount=advanceamount,reamaining_amount=reaminingamount,discount=discountamount,
-                                                total_amount=totalamount,channal=channal,checkoutdate=bookenddate )
+                bookingguestphone=phone,staydays=totalstaydays,advance_amount=advanceamount,reamaining_amount=reaminingamount,discount=discountamount,
+                total_amount=totalamount,channal=channal,checkoutdate=bookenddate,email='',address_city='',state='',country='',totalguest=guestcount,
+                action='book',booking_id='',cm_booking_id='',segment='PMS',special_requests='',pah=True,amount_after_tax=totalamount,amount_before_tax=0.00,
+                  tax=0.00,currency="INR",checkin=current_date,Payment_types='postpaid'  )
+            paymenttypes = 'postpaid'
+            if int(advanceamount) > 0:
+                InvoicesPayment.objects.create(vendor=user,invoice=None,payment_amount=advanceamount,payment_date=current_date,
+                                                payment_mode=paymentmode,transaction_id="ADVANCE AMOUNT",descriptions='ADVANCE',advancebook=Saveadvancebookdata)
+                if int(advanceamount) < int(totalamount):
+                    paymenttypes = 'partially'
+                else:
+                    paymenttypes = 'prepaid'
+            else:
+                pass 
+            sellingprices = 0    
+            totaltax = 0   
+            guestcountsstored = int(guestcount) 
             for i in my_array:
-                    roomid = i['id']
+                    roomid = int(i['id'])
+                    roomsellprice = int(float(i['price']))
+                    roomselltax = int(float(i['tax']))
+                    sellingprices = sellingprices + roomsellprice
+                    totalsellprice = (roomsellprice * roomselltax //100) + roomsellprice
+                    totaltax = totaltax + (roomsellprice * roomselltax //100)
+                    print(roomsellprice)
                     roomid = Rooms.objects.get(id=roomid)
+                    roomtype = roomid.room_type.id
+
+                    # # manage rate plan guests
+                    maxperson = roomid.max_person
+                    if guestcountsstored > maxperson:
+                        guestcountsstored = guestcountsstored - maxperson
+                        satteldcount = maxperson
+                    else:
+                        satteldcount = guestcountsstored
+
                     RoomBookAdvance.objects.create(vendor=user,saveguestdata=Saveadvancebookdata,bookingdate=bookingdate,roomno=roomid,
                                                     bookingguest=guestname,bookingguestphone=phone
-                                                ,checkoutdate=bookenddate,bookingstatus=True,channal=channal)
+                                                ,checkoutdate=bookenddate,bookingstatus=True,channal=channal,totalguest=satteldcount,
+                                               rateplan_code=mealplan,guest_name='',adults=satteldcount,children=0,sell_rate=totalsellprice )
+                    noon_time_str = "12:00 PM"
+                    noon_time = datetime.strptime(noon_time_str, "%I:%M %p").time()
+                    Booking.objects.create(vendor=user,room=roomid,guest_name=guestname,check_in_date=bookingdate,check_out_date=bookenddate,
+                                check_in_time=noon_time,check_out_time=noon_time,segment="PMS",totalamount=totalamount,totalroom=noofrooms,
+                                gueststay=None,advancebook=Saveadvancebookdata,status="BOOKING"           )
+                    # inventory code
+                    # Convert date strings to date objects
+                    checkindate = str(bookingdate)
+                    checkoutdate = str(bookenddate)
+                    checkindate = datetime.strptime(checkindate, '%Y-%m-%d').date()
+                    checkoutdate = (datetime.strptime(checkoutdate, '%Y-%m-%d').date() - timedelta(days=1))
+
+                    # Generate the list of all dates between check-in and check-out (inclusive)
+                    all_dates = [checkindate + timedelta(days=x) for x in range((checkoutdate - checkindate).days + 1)]
+
+                    # Query the RoomsInventory model to check if records exist for all those dates
+                    existing_inventory = RoomsInventory.objects.filter(vendor=user,room_category_id=roomtype, date__in=all_dates)
+
+                    # Get the list of dates that already exist in the inventory
+                    existing_dates = set(existing_inventory.values_list('date', flat=True))
+
+                    # Identify the missing dates by comparing all_dates with existing_dates
+                    missing_dates = [date for date in all_dates if date not in existing_dates]
+
+                    # If there are missing dates, create new entries for those dates in the RoomsInventory model
+                    roomcount = Rooms.objects.filter(vendor=user,room_type_id=roomtype).exclude(checkin=6).count()
+                    print(roomcount,'total room')
+                    
+                    for inventory in existing_inventory:
+                        if inventory.total_availibility > 0:  # Ensure there's at least 1 room available
+                            inventory.total_availibility -= 1
+                            inventory.booked_rooms += 1
+                            inventory.save()
+                    
+                    catdatas = RoomsCategory.objects.get(vendor=user,id=roomtype)
+                    totalrooms = Rooms.objects.filter(vendor=user,room_type_id=roomtype).exclude(checkin=6).count()
+                    occupancccy = (1 *100 //totalrooms)
+                    if missing_dates:
+                        for missing_date in missing_dates:
+                        
+                                RoomsInventory.objects.create(
+                                    vendor=user,
+                                    date=missing_date,
+                                    room_category_id=roomtype,  # Use the appropriate `roomtype` or other identifier here
+                                    total_availibility=roomcount-1,       # Set according to your logic
+                                    booked_rooms=1,    
+                                    occupancy=occupancccy,
+                                    price=catdatas.catprice
+                                                            # Set according to your logic
+                                )
+                        print(f"Missing dates have been created for: {missing_dates}")
+                    else:
+                        print("All dates already exist in the inventory.")
+
+                    # api calling backend automatically
+                                # Start the long-running task in a separate thread
+            if VendorCM.objects.filter(vendor=user):
+                        start_date = str(checkindate)
+                        end_date = str(checkoutdate)
+                        thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
+                        thread.start()
+                        # for dynamic pricing
+                        if  VendorCM.objects.filter(vendor=user,dynamic_price_active=True):
+                            thread = threading.Thread(target=rate_hit_channalmanager, args=(user.id, start_date, end_date))
+                            thread.start()
+                        else:
+                            pass
+            else:
+                        pass
+            if TravelAgency.objects.filter(vendor=user,name=channal.channalname).exists():
+                traveldata = TravelAgency.objects.filter(vendor=user,name=channal.channalname).first()
+                curtdate = datetime.now().date()
+                if traveldata.commission_rate > 0:
+                    agencydata = TravelAgency.objects.get(vendor=user,id=traveldata.id)
+                    if agencydata.commission_rate >0:
+                        commision = sellingprices*agencydata.commission_rate//100
+                        Travelagencyhandling.objects.create(vendor=user,agency=agencydata,bookingdata=Saveadvancebookdata,
+                                                date=curtdate,commsion=commision)
+                    else:
+                        pass
+            SaveAdvanceBookGuestData.objects.filter(id=Saveadvancebookdata.id).update(amount_before_tax=sellingprices,
+                                tax=float(totaltax),Payment_types=paymenttypes)
             if Saveadvancebookdata:
                 usermsglimit = Messgesinfo.objects.get(vendor=user)
                 if channal.channalname== "self" :
@@ -1781,8 +2250,8 @@ def addadvancebooking(request):
             return redirect('advanceroombookpage')
         else:
             return redirect('loginpage')
-    except Exception as e:
-        return render(request, '404.html', {'error_message': str(e)}, status=500)
+    # except Exception as e:
+    #     return render(request, '404.html', {'error_message': str(e)}, status=500)
     
 
 
@@ -1796,7 +2265,7 @@ def todaybookingpage(request):
             changeddate = today - timedelta(days=1)
             roomdata = RoomBookAdvance.objects.filter(vendor=user,bookingdate=today,bookingstatus=True).all()
             # advancebookdata = RoomBookAdvance.objects.filter(vendor=user,bookingdate=today)
-            advancebookcheckoutdata = RoomBookAdvance.objects.filter(vendor=user,checkoutdate=checkoutdate)
+            advancebookcheckoutdata = RoomBookAdvance.objects.filter(vendor=user,checkoutdate=checkoutdate).exclude(vendor=user,saveguestdata__action='cancel')
             
             print(changeddate)
             for i in advancebookcheckoutdata:
@@ -1809,7 +2278,7 @@ def todaybookingpage(request):
                         Rooms.objects.filter(vendor=user,id=i.roomno.id).update(checkin=0) 
                 else:
                     pass
-            allbookdata = RoomBookAdvance.objects.filter(vendor=user,bookingdate__lte=today, checkoutdate__gt=today,checkinstatus=False)
+            allbookdata = RoomBookAdvance.objects.filter(vendor=user,bookingdate__lte=today, checkoutdate__gt=today,checkinstatus=False).exclude(vendor=user,saveguestdata__action='cancel')
             print(allbookdata)
             return render(request,'todayarrivalsrom.html',{'active_page':'todaybookingpage','roomdata':roomdata,'advancebookdata':allbookdata})
         else:
@@ -1856,12 +2325,16 @@ def chekinonebyoneguestdata(request):
             phone = request.POST.get('phone')
             address = request.POST.get('address')
             roombookingdata = RoomBookAdvance.objects.get(vendor=user,id=roombookadvanceiddata)
-            if roombookingdata and Gueststay.objects.filter(vendor=user,guestphome=roombookingdata.bookingguestphone,checkindate__date=roombookingdata.bookingdate,checkoutdate__date=roombookingdata.checkoutdate).exists():
-                guestdata = Gueststay.objects.filter(vendor=user,guestphome=roombookingdata.bookingguestphone,checkindate__date=roombookingdata.bookingdate,checkoutdate__date=roombookingdata.checkoutdate).last()
+            if roombookingdata and Gueststay.objects.filter(vendor=user,saveguestid=roombookingdata.saveguestdata.id).exists():
+                guestdata = Gueststay.objects.filter(vendor=user,saveguestid=roombookingdata.saveguestdata.id).last()
+                MoreGuestData.objects.create(vendor=user,mainguest=guestdata,another_guest_name=name,another_guest_phone=phone,another_guest_address=address)
             RoomBookAdvance.objects.filter(vendor=user,id=roombookadvanceiddata).update(checkinstatus=True)
-            MoreGuestData.objects.create(vendor=user,mainguest=guestdata,another_guest_name=name,another_guest_phone=phone,another_guest_address=address)
+            
             print(roombookingdata.roomno.id)
             Rooms.objects.filter(vendor=user,id=roombookingdata.roomno.id).update(checkin=1)
+            ctime = datetime.now().time()
+            Booking.objects.filter(vendor=user,advancebook_id=roombookingdata.saveguestdata.id,room_id=roombookingdata.roomno.id).update(status="CHECK IN",check_in_time=ctime)
+                
             return  redirect('todaybookingpage')
         else:
             return redirect('loginpage')
@@ -1914,7 +2387,19 @@ def advanceroomhistory(request):
             except EmptyPage: 
                 advanceroomdata = paginator.page(paginator.num_pages) 
 
-            return render(request,'advancebookinghistory.html',{'filtered_orders':filtered_orders,'advanceroomdata':advanceroomdata,'active_page': 'advancebookhistory'})
+            now = timezone.now()
+        
+            # Determine the first and last day of the current month
+            first_day_of_month = now.replace(day=1)
+            last_day_of_month = now.replace(day=1, month=now.month + 1) - timezone.timedelta(days=1)
+            
+            monthbookdata  = SaveAdvanceBookGuestData.objects.filter(
+                vendor=user,
+                bookingdate__range=(first_day_of_month, last_day_of_month)
+                    ).order_by('bookingdate')
+
+            return render(request,'advancebookinghistory.html',{'filtered_orders':filtered_orders,'advanceroomdata':advanceroomdata,'active_page': 'advancebookhistory','monthbookdata':monthbookdata
+                                                            ,'first_day_of_month':first_day_of_month,'last_day_of_month':last_day_of_month})
         else:
             return redirect('loginpage')
     except Exception as e:
@@ -1947,19 +2432,45 @@ def advancebookingdelete(request,id):
             if roomdata: 
                 for data in roomdata:
                     Rooms.objects.filter(vendor=user,id=data.roomno.id).update(checkin=0)
-                # roomid = roomdata.roomno.id
-                SaveAdvanceBookGuestData.objects.filter(vendor=user,id=saveguestid).delete()
+                    checkindate = data.bookingdate
+                    checkoutdate = data.checkoutdate
+                    while checkindate < checkoutdate:
+                        roomscat = Rooms.objects.get(vendor=user,id=data.roomno.id)
+                        invtdata = RoomsInventory.objects.get(vendor=user,date=checkindate,room_category=roomscat.room_type)
+                        print(checkindate)
+                        invtavaible = invtdata.total_availibility + 1
+                        invtabook = invtdata.booked_rooms - 1
+                        total_rooms = Rooms.objects.filter(vendor=user, room_type=roomscat.room_type).exclude(checkin=6).count()
+                        occupancy = invtabook * 100//total_rooms
+                                                                
+
+                        RoomsInventory.objects.filter(vendor=user,date=checkindate,room_category=roomscat.room_type).update(booked_rooms=invtabook,
+                                    total_availibility=invtavaible,occupancy=occupancy)
+            
+                        checkindate += timedelta(days=1)
+
+                if VendorCM.objects.filter(vendor=user):
+                    start_date = str(data.bookingdate)
+                    end_date = str(data.checkoutdate)
+                    thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
+                    thread.start()
+
+                SaveAdvanceBookGuestData.objects.filter(vendor=user,id=saveguestid).update(action='cancel')
+                Booking.objects.filter(vendor=user,advancebook_id=saveguestid).delete()
+                
+                # SaveAdvanceBookGuestData.objects.filter(vendor=user,id=saveguestid).delete()
                 # roomchekinstatus = Rooms.objects.filter(vendor=user,id=roomid,checkin__range=[4,5]).exists()
                 # if roomchekinstatus is True:
                 #     Rooms.objects.filter(vendor=user,id=roomid).update(checkin=0)
                 # RoomBookAdvance.objects.filter(vendor=user,id=id).delete()
                 # Room_history.objects.filter(vendor=user,room_no=roomid).delete()
                 # advanceroomdata = RoomBookAdvance.objects.filter(vendor=user).all()
-                messages.success(request,'booking delete succesfully')
+                messages.success(request,'booking Cancelled succesfully')
             else:
                 messages.error(request,'Guest Is Stayed If You Want To Delete So cancel the folio room.')
-            advanceroomdata = SaveAdvanceBookGuestData.objects.filter(vendor=user).all()
-            return render(request,'advancebookinghistory.html',{'advanceroomdata':advanceroomdata,'active_page': 'advancebookhistory'})
+            # advanceroomdata = SaveAdvanceBookGuestData.objects.filter(vendor=user).all()
+            # return render(request,'advancebookinghistory.html',{'advanceroomdata':advanceroomdata,'active_page': 'advancebookhistory'})
+            return redirect('advanceroomhistory')
         else:
             return redirect('loginpage')
     except Exception as e:
@@ -1985,9 +2496,10 @@ def addprofile(request):
                 checkouttime = request.POST.get('checkouttime')
                 logoimg = request.FILES['logoimg']
                 gstnumber = request.POST.get('gstnumber')
+                termscondition = request.POST.get('termscondition')
                 HotelProfile.objects.create(vendor=user,name=hotelame,email=email,contact=phoneNumber,address=address,
                         zipcode=ziCode,gstin= gstnumber, profile_image=logoimg,counrty=country,
-                        checkintimes=checkintime,checkouttimes=checkouttime)
+                        checkintimes=checkintime,checkouttimes=checkouttime,termscondition=termscondition)
                 profiledata =  HotelProfile.objects.filter(vendor=user)
                 return render(request,'profile.html',{'profiledata':profiledata})
         else:
@@ -2012,7 +2524,7 @@ def updateprofile(request):
             gstnumber = request.POST.get('gstnumber')
             checkintime = request.POST.get('checkintime')
             checkouttime = request.POST.get('checkouttime')
-
+            termscondition = request.POST.get('termscondition')
             try:
                 profile = HotelProfile.objects.get(vendor=user)
                 profile.name = hotelame
@@ -2024,6 +2536,7 @@ def updateprofile(request):
                 profile.gstin = gstnumber
                 profile.checkintimes = checkintime
                 profile.checkouttimes = checkouttime
+                profile.termscondition = termscondition
                 print(country)
                 if logoimg:
                     profile.profile_image = logoimg  # Update the image only if a new one is provided
@@ -2255,7 +2768,7 @@ def addpaymentfolio(request):
                 print("full done",amount,igta)
                 messages.success(request,"Payment Added!")
                 InvoicesPayment.objects.create(vendor=user,invoice_id=invoiceid,payment_amount=amount,payment_date=today,
-                                payment_mode=paymentmode,transaction_id=paymntdetails,descriptions=comment)
+                                payment_mode=paymentmode,transaction_id=paymntdetails,descriptions=comment,advancebook=None)
             elif amount > ida:
                 pass
                 messages.error(request,"amount graterthen to billing amount!")
@@ -2266,7 +2779,7 @@ def addpaymentfolio(request):
                 print("aadha amount",amount,igta,acceptamt)
                 messages.success(request,"Payment Added!")
                 InvoicesPayment.objects.create(vendor=user,invoice_id=invoiceid,payment_amount=amount,payment_date=today,
-                                            payment_mode=paymentmode,transaction_id=paymntdetails,descriptions=comment)
+                                            payment_mode=paymentmode,transaction_id=paymntdetails,descriptions=comment,advancebook=None)
             
             url = reverse('invoicepage', args=[userid])
             return redirect(url)
@@ -2294,7 +2807,7 @@ def addpaymentfoliocredit(request):
                 messages.success(request,"Payment Added!")
                 
                 InvoicesPayment.objects.create(vendor=user,invoice_id=invoiceid,payment_amount=amount,payment_date=today,
-                                payment_mode=paymentmode,transaction_id=paymntdetails,descriptions=comment)
+                                payment_mode=paymentmode,transaction_id=paymntdetails,descriptions=comment,advancebook=None)
             elif amount > ida:
                 pass
                 messages.error(request,"amount graterthen to billing amount!")
@@ -2307,8 +2820,12 @@ def addpaymentfoliocredit(request):
                 
                 messages.success(request,"Payment Added!")
                 InvoicesPayment.objects.create(vendor=user,invoice_id=invoiceid,payment_amount=amount,payment_date=today,
-                                            payment_mode=paymentmode,transaction_id=paymntdetails,descriptions=comment)
-                if dueamt==0:
+                                            payment_mode=paymentmode,transaction_id=paymntdetails,descriptions=comment,advancebook=None)
+            print(ida,"due amt")
+            invoicedatas = Invoice.objects.get(vendor=user,id=invoiceid)
+            duesamts = int(invoicedatas.Due_amount)
+            if duesamts==0:
+                    
                     invccurrentdate = datetime.now().date()
 
                     # Fetch the maximum invoice number for today for the given user
@@ -2339,13 +2856,15 @@ def addpaymentfoliocredit(request):
                         invoice_number = f'INV-{invccurrentdate}-{next_invoice_number}'
 
                     
-                    Invoice.objects.filter(vendor=user,id=invoiceid).update(invoice_number=invoice_number,invoice_status=True,modeofpayment="pms")
+                    
+                    Invoice.objects.filter(vendor=user,id=invoiceid).update(invoice_number=invoice_number,invoice_status=True,modeofpayment="pms",
+                                            invoice_date=invccurrentdate)
                     CustomerCredit.objects.get(vendor=user,id=creditid).delete()
                     messages.success(request,"Invoice Sattle done Succesfully!")
                         
                     
-                else:
-                    pass
+            else:
+                pass
             url = reverse('invoicepage', args=[userid])
             return redirect(url)
      
@@ -2365,3 +2884,203 @@ def openposforroom(request):
             return render(request,'pospage.html',{'tax':tax,'folio':folio,'iteams':iteams,'laundry':laundry,
                                                   'invoiceid':invoiceid,'roomno':roomno})
    
+
+
+from datetime import datetime, timedelta
+from django.shortcuts import render
+from .models import Booking, Rooms, RoomsCategory
+
+
+
+from django.shortcuts import render
+from datetime import datetime, timedelta
+from .models import Rooms, RoomsCategory, Booking
+
+def weekviews(request):
+    if request.user.is_authenticated:
+        user = request.user
+        today = datetime.today()
+
+        # Get the current index for the center 7 days from GET parameter, default to 0
+        current_index = int(request.GET.get('index', 0))
+
+        # Calculate the starting date based on the current index
+        start_date = today + timedelta(days=current_index)
+
+        # Generate the list of 7 dates based on the current start date
+        dates = [(start_date + timedelta(days=i)).strftime("%Y-%m-%d") for i in range(7)]
+
+        rooms = Rooms.objects.filter(vendor=user)
+        categories = RoomsCategory.objects.filter(vendor=user).all()
+        bookings = Booking.objects.filter(vendor=user)
+
+        # Prepare a list of booking data with calculated widths
+        booking_data = []
+        for booking in bookings:
+            # Calculate width percentages based on check-in and check-out times
+            check_in_hour = booking.check_in_time.hour if booking.check_in_time else 0
+            check_out_hour = booking.check_out_time.hour if booking.check_out_time else 24
+            segment = booking.segment
+            totalamount = booking.totalamount
+            totalroom = booking.totalroom
+            checkintime = booking.check_in_time
+            checkouttime = booking.check_out_time
+            status = booking.status
+            # Calculate the width as a percentage of the day (24 hours)
+            check_in_width = (24 - check_in_hour) * (100 / 24)  # Width from check-in to end of day
+            check_out_width = check_out_hour * (100 / 24)        # Width from start of day to check-out
+
+            booking_data.append({
+                'room': booking.room,
+                'guest_name': booking.guest_name,
+                'check_in_date': booking.check_in_date,
+                'check_out_date': booking.check_out_date,
+                'check_in_hour': check_in_hour,
+                'check_out_hour': check_out_hour,
+                'check_in_width': check_in_width,
+                'check_out_width': check_out_width,
+                'segment':segment,
+                'totalamount':totalamount,
+                'totalroom':totalroom,
+                'checkintime':checkintime,
+                'checkouttime':checkouttime,
+                'status':status,
+                
+            })
+
+        return render(request, 'weekviewpage.html', {
+            'dates': dates,
+            'rooms': rooms,
+            'categories': categories,
+            'bookings': booking_data,  # Pass calculated booking data to the template
+            'current_index': current_index,
+            'active_page': 'weekviews'
+        })
+
+def cleanroombtnajax(request):
+    if request.method == "POST":
+        # Room instance ko fetch karte waqt vendor data ko bhi load karenge
+        room_id = int(request.POST.get('roomno'))
+        data = Rooms.objects.select_related('vendor').get(id=room_id)
+
+        # Room status ko toggle karte hain
+        new_status = not data.is_clean  # This will toggle the boolean value
+        data.is_clean = new_status  # Update the is_clean field
+        data.save(update_fields=['is_clean'])  # Sirf is_clean field ko save karein
+
+        # User id ko URL mein pass karte hain
+        user_id = data.vendor.id
+        url = reverse('roomclean', args=[user_id])
+        return redirect(url)
+
+
+
+
+
+
+from django.http import JsonResponse
+from django.db.models import Sum
+def changeindexyear(request):
+    try:
+        if request.user.is_authenticated:
+            user = request.user
+
+            # Get the selected year from the request
+            selected_year = request.GET.get('year')
+            if not selected_year:
+                selected_year = timezone.now().year  # Default to current year if no year is provided
+
+            try:
+                selected_year = int(selected_year)
+            except ValueError:
+                return render(request, '404.html', {'error_message': 'Invalid year format'}, status=400)
+
+            # Fetch data for the selected year
+            subtotalsale = Invoice.objects.filter(vendor=user, invoice_date__year=selected_year).aggregate(total_sales=Sum('grand_total_amount'))['total_sales'] or 0
+            totaltax = Invoice.objects.filter(vendor=user, invoice_date__year=selected_year).aggregate(total_sales=Sum('gst_amount'))['total_sales'] or 0
+            subtotalsale = int(subtotalsale)
+            totaltax = int(totaltax * 2)
+            totalsalaryexpance = SalaryManagement.objects.filter(vendor=user).aggregate(total_sales=Sum('basic_salary'))['total_sales'] or 0
+            totalsalaryexpance = int(totalsalaryexpance)
+            totaltaxandsalary = totalsalaryexpance + totaltax
+            totalsalaryexcludedeductions = subtotalsale - totaltaxandsalary
+            subtotalsalereal = Invoice.objects.filter(vendor=user, invoice_date__year=selected_year).aggregate(total_sales=Sum('subtotal_amount'))['total_sales'] or 0
+
+            # Fetch highly booked room
+            most_booked_room = Gueststay.objects.filter(vendor=user, checkindate__year=selected_year).values('roomno').annotate(bookings_count=Count('roomno')).order_by('-bookings_count').values_list('roomno', flat=True).first()
+
+            # Fetch monthly sales data for the selected year
+            monthly_data = Invoice.objects.filter(vendor=user, invoice_date__year=selected_year) \
+                                           .annotate(month=ExtractMonth('invoice_date')) \
+                                           .values('month') \
+                                           .annotate(total_sales=Sum('grand_total_amount')) \
+                                           .order_by('month')
+
+            # Prepare data for Chart.js
+            labels = []
+            data = []
+            sales_data = {month: 0 for month in range(1, 13)}
+
+            for entry in monthly_data:
+                month = entry['month']
+                total_sales = float(entry['total_sales'])
+                sales_data[month] = total_sales
+
+            for month, total_sales in sorted(sales_data.items()):
+                labels.append(datetime(2024, month, 1).strftime('%b'))
+                data.append(total_sales)
+
+            # Calculate growth and sales percentage
+            growth = sum(data) / 12 if data else 0
+            total_sales_all_time = Invoice.objects.filter(vendor=user).aggregate(total_sales=Sum('grand_total_amount'))['total_sales'] or 0
+            total_sales_last_7_days = Invoice.objects.filter(vendor=user, invoice_date__gte=datetime.now() - timedelta(days=7)).aggregate(total_sales=Sum('grand_total_amount'))['total_sales'] or 0
+
+            sales_percent = (100 * total_sales_last_7_days / total_sales_all_time) if total_sales_all_time > 0 else 0
+            sales_percent = int(sales_percent)
+
+            labels_json = json.dumps(labels)
+            data_json = json.dumps(data)
+            growth_json = json.dumps(sales_percent)
+
+            # Weekly data calculation
+            today = datetime.now().date()
+            last_sunday = today - timedelta(days=today.weekday() + 1)
+            next_saturday = last_sunday + timedelta(days=6)
+
+            invoices = Invoice.objects.filter(vendor=user, invoice_date__year=selected_year, invoice_date__range=[last_sunday, next_saturday])
+            weekly_data = [0] * 7
+
+            for invoice in invoices:
+                day_index = (invoice.invoice_date - last_sunday).days
+                weekly_data[day_index] += float(invoice.grand_total_amount)
+
+            weeklys_data = json.dumps({
+                'today': today.isoformat(),
+                'last_sunday': last_sunday.isoformat(),
+                'next_saturday': next_saturday.isoformat(),
+                'weekly_data': weekly_data
+            }, cls=DjangoJSONEncoder)
+             # Filter the Supplier model based on the year and sattle status
+            total_purches_settled = Supplier.objects.filter(
+                vendor=user,
+                sattle=True,
+                invoicedate__year=selected_year
+            ).aggregate(total_sales=Sum('grand_total_amount'))['total_sales'] or 0
+            # Return the updated data to the index page
+            return render(request, 'index.html', {
+                'subtotalsale': subtotalsale,
+                'totaltax': totaltax,
+                'totalsalaryexpance': totalsalaryexpance,
+                'totalsalaryexcludedeductions': totalsalaryexcludedeductions,
+                'most_booked_room': most_booked_room,
+                'labels_json': labels_json,
+                'data_json': data_json,
+                'growth_json': growth_json,
+                'weeklys_data': weeklys_data,
+                'current_year': selected_year,
+                'total_purches_settled':total_purches_settled,
+            })
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)

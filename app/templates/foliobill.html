@@ -223,10 +223,12 @@
                     {%for data in invoice_data%}
                     <input type="hidden" name="invcid" value="{{data.id}}" style="display:none"/>
                     <input type="hidden" name="roomno" value="{{data.room_no}}" style="display:none"/>
-                  <button class="dropdown-item btn" type="submit" href=""><i class='bx bx-sitemap mb-1'></i> Add Service</button>
+                  <button class="dropdown-item btn" type="submit" href=""><i class='bx bx-sitemap'></i> Add Service</button>
                   
                   </form>
-                  <a class="btn dropdown-item " href="{% url 'guestregform' id=data.customer.id %}"><i class='bx bx-id-card mb-1'></i>Regstratrion Form</a>
+                  <a class="btn dropdown-item " href="{% url 'guestregform' id=data.customer.id %}"><i class='bx bx-id-card mb-1'></i> Regstratrion Form</a>
+                  
+                  <a class="btn dropdown-item " href="{% url 'changeroompage' id=data.id %}"><i class='bx bx-exclude'></i> Change Room</a>
                 
                   {%endfor%}</div>
               </div>
@@ -283,7 +285,7 @@
                                 <th>HSN/SAC</th>
                                 <th>Price</th>
                                 <th>Qty/Day</th>
-                                <th>Total
+                                <th>Total(incl/tax,discount)
                                 </th>
                                 <th>Action</th>
                             </tr>

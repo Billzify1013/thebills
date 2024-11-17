@@ -1,0 +1,315 @@
+{% load static %}
+<html
+  lang="en"
+  class="light-style layout-menu-fixed"
+  dir="ltr"
+  data-theme="theme-default"
+  data-assets-path="{% static 'undercss/assets/'%}"
+  data-template="vertical-menu-template-free"
+>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+
+    <title>BILLZIFY</title>
+
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'undercss/assets/img/favicon/1.png'%}" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icons. Uncomment required icon fonts -->
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/fonts/boxicons.css'%}" />
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/css/core.css'%}" class="template-customizer-core-css" />
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/css/theme-default.css'%}" class="template-customizer-theme-css" />
+    <link rel="stylesheet" href="{% static 'undercss/assets/css/demo.css'%}" />
+
+    <!-- Vendors CSS -->
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css'%}" />
+
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/libs/apex-charts/apex-charts.css'%}" />
+
+    {% comment %} <link rel="stylesheet" href="{% static 'undercss/assets/vendor/libs/spinkit/spinkit.css'%}" /> {% endcomment %}
+
+    <!-- Page CSS -->
+
+    <!-- Helpers -->
+    <script src="{% static 'undercss/assets/vendor/js/helpers.js'%}"></script>
+
+    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+    <script src="{% static 'undercss/assets/js/config.js'%}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  </head>
+
+  <style>
+    #dd1::-webkit-scrollbar {
+      width: 2px;
+    }
+   #dd1::-webkit-scrollbar-track {
+      background-color: none;
+    }
+    #dd1::-webkit-scrollbar-thumb {
+      background-color:#696cff;
+      border-radius:10px;
+    }
+  </style>
+
+  
+
+  <body>
+
+    
+    
+     
+  
+    
+    
+    <div class="content-wrapper">
+
+        <div class="container-xxl flex-grow-1 container-p-y">
+
+{% comment %} {{agencydata}}
+{{current_month}}
+{{current_year}}
+{{bookingdata}} {% endcomment %}
+
+
+
+<div class="row m-4 p-4 " style="border:2px solid lightgray;border-radius:8px">
+
+
+    <div class="col-7 ">
+      <div id="summary">
+        <p>Total Booking Count: <b><span id="totalCount">0</span></b></p>
+        <p>Total Amount: <b><span id="totalAmount">0</span></b></p>
+        <p>Total Tax: <b><span id="totalTax">0</span></b></p>
+        <p>Total Commission: <b><span id="totalCommission">0</span></b></p>
+    </div>
+
+    <!-- Filter Section -->
+    <div id="filterSection" class="col-3">
+        <label for="actionFilter">Filter by Action:</label>
+        <select id="actionFilter" class="select2 form-select">
+            <option value="book" selected>Book</option>
+            <option value="cancel">Cancel</option>
+        </select>
+    </div>
+
+</div>
+
+
+    <div class="col-3">
+      
+        <label id="basic-icon-default-company2" class=""
+              >Partner: {{agencydata}}<br>
+              Month: {{current_month}}<br>
+              Year: {{current_year}}</label><br>
+
+              <a href=""  data-bs-toggle="modal"  data-bs-target="#backDropModalsearchdate" class="btn btn-outline-primary mt-5" style=>Change Month/Year</a>
+  
+          
+       
+  </div>
+</div>
+
+ 
+ 
+</div></div>
+
+{% if bookingdata %}
+<div class="container mb-5">
+    <div class="card">
+        <h5 class="card-header">Invoices Month: {{ current_month }} {{ current_year }}</h5>
+        <div class="table-responsive text-nowrap">
+            <table id="guestHistoryTable" class="table">
+                <thead class="table-light">
+                    <tr>
+                        <th>Guest</th>
+                        <th>CheckIn</th>
+                        <th>Total ₹</th>
+                        <th>Tax ₹</th>
+                        <th>Commission ₹</th>
+                        <th>Booking Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="table-border-bottom-0">
+                    {% for data in bookingdata %}
+                    <tr class="booking-row" data-action="{{ data.action }}">
+                        <td>
+                            <strong>{{ data.bookingguest }}</strong><br>
+                            <small><i class="bx bxs-phone-call"></i> {{ data.bookingguestphone }}</small><br>
+                        </td>
+                        <td>{{ data.bookingdate }}</td>
+                        <td class="subtotal">{{ data.amount_before_tax }}</td>
+                        <td class="tax">{{ data.tax }}</td>
+                        {% for agency in data.travelagencyhandling_set.all %}
+                        <td class="commission">{{ agency.commsion }}</td>
+                        <td>{{ agency.date }}</td>
+                        {% endfor %}
+                        <td class="action">{{ data.action }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+
+  </div></div><!-- JavaScript for Filtering -->
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+      const rows = document.querySelectorAll('#guestHistoryTable tbody tr');
+      const actionFilter = document.getElementById('actionFilter');
+  
+      // Function to calculate summary and filter rows
+      function calculateSummary(filterAction) {
+          let totalCount = 0;
+          let totalAmount = 0;
+          let totalTax = 0;
+          let totalCommission = 0;
+  
+          // Iterate through each row and apply filter
+          rows.forEach(row => {
+              const action = row.getAttribute('data-action'); // Get action from data attribute
+  
+              // Check if the row matches the selected action
+              if (filterAction === 'All' || action === filterAction) {
+                  row.style.display = ''; // Show row
+                  totalCount++;
+  
+                  // Calculate Total Amount
+                  const amountElement = row.querySelector('.subtotal');
+                  const amount = parseFloat(amountElement ? amountElement.textContent.trim() : 0);
+                  totalAmount += isNaN(amount) ? 0 : amount;
+  
+                  // Calculate Total Tax
+                  const taxElement = row.querySelector('.tax');
+                  const tax = parseFloat(taxElement ? taxElement.textContent.trim() : 0);
+                  totalTax += isNaN(tax) ? 0 : tax;
+  
+                  // Calculate Total Commission
+                  const commissionElement = row.querySelector('.commission');
+                  const commission = parseFloat(commissionElement ? commissionElement.textContent.trim() : 0);
+                  totalCommission += isNaN(commission) ? 0 : commission;
+              } else {
+                  row.style.display = 'none'; // Hide row
+              }
+          });
+  
+          // Update Summary Section
+          document.getElementById('totalCount').textContent = totalCount;
+          document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);
+          document.getElementById('totalTax').textContent = totalTax.toFixed(2);
+          document.getElementById('totalCommission').textContent = totalCommission.toFixed(2);
+      }
+  
+      // Initial Calculation for 'Book' Records
+      calculateSummary('book');
+  
+      // Event Listener for Filter Dropdown
+      actionFilter.addEventListener('change', function () {
+          const selectedAction = actionFilter.value;
+          calculateSummary(selectedAction);
+      });
+  });
+  </script>
+
+
+</div></div>
+
+<!-- build:js assets/vendor/js/core.js -->
+<script src="{% static 'undercss/assets/vendor/libs/jquery/jquery.js'%}"></script>
+<script src="{% static 'undercss/assets/vendor/libs/popper/popper.js'%}"></script>
+<script src="{% static 'undercss/assets/vendor/js/bootstrap.js'%}"></script>
+<script src="{% static 'undercss/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js'%}"></script>
+
+<script src="{% static 'undercss/assets/vendor/js/menu.js'%}"></script>
+<!-- endbuild -->
+
+<!-- Vendors JS -->
+<script src="{% static 'undercss/assets/vendor/libs/apex-charts/apexcharts.js'%}"></script>
+
+<!-- Main JS -->
+<script src="{% static 'undercss/assets/js/main.js'%}"></script>
+
+<!-- Page JS -->
+<script src="{% static 'undercss/assets/js/dashboards-analytics.js'%}"></script>
+
+<!-- Place this tag in your head or just before your close body tag. -->
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+</body>
+</html>
+
+
+
+
+
+  <!-- Modal datesearch model -->
+  <div class="modal fade" id="backDropModalsearchdate" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'searchmonthbookingagent'%}" method="POST" class="modal-content">
+            {% csrf_token %}
+        
+            <input type="hidden" value="{{agencydata.id}}"  name="agentid"/>
+            
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Search Month Via Invoice  </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Month</label>
+              <input
+                type="month"
+                name="monthname"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter RoomName"
+              />
+            </div>
+
+           
+          </div>
+         
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->

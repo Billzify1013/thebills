@@ -1,0 +1,516 @@
+from django.shortcuts import render, redirect,HttpResponse 
+from . models import *
+from django.contrib import messages
+from datetime import datetime, timedelta
+from django.db.models import Q
+from django.utils import timezone
+import threading
+from .newcode import *
+# Create your views here.
+from .dynamicrates import *
+from datetime import date
+from django.utils import timezone
+from django.conf import settings
+import urllib.parse
+from django.urls import reverse
+
+def travelagancy(request):
+        if request.user.is_authenticated:
+            user = request.user
+            agencydata = TravelAgency.objects.filter(vendor=user)
+            return render(request,'travelagancy.html',{'active_page': 'travelagancy','agencydata':agencydata})
+   
+
+def createtravelagancy(request):
+        if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            agencyname = request.POST.get('agencyname')
+            contactname = request.POST.get('contactname')
+            Phone = request.POST.get('Phone')
+            email = request.POST.get('email')
+            Commission = request.POST.get('Commission')
+
+            if TravelAgency.objects.filter(vendor=user,name=agencyname).exists():
+                
+                messages.error(request, 'Name already exists')
+            else:
+                TravelAgency.objects.create(
+                        vendor=user,
+                        name=agencyname,
+                        contact_person=contactname,
+                        phone_number=Phone,
+                        email=email,
+                        commission_rate=Commission
+
+                  )
+                if onlinechannls.objects.filter(vendor=user,channalname=agencyname).exists():
+                      pass
+                else:
+                    onlinechannls.objects.create(vendor=user,channalname=agencyname)
+                messages.success(request, 'Travel Partner added successfully')
+
+            return redirect('travelagancy')
+
+
+def deletetravelagency(request,id):
+    if request.user.is_authenticated:
+            user = request.user
+            
+            if TravelAgency.objects.filter(vendor=user,id=id).exists():
+                    TravelAgency.objects.filter(vendor=user,id=id).delete()
+                    messages.success(request, 'Travel Partner delete successfully')
+
+            else:
+                 messages.error(request, 'Travel Partner Not Found ') 
+
+
+            return redirect('travelagancy')
+
+
+def updatetravelagancy(request):
+    if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            ids = request.POST.get('ids')
+            contactname = request.POST.get('contactname')
+            Phone = request.POST.get('Phone')
+            email = request.POST.get('email')
+            Commission = request.POST.get('Commission')
+
+            if not TravelAgency.objects.filter(vendor=user,id=ids).exists():
+                
+                messages.error(request, 'Not Found')
+            else:
+                TravelAgency.objects.filter(
+                        vendor=user,
+                        id=ids).update(
+                        contact_person=contactname,
+                        phone_number=Phone,
+                        email=email,
+                        commission_rate=Commission
+
+                  )
+                messages.success(request, 'Travel Partner Update  successfully')
+
+            return redirect('travelagancy')
+
+
+
+
+def opentravelagencydata(request,id):
+    # if request.user.is_authenticated:
+    #     user = request.user
+        agencydata = TravelAgency.objects.get(id=id)
+        user = agencydata.vendor
+        now = timezone.now()
+        
+        # Determine the first and last day of the current month
+        first_day_of_month = now.replace(day=1)
+        last_day_of_month = now.replace(day=1, month=now.month + 1) - timezone.timedelta(days=1)
+        current_month = now.strftime("%B")  # e.g., "October"
+        current_year = now.year  # e.g., 2024
+        channelid= onlinechannls.objects.filter(vendor=user,channalname=agencydata.name).last()
+        # bookingdata = SaveAdvanceBookGuestData.objects.filter(vendor=user,channal=channelid,bookingdate__range=(first_day_of_month, last_day_of_month))
+        bookingdata = SaveAdvanceBookGuestData.objects.filter(vendor=user,channal=channelid,bookingdate__range=(first_day_of_month, last_day_of_month)).prefetch_related('travelagencyhandling_set')
+        return render(request,'agencydata.html',{'agencydata':agencydata,
+                                                 'current_month':current_month,
+                                                 'current_year':current_year,
+                                                 'bookingdata':bookingdata})
+# from datetime import datetime
+# def bookrooms(request, user_name, mids):
+#     try:
+#         user = user_name
+        
+#         # Fetch profile with select_related for ForeignKey optimization
+#         if HotelProfile.objects.filter(vendor__username=user).exists():
+#             profile = HotelProfile.objects.select_related('vendor').get(vendor__username=user)
+
+#             # Use prefetch_related for 'images', 'offers', 'service', etc., as they are ManyToMany or reverse ForeignKey relations
+#             rooms = RoomsCategory.objects.filter(vendor__username=user).prefetch_related('images')  
+#             offers = offerwebsitevendor.objects.filter(vendor__username=user).select_related('vendor')
+#             service = amainities.objects.filter(vendor__username=user).select_related('vendor')
+#             gallary = webgallary.objects.filter(vendor__username=user).select_related('vendor')
+#             about  = webreview.objects.filter(vendor__username=user).select_related('vendor')
+            
+#             # Optimizing profile data and images
+#             profiledata = HotelProfile.objects.filter(vendor__username=user).select_related('vendor')
+#             imagedata = HoelImage.objects.filter(vendor__username=user).select_related('vendor')
+            
+#             # Calculate today's date and tomorrow's date
+#             today = datetime.now().date()
+#             tommrow = today + timedelta(days=1)
+            
+#             return render(request, 'travelbookroom.html', {
+#                 'profile': profile,
+#                 'imagedata': imagedata,
+#                 'profiledata': profiledata,
+#                 'today': today,
+#                 'tommrow': tommrow,
+#                 'rooms': rooms,
+#                 'offers': offers,
+#                 'service': service,
+#                 'gallary': gallary,
+#                 'about': about,
+#             })
+#         else:
+#             return render(request, '404.html', {'error_message': "Profile Not Created!"}, status=300)  
+
+#     except Exception as e:
+#         return render(request, '404.html', {'error_message': str(e)}, status=500)  
+    
+
+def bookrooms(request, user_name, mids):
+    # try:  
+            user = User.objects.get(username=user_name)
+            # user = request.user
+            today = datetime.now().date()
+            tommrow = today + timedelta(days=1)
+            startdate = str(today)
+            enddate = str(tommrow)
+
+            bookingdate = datetime.strptime(startdate, '%Y-%m-%d').date()
+            checkoutdate = datetime.strptime(enddate, '%Y-%m-%d').date()
+            newbookdateminus = bookingdate + timedelta(days=1)
+
+            if checkoutdate == bookingdate:
+                messages.error(request, 'Same-Day Checkout Booking Are Not Allowed Here Book To Hourly Room Booking')
+                return redirect('advanceroombookpage')
+            else:
+
+                # Fetching guest stays with checkoutstatus=False within the specified date range
+                guestroomsdata = Gueststay.objects.filter(
+                    Q(vendor=user, checkoutstatus=False) &
+                    Q(checkindate__lte=checkoutdate) & 
+                    Q(checkoutdate__gte=newbookdateminus)
+                )
+
+                # Fetching booked rooms within the specified date range
+                bookedroomsdata = RoomBookAdvance.objects.filter(
+                    Q(vendor=user) &
+                    (Q(bookingdate__lte=checkoutdate) & Q(checkoutdate__gte=newbookdateminus))
+                ).exclude(vendor=user,saveguestdata__action='cancel')
+
+                # Collecting room numbers from guest stays
+                occupied_rooms = set(guest.roomno for guest in guestroomsdata)
+                
+                # Collecting room numbers from booked rooms, except those starting from enddate
+                booked_rooms = set(
+                    booking.roomno for booking in bookedroomsdata
+                    if booking.bookingdate != checkoutdate
+                )
+                
+                # Fetching all room data excluding rooms with checkin=6
+                roomdata = Rooms.objects.filter(vendor=user).exclude(checkin=6).order_by('room_name')
+
+                # Filtering available rooms
+                availableroomdata = [
+                    room for room in roomdata
+                    if room.room_name not in occupied_rooms and room not in booked_rooms
+                ]
+
+                channal = onlinechannls.objects.filter(vendor=user)
+                meal_plan = RatePlanforbooking.objects.filter(vendor=user)
+                lenoflist = len(availableroomdata)
+                emptymessage = "No Rooms Available On This Day!" if lenoflist == 0 else ""
+                hoteldata = HotelProfile.objects.get(vendor=user)
+                travelagency = TravelAgency.objects.filter(vendor=user,id=mids)
+                inventorydata = RoomsInventory.objects.none()
+                if VendorCM.objects.filter(vendor=user,dynamic_price_active=True):
+                    inventorydata = RoomsInventory.objects.filter(vendor=user,date__range=[today,tommrow],
+                                                             )
+
+                return render(request, 'travelbookroom.html', {
+                    'active_page': 'advanceroombookpage',
+                    'availableroomdata': availableroomdata,
+                    'emptymessage': emptymessage,
+                    'startdate': startdate,
+                    'enddate': enddate,
+                    'channal': channal,
+                    'bookedroomsdata': bookedroomsdata,
+                    'guestroomsdata': guestroomsdata,
+                    'meal_plan': meal_plan,
+                    'hoteldata':hoteldata,
+                    'travelagency':travelagency,
+                    'mids':mids,
+                    'user':user,
+                    'inventorydata':inventorydata
+                })
+      
+    # except Exception as e:
+    #     return render(request, '404.html', {'error_message': str(e)}, status=500)
+
+
+
+# bookingsearch
+
+# booking date search function
+def bookingdatetravel(request):
+    try:
+        if  request.method == "POST":
+            travelid = request.POST.get('travelid')
+            username = request.POST.get('user')
+            startdate = request.POST.get('startdate')
+            enddate = request.POST.get('enddate')
+            user = User.objects.get(username=username)
+            bookingdate = datetime.strptime(startdate, '%Y-%m-%d').date()
+            checkoutdate = datetime.strptime(enddate, '%Y-%m-%d').date()
+            newbookdateminus = bookingdate + timedelta(days=1)
+
+            if checkoutdate == bookingdate:
+                messages.error(request, 'Same-Day Checkout Booking Are Not Allowed Here Book To Hourly Room Booking')
+                return redirect('advanceroombookpage')
+            else:
+
+                # Fetching guest stays with checkoutstatus=False within the specified date range
+                guestroomsdata = Gueststay.objects.filter(
+                    Q(vendor=user, checkoutstatus=False) &
+                    Q(checkindate__lte=checkoutdate) & 
+                    Q(checkoutdate__gte=newbookdateminus)
+                )
+
+                # Fetching booked rooms within the specified date range
+                bookedroomsdata = RoomBookAdvance.objects.filter(
+                    Q(vendor=user) &
+                    (Q(bookingdate__lte=checkoutdate) & Q(checkoutdate__gte=newbookdateminus))
+                ).exclude(vendor=user,saveguestdata__action='cancel')
+
+                # Collecting room numbers from guest stays
+                occupied_rooms = set(guest.roomno for guest in guestroomsdata)
+                
+                # Collecting room numbers from booked rooms, except those starting from enddate
+                booked_rooms = set(
+                    booking.roomno for booking in bookedroomsdata
+                    if booking.bookingdate != checkoutdate
+                )
+                
+                # Fetching all room data excluding rooms with checkin=6
+                roomdata = Rooms.objects.filter(vendor=user).exclude(checkin=6).order_by('room_name')
+
+                # Filtering available rooms
+                availableroomdata = [
+                    room for room in roomdata
+                    if room.room_name not in occupied_rooms and room not in booked_rooms
+                ]
+
+                channal = onlinechannls.objects.filter(vendor=user)
+                meal_plan = RatePlanforbooking.objects.filter(vendor=user)
+                lenoflist = len(availableroomdata)
+                emptymessage = "No Rooms Available On This Day!" if lenoflist == 0 else ""
+                travelagency = TravelAgency.objects.filter(vendor=user,id=travelid)
+                hoteldata = HotelProfile.objects.get(vendor=user)
+                return render(request, 'travelbookroom.html', {
+                    'active_page': 'advanceroombookpage',
+                    'availableroomdata': availableroomdata,
+                    'emptymessage': emptymessage,
+                    'startdate': startdate,
+                    'enddate': enddate,
+                    'channal': channal,
+                    'bookedroomsdata': bookedroomsdata,
+                    'guestroomsdata': guestroomsdata,
+                    'meal_plan': meal_plan,
+                    'mids':travelid,
+                    'user':user,
+                    'travelagency':travelagency,
+                    'hoteldata':hoteldata
+                })
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+    
+
+
+
+def addadvancebookingfromtrvel(request):
+    # try:
+        if request.method=="POST":
+            travelid = request.POST.get('travelid')
+            username = request.POST.get('user')
+            user = User.objects.get(username=username)
+            bookingdate = request.POST.get('bookingdate')
+            guestname = request.POST.get('guestname')
+            totalstaydays = request.POST.get('totalstaydays')
+            phone = request.POST.get('phone',0)
+            channal = request.POST.get('channal')
+            bookenddate = request.POST.get('bookenddate')
+            totalamount = float(request.POST.get('totalamount'))
+            advanceamount = request.POST.get('advanceamount')
+            discountamount = float(request.POST.get('discountamount'))
+            reaminingamount = request.POST.get('reaminingamount',0)
+            mealplan = request.POST.get('mealplan')
+            guestcount = request.POST.get('guestcount')
+            paymentmode = request.POST.get('paymentmode')
+            serialized_array = request.POST['news']
+            traveldata = TravelAgency.objects.get(id=travelid)
+            travelname = traveldata.name
+            channal=onlinechannls.objects.filter(vendor=user,channalname=travelname).last()
+            my_array = json.loads(serialized_array)
+            noofrooms = len(my_array)
+            bookenddate = str(bookenddate)
+            # bookenddate = datetime.strptime(bookenddate, '%Y-%m-%d').date()
+            bookingdate = datetime.strptime(bookingdate, '%Y-%m-%d').date()
+            checkoutdate = datetime.strptime(bookenddate, '%Y-%m-%d').date()
+            checkoutdate -= timedelta(days=1)
+            # bookingdate -= timedelta(days=1)
+            print(bookingdate)
+            
+            # delta = timedelta(days=1)
+            # while bookingdate <= checkoutdate:
+            #         print(bookingdate,"working")
+            #         bookingdate += delta
+            current_date = datetime.now()
+            Saveadvancebookdata = SaveAdvanceBookGuestData.objects.create(vendor=user,bookingdate=bookingdate,noofrooms=noofrooms,bookingguest=guestname,
+                bookingguestphone=phone,staydays=totalstaydays,advance_amount=advanceamount,reamaining_amount=reaminingamount,discount=discountamount,
+                total_amount=totalamount,channal=channal,checkoutdate=bookenddate,email='',address_city='',state='',country='',totalguest=guestcount,
+                action='book',booking_id='',cm_booking_id='',segment=travelname,special_requests='',pah=True,amount_after_tax=totalamount,amount_before_tax=0.00,
+                  tax=0.00,currency="INR",checkin=current_date,Payment_types='postpaid'  )
+            paymenttypes = 'postpaid'
+            if int(advanceamount) > 0:
+                InvoicesPayment.objects.create(vendor=user,invoice=None,payment_amount=advanceamount,payment_date=current_date,
+                                                payment_mode=paymentmode,transaction_id="ADVANCE AMOUNT",descriptions='ADVANCE',advancebook=Saveadvancebookdata)
+                if int(advanceamount) < int(totalamount):
+                    paymenttypes = 'partially'
+                else:
+                    paymenttypes = 'prepaid'
+            else:
+                pass     
+            sellingprices = 0  
+            totaltax = 0  
+            for i in my_array:
+                    roomid = int(i['id'])
+                    roomsellprice = int(float(i['price']))
+                    roomselltax = int(float(i['tax']))
+
+                    totalsellprice = (roomsellprice * roomselltax //100) + roomsellprice
+                    sellingprices = sellingprices + roomsellprice
+                    totaltax = totaltax + (roomsellprice * roomselltax //100)
+                    print(roomsellprice)
+                    roomid = Rooms.objects.get(id=roomid)
+                    roomtype = roomid.room_type.id
+                    RoomBookAdvance.objects.create(vendor=user,saveguestdata=Saveadvancebookdata,bookingdate=bookingdate,roomno=roomid,
+                                                    bookingguest=guestname,bookingguestphone=phone
+                                                ,checkoutdate=bookenddate,bookingstatus=True,channal=channal,totalguest=guestcount,
+                                               rateplan_code=mealplan,guest_name='',adults=0,children=0,sell_rate=totalsellprice )
+                    noon_time_str = "12:00 PM"
+                    noon_time = datetime.strptime(noon_time_str, "%I:%M %p").time()
+                    Booking.objects.create(vendor=user,room=roomid,guest_name=guestname,check_in_date=bookingdate,check_out_date=bookenddate,
+                                check_in_time=noon_time,check_out_time=noon_time,segment=travelname,totalamount=totalamount,totalroom=noofrooms,
+                                gueststay=None,advancebook=Saveadvancebookdata,status="BOOKING"           )
+                    # inventory code
+                    # Convert date strings to date objects
+                    checkindate = str(bookingdate)
+                    checkoutdate = str(bookenddate)
+                    checkindate = datetime.strptime(checkindate, '%Y-%m-%d').date()
+                    checkoutdate = (datetime.strptime(checkoutdate, '%Y-%m-%d').date() - timedelta(days=1))
+
+                    # Generate the list of all dates between check-in and check-out (inclusive)
+                    all_dates = [checkindate + timedelta(days=x) for x in range((checkoutdate - checkindate).days + 1)]
+
+                    # Query the RoomsInventory model to check if records exist for all those dates
+                    existing_inventory = RoomsInventory.objects.filter(vendor=user,room_category_id=roomtype, date__in=all_dates)
+
+                    # Get the list of dates that already exist in the inventory
+                    existing_dates = set(existing_inventory.values_list('date', flat=True))
+
+                    # Identify the missing dates by comparing all_dates with existing_dates
+                    missing_dates = [date for date in all_dates if date not in existing_dates]
+
+                    # If there are missing dates, create new entries for those dates in the RoomsInventory model
+                    roomcount = Rooms.objects.filter(vendor=user,room_type_id=roomtype).exclude(checkin=6).count()
+                    print(roomcount,'total room')
+                    
+                    for inventory in existing_inventory:
+                        if inventory.total_availibility > 0:  # Ensure there's at least 1 room available
+                            inventory.total_availibility -= 1
+                            inventory.booked_rooms += 1
+                            inventory.save()
+                    
+                    catdatas = RoomsCategory.objects.get(vendor=user,id=roomtype)
+                    totalrooms = Rooms.objects.filter(vendor=user,room_type_id=roomtype).exclude(checkin=6).count()
+                    occupancccy = (1 *100 //totalrooms)
+                    if missing_dates:
+                        for missing_date in missing_dates:
+                        
+                                RoomsInventory.objects.create(
+                                    vendor=user,
+                                    date=missing_date,
+                                    room_category_id=roomtype,  # Use the appropriate `roomtype` or other identifier here
+                                    total_availibility=roomcount-1,       # Set according to your logic
+                                    booked_rooms=1,    
+                                    occupancy=occupancccy,
+                                    price=catdatas.catprice
+                                                            # Set according to your logic
+                                )
+                        print(f"Missing dates have been created for: {missing_dates}")
+                    else:
+                        print("All dates already exist in the inventory.")
+
+                    # api calling backend automatically
+                                # Start the long-running task in a separate thread
+            if VendorCM.objects.filter(vendor=user):
+                        start_date = str(checkindate)
+                        end_date = str(checkoutdate)
+                        thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
+                        thread.start()
+                        # for dynamic pricing
+                        if  VendorCM.objects.filter(vendor=user,dynamic_price_active=True):
+                            thread = threading.Thread(target=rate_hit_channalmanager, args=(user.id, start_date, end_date))
+                            thread.start()
+                        else:
+                            pass
+            else:
+                        pass
+            curtdate = datetime.now().date()
+            if traveldata.commission_rate > 0:
+                agencydata = TravelAgency.objects.get(vendor=user,id=travelid)
+                if agencydata.commission_rate >0:
+                    commision = sellingprices*agencydata.commission_rate//100
+                    Travelagencyhandling.objects.create(vendor=user,agency=agencydata,bookingdata=Saveadvancebookdata,
+                                             date=curtdate,commsion=commision)
+                else:
+                     pass
+            
+            SaveAdvanceBookGuestData.objects.filter(id=Saveadvancebookdata.id).update(amount_before_tax=sellingprices,
+                                                tax=float(totaltax),Payment_types=paymenttypes)
+            messages.success(request,"Booking Done")
+            user_name = user.username
+            mids=travelid
+            url = reverse('bookrooms', args=[user_name, mids])
+            return redirect(url)
+        else:
+            return redirect('loginpage')
+    # except Exception as e:
+    #     return render(request, '404.html', {'error_message': str(e)}, status=500)
+    
+
+from django.utils import timezone
+from calendar import monthrange,month_name
+def searchmonthbookingagent(request):
+    if request.method=="POST":
+        agentid = request.POST.get('agentid')
+        month_input = request.POST.get('monthname')
+        agencydata = TravelAgency.objects.get(id=agentid)
+        user = agencydata.vendor
+        # now = timezone.now()
+        # Parse the year and month from the input (YYYY-MM)
+        year, month = map(int, month_input.split('-'))
+
+        current_month = month_name[month]  
+        current_year = year
+
+        # Determine the first and last day of the chosen month
+        first_day_of_month = timezone.datetime(year, month, 1)
+        last_day_of_month = timezone.datetime(year, month, monthrange(year, month)[1])
+        
+        
+        # Determine the first and last day of the current month
+        # first_day_of_month = now.replace(day=1)
+        # last_day_of_month = now.replace(day=1, month=now.month + 1) - timezone.timedelta(days=1)
+        # current_month = now.strftime("%B")  # e.g., "October"
+        # current_year = now.year  # e.g., 2024
+        channelid= onlinechannls.objects.filter(vendor=user,channalname=agencydata.name).last()
+        # bookingdata = SaveAdvanceBookGuestData.objects.filter(vendor=user,channal=channelid,bookingdate__range=(first_day_of_month, last_day_of_month))
+        bookingdata = SaveAdvanceBookGuestData.objects.filter(vendor=user,channal=channelid,bookingdate__range=(first_day_of_month, last_day_of_month)).prefetch_related('travelagencyhandling_set')
+        return render(request,'agencydata.html',{'agencydata':agencydata,
+                                                 'current_month':current_month,
+                                                 'current_year':current_year,
+                                                 'bookingdata':bookingdata})

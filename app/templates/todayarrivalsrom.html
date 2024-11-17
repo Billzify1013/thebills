@@ -44,8 +44,25 @@
 {%endif%} 
   <h5>Today Arrivals/Today CheckIn Rooms</h5>
 
+  <div class="card p-4">
+    <h5 class="text">Search...</h5>
+    <form id="searchForm">
+      <div class="row mb-3">
+          <div class="col-sm-4">
+              <input type="text" id="guestName" class="form-control" placeholder="Search by Guest Name">
+          </div>
+          <div class="col-sm-4">
+              <input type="text" id="guestPhone" class="form-control" placeholder="Search by Phone Number">
+          </div>
+          <div class="col-sm-4">
+              <input type="text" id="channelName" class="form-control" placeholder="Search by Channel">
+          </div>
+      </div>
+    </form>
+  </div>
 
-            <div class="row">
+
+            {% comment %} <div class="row">
                 <div class="col-sm-12">
                     <div class="row">
                 {%for i in advancebookdata%}
@@ -58,9 +75,9 @@
                       <center>
                         <i class='bx bxs-store fs-center mb-2 text-danger' style="font-size:21px" ></i>
                         <h4 class="card-title   mt- text-center">{{i.roomno.room_name}}</h4>
-                        {% comment %} <span class="badge bg-label-primary me-1">{{i.bookingguest}}</span>
+                        <span class="badge bg-label-primary me-1">{{i.bookingguest}}</span>
                         <span class="badge bg-label-primary mt-1">{{i.bookingguestphone}}</span>
-                        <span class="badge bg-label-primary mt-1">{{i.channal.channalname}}</span> {% endcomment %}
+                        <span class="badge bg-label-primary mt-1">{{i.channal.channalname}}</span> 
                         <span>Guest Stay In This Rooms</span>
                       </center>
                            
@@ -109,7 +126,115 @@
                 {%endif%}
                  {%endfor%}
             </div>
-            </div>
+            </div> {% endcomment %}
+
+            
+              <div class="col-sm-12">
+                  <div class="row">
+                      
+          
+                      <!-- Advance Booking Data -->
+                      {% for i in advancebookdata %}
+                          {% if i.roomno.checkin == 1 or i.roomno.checkin == 2 %}
+                              <div class="col-2 booking-card"
+                                  data-guestname="{{ i.bookingguest }}"
+                                  data-phone="{{ i.bookingguestphone }}"
+                                  data-channel="{{ i.channal.channalname }}">
+                                     <div class="card mt-3">
+                                        <div class="dropdown">
+                                          <button
+                                            class="btn p-1 float-end"
+                                            type="button"
+                                            id="cardOpt3"
+                                            data-bs-toggle="dropdown"
+                                            aria-haspopup="true"
+                                            aria-expanded="false"
+                                          >
+                                            <i class="bx bx-dots-vertical-rounded"></i>
+                                          </button>
+                                          <div class="dropdown-menu  dropdown-menu-end" aria-labelledby="cardOpt3">
+                                            <a class="dropdown-item" href="{% url 'changeroombooking' id=i.id %}">Change Rooms</a>
+                                          </div>
+                                        </div>
+                                        <a href="#" title="guest stay in room please checkout after do booking checkin" style="text-decoration:none">
+                                  
+                                          <div class="card-body">
+                                              <center>
+                                                  <i class='bx bxs-store fs-center mb-2 text-danger' style="font-size:21px"></i>
+                                                  <h4 class="card-title mt- text-center">{{ i.roomno.room_name }}</h4>
+                                                  <span class="badge bg-label-primary me-1">{{ i.bookingguest }}</span>
+                                                  <span class="badge bg-label-primary mt-1">{{ i.bookingguestphone }}</span>
+                                                  <span class="badge bg-label-primary mt-1">{{ i.channal.channalname }}</span>
+                                                  <span>Guest Stay In This Rooms</span>
+                                              </center>
+                                          </div></a>
+                                      </div>
+                                  
+                              </div>
+                          {% elif i.partly_checkin == True %}
+                              <div class="col-2 booking-card"
+                                  data-guestname="{{ i.bookingguest }}"
+                                  data-phone="{{ i.bookingguestphone }}"
+                                  data-channel="{{ i.channal.channalname }}">
+                                  <a href="#" style="text-decoration:none" data-bs-toggle="modal"
+                                      data-bs-target="#basicModal" onclick="getroomnumberpopup({{ i.roomno.room_name }}, {{ i.id }})">
+                                      <div class="card mt-3">
+                                          <div class="card-body">
+                                              <center>
+                                                  <i class='bx bxs-store fs-center mb-2 text-primary' style="font-size:21px"></i>
+                                                  <h4 class="card-title mt- text-center">{{ i.roomno.room_name }}</h4>
+                                                  <span class="badge bg-label-primary me-1">{{ i.bookingguest }}</span>
+                                                  <span class="badge bg-label-primary mt-1">{{ i.bookingguestphone }}</span>
+                                                  <span class="badge bg-label-primary mt-1">{{ i.channal.channalname }}</span>
+                                              </center>
+                                          </div>
+                                      </div>
+                                  </a>
+                              </div>
+                          {% else %}
+                              <div class="col-2 booking-card"
+                                  data-guestname="{{ i.bookingguest }}"
+                                  data-phone="{{ i.bookingguestphone }}"
+                                  data-channel="{{ i.channal.channalname }}">
+                                  
+                                      <div class="card mt-3">
+                                        <div class="dropdown">
+                                          <button
+                                            class="btn p-1 float-end"
+                                            type="button"
+                                            id="cardOpt3"
+                                            data-bs-toggle="dropdown"
+                                            aria-haspopup="true"
+                                            aria-expanded="false"
+                                          >
+                                            <i class="bx bx-dots-vertical-rounded"></i>
+                                          </button>
+                                          <div class="dropdown-menu  dropdown-menu-end" aria-labelledby="cardOpt3">
+                                            <a class="dropdown-item" href="{% url 'changeroombooking' id=i.id %}">Change Rooms</a>
+                                          </div>
+                                        </div>
+                                        <a href="{% url 'openroomclickformtodayarriwalspage' id=i.id %}" style="text-decoration:none">
+                                  
+                                          <div class="card-body">
+                                              <center>
+                                                  <i class='bx bxs-store fs-center mb-2 text-success' style="font-size:21px"></i>
+                                                  <h4 class="card-title mt- text-center">{{ i.roomno.room_name }}</h4>
+                                                  <span class="badge bg-label-success me-1">{{ i.bookingguest }}</span>
+                                                  <span class="badge bg-label-success mt-1">{{ i.bookingguestphone }}</span>
+                                                  <span class="badge bg-label-success mt-1">{{ i.channal.channalname }}</span>
+                                              </center>
+                                          </div>
+                                        </a>
+                                      </div>
+                                  
+                              </div>
+                          {% endif %}
+                      {% endfor %}
+                  </div>
+              
+        
+
+
             <script type="text/javascript">
               function getroomnumberpopup(e ,v) {
                 var room_no = e
@@ -224,4 +349,47 @@
 
 
 
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+      // Get input fields
+      const guestNameInput = document.getElementById("guestName");
+      const guestPhoneInput = document.getElementById("guestPhone");
+      const channelNameInput = document.getElementById("channelName");
+  
+      // Get all the booking cards
+      const bookingCards = document.querySelectorAll(".booking-card");
+  
+      // Function to filter and display results
+      function filterBookings() {
+          const guestName = guestNameInput.value.toLowerCase();
+          const guestPhone = guestPhoneInput.value.toLowerCase();
+          const channelName = channelNameInput.value.toLowerCase();
+  
+          bookingCards.forEach(card => {
+              const guestname = card.getAttribute("data-guestname").toLowerCase();
+              const phone = card.getAttribute("data-phone").toLowerCase();
+              const channel = card.getAttribute("data-channel").toLowerCase();
+  
+              // Check if the card matches the filter
+              const matchesGuestName = guestname.includes(guestName);
+              const matchesPhone = phone.includes(guestPhone);
+              const matchesChannel = channel.includes(channelName);
+  
+              // Show or hide the card based on the filter
+              if (matchesGuestName && matchesPhone && matchesChannel) {
+                  card.style.display = "block";  // Show the card
+              } else {
+                  card.style.display = "none";   // Hide the card
+              }
+          });
+      }
+  
+      // Attach event listeners to the input fields
+      guestNameInput.addEventListener("input", filterBookings);
+      guestPhoneInput.addEventListener("input", filterBookings);
+      channelNameInput.addEventListener("input", filterBookings);
+  });
+  </script>
+  
 {%endblock%}

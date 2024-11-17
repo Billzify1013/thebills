@@ -86,7 +86,7 @@
         id="firstName"
         name="checkindate"
         value=""
-        
+        required
         
       />
     </div>
@@ -99,7 +99,7 @@
         id="firstName"
         name="checkoutdate"
         value="John"
-        
+        required
         
       />
     </div>
@@ -113,7 +113,7 @@
 </div></div></div>
 <div class="container" >
 
-  {%if advancersoomdata%}
+  {% comment %} {%if advancersoomdata%}
  <!-- Bootstrap Table with Header - Light -->
  <div class="card mt-4"  >
     <h5 class="card-header" >Searched Data</h5>
@@ -134,7 +134,7 @@
 
             {%for data in advancersoomdata%}
           <tr>
-            <td><i class="fab fa-angular fa-lg text-danger"></i> <strong>{{data.bookingguest}}</strong></td>
+            <td> <strong>{{data.bookingguest}}</strong></td>
             <td>{{data.bookingguestphone}}</td>
             <td>
               {{data.channal.channalname}}
@@ -178,9 +178,10 @@
   </div>
   <!-- Bootstrap Table with Header - Light -->
 
-{%endif%}</div>
+{%endif%}{% endcomment %}
+</div> 
 
-<div class="container">
+{% comment %} <div class="container">
   {%if filtered_orders%}
  <!-- Bootstrap Table with Header - Light -->
  <div class="card mt-4">
@@ -202,7 +203,7 @@
 
           {%for data in filtered_orders%}
         <tr>
-          <td><i class="fab fa-angular fa-lg text-danger "></i> <strong>{{data.bookingguest}}</strong></td>
+          <td> <strong>{{data.bookingguest}}</strong></td>
           <td>{{data.bookingguestphone}}</td>
           <td>
             {{data.channal.channalname}}
@@ -247,8 +248,11 @@
 </div>
 <!-- Bootstrap Table with Header - Light -->
  {%endif%}
-</div>
-{%if advanceroomdata%}
+</div> {% endcomment %}
+
+{% comment %} {%if advanceroomdata%}
+{%if monthbookdata%}
+
 <div class="container" >
  <!-- Bootstrap Table with Header - Light -->
  <div class="card mt-4">
@@ -262,15 +266,17 @@
             <th>Booking From</th>
             <th>Stay Dates</th>
             <th>Total Amount</th>
+            <th>Payments</th>
             <th>Status</th>
+            <th>Confirmatation</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody class="table-border-bottom-0">
 
-            {%for data in advanceroomdata%}
+            {%for data in monthbookdata%}
           <tr>
-            <td><i class="fab fa-angular fa-lg text-danger"></i> <strong>{{data.bookingguest}}</strong></td>
+            <td> <strong>{{data.bookingguest}}</strong></td>
             <td>{{data.bookingguestphone}}</td>
             <td>
               {{data.channal.channalname}}
@@ -278,11 +284,26 @@
               <td><span class="badge bg-label-primary me-1">{{data.bookingdate}}-{{data.checkoutdate}}</span></td>
         
             <td>{{data.total_amount}}</td>
+            <td>{%if data.Payment_types == 'prepaid' %}
+              <span class="badge bg-label-success text-center">{{data.Payment_types}}</span>
+              {% elif data.Payment_types == 'postpaid' %}
+              <span class="badge bg-label-warning text-center">{{data.Payment_types}}</span>
+              {%else%}
+              <span class="badge bg-label-info text-center">{{data.Payment_types}}</span>
+              {%endif%}
+            </td>
             <td>
               {%if data.checkinstatus is True %}
-              <span class="badge bg-label-success text-center">Done</span>
+              <span >Check-In</span>
               {%else%}
-              <span class="badge bg-label-warning text-center">Pending</span>
+              <span >Pending</span>
+              {%endif%}
+            </td>
+            <td>
+              {%if data.action == 'book' %}
+              <span class="badge bg-label-success text-center">Booked</span>
+              {%else%}
+              <span class="badge bg-label-danger text-center">Cancelled</span>
               {%endif%}
             </td>
             <td>
@@ -299,7 +320,7 @@
                       </button>
                       <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{% url 'advancebookingdetails' id=data.id %}"><i class="bx bx-edit-alt me-1"></i>Details</a></li>
-                        <li><a class="dropdown-item" href="{% url 'advancebookingdelete' id=data.id %}"><i class="bx bx-trash me-1"></i> Delete</a></li>
+                        <li><a class="dropdown-item" href="{% url 'advancebookingdelete' id=data.id %}"><i class="bx bx-trash me-1"></i> Cancel</a></li>
                         
                       </ul>
                     
@@ -346,16 +367,231 @@
       {% endif %}
   </ul>
   {% endif %}
-</nav>
+</nav> {% endcomment %}
+
+<div class="container">
+  <!-- Filters Section -->
+   <div class="card p-3 mt-3">
+  <div class="d-flex mb-3">
+    <!-- Channel Filter -->
+    <div class="me-3">
+      <label for="channelFilter">Filter by Channel:</label>
+      <select id="channelFilter" class="form-select">
+        <option value="">All Channels</option>
+      </select>
+    </div>
+
+    <!-- Payment Type Filter -->
+    <div class="me-3">
+      <label for="paymentFilter">Filter by Payment Type:</label>
+      <select id="paymentFilter" class="form-select">
+        <option value="">All Payment Types</option>
+      </select>
+    </div>
+
+    <!-- Booking Status Filter -->
+    <div>
+      <label for="statusFilter">Filter by Booking Status:</label>
+      <select id="statusFilter" class="form-select">
+        <option value="">All Status</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Summary Section -->
+  <div id="summaryDiv" class="mb-3">
+    <p><strong>Total Bookings:</strong> <span id="totalRows">0</span></p>
+    <p><strong>Total Amount:</strong> ₹<span id="totalAmount">0.00</span></p>
+    <p><b>Data From:</b> {{first_day_of_month}} <b>TO</b> {{last_day_of_month}}</p>
+  </div>
+</div>
+
+
+
+
+
+  <div class="card mt-4">
+    <h5 class="card-header">Advance Booking History</h5>
+    <div class="table-responsive text-nowrap">
+    <table class="table table-striped">
+      <thead class="table-light">
+        <tr>
+          <th>Guest Name</th>
+          <th>Phone</th>
+          <th>Channel</th>
+          <th>Stay Dates</th>
+          <th>Total Amount</th>
+          <th>Payment Type</th>
+          <th>Status</th>
+          <th>Confirmation</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="bookingTableBody">
+        {% for data in monthbookdata %}
+        <tr data-channel="{{ data.channal.channalname }}" data-payment="{{ data.Payment_types }}" data-amount="{{ data.total_amount }}" data-status="{{ data.action }}">
+          {% if data.action == 'cancel' %}
+          <td><strong><del>{{ data.bookingguest }}</del></strong></td>
+          {%else%}
+          <td><strong>{{ data.bookingguest }}</strong></td>
+          {%endif%}
+          <td>{{ data.bookingguestphone }}</td>
+          <td>{{ data.channal.channalname }}</td>
+          <td><span class="badge bg-label-primary">{{ data.bookingdate }} - {{ data.checkoutdate }}</span></td>
+          <td>{{ data.total_amount }}</td>
+          <td>
+            {% if data.Payment_types == 'prepaid' %}
+            <span class="badge bg-label-success">{{ data.Payment_types }}</span>
+            {% elif data.Payment_types == 'postpaid' %}
+            <span class="badge bg-label-warning">{{ data.Payment_types }}</span>
+            {% else %}
+            <span class="badge bg-label-info">{{ data.Payment_types }}</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if data.checkinstatus %}
+            <span>Check-In</span>
+            {% else %}
+            <span>Pending</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if data.action == 'book' %}
+            <span class="badge bg-label-success">Booked</span>
+            {% else %}
+            <span class="badge bg-label-danger">Cancelled</span>
+            {% endif %}
+          </td>
+          <td>
+            <button
+            type="button"
+            class="btn  dropdown-toggle hide-arrow"
+            data-bs-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false"
+            
+          >
+          <i class="bx bx-dots-vertical-rounded"></i>
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{% url 'advancebookingdetails' id=data.id %}"><i class="bx bx-edit-alt me-1"></i>Details</a></li>
+            <li><a class="dropdown-item" href="{% url 'advancebookingdelete' id=data.id %}"><i class="bx bx-trash me-1"></i> Cancel</a></li>
+            
+          </ul>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div>
+
+
 
 </div>
 </div>
 </div>
 
 
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const channelFilter = document.getElementById("channelFilter");
+    const paymentFilter = document.getElementById("paymentFilter");
+    const statusFilter = document.getElementById("statusFilter");
+    const tableBody = document.getElementById("bookingTableBody");
+    const totalRowsSpan = document.getElementById("totalRows");
+    const totalAmountSpan = document.getElementById("totalAmount");
+
+    const tableRows = Array.from(tableBody.querySelectorAll("tr"));
+
+    // Function to populate filter options
+    function populateFilters() {
+      const channels = new Set();
+      const payments = new Set();
+      const statuses = new Set();
+
+      tableRows.forEach((row) => {
+        channels.add(row.getAttribute("data-channel"));
+        payments.add(row.getAttribute("data-payment"));
+        statuses.add(row.getAttribute("data-status"));
+      });
+
+      // Populate Channel Filter
+      channels.forEach((channel) => {
+        const option = document.createElement("option");
+        option.value = channel;
+        option.textContent = channel;
+        channelFilter.appendChild(option);
+      });
+
+      // Populate Payment Type Filter
+      payments.forEach((payment) => {
+        const option = document.createElement("option");
+        option.value = payment;
+        option.textContent = payment;
+        paymentFilter.appendChild(option);
+      });
+
+      // Populate Booking Status Filter
+      statuses.forEach((status) => {
+        const option = document.createElement("option");
+        option.value = status;
+        option.textContent = status === 'book' ? 'Booked' : 'Cancelled';
+        statusFilter.appendChild(option);
+      });
+    }
+
+    // Function to filter the table and update the summary
+    function filterTable() {
+      const selectedChannel = channelFilter.value;
+      const selectedPayment = paymentFilter.value;
+      const selectedStatus = statusFilter.value;
+      let totalRows = 0;
+      let totalAmount = 0;
+
+      tableRows.forEach((row) => {
+        const rowChannel = row.getAttribute("data-channel");
+        const rowPayment = row.getAttribute("data-payment");
+        const rowStatus = row.getAttribute("data-status");
+        const rowAmount = parseFloat(row.getAttribute("data-amount")) || 0;
+
+        // Check if the row matches the filters
+        const matchesChannel = !selectedChannel || rowChannel === selectedChannel;
+        const matchesPayment = !selectedPayment || rowPayment === selectedPayment;
+        const matchesStatus = !selectedStatus || rowStatus === selectedStatus;
+
+        if (matchesChannel && matchesPayment && matchesStatus) {
+          row.style.display = "";
+          totalRows += 1;
+          totalAmount += rowAmount;
+        } else {
+          row.style.display = "none";
+        }
+      });
+
+      // Update the summary
+      totalRowsSpan.textContent = totalRows;
+      totalAmountSpan.textContent = totalAmount.toFixed(2);
+    }
+
+    // Initialize filters and set up event listeners
+    populateFilters();
+    channelFilter.addEventListener("change", filterTable);
+    paymentFilter.addEventListener("change", filterTable);
+    statusFilter.addEventListener("change", filterTable);
+
+    // Initial filter to show all data
+    filterTable();
+  });
+</script>
 
 
-   
+
+
+
+
    
 
         

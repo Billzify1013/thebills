@@ -5,17 +5,15 @@ from . import employeemanage,loyltys,hourlypage,donwloadexcel
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_view
-from app2.views import app2index,terms,privcy,refund
 from .newcode import *
+from . import dynamicrates
+from . import aiosellbook ,travelagancy,stayinvoices,purches
 
 urlpatterns = [
-    path('', app2index, name='empty-url-view'),
-    path('terms/', terms, name='terms'),
-    path('privcy/', privcy, name='privcy'),
-    path('refund/', refund, name='refund'),
-    # path("",views.index),
+    path('',views.loginpage,name="loginpage"),
     path('homepage/',views.homepage,name="homepage"),
     path('index/',views.index,name="index"),
+    path('changeindexyear/', views.changeindexyear, name='changeindexyear'),
     path('signuppage/',views.signuppage,name="signuppage"),
     path('loginpage/',views.loginpage,name="loginpage"),
     path('advanceroombookpage/',views.advanceroombookpage,name="advanceroombookpage"),
@@ -26,6 +24,7 @@ urlpatterns = [
     path('signup/',views.signup,name="signup"),
     path('addtax/',views.addtax,name="addtax"),
     path('foliobillingpage/',views.foliobillingpage,name="foliobillingpage"),
+    path('searchguestdatabyfolio/',hourlypage.searchguestdatabyfolio,name="searchguestdatabyfolio"),
     path('addcategory/',views.addcategory,name="addcategory"),
     path('updatecategory/',views.updatecategory,name="updatecategory"),
     path('addroom/',views.addroom,name="addroom"),
@@ -62,13 +61,9 @@ urlpatterns = [
     path('addprofile/', views.addprofile, name='addprofile'),
     path('updateprofile/', views.updateprofile, name='updateprofile'),
     path('billingplanpage/',employeemanage.billingplanpage,name="billingplanpage"),
-    path('roomclean/',employeemanage.roomclean,name="roomclean"),
+    path('roomclean/<int:user>/',employeemanage.roomclean,name="roomclean"),
     path('cleanroom/',employeemanage.cleanroom,name="cleanroom"),
     path('mobileview/<str:user>/',employeemanage.mobileview,name="mobileview"),
-    path('addcoupnoffers/',employeemanage.addcoupnoffers,name="addcoupnoffers"),
-    path('addserviceshow/',employeemanage.addserviceshow,name="addserviceshow"),
-    path('gallryimgwebsite/',employeemanage.gallryimgwebsite,name="gallryimgwebsite"),
-    path('reviewscount/',employeemanage.reviewscount,name="reviewscount"),
     path('pos/',employeemanage.pos,name="pos"),
     path('additems/',employeemanage.additems,name="additems"),
     path('updateitems/',employeemanage.updateitems,name="updateitems"),
@@ -95,7 +90,8 @@ urlpatterns = [
     path('aminitysales/',loyltys.aminitysales,name="aminitysales"),
     path('searchaminitiesinvoicedata/',loyltys.searchaminitiesinvoicedata,name="searchaminitiesinvoicedata"),
     path('generate_aminitiesinvoice_excel/',donwloadexcel.generate_aminitiesinvoice_excel,name="generate_aminitiesinvoice_excel"),
-
+     path('generate_purchesinvoice_excel/',donwloadexcel.generate_purchesinvoice_excel,name="generate_purchesinvoice_excel"),
+    
     # ajax data
     path('getloyltydataajax',loyltys.getloyltydataajax,name="getloyltydataajax"),
     path('deleteloyltyajaxdata',loyltys.deleteloyltyajaxdata,name="deleteloyltyajaxdata"),
@@ -109,9 +105,6 @@ urlpatterns = [
     path('updateloylty/',loyltys.updateloylty,name="updateloylty"),
     path('deletetaxitem/<int:id>/',loyltys.deletetaxitem,name="deletetaxitem"),
     path('deletecategory/<int:id>/',loyltys.deletecategory,name="deletecategory"),
-    path('websetting/',loyltys.websetting,name="websetting"),
-    path('deleteamenities/<int:id>/',loyltys.deleteamenities,name="deleteamenities"),
-    path('deleteimages/<int:id>/',loyltys.deleteimages,name="deleteimages"),
     path('creditmanage/',loyltys.creditmanage,name="creditmanage"),
     path('addpaymentininvoice/<int:id>/',loyltys.addpaymentininvoice,name="addpaymentininvoice"),
     path('addcreditcustomer/',loyltys.addcreditcustomer,name="addcreditcustomer"),
@@ -121,6 +114,8 @@ urlpatterns = [
     path('sendwelcomemsg/',loyltys.sendwelcomemsg,name="sendwelcomemsg"),
     path('sendloyaltymsg/',loyltys.sendloyaltymsg,name="sendloyaltymsg"),
     path('searchguestexportdta/',loyltys.searchguestexportdta,name="searchguestexportdta"),
+    path('sendbulksmsloylty/<int:id>/',loyltys.sendbulksmsloylty,name="sendbulksmsloylty"),
+    path('deleteloylty/<int:id>/',loyltys.deleteloylty,name="deleteloylty"),
     # exceldata page
     path('exceldatapage/',donwloadexcel.exceldatapage,name="exceldatapage"),
     path('generate_invoice_excel/',donwloadexcel.generate_invoice_excel,name="generate_invoice_excel"),
@@ -129,30 +124,19 @@ urlpatterns = [
     # hourly data
     path('hourlyhomepage/',hourlypage.hourlyhomepage,name="hourlyhomepage"),
     path('addroomtohourlyrooms/',hourlypage.addroomtohourlyrooms,name="addroomtohourlyrooms"),
-    path('hourlyroomclickform/<int:id>/',hourlypage.hourlyroomclickform,name="hourlyroomclickform"),
-    path('hourlycheckinroom/',hourlypage.hourlycheckinroom,name="hourlycheckinroom"),
     path('removeroomfromhourly/',hourlypage.removeroomfromhourly,name="removeroomfromhourly"),
     path('searchguestdata/',hourlypage.searchguestdata,name="searchguestdata"),
     path('searchguestdataadvance/',hourlypage.searchguestdataadvance,name="searchguestdataadvance"),
     path('searchdateevents/',hourlypage.searchdateevents,name="searchdateevents"),
     path('loylty/',hourlypage.loylty,name="loylty"),
-    path('offers/',hourlypage.offers,name="offers"),
     path('eventsalse/',hourlypage.eventsalse,name="eventsalse"),
-    path('billzifymall/',hourlypage.billzifymall,name="billzifymall"),
 
     # qr website work
-    path('Website/',manageQR.Website,name="Website"),
-    path('Showqr/<int:id>/',manageQR.Showqr,name="Showqr"),
-    path('IGfKg/<str:id>/',manageQR.IGfKg,name="IGfKg"),
-    path('yourwebpage/<int:rid>/',manageQR.yourwebpage,name="yourwebpage"),
-    path('addwebsitedata/',manageQR.addwebsitedata,name="addwebsitedata"),
-    path('updatewebsitedata/',manageQR.updatewebsitedata,name="updatewebsitedata"),
     path('laundrysrvs/<str:id>/',manageQR.laundrysrvs,name="laundrysrvs"),
     path('addlaundrypage/',manageQR.addlaundrypage,name="addlaundrypage"),
     path('addlaundryitem/',manageQR.addlaundryitem,name="addlaundryitem"),
     path('deletelaundryitem/<int:id>/',manageQR.deletelaundryitem,name="deletelaundryitem"),
-    path('addfoodurlbyqr/',manageQR.addfoodurlbyqr,name="addfoodurlbyqr"),
-    path('deleteroomoffersweb/<int:id>/',manageQR.deleteroomoffersweb,name="deleteroomoffersweb"),
+    
 
 
     #employeee management in employeemanagement 
@@ -186,11 +170,80 @@ urlpatterns = [
     path('gridviewviasearch/', newcode.gridviewviasearch, name='gridviewviasearch'),
     path('inventory_push/', newcode.inventory_push, name='inventory_push'),
     path('api/update-inventory/', inventory_push, name='update_inventory'),
-    path('webhook/booking/', booking_webhook, name='booking_webhook'),
-    path('fetch_and_save_bookings/', fetch_and_save_bookings, name='fetch_and_save_bookings'),
+    path('rate_push/', dynamicrates.rate_push, name='rate_push'),
 
+    # cleaning
+    path('cleanroombtn/<int:id>/', loyltys.cleanroombtn, name='cleanroombtn'),
+    path('cleanroombtnweek/<int:id>/', loyltys.cleanroombtnweek, name='cleanroombtnweek'),
+    path('weekviews/', views.weekviews, name='weekviews'),
+    
+    # aiosell booking management
+    path('aiosell/new_reservation/', aiosellbook.aiosell_new_reservation, name='aiosell_new_reservation'),
+    path('update_reservation/', aiosellbook.aiosell_new_reservation, name='aiosell_new_reservation'),
 
     
+    # travel agancy handling
+    path('travelagancy/', travelagancy.travelagancy, name='travelagancy'),
+    path('createtravelagancy/', travelagancy.createtravelagancy, name='createtravelagancy'),
+    path('deletetravelagency/<int:id>/', travelagancy.deletetravelagency, name='deletetravelagency'),
+    path('updatetravelagancy/', travelagancy.updatetravelagancy, name='updatetravelagancy'),
+    path('opentravelagencydata/<int:id>/', travelagancy.opentravelagencydata, name='opentravelagencydata'),
+
+    # stayinvoice data
+    
+    path('stayinvoice/', stayinvoices.stayinvoice, name='stayinvoice'),
+    path('searchmonthinvoice/', stayinvoices.searchmonthinvoice, name='searchmonthinvoice'),
+
+    # path('room/<int:id>/', views.openroomclickformpage, name='openroomclickformpage'),
+    
+    path('cleanroombtnajax/', views.cleanroombtnajax, name='cleanroombtnajax'),
+
+    # website booking data 
+    path('bookrooms/<str:user_name>/from/<int:mids>/', travelagancy.bookrooms, name='bookrooms'),
+    path('bookingdatetravel/', travelagancy.bookingdatetravel, name='bookingdatetravel'),
+    path('addadvancebookingfromtrvel/', travelagancy.addadvancebookingfromtrvel, name='addadvancebookingfromtrvel'),
+    path('searchmonthbookingagent/', travelagancy.searchmonthbookingagent, name='searchmonthbookingagent'),
+
+    # purches invoice management
+    
+    path('purchesinvoice/', purches.purchesinvoice, name='purchesinvoice'),
+    path('purchesinvoiceform/', purches.purchesinvoiceform, name='purchesinvoiceform'),
+    path('addmorepurchesproductininvoice/', purches.addmorepurchesproductininvoice, name='addmorepurchesproductininvoice'),
+    path('purchesitemdelete/<int:id>/', purches.purchesitemdelete, name='purchesitemdelete'),
+    path('deletepurchesinvc/<int:id>/', purches.deletepurchesinvc, name='deletepurchesinvc'),
+    path('savepurchesinvoice/', purches.savepurchesinvoice, name='savepurchesinvoice'),
+    path('purcheshistory/', purches.purcheshistory, name='purcheshistory'),
+    path('searchpurchesdata/', purches.searchpurchesdata, name='searchpurchesdata'),
+    path('deletepurchesinvc/<int:id>/', purches.deletepurchesinvc, name='deletepurchesinvc'),
+    path('purchesinvoices/<int:id>/', purches.purchesinvoices, name='purchesinvoices'),
+    path('purchessales/', purches.purchessales, name='purchessales'),
+    path('searpurchesinvoicedata/', purches.searpurchesinvoicedata, name='searpurchesinvoicedata'),
+
+    # channel manager changeroompage 
+    path('channalmanager/', purches.channalmanager, name='channalmanager'),
+
+    # dynamic rates form and all 
+    path('dynamicformpage/', dynamicrates.dynamicformpage, name='dynamicformpage'),
+    path('dynamicformdata/', dynamicrates.dynamicformdata, name='dynamicformdata'),
+
+    # change room work
+    path('changeroompage/<int:id>/', manageQR.changeroompage, name='changeroompage'),
+    path('change-rooms/', manageQR.change_rooms, name='change_rooms_url'),
+    path('changeroombooking/<int:id>/', manageQR.changeroombooking, name='changeroombooking'),
+    path('change_rooms_book_url/', manageQR.change_rooms_book_url, name='change_rooms_book_url'),
+
+    # rate lan page 
+    path('rateplanpage/', dynamicrates.rateplanpage, name='rateplanpage'),
+    path('addbookingrateplan/', dynamicrates.addbookingrateplan, name='addbookingrateplan'),
+    path('deleteplanbookingcode/<int:id>/', dynamicrates.deleteplanbookingcode, name='deleteplanbookingcode'),
+    path('addrateplan/', dynamicrates.addrateplan, name='addrateplan'),
+    path('deleteplanratecode/<int:id>/', dynamicrates.deleteplanratecode, name='deleteplanratecode'),
+    path('guestplans/', dynamicrates.guestplans, name='guestplans'),
+
+
+
+
+
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

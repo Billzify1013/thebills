@@ -31,11 +31,19 @@ class RoomsCategory(models.Model):
     vendor = models.ForeignKey(User,on_delete=models.CASCADE)
     category_name = models.CharField(max_length=150)
     Hsn_sac = models.IntegerField(default=0)
-    roomimg = models.ImageField(upload_to='roomimg', null=True, blank=True)
     catprice = models.IntegerField(default=1)
     category_tax = models.ForeignKey(Taxes,on_delete=models.CASCADE)
     def __str__(self) -> str:
         return self.category_name
+
+
+class RoomImage(models.Model):
+    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
+    category = models.ForeignKey(RoomsCategory, related_name='images', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='room_images')
+
+    def __str__(self):
+        return f"{self.category.category_name} Image"
 
 class Rooms(models.Model):
     vendor = models.ForeignKey(User,on_delete=models.CASCADE)
@@ -45,6 +53,8 @@ class Rooms(models.Model):
     price = models.IntegerField(default=1)
     tax = models.ForeignKey(Taxes,on_delete=models.CASCADE)
     tax_amount = models.BigIntegerField(default=0)
+    is_clean = models.BooleanField(default=True)
+    max_person = models.PositiveIntegerField(default=1)
     
     # hsn required in gst bill according to services
     
@@ -78,6 +88,7 @@ class Gueststay(models.Model):
     guestidtypes = models.CharField(max_length=25,default=None, blank=True)
     guestsdetails = models.CharField(max_length=40,default=None, blank=True)
     gueststates = models.CharField(max_length=50,default=None, blank=True)
+    saveguestid = models.IntegerField(blank=True,null=True)
     def __str__(self) -> str:
         return self.guestname
 
@@ -107,48 +118,10 @@ class Subscription(models.Model):
         return self.user.username
 
 class onlinechannls(models.Model):
+    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
     channalname = models.CharField(max_length=100)
-    channal_img = models.ImageField(upload_to='channal images',default=None)
     def __str__(self) -> str:
         return self.channalname
-    
-class SaveAdvanceBookGuestData(models.Model):
-    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
-    bookingdate = models.DateField(auto_now=False)
-    noofrooms = models.IntegerField(default=0)
-    bookingguest = models.CharField(max_length=100)
-    bookingguestphone = models.BigIntegerField(
-        validators=[MaxValueValidator(9999999999)]
-    )
-    advance_amount = models.BigIntegerField(default=0)
-    reamaining_amount = models.BigIntegerField(default=0)
-    total_amount = models.BigIntegerField(default=0)
-    discount = models.BigIntegerField(default=0)
-    channal = models.ForeignKey(onlinechannls,on_delete=models.CASCADE)
-    checkoutdate = models.DateField(auto_now=False)
-    staydays = models.IntegerField(default=0)
-    checkinstatus = models.BooleanField(default=False)
-    
-
-
-class RoomBookAdvance(models.Model):
-    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
-    bookingdate = models.DateField(auto_now=False)
-    roomno = models.ForeignKey(Rooms,on_delete=models.CASCADE)
-    saveguestdata = models.ForeignKey(SaveAdvanceBookGuestData,on_delete=models.CASCADE)
-
-    bookingguest = models.CharField(max_length=100)
-    bookingguestphone = models.BigIntegerField(
-        validators=[MaxValueValidator(9999999999)]
-    )
-    channal = models.ForeignKey(onlinechannls,on_delete=models.CASCADE)
-    checkoutdate = models.DateField(auto_now=False)
-
-    checkinstatus = models.BooleanField(default=False)
-    partly_checkin = models.BooleanField(default=False)
-    bookingstatus = models.BooleanField(default=False)
-    def __str__(self) -> str:
-        return self.bookingguest
     
 
 class loylty_data(models.Model):
@@ -163,6 +136,7 @@ class loylty_Guests_Data(models.Model):
         validators=[MaxValueValidator(9999999999)]
     )
     loylty_point = models.IntegerField(default=0)
+    smscount = models.CharField(max_length=10,default=0,null=True,blank=True)
     
 
 # invoice work here
@@ -212,23 +186,6 @@ class Items(models.Model):
     hsncode = models.CharField(null=True,max_length=10)
     price = models.IntegerField()
     
-
-class reviewQr(models.Model):
-    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
-    room_no = models.OneToOneField(Rooms,on_delete=models.CASCADE,primary_key=True)
-    qrimage = models.ImageField(upload_to='Qr images',default=None)
-    foodurl = models.URLField(null=True)
-    def __str__(self) -> str:
-            return self.vendor.username
-
-class websitelinks(models.Model):
-    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
-    logoname = models.CharField(max_length=40)
-    googlelink = models.URLField(null=True)
-    websitelink = models.URLField(null=True)
-    laundryurl = models.URLField(null=True)
-    def __str__(self) -> str:
-        return self.vendor.username
 
 class LaundryServices(models.Model):
     vendor = models.ForeignKey(User,on_delete=models.CASCADE)
@@ -349,6 +306,14 @@ class HotelProfile(models.Model):
     counrty = models.CharField(max_length=35)
     checkintimes = models.CharField(max_length=35,blank=True)
     checkouttimes = models.CharField(max_length=35,blank=True)
+    termscondition = models.TextField(blank=True,null=True)
+
+class HoelImage(models.Model):
+    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='hotel_images')
+
+    def __str__(self):
+        return f"{self.vendor.username} Image"
 
 class Messgesinfo(models.Model):
     vendor = models.ForeignKey(User,on_delete=models.CASCADE)
@@ -363,26 +328,6 @@ class RoomCleaning(models.Model):
     current_date = models.DateField(null=True)
     status = models.BooleanField(default=False)
 
-
-class offerwebsitevendor(models.Model):
-    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
-    category = models.ForeignKey(RoomsCategory,on_delete=models.CASCADE)
-    code = models.CharField(max_length=15)
-    amount = models.CharField(max_length=15)
-
-class  amainities(models.Model):
-    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
-    service_name = models.CharField(max_length=60)
-
-class  webgallary(models.Model):
-    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
-    gallary_img = models.ImageField(upload_to='gallaryimg', null=True, blank=True)
-
-class webreview(models.Model):
-    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
-    years = models.CharField(max_length=10)
-    clientscount = models.CharField(max_length=20)
-    reviewscount = models.CharField(max_length=20)
 
 class HourlyRoomsdata(models.Model):
     vendor = models.ForeignKey(User,on_delete=models.CASCADE)
@@ -426,15 +371,6 @@ class Freedemo(models.Model):
         return self.name
     
 
-class MarketIteams(models.Model):
-    name = models.CharField(max_length=200)
-    description = models.CharField(max_length=300)
-    price = models.IntegerField(default=0)
-    ratings = models.CharField(max_length=40)
-    product_img = models.ImageField(upload_to='marketproducts', null=True, blank=True)
-    def __str__(self) -> str:
-        return self.name
-    
 
 class AminitiesInvoice(models.Model):
     vendor = models.ForeignKey(User,on_delete=models.CASCADE)
@@ -481,23 +417,6 @@ class AminitiesInvoiceItem(models.Model):
 
 
 
-class InvoicesPayment(models.Model):
-    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
-    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name='payments')
-    payment_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    payment_date = models.DateTimeField(auto_now=False,null=True)
-    payment_mode = models.CharField(max_length=50)  # e.g., 'Credit Card', 'Cash'
-    transaction_id = models.CharField(max_length=100, blank=True, null=True)  # optional
-    descriptions = models.CharField(max_length=50, blank=True, null=True) 
-
-# class DailyOccupancy(models.Model):
-#     vendor = models.ForeignKey(User,on_delete=models.CASCADE)
-#     roomcategory = models.ForeignKey(RoomsCategory,on_delete=models.CASCADE)
-#     date = models.DateField(auto_now=False,null=True)
-#     available_room = models.PositiveBigIntegerField(blank=True,null=True)
-#     occupancy = models.CharField(max_length=10,blank=True,null=True)
-#     incom = models.CharField(max_length=10,blank=True,null=True)
-#     collected_amount = models.CharField(max_length=10,blank=True,null=True)
 
 
 
@@ -510,15 +429,18 @@ class RatePlan(models.Model):
     additional_person_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # Price per additional person
     max_persons = models.PositiveIntegerField(default=1)  # Maximum persons allowed
 
-    # def calculate_total_price(self, num_persons):
-    #     if num_persons <= self.max_persons:
-    #         return self.base_price
-    #     else:
-    #         additional_cost = (num_persons - self.max_persons) * self.additional_person_price
-    #         return self.base_price + additional_cost
-
+   
     def __str__(self):
         return f"{self.rate_plan_name} for {self.room_category.category_name}"
+
+
+class RatePlanforbooking(models.Model):
+    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
+    rate_plan_name = models.CharField(max_length=50)
+    rate_plan_code = models.CharField(max_length=50,blank=True,null=True)
+    base_price = models.DecimalField(max_digits=10, decimal_places=2)
+    def __str__(self):
+        return f"{self.rate_plan_name} for {self.vendor.username}"
 
 
 class RoomsInventory(models.Model):
@@ -527,9 +449,13 @@ class RoomsInventory(models.Model):
     total_availibility = models.IntegerField(blank=True,null=True,default=0)
     date = models.DateField(auto_now=False,blank=True)
     booked_rooms = models.IntegerField(blank=True,null=True,default=0)
+    price = models.DecimalField(max_digits=10, decimal_places=1)
+    occupancy = models.IntegerField()
 
     def __str__(self):
         return f"{self.vendor.username} for {self.room_category.category_name,self.date}"
+
+
 
 
 class VendorCM(models.Model):
@@ -541,6 +467,10 @@ class VendorCM(models.Model):
     ]
     cm_company = models.CharField(max_length=50, choices=cm_name,blank=True)
     hotelcode = models.CharField(max_length=40)
+    dynamic_price_active = models.BooleanField(default=False)
+    dynamic_price_plan = models.IntegerField(default=None,blank=True,null=True)
+    channal_manager_link = models.URLField(max_length=200, blank=True, null=True)
+    admin_dynamic_active = models.BooleanField(default=False)
 
 
 
@@ -549,56 +479,178 @@ class VendorCM(models.Model):
 # aiosell booking formate
 
 
-
-
-
-# Booking model to hold booking details
-class MainBooking(models.Model):
+class SaveAdvanceBookGuestData(models.Model):
     vendor = models.ForeignKey(User,on_delete=models.CASCADE)
-    guest_name = models.CharField(max_length=100)
+    bookingdate = models.DateField(auto_now=False)
+    noofrooms = models.IntegerField(default=0)
+    bookingguest = models.CharField(max_length=100)
+    bookingguestphone = models.BigIntegerField(
+        validators=[MaxValueValidator(9999999999)]
+    )
     email = models.EmailField(default=None, blank=True)
-    phone = models.BigIntegerField(validators=[MaxValueValidator(9999999999)])
     address_city = models.CharField(max_length=100,blank=True,null=True)#zipcode also
     state = models.CharField(max_length=100,blank=True,null=True)
     country = models.CharField(max_length=100,blank=True,null=True)
-
+    totalguest = models.CharField(max_length=10,null=True,blank=True)
     # zip_code = models.CharField(max_length=10)
     ACTION_CHOICES = [
         ('book', 'Book'),
         ('cancel', 'Cancel'),
         ("modify","modify"),
     ]
-
     action = models.CharField(max_length=20, choices=ACTION_CHOICES,blank=True,null=True)
-    channal = models.ForeignKey(onlinechannls,on_delete=models.CASCADE)
     booking_id = models.CharField(max_length=100)
     cm_booking_id = models.CharField(max_length=100)
-    booked_on = models.DateTimeField()
     checkin = models.DateField()
-    checkout = models.DateField()
     segment = models.CharField(max_length=50)
     special_requests = models.TextField(blank=True, null=True)
     pah = models.BooleanField(default=False)
-    
-
     # Amount information as a JSONField to store the nested amount data
     amount_after_tax = models.FloatField()
     amount_before_tax = models.FloatField()
     tax = models.FloatField()
     currency = models.CharField(max_length=10)
 
-# Room model to hold room details for each booking
-class MBRoom(models.Model):
+    advance_amount = models.BigIntegerField(default=0)
+    reamaining_amount = models.BigIntegerField(default=0)
+    total_amount = models.BigIntegerField(default=0)
+    discount = models.BigIntegerField(default=0)
+    channal = models.ForeignKey(onlinechannls,on_delete=models.CASCADE)
+    checkoutdate = models.DateField(auto_now=False)
+    staydays = models.IntegerField(default=0)
+    checkinstatus = models.BooleanField(default=False)
+    ACTION_CHOICES_payment = [
+        ('prepaid', 'prepaid'),
+        ('postpaid', 'postpaid'),
+        ("partially","partially"),
+    ]
+    Payment_types = models.CharField(max_length=20, choices=ACTION_CHOICES_payment,blank=True,null=True)
+    
+
+class RoomBookAdvance(models.Model):
     vendor = models.ForeignKey(User,on_delete=models.CASCADE)
-    main_booking = models.ForeignKey(MainBooking, on_delete=models.CASCADE, related_name='rooms')
-    room_code = models.CharField(max_length=50)
+    bookingdate = models.DateField(auto_now=False)
+    roomno = models.ForeignKey(Rooms,on_delete=models.CASCADE)
+    saveguestdata = models.ForeignKey(SaveAdvanceBookGuestData,on_delete=models.CASCADE)
+
+    bookingguest = models.CharField(max_length=100)
+    bookingguestphone = models.BigIntegerField(
+        validators=[MaxValueValidator(9999999999)]
+    )
+    channal = models.ForeignKey(onlinechannls,on_delete=models.CASCADE)
+    checkoutdate = models.DateField(auto_now=False)
+
+    checkinstatus = models.BooleanField(default=False)
+    partly_checkin = models.BooleanField(default=False)
+    bookingstatus = models.BooleanField(default=False)
+
+    totalguest = models.CharField(max_length=10,null=True,blank=True,default="")
     rateplan_code = models.CharField(max_length=50)
     guest_name = models.CharField(max_length=100)
     adults = models.PositiveIntegerField()
     children = models.PositiveIntegerField()
-    date = models.DateField()
     sell_rate = models.FloatField()
+    def __str__(self) -> str:
+        return self.bookingguest
 
 
 
+class Booking(models.Model):
+    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
+    room = models.ForeignKey(Rooms, on_delete=models.CASCADE)
+    guest_name = models.CharField(max_length=100)
+    check_in_date = models.DateField()
+    check_out_date = models.DateField()
+    check_in_time = models.TimeField()  # New field for check-in time
+    check_out_time = models.TimeField() 
+    segment = models.CharField(max_length=40,blank=True,null=True)
+    totalamount = models.CharField(max_length=40,blank=True,null=True)
+    totalroom = models.CharField(max_length=10,blank=True,null=True)
+    gueststay = models.ForeignKey(Gueststay,on_delete=models.CASCADE, null=True, blank=True)
+    advancebook = models.ForeignKey(SaveAdvanceBookGuestData, on_delete=models.CASCADE, null=True, blank=True)
+    status = models.CharField(max_length=25, null=True, blank=True)
+    def __str__(self):
+        return f"{self.guest_name} ({self.check_in_date} - {self.check_out_date})"
+    
+
+class InvoicesPayment(models.Model):
+    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name='payments', null=True, blank=True)
+    advancebook = models.ForeignKey(SaveAdvanceBookGuestData, on_delete=models.CASCADE, related_name='payments', null=True, blank=True)
+    payment_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_date = models.DateTimeField(auto_now=False,null=True)
+    payment_mode = models.CharField(max_length=50)  # e.g., 'Credit Card', 'Cash'
+    transaction_id = models.CharField(max_length=100, blank=True, null=True)  # optional
+    descriptions = models.CharField(max_length=50, blank=True, null=True) 
+
+
+
+
+
+class TravelAgency(models.Model):
+    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    contact_person = models.CharField(max_length=255)
+    phone_number = models.CharField(max_length=20)
+    email = models.EmailField()
+    commission_rate = models.IntegerField()  # Commission percentage
+
+
+    def __str__(self):
+        return self.name
+    
+class Travelagencyhandling(models.Model):
+    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
+    agency = models.ForeignKey(TravelAgency,on_delete=models.CASCADE)
+    bookingdata = models.ForeignKey(SaveAdvanceBookGuestData,on_delete=models.CASCADE)
+    date = models.DateField()
+    commsion = models.IntegerField()
+
+
+
+
+
+class Supplier(models.Model):
+    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
+    customername = models.CharField(max_length=50)
+    customercontact = models.BigIntegerField(validators=[MaxValueValidator(9999999999)])
+    customeremail = models.EmailField(max_length=100,blank=True)
+    customeraddress = models.CharField(max_length=300)
+    customergst = models.CharField(max_length=15,blank=True)
+    companyname = models.CharField(max_length=50,blank=True)
+    invoicenumber = models.CharField(max_length=12)
+    invoicedate = models.DateField(auto_now=False,null=True)
+    CATEGORY_CHOICES = [
+        ('GST', 'GST'),
+        ('IGST', 'IGST'),
+        # Add more categories as needed
+    ]
+    taxtype = models.CharField(max_length=5, choices=CATEGORY_CHOICES)
+    total_item_amount = models.DecimalField(max_digits=10, decimal_places=2,blank=True)
+    discount_amount = models.DecimalField(max_digits=10, decimal_places=2,blank=True)
+    subtotal_amount = models.DecimalField(max_digits=10, decimal_places=2,blank=True)
+    gst_amount = models.DecimalField(max_digits=10, decimal_places=2,blank=True)
+    sgst_amount = models.DecimalField(max_digits=10, decimal_places=2,blank=True)
+    grand_total_amount = models.DecimalField(max_digits=10, decimal_places=2,blank=True)
+    modeofpayment = models.CharField(max_length=20,blank=True)
+    cash_amount = models.DecimalField(max_digits=10, decimal_places=2,blank=True)
+    online_amount = models.DecimalField(max_digits=10, decimal_places=2,blank=True)
+    sattle =  models.BooleanField(default=False)
+
+
+
+
+class SupplierInvoiceItem(models.Model):
+    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
+    invoice = models.ForeignKey(Supplier, on_delete=models.CASCADE)
+    description = models.CharField(max_length=100)
+    quantity = models.PositiveIntegerField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    tax_rate = models.DecimalField(max_digits=5, decimal_places=2, validators=[MinValueValidator(0)],blank=True)
+    hsncode = models.CharField(max_length=8,blank=True)
+    discount_amount = models.DecimalField(max_digits=10, decimal_places=2,blank=True)
+    subtotal_amt = models.DecimalField(max_digits=10, decimal_places=2)
+    tax_amt = models.DecimalField(max_digits=10, decimal_places=2,blank=True)
+    grand_total = models.DecimalField(max_digits=10, decimal_places=2)
 

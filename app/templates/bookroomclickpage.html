@@ -548,7 +548,12 @@
                   <div class="col-4">
 
                     <h5 class="card-header mb-1">Room Price: <span class="text-success fw-bold">{{i.price}} </span>
-                      <br><br>Category : <span class="text-success fw-bold" >{{i.room_type}}</span>
+                      <br><br>Category : <span class="text-success fw-bold" >{{i.room_type}}</span><br><br>
+                      {%if ratedata%}
+                      {%for rate in ratedata%}
+                      Dynamic Current Rate:<span class="text-success fw-bold" >{{rate.price}}</span>
+                      {%endfor%}
+                      {%endif%}
                       <input type="hidden" id="roomprice" value="{{i.price}}" />
                       <input type="hidden" id="roomtax" value="{{i.tax.taxrate}}" />
                       
@@ -584,8 +589,8 @@
                             <span id="basic-icon-default-company2" class="input-group-text"
                               >Rate-Plan <i class='bx bx-down-arrow-alt'></i></span>
                             
-                            <select class="form-control" name="rateplan" onchange="pricechange()" id="rateplanselect" placeholder="Chek-In Time">
-                              <option>Only Room </option>
+                            <select class="form-control" name="rateplan" onchange="pricechange()" id="rateplanselect" required placeholder="Chek-In Time">
+                              
                               {%for i in meal_plan%}
                               <option  value="{{i.id}}">{{i.rate_plan_name}},{{i.rate_plan_code}}</option>
                               {%endfor%}
@@ -654,7 +659,7 @@
                                 $("#totalamounttext").html(vargrandtotalrp);
                                 $("#taxamountall").val(taxamtrp);
                                 $("#rateplansview").html(rate_plan_name+"  " +rate_plan_code+" ₹:"+mealtotalamount+" Extra Guest ("+ extraguest+")");
-                                $("#rateplansviewinput").val(rate_plan_name+"  " +rate_plan_code)
+                                $("#rateplansviewinput").val(rate_plan_name)
                                 $("#rateplansviewinputprice").val(parseInt(extraguest) * parseInt(addpprice) + parseInt(baseprice));
 
                               }
@@ -668,7 +673,7 @@
                                 $("#totalamounttext").html(vargrandtotalrps);
                                 $("#taxamountall").val(taxamtrps);
                                 $("#rateplansview").html(rate_plan_name+"  " +rate_plan_code+" ₹:"+mealtotalamounts);
-                                $("#rateplansviewinput").val(rate_plan_name+"  " +rate_plan_code)
+                                $("#rateplansviewinput").val(rate_plan_name)
                                 $("#rateplansviewinputprice").val(parseInt(baseprice));
                               
                               }
@@ -709,11 +714,11 @@
                   </div>
 
 
-                  <h5 class="mb-1 mt-3 ms-4"><i class='bx bxl-paypal mb-1'></i>Payment breakdown </h5>
+                  
 
-                    <div class="col-4 ms-4 mb-2 ">
+                    <div class="col-4 ms-4  ">
                     
-                    <div class="input-group">
+                    <div class="input-group" style="display:none">
                       <span class="input-group-text" id="basic-addon11">Subtotal ₹</span>
                       <input
                         type="number"
@@ -732,7 +737,7 @@
                   </div>
                   <div class="row">
 
-                  <div class="col-4 ms-4 mb-2">
+                  <div class="col-4 ms-4 ">
 
                     
                   
@@ -758,7 +763,7 @@
 
                   <div class="row">
 
-                    <div class="col-4 ms-4 mb-2">
+                    <div class="col-4 ms-4 ">
   
                       
                     
@@ -778,9 +783,9 @@
                          </div>
                     
                     </div></div>
-
+                    
                   <div class="col-4 ms-4 mb-2">
-                    <span>Incl Tax,Discount.</span>
+                    <span>Total Amount Incl Tax,Discount.</span>
                     <div class="input-group">
                       <span class="input-group-text" id="basic-addon11">Grand-Total ₹</span>
                       <input

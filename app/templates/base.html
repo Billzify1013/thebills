@@ -17,6 +17,9 @@
     <title>BILLZIFY</title>
 
     <meta name="description" content="" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{% static 'undercss/assets/img/favicon/1.png'%}" />
@@ -79,8 +82,8 @@
     
     
         <!-- Layout wrapper -->
-        <div class="layout-wrapper layout-content-navbar">
-          <div class="layout-container">
+        <div class="layout-wrapper layout-content-navbar" >
+          <div class="layout-container" >
             <!-- Menu -->
     
             <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
@@ -108,12 +111,7 @@
     
               <ul class="menu-inner py-1 mt-4">
                 <!-- Dashboard -->
-                <li class="menu-item text-uppercase {% if active_page == 'index' %}active{% endif %} ">
-                  <a href="{% url 'index'  %}" class="menu-link">
-                    <i class='menu-icon bx bx-analyse'></i>
-                    <div data-i18n="Analytics">Sales & Analytics</div>
-                  </a>
-                </li>
+                
 
                 
 
@@ -131,6 +129,14 @@
                   </a>
                 </li> 
 
+                <li class="menu-item text-uppercase {% if active_page == 'weekviews' %}active{% endif %} ">
+                  <a href="{% url 'weekviews' %}" class="menu-link">
+                    
+                    <i class='menu-icon bx bx-dna'></i>
+                    <div data-i18n="Analytics">Week view</div>
+                  </a>
+                </li> 
+
                 <li class="menu-header small text-uppercase">
                   <span class="menu-header-text">Folio  Management</span>
                 </li>
@@ -142,25 +148,16 @@
                   </a>
                 </li> 
 
-                <li class="menu-item text-uppercase {% if active_page == 'pos' %}active{% endif %} ">
+                {% comment %} <li class="menu-item text-uppercase {% if active_page == 'pos' %}active{% endif %} ">
                   <a href="{% url 'pos'  %}" class="menu-link">
                     <i class='menu-icon bx bx-laptop'></i>
                     <div data-i18n="Analytics">Folio POS</div>
                   </a>
-                </li> 
+                </li>  {% endcomment %}
 
                 
 
-                <li class="menu-header small text-uppercase">
-                  <span class="menu-header-text">Hourly Room Management</span>
-                </li>
-
-                <li class="menu-item text-uppercase {% if active_page == 'hourlyhomepage' %}active{% endif %} ">
-                  <a href="{% url 'hourlyhomepage'  %}" class="menu-link">
-                    <i class='menu-icon bx mb-1 bx-timer'></i>
-                    <div data-i18n="Analytics">Hourly Room Page</div>
-                  </a>
-                </li>
+              
                 
                 
 
@@ -169,7 +166,7 @@
                 </li>
 
                 <li class="menu-item text-uppercase {% if active_page == 'roomclean' %}active{% endif %} ">
-                  <a href="{% url 'roomclean'  %}" class="menu-link">
+                  <a href="{% url 'roomclean' user=request.user.id %}" class="menu-link">
                     <i class='menu-icon bx bxs-paint'></i>
                     <div data-i18n="Analytics">Rooms Cleaning</div>
                   </a>
@@ -179,6 +176,17 @@
                   <a href="{% url 'dailyattendance'  %}" class="menu-link">
                     <i class='bx menu-icon bxs-user-check'></i>
                     <div data-i18n="Analytics">Daily Attendance</div>
+                  </a>
+                </li>
+
+                <li class="menu-header small text-uppercase">
+                  <span class="menu-header-text">Channel Manager</span>
+                </li>
+
+                <li class="menu-item text-uppercase {% if active_page == 'channalmanager' %}active{% endif %} ">
+                  <a href="{% url 'channalmanager'  %}" class="menu-link">
+                    <i class='bx menu-icon bxs-user-check'></i>
+                    <div data-i18n="Analytics">Channel Manager</div>
                   </a>
                 </li>
 
@@ -201,6 +209,17 @@
                 </li>
 
                 <li class="menu-header small text-uppercase">
+                  <span class="menu-header-text">Grid Views </span>
+                </li> 
+                <li class="menu-item text-uppercase {% if active_page == 'gridview' %}active{% endif %} ">
+                  <a href="{% url 'gridview' %}" class="menu-link">
+                    <i class='menu-icon bx bxs-grid'></i>
+                    <div data-i18n="Analytics">Grid view</div>
+                  </a>
+                </li> 
+
+
+                <li class="menu-header small text-uppercase">
                   <span class="menu-header-text">Messages & Promotions</span>
                 </li>
     
@@ -211,6 +230,16 @@
                   </a>
                 </li> 
 
+                <li class="menu-header small text-uppercase">
+                  <span class="menu-header-text">CheckIn Plans</span>
+                </li>
+
+                <li class="menu-item text-uppercase {% if active_page == 'guestplans' %}active{% endif %} ">
+                  <a href="{% url 'guestplans'  %}" class="menu-link">
+                    <i class='menu-icon bx bx-group'></i>
+                    <div data-i18n="Analytics">Guest Plans</div>
+                  </a>
+                </li>
 
                 <li class="menu-header small text-uppercase">
                   <span class="menu-header-text">History</span>
@@ -223,8 +252,15 @@
                   </a>
                 </li>
                 <li class="menu-header small text-uppercase">
-                  <span class="menu-header-text">Credit Management</span>
+                  <span class="menu-header-text">Payments Management</span>
                 </li>
+
+                <li class="menu-item text-uppercase {% if active_page == 'stayinvoice' %}active{% endif %} ">
+                  <a href="{% url 'stayinvoice' %}" class="menu-link">
+                    <i class='menu-icon bx bxl-invision'></i>
+                    <div data-i18n="Analytics">Stay Invoices</div>
+                  </a>
+                </li> 
 
                 <li class="menu-item text-uppercase {% if active_page == 'creditmanage' %}active{% endif %} ">
                   <a href="{% url 'creditmanage'  %}" class="menu-link">
@@ -318,7 +354,18 @@
               </ul>
             </li>
 
-            
+            <li class="menu-header small text-uppercase">
+              <span class="menu-header-text">Travel Agency</span>
+            </li>
+
+            <li class="menu-item text-uppercase {% if active_page == 'travelagancy' %}active{% endif %} ">
+              <a href="{% url 'travelagancy' %}" class="menu-link">
+               
+                <i class='menu-icon  bx bx-book-bookmark'></i>
+                <div data-i18n="Analytics">Travels Partners</div>
+              </a>
+            </li> 
+
 
             <li class="menu-header small text-uppercase">
               <span class="menu-header-text">Events</span>
@@ -359,32 +406,32 @@
               </a>
             </li>
 
-            <li class="menu-item text-uppercase {% if active_page == 'offers' %}active{% endif %} ">
+            {% comment %} <li class="menu-item text-uppercase {% if active_page == 'offers' %}active{% endif %} ">
               <a href="{% url 'offers'  %}" class="menu-link">
                 <i class='menu-icon bx  bx-gift'></i>
                 <div data-i18n="Analytics">Offers</div>
               </a>
-            </li>
+            </li> {% endcomment %}
 
 
-            <li class="menu-header small text-uppercase">
+            {% comment %} <li class="menu-header small text-uppercase">
               <span class="menu-header-text">Qr Management</span>
-            </li>
+            </li> {% endcomment %}
 
-            <li class="menu-item text-uppercase {% if active_page == 'qrindex' %}active{% endif %} ">
+            {% comment %} <li class="menu-item text-uppercase {% if active_page == 'qrindex' %}active{% endif %} ">
               <a href="{% url 'Website'  %}" class="menu-link">
                 <i class='menu-icon bx bx-qr-scan'></i>
                 <div data-i18n="Analytics">Qr Management</div>
               </a>
-            </li>
+            </li> {% endcomment %}
 
 
-            <li class="menu-item text-uppercase {% if active_page == 'websetting' %}active{% endif %} ">
+            {% comment %} <li class="menu-item text-uppercase {% if active_page == 'websetting' %}active{% endif %} ">
               <a href="{% url 'websetting' %}" class="menu-link">
                 <i class='menu-icon bx bx-cog'></i>
                 <div data-i18n="Analytics">Website Setting</div>
               </a>
-            </li> 
+            </li>  {% endcomment %}
 
             
             <li class="menu-item text-uppercase {% if active_page == 'mobileview' %}active{% endif %} ">
@@ -395,7 +442,7 @@
             </li> 
 
 
-            <li class="menu-header small text-uppercase">
+            {% comment %} <li class="menu-header small text-uppercase">
               <span class="menu-header-text">Billzify Mall</span>
             </li>
 
@@ -404,7 +451,7 @@
                 <i class='menu-icon mb-1 bx bxs-shopping-bags'></i>
                 <div data-i18n="Analytics">Market</div>
               </a>
-            </li> 
+            </li>  {% endcomment %}
 
             <li class="menu-header small text-uppercase">
               <span class="menu-header-text">Excel Data Management</span>
@@ -428,25 +475,78 @@
               </a>
             </li> 
 
-            <li class="menu-item text-uppercase {% if active_page == 'gridview' %}active{% endif %} ">
-              <a href="{% url 'gridview' %}" class="menu-link">
-                <i class='menu-icon bx bx-cog'></i>
-                <div data-i18n="Analytics">Grid view</div>
+            <li class="menu-header small text-uppercase">
+              <span class="menu-header-text">Sales Analytics</span>
+            </li>
+            <li class="menu-item text-uppercase {% if active_page == 'index' %}active{% endif %} ">
+              <a href="{% url 'index'  %}" class="menu-link">
+                <i class='menu-icon bx bx-analyse'></i>
+                <div data-i18n="Analytics">Sales & Analytics</div>
               </a>
-            </li> 
+            </li>
+
+            <li class="menu-header small text-uppercase">
+              <span class="menu-header-text">Block Room Management</span>
+            </li>
+
+            <li class="menu-item text-uppercase {% if active_page == 'hourlyhomepage' %}active{% endif %} ">
+              <a href="{% url 'hourlyhomepage'  %}" class="menu-link">
+                <i class='menu-icon bx mb-1 bx-timer'></i>
+                <div data-i18n="Analytics">Block Room Page</div>
+              </a>
+            </li>
+
+           
+
+
+            <li class="menu-header small text-uppercase">
+              <span class="menu-header-text">Api Management</span>
+            </li>
 
             <li class="menu-item text-uppercase {% if active_page == 'gridview' %}active{% endif %} ">
-              <a href="{% url 'inventory_push' %}" class="menu-link">
+             
+              <form action="{% url 'inventory_push' %}" method="post"> 
                 <i class='menu-icon bx bx-cog'></i>
-                <div data-i18n="Analytics">Api testing</div>
-                <form action="{% url 'inventory_push' %}" method="post">
+                <div data-i18n="Analytics">inventory_push testing</div>
+                
                   {% csrf_token %}
-                  <input type="submit" value="chandanapi">
+                  <input type="submit" value="chandanapi" class="menu-link">
                 </form>
-              </a>
+              
             </li> 
 
+            <li class="menu-item text-uppercase {% if active_page == 'gridview' %}active{% endif %} ">
+              <a href="{% url 'rate_push' %}" class="menu-link">
+                <i class='menu-icon bx bx-cog'></i>
+                <div data-i18n="Analytics">rate push</div>
+                
+              </a>
+            </li> 
             
+            <li class="menu-header small text-uppercase">
+              <span class="menu-header-text">Purches Management</span>
+            </li>
+
+            <li class="menu-item text-uppercase {% if active_page == 'purchesinvoice' %}active{% endif %} ">
+              <a href="{% url 'purchesinvoice'  %}" class="menu-link">
+                <i class='menu-icon bx bx-laptop'></i>
+                <div data-i18n="Analytics">Purches Invoicing</div>
+              </a>
+            </li>
+
+            <li class="menu-item text-uppercase {% if active_page == 'purcheshistory' %}active{% endif %} ">
+              <a href="{% url 'purcheshistory'  %}" class="menu-link">
+                <i class='menu-icon bx mb-1 bx-timer'></i>
+                <div data-i18n="Analytics">Purches History</div>
+              </a>
+            </li>
+
+            <li class="menu-item text-uppercase {% if active_page == 'purchessales' %}active{% endif %} ">
+              <a href="{% url 'purchessales'  %}" class="menu-link">
+                <i class='menu-icon bx bx-analyse'></i>
+                <div data-i18n="Analytics">Purches Data</div>
+              </a>
+            </li>
             
             {% comment %} <li class="menu-item ">
               <a href="{% url 'signuppage'  %}" class="menu-link">
@@ -484,15 +584,8 @@
               <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
                 <!-- Search -->
                 <div class="navbar-nav align-items-center">
-                  <div class="nav-item d-flex align-items-center">
-                    <i class="bx bx-search fs-4 lh-0"></i>
-                    <input
-                      type="text"
-                      class="form-control border-0 shadow-none"
-                      placeholder="Search..."
-                      aria-label="Search..."
-                    />
-                  </div>
+                  <a href="{% url 'homepage'  %}" class="menu-link text-gray"><i class='menu-icon bx bx-dna'></i></a>
+                  <a href="{% url 'todaybookingpage'  %}" class="menu-link text-gray ms-3"><i class='menu-icon bx bxs-plane-land'></i></a>
                 </div>
                 <!-- /Search -->
   
@@ -856,7 +949,7 @@
     </script>
 </body>
 
-<script type="text/javascript">
+{% comment %} <script type="text/javascript">
   // Disable right-click
   document.addEventListener('contextmenu', function(e) {
       e.preventDefault();
@@ -877,5 +970,5 @@
           e.preventDefault();
       }
   });
-</script>
+</script> {% endcomment %}
 </html>

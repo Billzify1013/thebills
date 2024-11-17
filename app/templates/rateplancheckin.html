@@ -1,0 +1,545 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+rate plan checkin
+
+
+
+{% comment %} 
+
+<!-- HTML Content -->
+<div class="container mt-5">
+    <!-- Filter Section -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <select id="ratePlanFilter" class="form-select">
+                <option value="">Select Rate Plan</option>
+                {% for data in query1 %}
+                    <option value="{{ data.rate_plan }}">{{ data.rate_plan }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-6">
+            <select id="checkinDateFilter" class="form-select">
+                <option value="">All Dates</option>
+                <option value="excludeToday">Exclude Today's Check-In</option>
+            </select>
+        </div>
+    </div>
+
+    
+    <!-- Download PDF Button -->
+    <button id="downloadPdfBtn" class="btn btn-primary mt-3 mb-4">Download PDF</button>
+    <!-- Print Button -->
+    <button id="printBtn" class="btn btn-secondary mt-3 mb-4">Print</button>
+
+    <!-- Guest Rate-Plan Data Table -->
+    <div class="card">
+        <h5 class="card-header">Guest Rate-Plan Data
+            <span class="float-end">{{today}}</span>
+        </h5>
+        <div class="table-responsive">
+            <table class="table" id="guestRatePlanTable">
+                <thead>
+                    <tr>
+                        <th>Guest Data</th>
+                        <th>Rooms</th>
+                        <th>Rate-Plan</th>
+                        <th>Checkin-Checkout</th>
+                        <th>Total Rooms</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in query1 %}
+                    <tr data-rate-plan="{{ data.rate_plan }}" data-checkin-date="{{ data.checkindate|date:'Y-m-d' }}">
+                        <td>
+                            {{ data.guestname }}<br>
+                            Total Guest: {{ data.noofguest }}<br>
+                            Adults: {{ data.adults }}<br>
+                            Children: {{ data.children }}<br>
+                        </td>
+                        <td>
+                            {% if room_advance_data %}
+                                {% for key, value in room_advance_data.items %}
+                                    {% if data.id == key %}
+                                        {{ value }}
+                                        
+                                    {% else %}
+                                        {{ data.roomno }}
+                                    {% endif %}
+                                {% endfor %}
+                            {%else%}
+                            
+                            {% endif %}
+                        </td>
+                        <td>{{ data.rate_plan }}</td>
+                        <td>{{ data.checkindate }}<br>TO<br>{{ data.checkoutdate }}</td>
+                        <td>{{ data.noofrooms }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- Bootstrap JS and jQuery -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- jsPDF Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+// Get today's date in 'YYYY-MM-DD' format from Django context variable
+const today = "{{ today|date:'Y-m-d' }}";
+
+// Get references to the filter elements
+const ratePlanFilter = document.getElementById('ratePlanFilter');
+const checkinDateFilter = document.getElementById('checkinDateFilter');
+const tableRows = document.querySelectorAll('#guestRatePlanTable tbody tr');
+
+// Function to filter the table rows based on selected criteria
+function filterTable() {
+    const selectedRatePlan = ratePlanFilter.value;
+    const selectedCheckinDate = checkinDateFilter.value;
+
+    tableRows.forEach(row => {
+        const ratePlan = row.getAttribute('data-rate-plan');
+        const checkinDate = row.getAttribute('data-checkin-date'); // This is in 'YYYY-MM-DD' format
+
+        // Check if the row's rate plan matches the selected one (if any)
+        const matchesRatePlan = selectedRatePlan ? ratePlan === selectedRatePlan : true;
+
+        // Handle Check-In Date Filter:
+        let matchesCheckinDate = true;
+        if (selectedCheckinDate === 'excludeToday') {
+            // Exclude rows with today's check-in date
+            matchesCheckinDate = checkinDate !== today;
+        }
+
+        // Show or hide the row based on both conditions
+        if (matchesRatePlan && matchesCheckinDate) {
+            row.style.display = '';  // Show the row
+        } else {
+            row.style.display = 'none';  // Hide the row
+        }
+    });
+}
+
+// Event listeners to trigger filtering when the filters change
+ratePlanFilter.addEventListener('change', filterTable);
+checkinDateFilter.addEventListener('change', filterTable);
+
+// Run the filter function on page load to show all data by default
+filterTable();
+
+// PDF Download Button functionality
+document.getElementById('downloadPdfBtn').addEventListener('click', function() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Add a title
+    doc.setFontSize(18);
+    doc.text('Guest Rate-Plan Data', 20, 10);
+
+    // Get visible rows (after filter)
+    const visibleRows = Array.from(tableRows).filter(row => row.style.display !== 'none');
+
+    // Define a starting position for the table
+    let startY = 20;
+    const marginX = 20;
+    const marginY = 8;
+    const columnWidths = [50, 40, 50, 50, 30];  // Define width for each column
+
+    // Add table headers with CSS-like formatting
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Guest Data", marginX, startY);
+    doc.text("Rooms", marginX + columnWidths[0], startY);
+    doc.text("Rate-Plan", marginX + columnWidths[0] + columnWidths[1], startY);
+    doc.text("Checkin-Checkout", marginX + columnWidths[0] + columnWidths[1] + columnWidths[2], startY);
+    doc.text("Total Rooms", marginX + columnWidths[0] + columnWidths[1] + columnWidths[2] + columnWidths[3], startY);
+
+    // Draw a line under the headers
+    doc.setLineWidth(0.5);
+    doc.line(marginX, startY + marginY, marginX + columnWidths.reduce((a, b) => a + b), startY + marginY);
+
+    // Add the table rows with CSS-like formatting
+    startY += marginY + 10;
+    doc.setFont("helvetica", "normal");
+
+    visibleRows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        
+        // Extracting data for each column
+        let guestData = cells[0].innerText.trim().replace(/\n/g, ', '); // Merge multiple lines for first column
+        let roomData = cells[1].innerText.trim();
+        let ratePlan = cells[2].innerText.trim();
+        let checkinCheckout = cells[3].innerText.trim();
+        let totalRooms = cells[4].innerText.trim();
+
+        // Split first column (Guest Data) into multiple lines if needed
+        let guestDataLines = guestData.split(", ");
+        let currentY = startY;
+
+        guestDataLines.forEach((line, index) => {
+            // Add each line of Guest Data in a new line on the PDF
+            doc.text(line, marginX, currentY);
+            currentY += marginY;  // Move to the next line after each text
+
+            // If the text exceeds the page length, create a page break
+            if (currentY > 250) {
+                doc.addPage();
+                currentY = 20;
+            }
+        });
+
+        // Add the other columns (Rooms, Rate-Plan, Checkin-Checkout, Total Rooms)
+        doc.text(roomData, marginX + columnWidths[0], currentY);
+        doc.text(ratePlan, marginX + columnWidths[0] + columnWidths[1], currentY);
+        doc.text(checkinCheckout, marginX + columnWidths[0] + columnWidths[1] + columnWidths[2], currentY);
+        doc.text(totalRooms, marginX + columnWidths[0] + columnWidths[1] + columnWidths[2] + columnWidths[3], currentY);
+
+        // Draw a line after each row for separation
+        currentY += marginY + 8;
+        doc.setLineWidth(0.5);
+        doc.line(marginX, currentY, marginX + columnWidths.reduce((a, b) => a + b), currentY);
+
+        // Add space for the next row
+        startY = currentY + 10;
+    });
+
+    // Save the PDF
+    doc.save("guest_rate_plan_data.pdf");
+});
+
+// Print Button functionality
+document.getElementById('printBtn').addEventListener('click', function() {
+    const printWindow = window.open('', '', 'height=600,width=800');
+    printWindow.document.write('<html><head><title>Guest Rate-Plan Data</title>');
+    printWindow.document.write('<style>');
+    printWindow.document.write(`
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 8px; text-align: left; border: 1px solid #ddd; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        th { background-color: #4CAF50; color: white; }
+        td { line-height: 1.5; }
+        h3 { text-align: center; }
+    `);
+    printWindow.document.write('</style></head><body>');
+    printWindow.document.write('<h3>Guest Rate-Plan Data</h3>');
+    printWindow.document.write(document.getElementById('guestRatePlanTable').outerHTML);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    printWindow.print();
+});
+</script> {% endcomment %}
+
+<!-- HTML Content -->
+<div class="container mt-5">
+    <!-- Filter Section -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <select id="ratePlanFilter" class="form-select">
+                <option value="">Select Rate Plan</option>
+                {% for data in query1 %}
+                    <option value="{{ data.rate_plan }}">{{ data.rate_plan }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-6">
+            <select id="checkinDateFilter" class="form-select">
+                <option value="">All Dates</option>
+                <option value="excludeToday">Exclude Today's Check-In</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Download PDF Button -->
+    <button id="downloadPdfBtn" class="btn btn-primary mt-3 mb-4">Download PDF</button>
+    <!-- Print Button -->
+    <button id="printBtn" class="btn btn-secondary mt-3 mb-4">Print</button>
+
+    <!-- Guest Rate-Plan Data Table -->
+    <div class="card">
+        <h5 class="card-header">Guest Rate-Plan Data
+            <span class="float-end">{{today}}</span>
+        </h5>
+        <div class="table-responsive">
+            <table class="table" id="guestRatePlanTable">
+                <thead>
+                    <tr>
+                        <th>Guest Data</th>
+                        <th>Rooms</th>
+                        <th>Rate-Plan</th>
+                        <th>Checkin-Checkout</th>
+                        <th>Total Rooms</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in query1 %}
+                    <tr data-rate-plan="{{ data.rate_plan }}" data-checkin-date="{{ data.checkindate|date:'Y-m-d' }}">
+                        <td>
+                            {{ data.guestname }}<br>
+                            Total Guest: {{ data.noofguest }}<br>
+                            Adults: {{ data.adults }}<br>
+                            Children: {{ data.children }}<br>
+                        </td>
+                        <td>
+                            {% if room_advance_data %}
+                                {% for key, value in room_advance_data.items %}
+                                    {% if data.id == key %}
+                                        {{ value }}
+                                    {% else %}
+                                        {{ data.roomno }}
+                                    {% endif %}
+                                {% endfor %}
+                            {%else%}
+                             {% endif %}
+                        </td>
+                        <td>
+                            {% if data.id in room_advance_data %}
+                            {%if room_advance_data.keys == data.id%}
+                                {{ room_advance_data.keys }}
+                            {%endif%}
+                            {% else %}
+                                {{ data.roomno }}
+                            {% endif %}
+                        </td>
+                        <td>{{ data.rate_plan }}</td>
+                        <td>{{ data.checkindate }}<br>TO<br>{{ data.checkoutdate }}</td>
+                        <td>{{ data.noofrooms }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS and jQuery -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- jsPDF Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+// Get today's date in 'YYYY-MM-DD' format from Django context variable
+const today = "{{ today|date:'Y-m-d' }}";
+
+// Get references to the filter elements
+const ratePlanFilter = document.getElementById('ratePlanFilter');
+const checkinDateFilter = document.getElementById('checkinDateFilter');
+const tableRows = document.querySelectorAll('#guestRatePlanTable tbody tr');
+
+// Function to ensure rate plan filter options are unique
+function makeRatePlanUnique() {
+    const ratePlanSelect = document.getElementById('ratePlanFilter');
+    const options = ratePlanSelect.options;
+    const seen = new Set();
+
+    for (let i = 0; i < options.length; i++) {
+        const optionValue = options[i].value;
+        if (seen.has(optionValue)) {
+            ratePlanSelect.remove(i);
+            i--; // Adjust the index after removal
+        } else {
+            seen.add(optionValue);
+        }
+    }
+}
+
+// Function to filter the table rows based on selected criteria
+function filterTable() {
+    const selectedRatePlan = ratePlanFilter.value;
+    const selectedCheckinDate = checkinDateFilter.value;
+
+    tableRows.forEach(row => {
+        const ratePlan = row.getAttribute('data-rate-plan');
+        const checkinDate = row.getAttribute('data-checkin-date'); // This is in 'YYYY-MM-DD' format
+
+        // Check if the row's rate plan matches the selected one (if any)
+        const matchesRatePlan = selectedRatePlan ? ratePlan === selectedRatePlan : true;
+
+        // Handle Check-In Date Filter:
+        let matchesCheckinDate = true;
+        if (selectedCheckinDate === 'excludeToday') {
+            // Exclude rows with today's check-in date
+            matchesCheckinDate = checkinDate !== today;
+        }
+
+        // Show or hide the row based on both conditions
+        if (matchesRatePlan && matchesCheckinDate) {
+            row.style.display = '';  // Show the row
+        } else {
+            row.style.display = 'none';  // Hide the row
+        }
+    });
+}
+
+// Event listeners to trigger filtering when the filters change
+ratePlanFilter.addEventListener('change', filterTable);
+checkinDateFilter.addEventListener('change', filterTable);
+
+// Run the function to ensure uniqueness and apply filter on page load
+makeRatePlanUnique();
+filterTable();
+
+// Print Button functionality (Only prints the table)
+document.getElementById('printBtn').addEventListener('click', function() {
+    const table = document.getElementById('guestRatePlanTable'); // Target only the table for printing
+    const newWindow = window.open('', '', 'height=600,width=800');
+    newWindow.document.write('<html><head><title>Print Table</title>');
+    newWindow.document.write('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">'); // Include font-awesome for icons
+    newWindow.document.write('<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">'); // Include Bootstrap CSS
+    newWindow.document.write('</head><body>');
+    newWindow.document.write('<h1>Guest Rate-Plan Data</h1>');
+    newWindow.document.write(table.outerHTML); // Only print the table
+    newWindow.document.write('</body></html>');
+    newWindow.document.close(); // Close the document to trigger the print dialog
+    newWindow.print(); // Print the content
+});
+
+// PDF Download Button functionality
+document.getElementById('downloadPdfBtn').addEventListener('click', function() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Add a title
+    doc.setFontSize(18);
+    doc.text('Guest Rate-Plan Data', 20, 10);
+
+    // Get visible rows (after filter)
+    const visibleRows = Array.from(tableRows).filter(row => row.style.display !== 'none');
+
+    // Define a starting position for the table
+    let startY = 20;
+    const marginX = 20;
+    const marginY = 8;
+    const columnWidths = [50, 40, 50, 50, 30];  // Define width for each column
+
+    // Add table headers with CSS-like formatting
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Guest Data", marginX, startY);
+    doc.text("Rooms", marginX + columnWidths[0], startY);
+    doc.text("Rate-Plan", marginX + columnWidths[0] + columnWidths[1], startY);
+    doc.text("Checkin-Checkout", marginX + columnWidths[0] + columnWidths[1] + columnWidths[2], startY);
+    doc.text("Total Rooms", marginX + columnWidths[0] + columnWidths[1] + columnWidths[2] + columnWidths[3], startY);
+
+    // Draw a line under the headers
+    doc.setLineWidth(0.5);
+    doc.line(marginX, startY + marginY, marginX + columnWidths.reduce((a, b) => a + b), startY + marginY);
+
+    // Add the table rows with CSS-like formatting
+    startY += marginY + 10;
+    doc.setFont("helvetica", "normal");
+
+    visibleRows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        
+        // Extracting data for each column
+        let guestData = cells[0].innerText.trim().replace(/\n/g, ', '); // Merge multiple lines for first column
+        let roomData = cells[1].innerText.trim();
+        let ratePlan = cells[2].innerText.trim();
+        let checkinCheckout = cells[3].innerText.trim();
+        let totalRooms = cells[4].innerText.trim();
+
+        // Split first column (Guest Data) into multiple lines if needed
+        let guestDataLines = guestData.split(", ");
+        let currentY = startY;
+
+        guestDataLines.forEach((line, index) => {
+            doc.text(line, marginX, currentY);
+            currentY += marginY;  // Move down for the next line
+        });
+
+        // Add other columns (Room, Rate-Plan, Checkin-Checkout, Total Rooms)
+        doc.text(roomData, marginX + columnWidths[0], startY);
+        doc.text(ratePlan, marginX + columnWidths[0] + columnWidths[1], startY);
+        doc.text(checkinCheckout, marginX + columnWidths[0] + columnWidths[1] + columnWidths[2], startY);
+        doc.text(totalRooms, marginX + columnWidths[0] + columnWidths[1] + columnWidths[2] + columnWidths[3], startY);
+
+        startY = currentY;  // Update startY for the next row
+
+        if (startY > 270) {  // Check if we're near the bottom of the page
+            doc.addPage();
+            startY = 20; // Reset to the top of the new page
+        }
+    });
+
+    // Save the PDF file
+    doc.save('guest_rate_plan_data.pdf');
+});
+</script>
+
+
+
+
+
+
+{% comment %} new work start here {% endcomment %}
+
+
+    <!-- Guest Rate-Plan Data Table -->
+    <div class="card">
+        <h5 class="card-header">Guest Rate-Plan Data
+            <span class="float-end">{{today}}</span>
+        </h5>
+        <div class="table-responsive">
+            <table class="table" id="guestRatePlanTable">
+                <thead>
+                    <tr>
+                        <th>Guest Data</th>
+                        <th>Rooms</th>
+                        <th>Rate-Plan</th>
+                        <th>Checkin-Checkout</th>
+                        <th>Total Rooms</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in guestdata %}
+                    <tr data-rate-plan="{{ data.rate_plan }}" data-checkin-date="{{ data.checkindate|date:'Y-m-d' }}">
+                        <td>
+                            {{ data.guestname }}<br>
+                            Total Guest: {{ data.noofguest }}<br>
+                            Adults: {{ data.adults }}<br>
+                            Children: {{ data.children }}<br>
+                        </td>
+                        <td>
+                            
+                                        {{ data.roomno }}
+                                    
+                        </td>
+                        
+                        <td>{{ data.rate_plan }}</td>
+                        <td>{{ data.checkindate }}<br>TO<br>{{ data.checkoutdate }}</td>
+                        <td>{{ data.noofrooms }}</td>
+                    </tr>
+                    {% endfor %}
+
+                    {% for data in room_advance %}
+                    <tr data-rate-plan="{{ data.rate_plan }}" data-checkin-date="{{ data.checkindate|date:'Y-m-d' }}">
+                        <td>
+                            {{ data.bookingguest }}<br>
+                            Total Guest: {{ data.noofguest }}<br>
+                            Adults: {{ data.adults }}<br>
+                            Children: {{ data.children }}<br>
+                        </td>
+                        <td>
+                           {{data.roomno.room_name}}
+                        </td>
+                        
+                        <td>{{ data.rateplan_code }}</td>
+                        <td>{{ data.bookingdate }}<br>TO<br>{{ data.checkoutdate }}</td>
+                        <td>{{ data.noofrooms }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+{%endblock%}

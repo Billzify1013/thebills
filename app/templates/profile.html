@@ -228,6 +228,17 @@
             </div>
           </div>
           
+          <div class="mb-3 col-md-12">
+            <label for="zipCode" class="form-label">Terms & Conditions </label>
+            <div class="input-group input-group-merge speech-to-text">
+              <textarea class="form-control"  placeholder="Terms & condition" name="termscondition" rows="4">{{i.termscondition}}</textarea>
+              <span class="input-group-text">
+                <i class="bx bx-microphone cursor-pointer text-to-speech-toggle"></i>
+              </span>
+            </div>
+          </div>  
+
+
           {%endfor%}
           <div class="mt-2">
             <input type="submit" class="btn btn-primary me-2" value="Update">
@@ -444,8 +455,24 @@
                 maxlength="8"
                 required
               />
-            </div>
+            </div>            
           </div>
+
+          <div class="mb-3 col-md-12">
+            <label for="zipCode" class="form-label">Terms & Conditions </label>
+            <div class="input-group input-group-merge speech-to-text">
+              <textarea class="form-control" placeholder="Terms & condition" name="termscondition" rows="4"></textarea>
+              <span class="input-group-text">
+                <i class="bx bx-microphone cursor-pointer text-to-speech-toggle"></i>
+              </span>
+            </div>
+          </div>  
+
+        
+
+
+          
+
           <div class="mt-2">
             <input type="submit" class="btn btn-primary me-2" placeholder="save">
             <button type="reset" class="btn btn-outline-secondary">Cancel</button>

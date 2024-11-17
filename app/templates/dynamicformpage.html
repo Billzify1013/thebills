@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block content %}
+<h5>Dynamic Rates / Form</h5>
+{% comment %} 
+<div class="card">
+    <form action="{% url 'dynamicformdata' %}" method="post">
+        {% csrf_token %}
+    <div class="row m-3">
+        
+        <div class="col-3">
+            <div class=" ">
+                <label for="nameBackdrop" class="form-label">Dynamic Rates On/Off</label><br>
+                <input
+                  type="checkbox"
+                  name="checkboxs"
+                  id="nameBackdrop"
+                  class="form-check-input ms-1 mt-1 "
+                  placeholder="Enter RoomName"
+                  style="font-size:25px"
+                />
+              </div>
+        </div>
+        <div class="col-4">
+            <div class="">
+                <label for="nameBackdrop" class="form-label ">Choose Plan</label>
+                <select class="form-control" name="planname" required placeholder="Select Tax ">
+                  <option value='1'>1</option>
+                  <option value='2'>2</option>
+                  <option value='3'>3</option>
+                  <option value='4'>4</option>
+                </select>
+              </div>
+        </div>
+        <div class="col-3">
+            <button class="btn btn-primary mt-4 ms-5" type="submit">UPDATE</button>
+        </div>
+    </div>
+</form>
+</div> {% endcomment %}
+
+
+<div class="card">
+    <form action="{% url 'dynamicformdata' %}" method="post">
+        {% csrf_token %}
+        <div class="row m-3">
+
+            <!-- Checkbox for Dynamic Rates On/Off -->
+            <div class="col-3">
+                <div>
+                    <label for="nameBackdrop" class="form-label">Dynamic Rates On/Off</label><br>
+                    <input
+                      type="checkbox"
+                      name="checkboxs"
+                      id="nameBackdrop"
+                      class="form-check-input ms-1 mt-1"
+                      style="font-size:25px"
+                      {% if datas and datas.dynamic_price_active %} checked {% endif %}
+                    />
+                </div>
+            </div>
+
+            <!-- Dropdown for Choosing Plan -->
+            <div class="col-4">
+                <div>
+                    <label for="planSelect" class="form-label">Choose Plan</label>
+                    <select class="form-control" name="planname" id="planSelect" required>
+                        <option value="1" {% if datas and datas.dynamic_price_plan == 1 %} selected {% endif %}>1</option>
+                        <option value="2" {% if datas and datas.dynamic_price_plan == 2 %} selected {% endif %}>2</option>
+                        <option value="3" {% if datas and datas.dynamic_price_plan == 3 %} selected {% endif %}>3</option>
+                        <option value="4" {% if datas and datas.dynamic_price_plan == 4 %} selected {% endif %}>4</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="col-3">
+                <button class="btn btn-primary mt-4 ms-5" type="submit">UPDATE</button>
+            </div>
+
+        </div>
+    </form>
+</div>
+
+
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Choose Your Room Pricing Plan</h2>
+    
+    <div class="row">
+        <!-- Plan 1 -->
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Plan 1: Maximum Price with Decreasing Adjustments</h5>
+                    <p class="card-text">This plan starts with the highest price and decreases based on occupancy. The lower the occupancy, the bigger the discount.</p>
+                    <p><strong>Example:</strong> If the room price is ₹2000 and occupancy is at 70%, the price will decrease to ₹1800 (10% off).</p>
+                    <ul>
+                        <li>Occupancy > 90%: Full Price (₹2000)</li>
+                        <li>Occupancy > 70%: 10% off (₹1800)</li>
+                        <li>Occupancy > 50%: 20% off (₹1600)</li>
+                        <li>Occupancy > 30%: 30% off (₹1400)</li>
+                        <li>Occupancy < 30%: 40% off (₹1200)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plan 2 -->
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Plan 2: Maximum Price with Weekend Increase</h5>
+                    <p class="card-text">This plan applies a price discount based on occupancy and increases the price by 20% on weekends.</p>
+                    <p><strong>Example:</strong> If the room price is ₹2000, and occupancy is 60%, the price will decrease to ₹1600 (20% off). If it's the weekend, the price will increase by 20%, making it ₹1920.</p>
+                    <ul>
+                        <li>Occupancy > 90%: Full Price (₹2000)</li>
+                        <li>Occupancy > 70%: 10% off (₹1800)</li>
+                        <li>Occupancy > 50%: 20% off (₹1600)</li>
+                        <li>Occupancy > 30%: 30% off (₹1400)</li>
+                        <li>Occupancy < 30%: 40% off (₹1200)</li>
+                        <li>Weekend Surcharge: 20% increase on weekends</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plan 3 -->
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Plan 3: Smaller Price Decreases with Occupancy</h5>
+                    <p class="card-text">This plan applies smaller price reductions as occupancy increases.</p>
+                    <p><strong>Example:</strong> If the room price is ₹2000, and occupancy is 80%, the price will decrease to ₹1900 (5% off).</p>
+                    <ul>
+                        <li>Occupancy > 90%: Full Price (₹2000)</li>
+                        <li>Occupancy > 70%: 5% off (₹1900)</li>
+                        <li>Occupancy > 50%: 10% off (₹1800)</li>
+                        <li>Occupancy > 30%: 15% off (₹1700)</li>
+                        <li>Occupancy < 30%: 20% off (₹1600)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plan 4 -->
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Plan 4: Maximum Price with Weekend Surcharge</h5>
+                    <p class="card-text">This plan applies a small discount based on occupancy and adds a 10% surcharge on weekends.</p>
+                    <p><strong>Example:</strong> If the room price is ₹2000, and occupancy is 60%, the price will decrease to ₹1800 (10% off). If it's the weekend, the price will increase by 10%, making it ₹1980.</p>
+                    <ul>
+                        <li>Occupancy > 90%: Full Price (₹2000)</li>
+                        <li>Occupancy > 70%: 5% off (₹1900)</li>
+                        <li>Occupancy > 50%: 10% off (₹1800)</li>
+                        <li>Occupancy > 30%: 15% off (₹1700)</li>
+                        <li>Occupancy < 30%: 10% off (₹1800)</li>
+                        <li>Weekend Surcharge: 10% increase on weekends</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{%endblock%}

@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <a href="{% url 'billingplanpage' %}" style="text-decoration:none;">
+    <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div></a>
+    {%endif%}
+</div>
+{%endfor%}
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 1000);
+  });
+</script>
+{%endif%} 
+
+<h5> Rates/ Plan Page </h5>
+
+
+<div class="row ">
+
+<div class=" col-6 ">
+    <form action="{% url 'addbookingrateplan' %}" method="post">
+        {% csrf_token %}
+    <div class="row">
+        <div class="col mb-3 card m-2">
+            <h5 class="mt-3 mb-3">RatePlan For Advance Booking In PMS</h5>
+          <label for="nameBackdrop" class="form-label mt-2">Rate Plan Name</label>
+          <input
+            type="text"
+            name="planname"
+            id="nameBackdrop"
+            class="form-control mb-3"
+            placeholder="Enter PlanName"
+            required
+          />
+
+          <label for="nameBackdrop" class="form-label mb-2">Rate Plan Code</label>
+            <input
+              type="text"
+              name="plancode"
+              id="nameBackdrop"
+              class="form-control mb-3"
+              placeholder="Enter Plan Code"
+              required
+            />
+
+            <label for="nameBackdrop" class="form-label mb-2">Rate Plan Price 1/Person</label>
+            <input
+              type="number"
+              name="planprice"
+              id="nameBackdrop"
+              class="form-control mb-3"
+              placeholder="Enter plan price for 1 guest"
+              required
+            />
+
+            <input type="submit" class="btn btn-primary mb-4 mt-3" value="SUBMIT" />
+
+        </div>
+
+    </form>
+        
+</div></div>
+
+
+
+<div class=" col-6">
+    <form action="{% url 'addrateplan' %}" method="post">
+        {% csrf_token %}
+    <div class="row">
+        <div class="col mb-3 card m-2">
+            <h5 class="mt-3 mb-3">RatePlan For  Category and Person Wise</h5>
+          <label for="nameBackdrop" class="form-label mt-2">Select Room Category</label>
+          
+          <select class="form-select mb-3" name="selectcat" required>
+            {% for i in roomcat%}
+            <option value="{{i.id}}">{{i.category_name}}</option>
+            {%endfor%}
+          </select>
+
+          <label for="nameBackdrop" class="form-label mb-2">Rate Plan Name</label>
+          <input
+            type="text"
+            name="planname"
+            id="nameBackdrop"
+            class="form-control mb-3"
+            placeholder="Enter RatePlanName"
+            required
+          />
+
+          <label for="nameBackdrop" class="form-label mb-2">Rate Plan Code</label>
+            <input
+              type="text"
+              name="plancode"
+              id="nameBackdrop"
+              class="form-control mb-3"
+              placeholder="Enter RateCode"
+              required
+            />
+
+            <label for="nameBackdrop" class="form-label mb-2">Rate Plan Base Price </label>
+            <input
+              type="number"
+              name="planprice"
+              id="nameBackdrop"
+              class="form-control mb-3"
+              placeholder="Enter Base price"
+              required
+            />
+
+            <label for="nameBackdrop" class="form-label mb-2">Max Person </label>
+            <input
+              type="number"
+              name="maxperson"
+              id="nameBackdrop"
+              class="form-control mb-3"
+              placeholder="Enter max person limit"
+              required
+            />
+
+            <label for="nameBackdrop" class="form-label mb-2">Additional Person Price</label>
+            <input
+              type="number"
+              name="addprice"
+              id="nameBackdrop"
+              class="form-control mb-3"
+              placeholder="Enter Additional person price"
+              required
+            />
+
+            <input type="submit" class="btn btn-primary mb-4 mt-3" value="SUBMIT" />
+
+        </div>
+    </form>
+
+        
+</div>
+
+</div>
+
+
+
+<div class="row">
+    <div class="col-6">
+        <div class="card">
+            <table class="table table-responsive">
+                <h5 class="p-3">Advance Booking Plans</h5>
+                 <thead class="table">
+                    <tr>
+                      <th> name</th>
+                      <th>Code</th>
+                      <th>Rate</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  
+                  <tbody class="table-border">  
+                    
+                      {% for data in bookingplan%}
+                    <tr>
+                      <td><strong>{{data.rate_plan_name}}</strong></td>
+                      <td>{{data.rate_plan_code}}</td>
+                      <td>{{data.base_price}}</td>
+                      <td>
+                          <a href="{% url 'deleteplanbookingcode' id=data.id %}"><span class="badge bg-label-danger  "><i class='bx bxs-trash'></i></span></a>
+                      </td>
+                    </tr>
+                    {%endfor%}
+             
+                  
+                  </tbody>
+                </table>
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="card">
+            <table class="table table-responsive">
+                <h5 class="p-3">Main Rate Plans</h5>
+                 <thead class="table ">
+                    <tr>
+                      <th> name</th>
+                      <th>Code</th>
+                      <th>Rate</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody class="table-border">  
+                    
+                      {% for data in roomsdata%}
+                    <tr>
+                      <td><strong>{{data.rate_plan_name}}</strong><br>
+                    Person:{{data.max_persons}}<br>
+                    Ex/Rate:{{data.additional_person_price}}
+                </td>
+                      <td>{{data.rate_plan_code}}</td>
+                      <td>{{data.base_price}}</td>
+                      <td>
+                          <a href="{% url 'deleteplanratecode' id=data.id %}"><span class="badge bg-label-danger  "><i class='bx bxs-trash'></i></span></a>
+                      </td>
+                    </tr>
+                    {%endfor%}
+             
+                  
+                  </tbody>
+                </table>
+        </div>
+    </div>
+</div>
+
+
+
+{%endblock%}

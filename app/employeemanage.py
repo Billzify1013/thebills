@@ -654,40 +654,36 @@ def createeventinvoice(request,id):
         return render(request, '404.html', {'error_message': str(e)}, status=500)    
     
          
-def roomclean(request):
+def roomclean(request,user):
     try:
-        if request.user.is_authenticated:
-            user = request.user
+            user = user 
             today = datetime.now().date()
             lastday = datetime.now().date()
             # lastday += timedelta(days=1)
             lastday -= timedelta(days=1)
             # today += timedelta(days=1)
-            RoomCleaning.objects.filter(vendor=user,current_date__lte =lastday ).all().delete()
+            # RoomCleaning.objects.filter(vendor=user,current_date__lte =lastday ).all().delete()
             # Subquery to get all room IDs that are cleaned by the current vendor today
-            cleaned_rooms_subquery = RoomCleaning.objects.filter(
-                vendor=user,
-                current_date=today,
-                status=True,
-                rooms=OuterRef('pk')
-            ).values('rooms')
-
+            # cleaned_rooms_subquery = RoomCleaning.objects.filter(
+            #     vendor=user,
+            #     current_date=today,
+            #     status=True,
+            #     rooms=OuterRef('pk')
+            # ).values('rooms')
+                
             # Query to get all rooms for the current vendor that are not in the RoomCleaning model today
-            uncleandroom = Rooms.objects.filter(vendor=user).exclude(
-                id__in=Subquery(cleaned_rooms_subquery)
-            )
+            # 
 
             roomdata = Rooms.objects.filter(vendor=user).order_by('room_name')
             cleanrooms = RoomCleaning.objects.filter(vendor=user, current_date=today, status=True)
-
+            hotelnames = HotelProfile.objects.get(vendor=user)
+            hotelname = hotelnames.name
             return render(request, 'roomclean.html', {
                 'active_page': 'roomclean',
                 'rooms': roomdata,
-                'cleanrooms': cleanrooms,
-                'uncleandroom': uncleandroom
+                'hotelname':hotelname
             })
-        else:
-            return redirect('loginpage')
+       
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)    
     
@@ -715,91 +711,24 @@ def mobileview(request,user):
         user = user
         if HotelProfile.objects.filter(vendor__username=user).exists():
             profile = HotelProfile.objects.get(vendor__username=user)
-            rooms = RoomsCategory.objects.filter(vendor__username=user)
-            offers = offerwebsitevendor.objects.filter(vendor__username=user)
-            service = amainities.objects.filter(vendor__username=user)
-            gallary = webgallary.objects.filter(vendor__username=user)
-            about  = webreview.objects.filter(vendor__username=user)
-            return render(request,'website.html',{'profile':profile,'rooms':rooms,'offers':offers,'service':service,'gallary':gallary,'about':about,})
+            rooms = RoomsCategory.objects.filter(vendor__username=user).prefetch_related('images')
+            # offers = offerwebsitevendor.objects.filter(vendor__username=user)
+            # service = amainities.objects.filter(vendor__username=user)
+            # gallary = webgallary.objects.filter(vendor__username=user)
+            # about  = webreview.objects.filter(vendor__username=user)
+            today = datetime.now().date()
+            tommrow =today + timedelta(days=1)
+            profiledata = HotelProfile.objects.filter(vendor__username=user)
+            imagedata = HoelImage.objects.filter(vendor__username=user)
+            
+            return render(request,'website.html',{'profile':profile,'imagedata':imagedata,'profiledata':profiledata,'today':today,'tommrow':tommrow,'rooms':rooms,})
         else:
             return render(request, '404.html', {'error_message': "Profile Not Created!"}, status=300)  
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)    
     
      
-def addcoupnoffers(request):
-    try:
-        if request.user.is_authenticated and request.method=="POST":
-            user=request.user
-            codename = request.POST.get('codename')
-            amountintext = request.POST.get('amountintext')
-            category = request.POST.get('category')
-            if offerwebsitevendor.objects.filter(vendor=user,category_id=category).exists():
-                offerwebsitevendor.objects.filter(vendor=user,category_id=category).update(code=codename,amount=amountintext)
-                messages.success(request,'voucher update succesfully')
-                return redirect('websetting')
-            else:
-                offerwebsitevendor.objects.create(vendor=user,category_id=category,code=codename,amount=amountintext)
-                messages.success(request,'voucher added succesfully')
-                return redirect('websetting')
-        else:
-            return redirect('loginpage')
-    except Exception as e:
-        return render(request, '404.html', {'error_message': str(e)}, status=500)    
-    
-         
-def addserviceshow(request):
-    try:
-        if request.user.is_authenticated and request.method=="POST":
-            user=request.user
-            servicename = request.POST.get('servicename')
-            if amainities.objects.filter(vendor=user,service_name=servicename).exists():
-                messages.error(request,'service already exists.')
-                return redirect('websetting')
-            else:
-                amainities.objects.create(vendor=user,service_name=servicename)
-                messages.success(request,'service added succesfully')
-                return redirect('websetting')
-        else:
-            return redirect('loginpage')
-    except Exception as e:
-        return render(request, '404.html', {'error_message': str(e)}, status=500)    
-    
-             
-def gallryimgwebsite(request):
-    try:
-        if request.user.is_authenticated and request.method=="POST":
-            user=request.user
-            galaryimg = request.FILES.get('galaryimg')
-            webgallary.objects.create(vendor=user,gallary_img=galaryimg)
-            messages.success(request,'image added succesfully')
-            return redirect('websetting')
-        else:
-            return redirect('loginpage')
-    except Exception as e:
-        return render(request, '404.html', {'error_message': str(e)}, status=500)    
-    
-         
-def reviewscount(request):
-    try:
-        if request.user.is_authenticated and request.method=="POST":
-            user=request.user
-            years = request.POST.get('years')
-            reviewscount = request.POST.get('reviewscount')
-            clientcount = request.POST.get('clientcount')
-            if webreview.objects.filter(vendor=user).exists():
-                webreview.objects.filter(vendor=user).update(years=years,clientscount=clientcount,reviewscount=reviewscount)
-                messages.success(request,'data update succesfully')
-                return redirect('websetting')
-            else:
-                webreview.objects.create(vendor=user,years=years,clientscount=clientcount,reviewscount=reviewscount)
-                messages.success(request,'data added succesfully')
-                return redirect('websetting')
-        else:
-            return redirect('loginpage')
-    except Exception as e:
-        return render(request, '404.html', {'error_message': str(e)}, status=500)    
-    
+       
      
 def pos(request):
     try:
@@ -1085,24 +1014,25 @@ def finddatevisesales(request):
             print(grand_total_amount," total amount searched")
 
             # Aggregate the sum of `cash_amount`
-            cash_amount_sum = Invoice.objects.filter(
-                vendor=user,
-                invoice_date__range=[startdate, enddate]
-            ).aggregate(total_cash_amount=Sum('cash_amount'))
+            # cash_amount_sum = Invoice.objects.filter(
+            #     vendor=user,
+            #     invoice_date__range=[startdate, enddate]
+            # ).aggregate(total_cash_amount=Sum('cash_amount'))
 
-            # Access the correct key 'total_cash_amount'
-            total_cash_amount = cash_amount_sum['total_cash_amount']
-            print(total_cash_amount,"total cash")
+            # # Access the correct key 'total_cash_amount'
+            # total_cash_amount = cash_amount_sum['total_cash_amount']
+            # print(total_cash_amount,"total cash")
 
-            online_amount_sum = Invoice.objects.filter(
-                vendor=user,
-                invoice_date__range=[startdate, enddate]
-            ).aggregate(total_online_amount=Sum('online_amount'))
+            # online_amount_sum = Invoice.objects.filter(
+            #     vendor=user,
+            #     invoice_date__range=[startdate, enddate]
+            # ).aggregate(total_online_amount=Sum('online_amount'))
 
             # Access the correct key 'total_online_amount'
-            total_online_amount = online_amount_sum['total_online_amount']
-            print(total_online_amount,"online amount")
-           
+            # total_online_amount = online_amount_sum['total_online_amount']
+            # print(total_online_amount,"online amount")
+            total_cash_amount=0
+            total_online_amount=0
             return render(request,'datewisesale.html',{'sattle_total_amount':sattle_total_amount,
                                                        'total_cash_amount':total_cash_amount,'total_online_amount':total_online_amount,'grand_total_amount':grand_total_amount,'startdate':startdate,'enddate':enddate,'folio_total_amount':folio_total_amount,'total_gst_amount':total_gst_amount})
 

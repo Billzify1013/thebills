@@ -3,8 +3,38 @@
 
 
 
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <a href="{% url 'billingplanpage' %}" style="text-decoration:none;">
+    <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div></a>
+    {%endif%}
+</div>
+{%endfor%}
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 1000);
+  });
+</script>
+{%endif%} 
+
 <!--loylty data here-->
-<div class="row    mt-4" style="height:450px">
+<div class="row    mt-4" style="height:250px">
   <div class="col-4 ms-4 card">
     
     <label for="nameBackdrop" class="form-label ms-5 mt-5 ">Guest Phone Number To Check Loyalty Data</label>
@@ -27,7 +57,7 @@
     <p class="text m-2 mt-5">
       Please wait while it displays the loyalty data. If the information is incorrect, refresh the page and try again.</p>
   </div>
-  <div class="col-7 ms-3 card">
+  <div class="col-7 ms-4 card">
     
      <!-- List group Icons -->
      <div class="col-lg-12">
@@ -51,7 +81,7 @@
           </li>
           
           <!-- Error Display -->
-          <div class="text-danger" id="errorshowajax"></div>
+          <div class="text-danger"  id="errorshowajax"></div>
           
         </ul>
       </div>
@@ -61,6 +91,52 @@
 
   </div>
   <!--end here-->
+  
+
+
+<div class="container mb-5 mt-5">
+  <!-- Bootstrap Table with Header - Light -->
+  <div class="card mt-3 mb-5">
+    <div class="row">
+      <div class="col-6">
+        <h5 class="card-header">Loyalty Points Data</h5>
+      </div>
+     
+    </div>
+
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead class="table-light">
+          <tr>
+            <th>Guest Name</th>
+            <th>Phone</th>
+            <th>Available Loyalty Points</th>
+            <th>Send SMS Count</th>
+            <th>Send SMS</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+          {% for data in loyltyguestsdatas %}
+          <tr>
+            <td><strong>{{ data.guest_name }}</strong></td>
+            <td>{{ data.guest_contact }}</td>
+            <td><span class="badge bg-label-primary me-1">₹ {{ data.loylty_point }}</span></td>
+            <td>{{ data.smscount }}</td>
+            <td><a href="{% url 'sendbulksmsloylty' id=data.id %}" class="btn btn-primary">Send SMS</a></td>
+            <td><a href="{% url 'deleteloylty' id=data.id %}" class="btn text-danger"><i class='bx bxs-trash-alt'></i></a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+
+
+
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script>
