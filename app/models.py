@@ -680,3 +680,17 @@ class companyinvoice(models.Model):
     Value = models.CharField(max_length=10)
     date = models.DateField(auto_now=False)
     is_paid = models.BooleanField(default=False)
+
+
+# Offer model: represents the discount offers, can be quantity or price-based
+class OfferBE(models.Model):
+    offer_type_choices = [
+        ('quantity', 'Quantity Based Discount'),
+        ('price', 'Price Based Discount')
+    ]
+    
+    vendor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='offers')
+    offer_type = models.CharField(max_length=10, choices=offer_type_choices)
+    min_quantity = models.PositiveIntegerField(blank=True, null=True, default=None)  # Required for quantity-based offer
+    min_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, default=None)  # Required for price-based offer
+    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2)

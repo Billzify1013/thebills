@@ -1063,7 +1063,7 @@ def mobileview(request, user):
         profiledata = HotelProfile.objects.filter(vendor__username=user)
         imagedata = HoelImage.objects.filter(vendor__username=user)
         rateplanmaxuser = RatePlan.objects.filter(vendor__username=user, max_persons__gte=1)
-
+        offers = OfferBE.objects.filter(vendor__username=user)
         # Store availability data with room objects
         for room in rooms:
             room_inventory = inventory_today.filter(room_category=room)
@@ -1088,6 +1088,7 @@ def mobileview(request, user):
             'tommrow': tomorrow,
             'rooms': rooms,
             'rateplanmaxuser': rateplanmaxuser,
+            'offers':offers,
         })
     else:
         return render(request, '404.html', {'error_message': "Profile Not Created!"}, status=300)
