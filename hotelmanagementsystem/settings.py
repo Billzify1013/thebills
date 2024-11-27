@@ -83,16 +83,16 @@ WSGI_APPLICATION = 'hotelmanagementsystem.wsgi.application'
 
 
 # # main database aws free tier
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'thebillstm',
-#         'USER':'postgresBills',
-#         'PASSWORD':'billzifydata',
-#         'HOST':'thebillstm.cpy6g6quw55m.ap-south-1.rds.amazonaws.com',
-#         'PORT':'5432'
-#     }
-# }
+DATABASES = {
+     'default': {
+         'ENGINE': 'django.db.backends.postgresql',
+         'NAME': 'pmsdatabase',
+         'USER':'superuser',
+         'PASSWORD':'superpassword',
+         'HOST':'pmsdatabase.cpy6g6quw55m.ap-south-1.rds.amazonaws.com',
+         'PORT':'5432'
+     }
+}
 
 
 # DATABASES = {
@@ -119,12 +119,12 @@ WSGI_APPLICATION = 'hotelmanagementsystem.wsgi.application'
 
 
 # # testng database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+#DATABASES = {
+#   'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': BASE_DIR / 'db.sqlite3',
+#    }
+#}
 
 
 
