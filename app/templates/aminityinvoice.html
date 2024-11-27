@@ -34,9 +34,10 @@
 
 
 
+
 {%if invcdata%}
 {%else%}
-<h6 class="text">Make Invoice For Spa,Gym,Food and Many More.</h6>
+<h6 class="text">Make Invoice For Spa,Gym,Food and Many More. </h6>
 <div class="row ">
     <div class="col-12 mb-4">
         <div class="card">
@@ -85,7 +86,10 @@
 
                 </div>
             </div>
-            
+            <div id="user_details" class="m-2 ms-5"></div>
+            <div id="checkbox_container" style="margin-top: 10px; display: none;" class="ms-5">
+                <input type="checkbox" id="auto_fill" /> <label for="auto_fill">Use this information to fill the form</label>
+            </div>
             <!--customer data-->
             <div class="row m-4 mt-0 p-3 mb-0">
                 <p>Customer Details</p>
@@ -95,8 +99,11 @@
             </div>
             <div class="col-4 ">
                 <span class="text"><i class='bx bx-phone'></i>Customer Contact</span>
+                <a id="search_button" style="height:30px;" class="btn btn-primary float-end text-white mt-0"><i class="bx bx-search fs-5 lh-0 "></i></a>
                 <input  type="tel"
-                pattern="[6-9][0-9]{9}" class="form-control mt-2 " name="contact" placeholder="customer contact" required>
+                pattern="[6-9][0-9]{9}" class="form-control mt-2 " name="contact" placeholder="customer contact"
+                id="mobile_number" 
+                required />
             </div>
             <div class="col-4 ">
                 <span class="text"><i class='bx bx-mail-send'></i>Customer Email</span>
@@ -170,12 +177,24 @@
         </div>
         <!--customer data end-->
 
-        <!--Product data-->
+    <!--Product data-->
         <div class="row m-4 mt-0 p-3">
+             <!-- Suggestions List -->
+    <div id="product_suggestions" class="mt-3 bg-light">
+        <!-- Suggestions will be displayed here dynamically -->
+
+        
+    </div>
+   
             <p>Product Details</p>
+         <!-- Checkbox Container for autofill -->
+<div id="checkboxes_container" style="margin-top: 10px; display: none;">
+    <input type="checkbox" id="auto_fill_product" /> 
+    <label for="auto_fill_product">Use this information to fill the product details</label>
+</div>
         <div class="col-4 ">
             <span class="text"><i class='bx bx-unite'></i>Product description</span>
-            <input  type="text" class="form-control mt-2 " name="productname" required>
+            <input  type="text" class="form-control mt-2 " id="product_name" name="productname" required>
         </div>
         <div class="col-4 ">
             <span class="text"><i class='bx bx-money'></i>Selling  Price</span>
@@ -204,9 +223,13 @@
         <div class="col-4 mt-3 end-0">
             <input  type="submit" class="btn btn-primary" value="Save Customer & Add More Item">
         </div>
-    </div>
+    </div> 
+
+
     <!--product data end-->
     </form>
+
+    
             
         </div>
     </div>
@@ -219,6 +242,110 @@
 </div>
 
 {%endif%}
+
+
+<script>
+    $(document).ready(function() {
+        var selectedProduct = {};  // Store the selected product's data in an object
+    
+        // When the user types in the product name input field
+        $('#product_name').on('input', function() {
+            var product_name = $(this).val().trim();
+        
+            // If the input is not empty
+            if (product_name.length > 0) {
+                // Perform an AJAX request to search for matching products
+                $.ajax({
+                    url: '/check_product/',  // The URL where the backend is handling the search
+                    type: 'GET',
+                    data: {
+                        'product_name': product_name
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Show product suggestions dynamically with checkboxes
+                            var suggestionsHTML = '';
+                            response.products.forEach(function(product) {
+                                suggestionsHTML += `
+                                    <div data-product-id="${product.id}" class="product-suggestion">
+                                        <p><strong>Product:</strong> ${product.description}</p> <!-- Product name (description) -->
+                                        <p><strong>Price:</strong> ₹${product.price}</p>
+                                        <p><strong>HSN Code:</strong> ${product.hsncode ? product.hsncode : ''}</p>
+                                        <p><strong>Tax Rate:</strong> ${product.category_tax ? product.category_tax + '%' : ''}</p>
+                                        <input type="checkbox" class="auto_fill_checkbox" data-product-id="${product.id}" />
+                                        <label for="auto_fill_checkbox">Use this information</label>
+                                    </div>
+                                `;
+                            });
+                            $('#product_suggestions').html(suggestionsHTML);
+                        } else {
+                            // Show a message if no products were found
+                            $('#product_suggestions').html('<p>No products found matching the input.</p>');
+                        }
+                    },
+                    error: function() {
+                        $('#product_suggestions').html('<p>An error occurred. Please try again later.</p>');
+                    }
+                });
+            } else {
+                // Clear suggestions if the input is empty
+                $('#product_suggestions').html('');
+            }
+        });
+    
+        // When a user clicks on a product suggestion checkbox, autofill the input fields
+        $(document).on('change', '.auto_fill_checkbox', function() {
+            var isChecked = $(this).prop('checked');
+            var productId = $(this).data('product-id');
+    
+            // Find the selected product in the suggestions list
+            $('#product_suggestions .product-suggestion').each(function() {
+                if ($(this).data('product-id') === productId) {
+                    // Store all the product data in the object, using consistent <p> tag extraction
+                    selectedProduct = {
+                        description: $(this).find('p').eq(0).text().replace('Product:', '').trim(),  // Extract the product name from the first <p> tag
+                        price: $(this).find('p').eq(1).text().replace('Price:', '').replace('₹', '').trim(), // Extract the price
+                        hsncode: $(this).find('p').eq(2).text().replace('HSN Code:', '').trim(), // Extract HSN code
+                        category_tax: $(this).find('p').eq(3).text().replace('Tax Rate:', '').replace('%', '').trim() // Extract Tax Rate
+                    };
+                }
+            });
+
+            // If the checkbox is checked, autofill the fields
+            if (isChecked && selectedProduct.description) {
+                // Autofill only the product name in the "productname" input field
+                $('input[name="productname"]').val(selectedProduct.description || '');  // Set only product name
+
+                // Fill other fields with the corresponding data
+                $('input[name="productprice"]').val(selectedProduct.price || '');  // Set product price
+                $('input[name="productqty"]').val(1);  // Default quantity
+
+                // Only fill tax if available, else leave it empty
+                $('input[name="producttax"]').val(selectedProduct.category_tax || '');  // Empty if no tax
+
+                // Only fill HSN code if available, else leave it empty
+                $('input[name="producthsn"]').val(selectedProduct.hsncode || '');  // Empty if no HSN
+
+                $('input[name="productdiscount"]').val(0);  // Default discount
+            } else {
+                // If unchecked, clear the fields
+                $('input[name="productname"]').val('');  // Clear product name field
+                $('input[name="productprice"]').val('');
+                $('input[name="productqty"]').val('');
+                $('input[name="producttax"]').val('');
+                $('input[name="producthsn"]').val('');
+                $('input[name="productdiscount"]').val('');
+            }
+        });
+    });
+</script>
+
+
+
+
+
+    
+
 
 
 
@@ -392,7 +519,7 @@
             <!--loylty div start-->
             <div class="tab-pane fade show active" id="navs-pills-justified-Amenities" role="tabpanel">
                 
-                <div class="col-12 mb-2">
+                <div class="col-12 mb-5 w-100">
                     <button
                     type="button"
                       class="btn btn-primary mb-4 float-end"
@@ -406,50 +533,149 @@
                     
                 </div>
                 <br>
-                <div class="col-xxl mt-3  mb-md-0">
-                        <div class="collapse multi-collapse" id="multiCollapseExample1">
-                          
+                <div class="col-xxl mt-3 w-100  mb-md-0">
+                        <div class="collapse multi-collapse w-100" id="multiCollapseExample1">
+             
+
     <form action="{% url 'addmoreaminitiesproductininvoice' %}" method="post">
         {% csrf_token %}
-                
-        <input type="hidden" name="invcid" value="{{invcdata.id}}" >
-                  <!--Product data-->
+        <input type="hidden" name="invcid" value="{{invcdata.id}}">
+        
+        <!-- Product data -->
         <div class="row m-4 mt-0 p-3">
             <p>Product Details</p>
-        <div class="col-4 ">
-            <span class="text"><i class='bx bx-unite'></i>Product desc..</span>
-            <input  type="text" class="form-control mt-2 " name="productname" required>
-        </div>
-        <div class="col-4 ">
-            <span class="text"><i class='bx bx-money'></i>Selling  Price</span>
-            <input  type="number" class="form-control mt-2 " name="productprice" required>
-        </div>
-        <div class="col-4 ">
-            <span class="text">Quantity</span>
-            <input  type="number" class="form-control mt-2 " name="productqty" required>
-        </div>
-  
-
+            <div id="product_suggestions_invoice" class="w-100 bg-light"></div> <!-- Product suggestions with checkboxes -->
     
-        <div class="col-4 mt-3">
-            <span class="text">Tax %</span>
-            <input  type="number" class="form-control mt-2 "  name="producttax" >
+            <div class="col-4">
+                <span class="text"><i class='bx bx-unite'></i>Product Name</span>
+                <input type="text" class="form-control mt-2" id="product_name_invoice" name="productname" required>
+            </div>
+            <div class="col-4">
+                <span class="text"><i class='bx bx-money'></i>Selling Price</span>
+                <input type="number" class="form-control mt-2" name="productprice" required>
+            </div>
+            <div class="col-4">
+                <span class="text">Quantity</span>
+                <input type="number" class="form-control mt-2" name="productqty" required>
+            </div>
+    
+            <div class="col-4 mt-3">
+                <span class="text">Tax %</span>
+                <input type="number" class="form-control mt-2" name="producttax">
+            </div>
+            <div class="col-4 mt-3">
+                <span class="text">HSN/SAC</span>
+                <input type="text" class="form-control mt-2" name="producthsn">
+            </div>
+            <div class="col-4 mt-3">
+                <span class="text"><i class='bx bxs-discount'></i>Discount</span>
+                <input type="number" class="form-control mt-2" name="productdiscount">
+            </div>
+    
+            <div class="col-4 mt-3 end-0">
+                <input type="submit" class="btn btn-primary" value="Save Customer & Add More Item">
+            </div>
         </div>
-        <div class="col-4 mt-3">
-            <span class="text">HSN/SAC</span>
-            <input  type="text" class="form-control mt-2 " name="producthsn" >
-        </div>
-        <div class="col-4 mt-3">
-            <span class="text"><i class='bx bxs-discount'></i>Discount</span>
-            <input  type="number" class="form-control mt-2 " name="productdiscount" >
-        </div>
-
-        <div class="col-4 mt-3 end-0">
-            <input  type="submit" class="btn btn-primary" value="Save Customer & Add More Item">
-        </div>
-    </div>
-    <!--product data end-->
+        <!-- Product data end -->
     </form>
+    
+    
+    <script>
+        $(document).ready(function() {
+            var selectedProductInvoice = {};  // Store the selected product's data for this form
+        
+            // When the user types in the product name input field (on the second form)
+            $('#product_name_invoice').on('input', function() {
+                var product_name = $(this).val().trim();
+        
+                // If the input is not empty
+                if (product_name.length > 0) {
+                    // Perform an AJAX request to search for matching products
+                    $.ajax({
+                        url: '/check_product/',  // The URL where the backend is handling the search
+                        type: 'GET',
+                        data: {
+                            'product_name': product_name
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                // Show product suggestions dynamically with checkboxes
+                                var suggestionsHTML = '';
+                                response.products.forEach(function(product) {
+                                    suggestionsHTML += `
+                                        <div data-product-id="${product.id}" class="product-suggestion">
+                                            <p><strong>Product:</strong> ${product.description}</p>
+                                            <p><strong>Price:</strong> ₹${product.price}</p>
+                                            <p><strong>HSN Code:</strong> ${product.hsncode ? product.hsncode : ''}</p>
+                                            <p><strong>Tax Rate:</strong> ${product.category_tax ? product.category_tax + '%' : ''}</p>
+                                            <input type="checkbox" class="auto_fill_checkbox_invoice" data-product-id="${product.id}" />
+                                            <label for="auto_fill_checkbox_invoice">Use this information</label>
+                                        </div>
+                                    `;
+                                });
+                                $('#product_suggestions_invoice').html(suggestionsHTML);
+                            } else {
+                                // Show a message if no products were found
+                                $('#product_suggestions_invoice').html('<p>No products found matching the input.</p>');
+                            }
+                        },
+                        error: function() {
+                            $('#product_suggestions_invoice').html('<p>An error occurred. Please try again later.</p>');
+                        }
+                    });
+                } else {
+                    // Clear suggestions if the input is empty
+                    $('#product_suggestions_invoice').html('');
+                }
+            });
+        
+            // When a user clicks on a product suggestion checkbox, autofill the input fields for the invoice form
+            $(document).on('change', '.auto_fill_checkbox_invoice', function() {
+                var isChecked = $(this).prop('checked');
+                var productId = $(this).data('product-id');
+        
+                // Find the selected product in the suggestions list
+                $('#product_suggestions_invoice .product-suggestion').each(function() {
+                    if ($(this).data('product-id') === productId) {
+                        // Store only the description (product name) and the other data as needed
+                        selectedProductInvoice = {
+                            description: $(this).find('p').eq(0).text().replace('Product:', '').trim(),  // Only extract the product name from the strong tag
+                            price: $(this).find('p').eq(1).text().replace('Price: ₹', '').trim(),
+                            hsncode: $(this).find('p').eq(2).text().replace('HSN Code: ', '').trim(),
+                            category_tax: $(this).find('p').eq(3).text().replace('Tax Rate: ', '').replace('%', '').trim()
+                        };
+                    }
+                });
+        
+                // If the checkbox is checked, autofill the fields
+                if (isChecked && selectedProductInvoice.description) {
+                    // Autofill only the product name in the "productname" input field for this form
+                    $('input[name="productname"]').val(selectedProductInvoice.description || '');  // Set only product name
+                    $('input[name="productprice"]').val(selectedProductInvoice.price || '');  // Set product price
+                    $('input[name="productqty"]').val(1);  // Default quantity
+        
+                    // Only fill tax if available, else leave it empty
+                    $('input[name="producttax"]').val(selectedProductInvoice.category_tax || '');  // Empty if no tax
+        
+                    // Only fill HSN code if available, else leave it empty
+                    $('input[name="producthsn"]').val(selectedProductInvoice.hsncode || '');  // Empty if no HSN
+        
+                    $('input[name="productdiscount"]').val(0);  // Default discount
+                } else {
+                    // If unchecked, clear the fields
+                    $('input[name="productname"]').val('');  // Clear product name field
+                    $('input[name="productprice"]').val('');
+                    $('input[name="productqty"]').val('');
+                    $('input[name="producttax"]').val('');
+                    $('input[name="producthsn"]').val('');
+                    $('input[name="productdiscount"]').val('');
+                }
+            });
+        });
+        
+    </script>
+    
+
     </div></div></div></div>
 
 
@@ -521,5 +747,91 @@ function showinput() {
 </script>
 
 
+
+
+
 {%endif%}
+
+
+ 
+
+   
+
+
+    <script>
+        $(document).ready(function() {
+            // Event listener for the search button
+            $('#search_button').on('click', function() {
+                // Get the mobile number entered in the input field
+                var mobile_number = $('#mobile_number').val().trim();
+                console.log("Mobile number entered:", mobile_number);  // Log entered value
+    
+                // Sanitize the input to remove non-numeric characters
+                var sanitized_number = mobile_number.replace(/\D/g, '');
+                console.log("Sanitized number:", sanitized_number);
+    
+                // Check if 10 digits are entered
+                if (sanitized_number.length === 10) {
+                    console.log("10 digits entered, ready to send AJAX request");
+    
+                    // Example AJAX request (replace with your backend URL)
+                    $.ajax({
+                        url: '/search_user/',  // Your Django endpoint
+                        type: 'GET',
+                        data: { 'mobile_number': sanitized_number },
+                        success: function(response) {
+                            console.log(response);  // Log the response from the server
+                            if (response.success) {
+                                var user = response.user;
+                                var user_details = `
+                                    <h6>Previous Details</h6>
+                                    <p><strong>Name:</strong> ${user.name}, <strong>Email:</strong> ${user.email}, <strong>Mobile:</strong> ${user.mobile}</p>
+                                    <p><strong>Address:</strong> ${user.address}, <strong>Company:</strong> ${user.customercompany}, <strong>GST Number:</strong> ${user.customergst}</p>
+                                `;
+                                $('#user_details').html(user_details);
+    
+                                // Show the checkbox to autofill form
+                                $('#checkbox_container').show();
+    
+                                // When the checkbox is clicked, autofill the input fields
+                                $('#auto_fill').on('change', function() {
+                                    if ($(this).prop('checked')) {
+                                        // Autofill the form fields with the user data
+                                        $('input[name="cname"]').val(user.name);
+                                        $('input[name="contact"]').val(user.mobile);
+                                        $('input[name="email"]').val(user.email);
+                                        $('input[name="address"]').val(user.address);
+                                        $('input[name="customergstno"]').val(user.customergst);
+                                        $('input[name="companyname"]').val(user.customercompany);
+                                        $('select[name="STATE"]').val(user.state); // You may need to adjust this if you have a mapping for the state
+                                    } else {
+                                        // Clear the fields if unchecked
+                                        $('input[name="cname"]').val('');
+                                        $('input[name="contact"]').val('');
+                                        $('input[name="email"]').val('');
+                                        $('input[name="address"]').val('');
+                                        $('input[name="customergstno"]').val('');
+                                        $('input[name="companyname"]').val('');
+                                        $('select[name="STATE"]').val('');
+                                    }
+                                });
+    
+                            } else {
+                                $('#user_details').html('<p>No user found with this mobile number.</p>');
+                                $('#checkbox_container').hide(); // Hide the checkbox if no user found
+                            }
+                        },
+                        error: function() {
+                            $('#user_details').html('<p>An error occurred. Please try again later.</p>');
+                            $('#checkbox_container').hide(); // Hide the checkbox on error
+                        }
+                    });
+                } else {
+                    $('#user_details').html('<p>Please enter a valid 10-digit mobile number.</p>');
+                    $('#checkbox_container').hide(); // Hide the checkbox if input is invalid
+                }
+            });
+        });
+    </script>
+    
 {%endblock%}

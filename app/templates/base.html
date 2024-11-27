@@ -129,13 +129,7 @@
                   </a>
                 </li> 
 
-                <li class="menu-item text-uppercase {% if active_page == 'weekviews' %}active{% endif %} ">
-                  <a href="{% url 'weekviews' %}" class="menu-link">
-                    
-                    <i class='menu-icon bx bx-dna'></i>
-                    <div data-i18n="Analytics">Week view</div>
-                  </a>
-                </li> 
+                
 
                 <li class="menu-header small text-uppercase">
                   <span class="menu-header-text">Folio  Management</span>
@@ -157,7 +151,16 @@
 
                 
 
-              
+                <li class="menu-header small text-uppercase">
+                  <span class="menu-header-text">Channel Manager</span>
+                </li>
+
+                <li class="menu-item text-uppercase {% if active_page == 'channalmanager' %}active{% endif %} ">
+                  <a href="{% url 'channalmanager'  %}" class="menu-link">
+                    <i class='bx menu-icon bxs-user-check'></i>
+                    <div data-i18n="Analytics">Channel Manager</div>
+                  </a>
+                </li>
                 
                 
 
@@ -179,16 +182,7 @@
                   </a>
                 </li>
 
-                <li class="menu-header small text-uppercase">
-                  <span class="menu-header-text">Channel Manager</span>
-                </li>
-
-                <li class="menu-item text-uppercase {% if active_page == 'channalmanager' %}active{% endif %} ">
-                  <a href="{% url 'channalmanager'  %}" class="menu-link">
-                    <i class='bx menu-icon bxs-user-check'></i>
-                    <div data-i18n="Analytics">Channel Manager</div>
-                  </a>
-                </li>
+               
 
                 <li class="menu-header small text-uppercase">
                   <span class="menu-header-text">Booking Management</span>
@@ -209,8 +203,17 @@
                 </li>
 
                 <li class="menu-header small text-uppercase">
-                  <span class="menu-header-text">Grid Views </span>
+                  <span class="menu-header-text">Room Views </span>
                 </li> 
+
+                <li class="menu-item text-uppercase {% if active_page == 'weekviews' %}active{% endif %} ">
+                  <a href="{% url 'weekviews' %}" class="menu-link">
+                    
+                    <i class='menu-icon bx bx-dna'></i>
+                    <div data-i18n="Analytics">Week view</div>
+                  </a>
+                </li> 
+
                 <li class="menu-item text-uppercase {% if active_page == 'gridview' %}active{% endif %} ">
                   <a href="{% url 'gridview' %}" class="menu-link">
                     <i class='menu-icon bx bxs-grid'></i>
@@ -219,16 +222,7 @@
                 </li> 
 
 
-                <li class="menu-header small text-uppercase">
-                  <span class="menu-header-text">Messages & Promotions</span>
-                </li>
-    
-                <li class="menu-item text-uppercase {% if active_page == 'Messages' %}active{% endif %} ">
-                  <a href="{% url 'Messages' %}" class="menu-link">
-                    <i class='menu-icon mb-1 bx bxs-home-smile'></i>
-                    <div data-i18n="Analytics">Messages</div>
-                  </a>
-                </li> 
+               
 
                 <li class="menu-header small text-uppercase">
                   <span class="menu-header-text">CheckIn Plans</span>
@@ -240,6 +234,33 @@
                     <div data-i18n="Analytics">Guest Plans</div>
                   </a>
                 </li>
+
+
+                <li class="menu-header small text-uppercase">
+                  <span class="menu-header-text">Amenities Management</span>
+                </li>
+
+                <li class="menu-item text-uppercase {% if active_page == 'aminityinvoice' %}active{% endif %} ">
+                  <a href="{% url 'aminityinvoice'  %}" class="menu-link">
+                    <i class='menu-icon bx bx-laptop'></i>
+                    <div data-i18n="Analytics">Amenities Invoicing</div>
+                  </a>
+                </li>
+
+                <li class="menu-item text-uppercase {% if active_page == 'aminityhistory' %}active{% endif %} ">
+                  <a href="{% url 'aminityhistory'  %}" class="menu-link">
+                    <i class='menu-icon bx mb-1 bx-timer'></i>
+                    <div data-i18n="Analytics">Amenities History</div>
+                  </a>
+                </li>
+
+                <li class="menu-item text-uppercase {% if active_page == 'aminitysales' %}active{% endif %} ">
+                  <a href="{% url 'aminitysales'  %}" class="menu-link">
+                    <i class='menu-icon bx bx-analyse'></i>
+                    <div data-i18n="Analytics">Amenities Sales</div>
+                  </a>
+                </li>
+
 
                 <li class="menu-header small text-uppercase">
                   <span class="menu-header-text">History</span>
@@ -269,104 +290,16 @@
                   </a>
                 </li>
 
-                <li class="menu-header small text-uppercase">
-                  <span class="menu-header-text">Amenities Management</span>
-                </li>
-
-                <li class="menu-item text-uppercase {% if active_page == 'aminityinvoice' %}active{% endif %} ">
-                  <a href="{% url 'aminityinvoice'  %}" class="menu-link">
-                    <i class='menu-icon bx bx-laptop'></i>
-                    <div data-i18n="Analytics">Amenities Invoicing</div>
-                  </a>
-                </li>
-
-                <li class="menu-item text-uppercase {% if active_page == 'aminityhistory' %}active{% endif %} ">
-                  <a href="{% url 'aminityhistory'  %}" class="menu-link">
-                    <i class='menu-icon bx mb-1 bx-timer'></i>
-                    <div data-i18n="Analytics">Amenities History</div>
-                  </a>
-                </li>
-
-                <li class="menu-item text-uppercase {% if active_page == 'aminitysales' %}active{% endif %} ">
-                  <a href="{% url 'aminitysales'  %}" class="menu-link">
-                    <i class='menu-icon bx bx-analyse'></i>
-                    <div data-i18n="Analytics">Amenities Sales</div>
-                  </a>
-                </li>
+              
               
 
                 
-                <li class="menu-header small text-uppercase">
-                  <span class="menu-header-text">Item Management</span>
-                </li>
-
-                <li class="menu-item text-uppercase {% if active_page == 'rooms' %}active{% endif %} ">
-                  <a href="{% url 'rooms'  %}" class="menu-link">
-                    <i class='menu-icon bx bxs-building-house'></i>
-                    <div data-i18n="Analytics">Rooms</div>
-                  </a>
-                </li>
-
-                <li class="menu-item text-uppercase {% if active_page == 'Product' %}active{% endif %} ">
-                  <a href="{% url 'Product'  %}" class="menu-link">
-                    <i class='menu-icon bx bx-unite'></i>
-                    <div data-i18n="Analytics">Product</div>
-                  </a>
-                </li>
-
-                <li class="menu-item text-uppercase {% if active_page == 'addlaundrypage' %}active{% endif %} ">
-                  <a href="{% url 'addlaundrypage'  %}" class="menu-link">
-                    <i class='menu-icon bx bxs-t-shirt'></i>
-                    <div data-i18n="Analytics">Laundry</div>
-                  </a>
-                </li>
                 
 
                
 
-                <li class="menu-header small text-uppercase">
-                  <span class="menu-header-text">Employees Management</span>
-                </li>
 
-                 <!-- Extended components -->
-            <li class="menu-item text-uppercase {% if active_page == 'employee' %}active{% endif %} ">
-              <a href="javascript:void(0)" class="menu-link menu-toggle">
-                <i class='menu-icon tf-icons bx bx-street-view'></i>
-                <div data-i18n="Extended UI">Employee</div>
-              </a>
-              <ul class="menu-sub">
-                <li class="menu-item text-uppercase {% if active_page == 'employee' %}active{% endif %}">
-                  <a href="{% url 'employee'  %}" class="menu-link">
-                    <div data-i18n="Perfect Scrollbar">All Employees</div>
-                  </a>
-                </li>
-                <li class="menu-item text-uppercase {% if active_page == 'attendancepage' %}active{% endif %}">
-                  <a href="{% url 'attendancepage'  %}" class="menu-link">
-                    <div data-i18n="Text Divider">Payroll</div>
-                  </a>
-                </li>
-                <li class="menu-item text-uppercase {% if active_page == 'payslippage' %}active{% endif %}">
-                  <a href="{% url 'payslippage'  %}" class="menu-link">
-                    <div data-i18n="Text Divider">Payslip</div>
-                  </a>
-                </li>
-                
-              </ul>
-            </li>
-
-            <li class="menu-header small text-uppercase">
-              <span class="menu-header-text">Travel Agency</span>
-            </li>
-
-            <li class="menu-item text-uppercase {% if active_page == 'travelagancy' %}active{% endif %} ">
-              <a href="{% url 'travelagancy' %}" class="menu-link">
-               
-                <i class='menu-icon  bx bx-book-bookmark'></i>
-                <div data-i18n="Analytics">Travels Partners</div>
-              </a>
-            </li> 
-
-
+           
             <li class="menu-header small text-uppercase">
               <span class="menu-header-text">Events</span>
             </li>
@@ -405,6 +338,17 @@
                 <div data-i18n="Analytics">Loyalty</div>
               </a>
             </li>
+
+            <li class="menu-header small text-uppercase">
+              <span class="menu-header-text">Messages & Promotions</span>
+            </li>
+
+            <li class="menu-item text-uppercase {% if active_page == 'Messages' %}active{% endif %} ">
+              <a href="{% url 'Messages' %}" class="menu-link">
+                <i class='menu-icon mb-1 bx bxs-home-smile'></i>
+                <div data-i18n="Analytics">Messages</div>
+              </a>
+            </li> 
 
             {% comment %} <li class="menu-item text-uppercase {% if active_page == 'offers' %}active{% endif %} ">
               <a href="{% url 'offers'  %}" class="menu-link">
@@ -453,18 +397,9 @@
               </a>
             </li>  {% endcomment %}
 
-            <li class="menu-header small text-uppercase">
-              <span class="menu-header-text">Excel Data Management</span>
-            </li>
+          
 
-            <li class="menu-item text-uppercase {% if active_page == 'exceldatapages ' %}active{% endif %} ">
-              <a href="{% url 'exceldatapage' %}" class="menu-link">
-                <i class='menu-icon mb-1 bx bxs-file-doc'></i>
-                <div data-i18n="Analytics">Excel Datas</div>
-              </a>
-            </li> 
-
-            <li class="menu-header small text-uppercase">
+            {% comment %} <li class="menu-header small text-uppercase">
               <span class="menu-header-text">Account Settings</span>
             </li>
 
@@ -473,7 +408,34 @@
                 <i class='menu-icon bx bx-cog'></i>
                 <div data-i18n="Analytics">Setting</div>
               </a>
+            </li>  {% endcomment %}
+
+            <li class="menu-header small text-uppercase">
+              <span class="menu-header-text">Companies Management</span>
+            </li>
+
+            <li class="menu-item text-uppercase {% if active_page == 'comaypage' %}active{% endif %} ">
+              <a href="{% url 'comaypage' %}" class="menu-link">
+               
+                <i class='menu-icon  bx bx-book-bookmark'></i>
+                <div data-i18n="Analytics">Companies</div>
+              </a>
             </li> 
+            <li class="menu-header small text-uppercase">
+              <span class="menu-header-text">Travel Agency</span>
+            </li>
+
+            <li class="menu-item text-uppercase {% if active_page == 'travelagancy' %}active{% endif %} ">
+              <a href="{% url 'travelagancy' %}" class="menu-link">
+               
+                <i class='menu-icon  bx bx-book-bookmark'></i>
+                <div data-i18n="Analytics">Travels Partners</div>
+              </a>
+            </li> 
+
+            
+
+
 
             <li class="menu-header small text-uppercase">
               <span class="menu-header-text">Sales Analytics</span>
@@ -485,7 +447,7 @@
               </a>
             </li>
 
-            <li class="menu-header small text-uppercase">
+            {% comment %} <li class="menu-header small text-uppercase">
               <span class="menu-header-text">Block Room Management</span>
             </li>
 
@@ -494,11 +456,11 @@
                 <i class='menu-icon bx mb-1 bx-timer'></i>
                 <div data-i18n="Analytics">Block Room Page</div>
               </a>
-            </li>
+            </li> {% endcomment %}
 
            
 
-
+{% comment %} 
             <li class="menu-header small text-uppercase">
               <span class="menu-header-text">Api Management</span>
             </li>
@@ -520,6 +482,17 @@
                 <i class='menu-icon bx bx-cog'></i>
                 <div data-i18n="Analytics">rate push</div>
                 
+              </a>
+            </li>  {% endcomment %}
+
+            <li class="menu-header small text-uppercase">
+              <span class="menu-header-text">Excel Data Management</span>
+            </li>
+
+            <li class="menu-item text-uppercase {% if active_page == 'exceldatapages ' %}active{% endif %} ">
+              <a href="{% url 'exceldatapage' %}" class="menu-link">
+                <i class='menu-icon mb-1 bx bxs-file-doc'></i>
+                <div data-i18n="Analytics">Excel Datas</div>
               </a>
             </li> 
             
@@ -545,6 +518,64 @@
               <a href="{% url 'purchessales'  %}" class="menu-link">
                 <i class='menu-icon bx bx-analyse'></i>
                 <div data-i18n="Analytics">Purches Data</div>
+              </a>
+            </li>
+
+
+            
+            <li class="menu-header small text-uppercase">
+              <span class="menu-header-text">Employees Management</span>
+            </li>
+
+             <!-- Extended components -->
+        <li class="menu-item text-uppercase {% if active_page == 'employee' %}active{% endif %} ">
+          <a href="javascript:void(0)" class="menu-link menu-toggle">
+            <i class='menu-icon tf-icons bx bx-street-view'></i>
+            <div data-i18n="Extended UI">Employee</div>
+          </a>
+          <ul class="menu-sub">
+            <li class="menu-item text-uppercase {% if active_page == 'employee' %}active{% endif %}">
+              <a href="{% url 'employee'  %}" class="menu-link">
+                <div data-i18n="Perfect Scrollbar">All Employees</div>
+              </a>
+            </li>
+            <li class="menu-item text-uppercase {% if active_page == 'attendancepage' %}active{% endif %}">
+              <a href="{% url 'attendancepage'  %}" class="menu-link">
+                <div data-i18n="Text Divider">Payroll</div>
+              </a>
+            </li>
+            <li class="menu-item text-uppercase {% if active_page == 'payslippage' %}active{% endif %}">
+              <a href="{% url 'payslippage'  %}" class="menu-link">
+                <div data-i18n="Text Divider">Payslip</div>
+              </a>
+            </li>
+            
+          </ul>
+        </li>
+
+            
+            <li class="menu-header small text-uppercase">
+              <span class="menu-header-text">Item Management</span>
+            </li>
+
+            <li class="menu-item text-uppercase {% if active_page == 'rooms' %}active{% endif %} ">
+              <a href="{% url 'rooms'  %}" class="menu-link">
+                <i class='menu-icon bx bxs-building-house'></i>
+                <div data-i18n="Analytics">Rooms</div>
+              </a>
+            </li>
+
+            <li class="menu-item text-uppercase {% if active_page == 'Product' %}active{% endif %} ">
+              <a href="{% url 'Product'  %}" class="menu-link">
+                <i class='menu-icon bx bx-unite'></i>
+                <div data-i18n="Analytics">Product</div>
+              </a>
+            </li>
+
+            <li class="menu-item text-uppercase {% if active_page == 'addlaundrypage' %}active{% endif %} ">
+              <a href="{% url 'addlaundrypage'  %}" class="menu-link">
+                <i class='menu-icon bx bxs-t-shirt'></i>
+                <div data-i18n="Analytics">Laundry</div>
               </a>
             </li>
             

@@ -541,6 +541,7 @@
             <th>Sell Rate</th>
             <th>Adults</th>
             <th>Children</th>
+            <th>Action</th>
             
           </tr>
         </thead>
@@ -554,20 +555,30 @@
                 {{data.roomno.tax}} 
             </td>
             <td>{{data.sell_rate}}</td>
-            <td>
-              <form action="" method="post">
-                <input type="number" value="{{data.id}}" />
-              <input type="number" value="{{data.adults}}" />
+            
+              
+              {% comment %} update guest count form ajax {% endcomment %}
+              <td>
+                <input type="number" class="adults" value="{{ data.adults }}" style="width:65px" />
             </td>
-
             <td>
-              <input type="number" value="{{data.children}}" />
-            </input>
+                <input type="number" class="children" value="{{ data.children }}" style="width:65px" />
             </td>
+            <td>
+                <!-- Update Button for each row -->
+                <button type="button" class="updateBtn btn btn-primary" data-id="{{ data.id }}">Update</button>
+            </td>
+        
+          </tr>
+          {%endfor%}
+            
+          
+        
+          
+          
            
 
             
-          {%endfor%}
    
         
         </tbody>
@@ -717,7 +728,7 @@
                     </div>
                 </div>
                             
-                          </div>
+                          {% comment %} </div>
                           <div class="row ms-2">
                             <div class="col mb-3 ">
                               <label for="nameBackdrop" class="form-label">Payment</label>
@@ -744,9 +755,9 @@
                             <div class="col  w-100"  id="inputonline" style="display:none">
                               <label for="nameBackdrop" class="form-label">Online Payment </label>
                               <input type="number" class="form-control" value=0 name="onlineamount" id="inputonline" placeholder="Online Amount" />
-                            </div>
-                          </div>
-                  <div class="col-6 mt-3">
+                            </div>{% endcomment %}
+                          </div> 
+                  <div class="col-6 mt-3 float-start">
 
                  <button type="submit" class="btn btn-primary mt-4 mb-4 ms-3  w-100" id="submitButton" > Booking Done</button>
                  <span class="text text-danger ms-3 text-left" style="font-size:15px"><b>Note</b>After you click 'Booking Done', any extra discounts or loyalty points will be added to your final bill shown in the folio. </span>
@@ -812,6 +823,65 @@
             </form>
               
             </div>
+
+
+            <script>
+              // Event listener for update buttons (AJAX) inside the form
+              document.querySelectorAll('.updateBtn').forEach(button => {
+                  button.addEventListener('click', function(event) {
+                      // Prevent the default action of the button (so it doesn't submit the form)
+                      event.preventDefault();
+                      
+                      // Get the data-id for this specific entry
+                      const dataId = this.getAttribute('data-id');
+                      
+                      // Get the corresponding input values for adults and children
+                      const adults = this.closest('tr').querySelector(`input.adults`).value;
+                      const children = this.closest('tr').querySelector(`input.children`).value;
+          
+                      // Make the AJAX request to update this specific entry
+                      fetch("{% url 'update_room_book_advance' %}", {
+                          method: "POST",
+                          headers: {
+                              "Content-Type": "application/json",
+                              "X-CSRFToken": "{{ csrf_token }}",
+                          },
+                          body: JSON.stringify({
+                              id: dataId,
+                              adults: adults,
+                              children: children,
+                          }),
+                      })
+                      .then(response => response.json())
+                      .then(data => {
+                          if (data.success) {
+                              // Update the UI with the new values (if needed)
+                              this.closest('tr').querySelector(`input.adults`).value = data.adults;
+                              this.closest('tr').querySelector(`input.children`).value = data.children;
+          
+                              // Show alert only once per update
+                              alert('Update successful ');
+                          } else {
+                              alert('Update failed ');
+                          }
+                      })
+                      .catch(error => {
+                          console.error('Error:', error);
+                          alert('An error occurred  ');
+                      });
+                  });
+              });
+          
+              // Ensure the main form is working properly (without AJAX interference)
+              const mainForm = document.querySelector('#mainForm');
+              mainForm.addEventListener('submit', function(event) {
+                  // Main form submission works as expected (no need to prevent default)
+                  console.log("Main form submitted successfully!");
+              });
+          </script>
+
+
+
             {% comment %} {%endfor%} {% endcomment %}
 
             <!--js of discount button-->

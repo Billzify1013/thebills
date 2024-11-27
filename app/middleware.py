@@ -19,25 +19,8 @@ class DailySessionExpiryMiddleware(MiddlewareMixin):
             # Optionally log the error if needed
             pass
 
-class OneSessionPerUserMiddleware:
-    def __init__(self, get_response):
-        self.get_response = get_response
 
-    def __call__(self, request):
-        response = self.get_response(request)
-        try:
-            if request.user.is_authenticated:
-                current_session_key = request.session.session_key
-                user_sessions = Session.objects.filter(expire_date__gte=timezone.now())
-                
-                for session in user_sessions:
-                    session_data = session.get_decoded()
-                    if session_data.get('_auth_user_id') == str(request.user.id) and session.session_key != current_session_key:
-                        session.delete()
-        except Exception as e:
-            # Optionally log the error if needed
-            pass
 
-        return response
+
 
 

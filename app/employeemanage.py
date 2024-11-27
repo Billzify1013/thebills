@@ -706,26 +706,7 @@ def cleanroom(request):
         return render(request, '404.html', {'error_message': str(e)}, status=500)    
     
          
-def mobileview(request,user):
-    try:
-        user = user
-        if HotelProfile.objects.filter(vendor__username=user).exists():
-            profile = HotelProfile.objects.get(vendor__username=user)
-            rooms = RoomsCategory.objects.filter(vendor__username=user).prefetch_related('images')
-            # offers = offerwebsitevendor.objects.filter(vendor__username=user)
-            # service = amainities.objects.filter(vendor__username=user)
-            # gallary = webgallary.objects.filter(vendor__username=user)
-            # about  = webreview.objects.filter(vendor__username=user)
-            today = datetime.now().date()
-            tommrow =today + timedelta(days=1)
-            profiledata = HotelProfile.objects.filter(vendor__username=user)
-            imagedata = HoelImage.objects.filter(vendor__username=user)
-            
-            return render(request,'website.html',{'profile':profile,'imagedata':imagedata,'profiledata':profiledata,'today':today,'tommrow':tommrow,'rooms':rooms,})
-        else:
-            return render(request, '404.html', {'error_message': "Profile Not Created!"}, status=300)  
-    except Exception as e:
-        return render(request, '404.html', {'error_message': str(e)}, status=500)    
+
     
      
        
@@ -977,7 +958,7 @@ def finddatevisesales(request):
             ).aggregate(total_amount=Sum('grand_total_amount'))
 
             # `total_grand_total_amount` is a dictionary with the sum under the key 'total_amount'
-            sattle_total_amount = total_grand_total_amount['total_amount']
+            sattle_total_amount = float(total_grand_total_amount['total_amount'])
             print(sattle_total_amount,"total amount searched")
 
             folio_total_grand_total_amount = Invoice.objects.filter(
@@ -997,7 +978,7 @@ def finddatevisesales(request):
                 invoice_date__range=[startdate, enddate]
             ).aggregate(total_gst_amount=Sum('gst_amount'))
 
-            total_gst_amount = gst_amount_sum['total_gst_amount']
+            total_gst_amount = float(gst_amount_sum['total_gst_amount'])
             if total_gst_amount == None:
                 pass
             else:
@@ -1010,33 +991,103 @@ def finddatevisesales(request):
             ).aggregate(total_amount=Sum('grand_total_amount'))
 
             # `total_grand_total_amount` is a dictionary with the sum under the key 'total_amount'
-            grand_total_amount = grand_total_grand_total_amount['total_amount']
+            grand_total_amount = float(grand_total_grand_total_amount['total_amount'])
             print(grand_total_amount," total amount searched")
 
             # Aggregate the sum of `cash_amount`
-            # cash_amount_sum = Invoice.objects.filter(
-            #     vendor=user,
-            #     invoice_date__range=[startdate, enddate]
-            # ).aggregate(total_cash_amount=Sum('cash_amount'))
+            cash_amount_sum = Invoice.objects.filter(
+                vendor=user,
+                invoice_date__range=[startdate, enddate]
+            ).aggregate(total_cash_amount=Sum('Due_amount'))
 
             # # Access the correct key 'total_cash_amount'
-            # total_cash_amount = cash_amount_sum['total_cash_amount']
-            # print(total_cash_amount,"total cash")
+            total_cash_amount =float( cash_amount_sum['total_cash_amount'])
+            print(total_cash_amount,"total cash")
 
-            # online_amount_sum = Invoice.objects.filter(
-            #     vendor=user,
-            #     invoice_date__range=[startdate, enddate]
-            # ).aggregate(total_online_amount=Sum('online_amount'))
+            online_amount_sum = Invoice.objects.filter(
+                vendor=user,
+                invoice_date__range=[startdate, enddate]
+            ).aggregate(total_online_amount=Sum('accepted_amount'))
 
             # Access the correct key 'total_online_amount'
-            # total_online_amount = online_amount_sum['total_online_amount']
-            # print(total_online_amount,"online amount")
-            total_cash_amount=0
-            total_online_amount=0
-            return render(request,'datewisesale.html',{'sattle_total_amount':sattle_total_amount,
+            total_online_amount = float(online_amount_sum['total_online_amount'])
+            print(total_online_amount,"online amount")
+            
+            return render(request,'datewisesale.html',{'active_page':'index','sattle_total_amount':sattle_total_amount,
                                                        'total_cash_amount':total_cash_amount,'total_online_amount':total_online_amount,'grand_total_amount':grand_total_amount,'startdate':startdate,'enddate':enddate,'folio_total_amount':folio_total_amount,'total_gst_amount':total_gst_amount})
 
         else:
             return redirect('loginpage')
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)  
+
+
+
+
+
+
+# def mobileview(request,user):
+#     try:
+#         user = user
+#         if HotelProfile.objects.filter(vendor__username=user).exists():
+#             profile = HotelProfile.objects.get(vendor__username=user)
+#             rooms = RoomsCategory.objects.filter(vendor__username=user).prefetch_related('images')
+#             # offers = offerwebsitevendor.objects.filter(vendor__username=user)
+#             # service = amainities.objects.filter(vendor__username=user)
+#             # gallary = webgallary.objects.filter(vendor__username=user)
+#             # about  = webreview.objects.filter(vendor__username=user)
+#             today = datetime.now().date()
+#             tommrow =today + timedelta(days=1)
+#             profiledata = HotelProfile.objects.filter(vendor__username=user)
+#             imagedata = HoelImage.objects.filter(vendor__username=user)
+#             rateplanmaxuser = RatePlan.objects.filter(vendor__username=user, max_persons__gte=2)
+
+#             print(rateplanmaxuser,'max person')
+#             return render(request,'website.html',{'profile':profile,'imagedata':imagedata,'profiledata':profiledata,'today':today,'tommrow':tommrow,'rooms':rooms,
+#                         'rateplanmaxuser':rateplanmaxuser})
+#         else:
+#             return render(request, '404.html', {'error_message': "Profile Not Created!"}, status=300)  
+#     except Exception as e:
+#         return render(request, '404.html', {'error_message': str(e)}, status=500)    
+
+def mobileview(request, user):
+    if HotelProfile.objects.filter(vendor__username=user).exists():
+        profile = HotelProfile.objects.get(vendor__username=user)
+        rooms = RoomsCategory.objects.filter(vendor__username=user).prefetch_related('images')
+        today = datetime.now().date()
+        tomorrow = today + timedelta(days=1)
+
+        # Fetch inventory for today (current date)
+        inventory_today = RoomsInventory.objects.filter(vendor__username=user, date=today)
+
+        profiledata = HotelProfile.objects.filter(vendor__username=user)
+        imagedata = HoelImage.objects.filter(vendor__username=user)
+        rateplanmaxuser = RatePlan.objects.filter(vendor__username=user, max_persons__gte=1)
+
+        # Store availability data with room objects
+        for room in rooms:
+            room_inventory = inventory_today.filter(room_category=room)
+            if room_inventory.exists():
+                # If there's inventory for this room for today, add the availability count
+                room.available_rooms = room_inventory.first().total_availibility
+                room.uprice = room_inventory.first().price
+                room.delprice = room_inventory.first().price+1000
+                room.tax = room.category_tax.taxrate
+            else:
+                # If no inventory data, use total rooms in the category
+                room.available_rooms = Rooms.objects.filter(vendor__username=user, room_type=room).count()
+                room.uprice = room.catprice
+                room.delprice = room.catprice + 1000
+                room.tax = room.category_tax.taxrate
+
+        return render(request, 'website.html', {
+            'profile': profile,
+            'imagedata': imagedata,
+            'profiledata': profiledata,
+            'today': today,
+            'tommrow': tomorrow,
+            'rooms': rooms,
+            'rateplanmaxuser': rateplanmaxuser,
+        })
+    else:
+        return render(request, '404.html', {'error_message': "Profile Not Created!"}, status=300)

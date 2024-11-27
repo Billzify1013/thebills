@@ -383,7 +383,7 @@ def rate_hit_channalmanager(user_id, start_date_str, end_date_str):
                         elif occupancy > 30:
                             room_inventory.price = max_price * Decimal('0.85')  # 15% discount
                         else:
-                            room_inventory.price = max_price * Decimal('0.80')  # 20% discount for very low occupancy
+                            room_inventory.price = max_price * Decimal('0.8')  # 20% discount for very low occupancy
 
 
                     elif chooseplannumber == 4:
@@ -402,7 +402,7 @@ def rate_hit_channalmanager(user_id, start_date_str, end_date_str):
                         elif occupancy > 30:
                             room_inventory.price = max_price * Decimal('0.85')  # 15% discount
                         else:
-                            room_inventory.price = max_price * Decimal('0.9')  # 20% discount for very low occupancy
+                            room_inventory.price = max_price * Decimal('0.8')  # 20% discount for very low occupancy
 
                         # Apply weekend increase
                         if current_date.weekday() >= 5:
@@ -757,9 +757,11 @@ def addrateplan(request):
         plancode = request.POST.get('plancode')
         planprice = float(request.POST.get('planprice'))
         maxperson = request.POST.get('maxperson')
+        maxhild = request.POST.get('maxhild')
         addprice = float(request.POST.get('addprice'))
+        description = request.POST.get('description')
         roomscat=RoomsCategory.objects.get(id=selectcat)
-        if RatePlan.objects.filter(vendor=user,rate_plan_name=planname,room_category=roomscat).exists():
+        if RatePlan.objects.filter(vendor=user,rate_plan_code=plancode,room_category=roomscat).exists():
             messages.error(request,"Rate Plan Already exists")
         else:
             RatePlan.objects.create(
@@ -769,7 +771,9 @@ def addrateplan(request):
                 rate_plan_code=plancode,
                 base_price=planprice,
                 additional_person_price=addprice,
-                max_persons=maxperson
+                max_persons=maxperson,
+                childmaxallowed=maxhild,
+                rate_plan_description=description,
             )
             messages.success(request,"Main Rate Plan Created")
 
@@ -800,6 +804,7 @@ def guestplans(request):
             checkindate__lte=today_end,
             checkoutdate__gte=today_start,
             checkoutdone=False,
+
         )
 
        
@@ -824,7 +829,7 @@ def guestplans(request):
         saveguest_ids = query1.values_list('saveguestid', flat=True)
 
         # Filter RoomBookAdvance based on the list of saveguest_ids
-        room_advance = RoomBookAdvance.objects.filter(saveguestdata__id__in=saveguest_ids)
+        room_advance = RoomBookAdvance.objects.filter(saveguestdata__id__in=saveguest_ids,checkinstatus=True)
         print(room_advance,'bokroms data')
 
         return render(request,'rateplancheckin.html',{'query1':query1,'active_page': 'guestplans',

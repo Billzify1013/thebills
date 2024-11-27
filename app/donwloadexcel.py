@@ -46,7 +46,7 @@ def generate_invoice_excel(request):
             sheet = workbook.add_sheet(f"{calendar.month_name[month]} Invoices")
 
             # Define the header
-            headers = ["Invoice Number", "Guest Name", "Phone", "Check-in Date", "Check-out Date",
+            headers = ["Invoice Number", "Guest Name", "Phone", "Source" ,"Check-in Date", "Check-out Date",
                     "Tax Amount", "Grand Total Amount",  "Tax Type", "GST Number"]
 
             # Write the header row
@@ -63,6 +63,7 @@ def generate_invoice_excel(request):
                     str(invoice.invoice_number),  # Convert invoice_number to string to handle longer values
                     guest.guestname,
                     str(guest.guestphome),  # Convert guestphome to string
+                    guest.channel,
                     guest.checkindate.strftime('%Y-%m-%d %H:%M'),  # Format with date and time
                     guest.checkoutdate.strftime('%Y-%m-%d %H:%M'),  # Format with date and time
                     float(invoice.gst_amount * 2),  # Example calculation, adjust as needed

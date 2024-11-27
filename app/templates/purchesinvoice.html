@@ -88,26 +88,40 @@
             
             <!--customer data-->
             <div class="row m-4 mt-0 p-3 mb-0">
+                <div class="col-12">
+                    <!-- Dynamic Supplier Details -->
+        <div id="supplierDetails" class="mt-2 bg-light" style="display:none;">
+            <!-- Supplier details will be shown here -->
+        </div>
+        
+        <!-- Checkbox to save supplier info to input fields -->
+        <div id="checkboxDiv" style="display:none;" class="mt-2">
+            <input type="checkbox" id="saveInfoCheckbox">
+            <label for="saveInfoCheckbox">Save Supplier Info to Form</label>
+        </div>
+                </div>
                 <p>Supplier Details</p>
             <div class="col-4 ">
                 <span class="text"><i class='bx bx-user'></i>Supplier Name</span>
-                <input  type="text" class="form-control mt-2 " name="cname" placeholder="customer name" required>
+                
+                <input type="text" id="supplierName" class="form-control mt-2" name="cname" placeholder="Enter Supplier Name" required>
+                
             </div>
             <div class="col-4 ">
                 <span class="text"><i class='bx bx-phone'></i>Supplier Contact</span>
+                <button type="button" id="searchSupplier" class="btn btn-primary p-1"><i class="bx bx-search fs-5 lh-0"></i></button>
                 <input  type="tel"
-                pattern="[6-9][0-9]{9}" class="form-control mt-2 " name="contact" placeholder="customer contact" required>
+                pattern="[6-9][0-9]{9}" class="form-control mt-2 " id="supplierContact" name="contact" placeholder="customer contact" required>
             </div>
             <div class="col-4 ">
                 <span class="text"><i class='bx bx-mail-send'></i>Supplier Email</span>
-                <input  type="email" class="form-control mt-2 " name="email" placeholder="customer email" required>
+                <input  type="email" class="form-control mt-2 " id="supplierEmail" name="email" placeholder="customer email" required>
             </div>
-      
-
+ 
         
             <div class="col-4 mt-3">
                 <span class="text"><i class='bx bx-location-plus'></i>Supplier Address</span>
-                <input  type="text" class="form-control mt-2 " name="address" placeholder="customer address" required>
+                <input  type="text" class="form-control mt-2 " id="supplierAddress" name="address" placeholder="customer address" required>
             </div>
 
             <div class="col-4 mt-3">
@@ -161,44 +175,50 @@
 
             <div class="col-4 mt-3">
                 <span class="text">Supplier Gstin</span>
-                <input  type="text" maxlength="15" class="form-control mt-2 " name="customergstno"  placeholder="customer Gst number">
+                <input  type="text" id="supplierGst" maxlength="15" class="form-control mt-2 " name="customergstno"  placeholder="customer Gst number">
             </div>
             <div class="col-4 mt-3">
                 <span class="text">Supplier Company</span>
-                <input  type="text" maxlength="48" class="form-control mt-2 " name="companyname" placeholder="company name" >
+                <input  type="text" id="supplierCompany" maxlength="48" class="form-control mt-2 " name="companyname" placeholder="company name" >
             </div>
         </div>
         <!--customer data end-->
 
         <!--Product data-->
+
+<!-- New Div for AJAX search results -->
+<div class="row m-4 mt-0 p-3" id="searchResults" style="display:none; border:1px solid #ccc; padding:10px; max-height:200px; overflow-y:auto;">
+    <p><strong>Search Results:</strong></p>
+    <!-- AJAX results will be appended here -->
+</div>
         <div class="row m-4 mt-0 p-3">
             <p>Product Details</p>
         <div class="col-4 ">
             <span class="text"><i class='bx bx-unite'></i>Product description</span>
-            <input  type="text" class="form-control mt-2 " name="productname" required>
+            <input  type="text" class="form-control mt-2 " id="productDescription" name="productname" required>
         </div>
         <div class="col-4 ">
             <span class="text"><i class='bx bx-money'></i>Selling  Price</span>
-            <input  type="number" class="form-control mt-2 " name="productprice" required>
+            <input  type="number" class="form-control mt-2 " id="productPrice" name="productprice" required>
         </div>
         <div class="col-4 ">
             <span class="text">Quantity</span>
-            <input  type="number" class="form-control mt-2 " name="productqty" required>
+            <input  type="number" class="form-control mt-2 " value=1 id="productQuantity" name="productqty" required>
         </div>
   
 
     
         <div class="col-4 mt-3">
             <span class="text">Tax %</span>
-            <input  type="number" class="form-control mt-2 "  name="producttax" >
+            <input  type="number" class="form-control mt-2 " id="productTax" name="producttax" >
         </div>
         <div class="col-4 mt-3">
             <span class="text">HSN/SAC</span>
-            <input  type="text" class="form-control mt-2 " name="producthsn" >
+            <input  type="text" class="form-control mt-2 " id="productHsn" name="producthsn" >
         </div>
         <div class="col-4 mt-3">
             <span class="text"><i class='bx bxs-discount'></i>Discount</span>
-            <input  type="number" class="form-control mt-2 " name="productdiscount" >
+            <input  type="number" class="form-control mt-2 " id="productDiscount" name="productdiscount" >
         </div>
 
         <div class="col-4 mt-3 end-0">
@@ -221,6 +241,194 @@
 {%endif%}
 
 
+<script>
+    // Attach input event listener to the "Product description" field
+    const productDescriptionInput = document.getElementById('productDescription');
+    const searchResultsDiv = document.getElementById('searchResults');
+
+    productDescriptionInput.addEventListener('input', function () {
+        const query = this.value.trim();
+        console.log("running")
+        if (query.length >= 2) { // Fetch results only if query has 2 or more characters
+            fetch("{% url 'fetch_supplier_items' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}",
+                },
+                body: JSON.stringify({ description: query }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Clear any existing results
+                searchResultsDiv.innerHTML = '';
+
+                if (data.items && data.items.length > 0) {
+                    // Show the results container
+                    searchResultsDiv.style.display = 'block';
+
+                    // Append results to the div
+                    data.items.forEach(item => {
+                        const resultRow = document.createElement('div');
+                        resultRow.classList.add('result-item', 'row', 'p-2', 'mb-1', 'border-bottom');
+
+                        resultRow.innerHTML = `
+                            <div class="col-1">
+                                <input type="checkbox" class="selectItem" data-id="${item.id}" />
+                            </div>
+                            <div class="col-3">${item.description}</div>
+                            <div class="col-2">${item.price}</div>
+                            <div class="col-2">${item.tax_rate || 'N/A'}</div>
+                            <div class="col-2">${item.hsncode || 'N/A'}</div>
+                            <div class="col-2">${item.discount_amount || 'N/A'}</div>
+                        `;
+
+                        searchResultsDiv.appendChild(resultRow);
+                    });
+
+                    // Attach event listeners to checkboxes
+                    document.querySelectorAll('.selectItem').forEach(checkbox => {
+                        checkbox.addEventListener('change', function () {
+                            if (this.checked) {
+                                const itemId = this.getAttribute('data-id');
+                                const selectedItem = data.items.find(item => item.id == itemId);
+
+                                if (selectedItem) {
+                                    // Populate form fields
+                                    document.getElementById('productDescription').value = selectedItem.description;
+                                    document.getElementById('productPrice').value = selectedItem.price;
+                                    document.getElementById('productTax').value = selectedItem.tax_rate || '';
+                                    document.getElementById('productHsn').value = selectedItem.hsncode || '';
+                                    document.getElementById('productDiscount').value = selectedItem.discount_amount || '';
+                                }
+
+                                // Hide search results after selection
+                                //searchResultsDiv.style.display = 'none';
+                            }
+                            else {
+                                // Populate form fields
+                                document.getElementById('productDescription').value = '';
+                                document.getElementById('productPrice').value = '';
+                                document.getElementById('productTax').value = '';
+                                document.getElementById('productHsn').value = '';
+                                document.getElementById('productDiscount').value =  '';
+                            }
+                        });
+                    });
+                } else {
+                    // Hide results container if no results
+                    searchResultsDiv.style.display = 'none';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                searchResultsDiv.style.display = 'none';
+            });
+        } else {
+            // Hide results if input is cleared
+            searchResultsDiv.style.display = 'none';
+        }
+    });
+</script>
+
+
+
+<script>
+    $(document).ready(function () {
+
+        // Handle Search Supplier button click
+        $('#searchSupplier').click(function () {
+            var supplierName = $('#supplierContact').val().trim();  // Change here to use name field for search
+            console.log("yes run");
+            // Only proceed if the input is not empty
+            if (supplierName.length > 0) {
+                $.ajax({
+                    url: '/get_supplier_details/',  // Your URL endpoint to fetch supplier details
+                    type: 'GET',
+                    data: { supplier_name: supplierName },
+                    success: function (response) {
+                        if (response.status === 'success') {
+                            var supplier = response.data; // Supplier details object
+    
+                            // Display the supplier details dynamically
+                            $('#supplierDetails').html(`
+                                <div><strong>Name:</strong> ${supplier.customername}</div>
+                                <div><strong>Contact:</strong> ${supplier.customercontact}</div>
+                                <div><strong>Email:</strong> ${supplier.customeremail}</div>
+                                <div><strong>Address:</strong> ${supplier.customeraddress}</div>
+                                <div><strong>GSTIN:</strong> ${supplier.customergst || 'N/A'}</div>
+                                <div><strong>Company:</strong> ${supplier.companyname || 'N/A'}</div>
+                            `).show();
+    
+                            // Show the checkbox for saving data to input fields
+                            $('#checkboxDiv').show();
+                        } else {
+                            $('#supplierDetails').html('<div>No supplier found.</div>').show();
+                            $('#checkboxDiv').hide();
+                        }
+                    },
+                    error: function () {
+                        $('#supplierDetails').html('<div>Error fetching supplier details.</div>').show();
+                        $('#checkboxDiv').hide();
+                    }
+                });
+            } else {
+                // Clear the supplier details div if input is empty
+                $('#supplierDetails').html('').hide();
+                $('#checkboxDiv').hide();
+            }
+        });
+    
+        // Handle checkbox click to save supplier info to form inputs
+        $('#saveInfoCheckbox').change(function () {
+            if (this.checked) {
+                // Get supplier data from the displayed details in #supplierDetails div
+                var supplierData = getSupplierDataFromDetails();
+    
+                // Populate the form fields with the supplier data
+                $('#supplierName').val(supplierData.name);  // Set supplier name here
+                $('#supplierContact').val(supplierData.contact);
+                $('#supplierEmail').val(supplierData.email);
+                $('#supplierAddress').val(supplierData.address);
+                $('#supplierState').val(supplierData.state);
+                $('#supplierGst').val(supplierData.gstin);
+                $('#supplierCompany').val(supplierData.company);
+            } else {
+                // Clear the form fields if checkbox is unchecked
+                $('#supplierName').val('');  // Clear the supplier name
+                $('#supplierContact').val('');
+                $('#supplierEmail').val('');
+                $('#supplierAddress').val('');
+                $('#supplierState').val('');
+                $('#supplierGst').val('');
+                $('#supplierCompany').val('');
+            }
+        });
+    
+        // Function to extract supplier data from the HTML content of the supplier details div
+        function getSupplierDataFromDetails() {
+            var data = {};
+            $('#supplierDetails').find('div').each(function () {
+                var text = $(this).text();
+                if (text.includes('Name:')) {
+                    data.name = text.split(':')[1].trim();  // Capture supplier name
+                } else if (text.includes('Contact:')) {
+                    data.contact = text.split(':')[1].trim();
+                } else if (text.includes('Email:')) {
+                    data.email = text.split(':')[1].trim();
+                } else if (text.includes('Address:')) {
+                    data.address = text.split(':')[1].trim();
+                } else if (text.includes('GSTIN:')) {
+                    data.gstin = text.split(':')[1].trim();
+                } else if (text.includes('Company:')) {
+                    data.company = text.split(':')[1].trim();
+                }
+            });
+            return data;
+        }
+    
+    });
+</script>
 
 <!--existing invoice-->
 {%if invcdata%}
@@ -414,34 +622,42 @@
                 
         <input type="hidden" name="invcid" value="{{invcdata.id}}" >
                   <!--Product data-->
+
         <div class="row m-4 mt-0 p-3">
+                              <!-- Second Form -->
+<div id="secondFormWrapper" class="row">
+    <div id="ajaxDataContainer2" class="col-12 mt-3">
+        <!-- AJAX fetched data will appear here -->
+    </div>
+</div>
+      
             <p>Product Details</p>
         <div class="col-4 ">
             <span class="text"><i class='bx bx-unite'></i>Product desc..</span>
-            <input  type="text" class="form-control mt-2 " name="productname" required>
+            <input  type="text" id="productName1" class="form-control mt-2 " name="productname" required>
         </div>
         <div class="col-4 ">
             <span class="text"><i class='bx bx-money'></i>Selling  Price</span>
-            <input  type="number" class="form-control mt-2 " name="productprice" required>
+            <input  type="number" id="productPrice1" class="form-control mt-2 " name="productprice" required>
         </div>
         <div class="col-4 ">
             <span class="text">Quantity</span>
-            <input  type="number" class="form-control mt-2 " name="productqty" required>
+            <input  type="number" id="productQty1" class="form-control mt-2 " name="productqty" required>
         </div>
   
 
     
         <div class="col-4 mt-3">
             <span class="text">Tax %</span>
-            <input  type="number" class="form-control mt-2 "  name="producttax" >
+            <input  type="number" id="productTax1" class="form-control mt-2 "  name="producttax" >
         </div>
         <div class="col-4 mt-3">
             <span class="text">HSN/SAC</span>
-            <input  type="text" class="form-control mt-2 " name="producthsn" >
+            <input  type="text" id="productHSN1" class="form-control mt-2 " name="producthsn" >
         </div>
         <div class="col-4 mt-3">
             <span class="text"><i class='bx bxs-discount'></i>Discount</span>
-            <input  type="number" class="form-control mt-2 " name="productdiscount" >
+            <input  type="number" id="productDiscount1" class="form-control mt-2 " name="productdiscount" >
         </div>
 
         <div class="col-4 mt-3 end-0">
@@ -452,6 +668,101 @@
     </form>
     </div></div></div></div>
 
+    <script>
+        // Attach input event listener to the "Product description" field for the second form
+        const productDescriptionInput2 = document.getElementById('productName1');
+        const searchResultsDiv2 = document.getElementById('ajaxDataContainer2');
+    
+        productDescriptionInput2.addEventListener('input', function () {
+            const query = this.value.trim();
+            console.log("running");
+            if (query.length >= 2) { // Fetch results only if query has 2 or more characters
+                fetch("{% url 'fetch_supplier_items' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}",
+                    },
+                    body: JSON.stringify({ description: query }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Clear any existing results
+                    searchResultsDiv2.innerHTML = '';
+    
+                    if (data.items && data.items.length > 0) {
+                        // Show the results container
+                        searchResultsDiv2.style.display = 'block';
+    
+                        // Append results to the div
+                        data.items.forEach(item => {
+                            const resultRow = document.createElement('div');
+                            resultRow.classList.add('result-item', 'row', 'p-2', 'mb-1', 'border-bottom');
+    
+                            resultRow.innerHTML = `
+                                <div class="col-1">
+                                    <input type="checkbox" class="selectItem" data-id="${item.id}" />
+                                </div>
+                                <div class="col-3">${item.description}</div>
+                                <div class="col-2">${item.price}</div>
+                                <div class="col-2">${item.tax_rate || 'N/A'}</div>
+                                <div class="col-2">${item.hsncode || 'N/A'}</div>
+                                <div class="col-2">${item.discount_amount || 'N/A'}</div>
+                            `;
+    
+                            searchResultsDiv2.appendChild(resultRow);
+                        });
+    
+                        // Attach event listeners to checkboxes
+                        document.querySelectorAll('.selectItem').forEach(checkbox => {
+                            checkbox.addEventListener('change', function () {
+                                if (this.checked) {
+                                    const itemId = this.getAttribute('data-id');
+                                    const selectedItem = data.items.find(item => item.id == itemId);
+    
+                                    if (selectedItem) {
+                                        // Populate form fields for the second form
+                                        document.getElementById('productName1').value = selectedItem.description;
+                                        document.getElementById('productPrice1').value = selectedItem.price;
+                                        document.getElementById('productQty1').value = selectedItem.quantity || '';
+                                        document.getElementById('productTax1').value = selectedItem.tax_rate || '';
+                                        document.getElementById('productHSN1').value = selectedItem.hsncode || '';
+                                        document.getElementById('productDiscount1').value = selectedItem.discount_amount || '';
+                                    }
+    
+                                    // Hide search results after selection
+                                    //searchResultsDiv2.style.display = 'none';
+
+                                    
+                                }
+                                else{
+                                    document.getElementById('productName1').value = '';
+                                    document.getElementById('productPrice1').value = '';
+                                    document.getElementById('productQty1').value = '';
+                                    document.getElementById('productTax1').value = '';
+                                    document.getElementById('productHSN1').value = '';
+                                    document.getElementById('productDiscount1').value = '';
+
+                                }
+                            });
+                        });
+                    } else {
+                        // Hide results container if no results
+                        searchResultsDiv2.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    searchResultsDiv2.style.display = 'none';
+                });
+            } else {
+                // Hide results if input is cleared
+                searchResultsDiv2.style.display = 'none';
+            }
+        });
+    </script>
+    
+    
 
         
             

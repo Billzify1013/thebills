@@ -470,7 +470,7 @@
                   </div>
                 </div>
                 <!--/ Expense Overview -->
-
+{% comment %} 
                 <!-- Transactions -->
                 <div class="col-md-6 col-lg-4 order-2 mb-4">
                   <div class="card h-100">
@@ -518,7 +518,23 @@
                     </div>
                   </div>
                 </div>
-                <!--/ Transactions -->
+                <!--/ Transactions --> {% endcomment %}
+                <div class="col-md-8 col-lg-4 order-1 mb-4">
+                  <div class="card w-100">
+                    <div class="card-body">
+                      <div class="d-flex justify-content-between flex-sm-row flex-column gap-3">
+                        <div class="d-flex flex-sm-column flex-row align-items-start justify-content-between">
+                          <div class="card-title">
+                            <h5 class="text-nowrap mb-2">Weekly Report</h5>
+                            <span class="badge bg-label-warning rounded-pill">This week</span>
+                          </div>
+                          
+                       
+                        <div id="profileReportChart"></div> </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
             </div>
 
             
@@ -526,22 +542,7 @@
             <!-- / Content -->
 
        <div class="row">
-            <div class="col-md-8 col-lg-4 order-1 mb-4">
-            <div class="card w-100">
-              <div class="card-body">
-                <div class="d-flex justify-content-between flex-sm-row flex-column gap-3">
-                  <div class="d-flex flex-sm-column flex-row align-items-start justify-content-between">
-                    <div class="card-title">
-                      <h5 class="text-nowrap mb-2">Weekly Report</h5>
-                      <span class="badge bg-label-warning rounded-pill">This week</span>
-                    </div>
-                    
-                 
-                  <div id="profileReportChart"></div> </div>
-                </div>
-              </div>
-            </div>
-          </div>
+            
           <div class="col-md-8 col-lg-4 order-1 mb-4">
             <div class="card">
 

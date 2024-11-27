@@ -424,10 +424,12 @@ class RatePlan(models.Model):
     vendor = models.ForeignKey(User,on_delete=models.CASCADE)
     room_category = models.ForeignKey(RoomsCategory, related_name='rate_plans', on_delete=models.CASCADE)
     rate_plan_name = models.CharField(max_length=50)
+    rate_plan_description = models.CharField(max_length=150)
     rate_plan_code = models.CharField(max_length=50,blank=True,null=True)
     base_price = models.DecimalField(max_digits=10, decimal_places=2)  # Base price for one person
     additional_person_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # Price per additional person
     max_persons = models.PositiveIntegerField(default=1)  # Maximum persons allowed
+    childmaxallowed = models.PositiveIntegerField(default=1)# Maximum child allowed
 
    
     def __str__(self):
@@ -654,3 +656,27 @@ class SupplierInvoiceItem(models.Model):
     tax_amt = models.DecimalField(max_digits=10, decimal_places=2,blank=True)
     grand_total = models.DecimalField(max_digits=10, decimal_places=2)
 
+
+
+
+
+
+
+class Companies(models.Model):
+    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
+    companyname = models.CharField(max_length=50)
+    contactpersonname = models.CharField(max_length=50)
+    contact = models.BigIntegerField(validators=[MaxValueValidator(9999999999)])
+    email = models.EmailField(max_length=100,blank=True)
+    address = models.CharField(max_length=300)
+    customergst = models.CharField(max_length=15,blank=True)
+    values = models.CharField(max_length=10,default=0)
+
+
+class companyinvoice(models.Model):
+    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
+    company = models.ForeignKey(Companies,on_delete=models.CASCADE)
+    Invoicedata = models.ForeignKey(Invoice,on_delete=models.CASCADE)
+    Value = models.CharField(max_length=10)
+    date = models.DateField(auto_now=False)
+    is_paid = models.BooleanField(default=False)

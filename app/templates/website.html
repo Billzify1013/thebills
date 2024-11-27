@@ -19,9 +19,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"> 
 
+
+
     <!-- Icon Font Stylesheet -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/fonts/boxicons.css'%}" />
 
     <!-- Libraries Stylesheet -->
     <link href="{% static 'vendorwebcss/lib/animate/animate.min.css'%}" rel="stylesheet">
@@ -43,6 +47,13 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
 <style>
+    /* Add Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+    body {
+        font-family: 'Roboto', sans-serif;
+    }
     /* Carousel Container */
     .carousel {
         position: relative;
@@ -225,8 +236,7 @@ html, body {
                         
                         <h5 class="text-gray  m-3" >{{room.name}}</h5>
                         <p class="expandable-text ps-3" id="room-{{ forloop.counter }}">
-                            Location:{{ room.address }}  </p>
-                            {% comment %} <a href="#" class="more-link text-primary">More</a> {% endcomment %}
+                            {{ room.address }}  </p>
                         </p>
                     
                        
@@ -285,8 +295,9 @@ html, body {
                                 <div class=" col-5  w-50 ">
                                     <label for="zipCode" class="form-label">Adults </label>
                                     <select id="country" name="adults" required class="select2 form-select">
-                                        <option value="1">1</option>
                                         <option value="2">2</option>
+                                        <option value="1">1</option>
+                                        
                                         <option value="3">3</option>
                                         <option value="4">4</option>
                                         <option value="5">5</option>
@@ -325,7 +336,7 @@ html, body {
                 </div>
              
             <h5 class="text-gray  m-1  py-4"style="color:gray"   id="target-div">Choose your rooms</h5>
-            {% for room in rooms %}
+            {% comment %} {% for room in rooms %}
             <div class="col-lg-12 mb-5  " >
                 <div class="portfolio-img rounded overflow-hidden shadow">
                     <div class="carousel mt-4">
@@ -356,71 +367,444 @@ html, body {
                         <li class="expandable-item">Item 6</li>
                         <a href="#" class="more-link text-primary">More</a>
                     </ul>
-
+                    {%for plan in rateplanmaxuser%}
+                    {%if plan.room_category.category_name == room.category_name%}
                     <div class="m-3 p-3 border rounded-1" >
                         <div class="row">
-                            <div class="col-4 pt-1">Ep Plan</div>
-                            <div class="col-4"><span><del>₹2350</del></span><br><span>₹1990</span></div>
-                            <div class="col-4">
-                                <button class="btn btn-dark">Add</button>
+                            <div class="col-12 pt-1"><b>{{plan.rate_plan_name}}</b>
+                                <p>For <b>{{plan.max_persons}} Adults</b> And {{plan.childmaxallowed}} Children </p>
+                            <p>In This Plan: {{plan.rate_plan_description}}</p>
+                            </div>
+                            <div class="col-7"><span><del>₹2350</del></span><br><span>₹1990</span></div>
+                            <div class="col-5">
+                                <center><button class="btn btn-dark w-100 mt-2">Add</button></center>
                             </div>
                         </div>
                         
                     </div>
+                    {%endif%}
+                    {%endfor%}
 
-                    <div class="m-3 p-3 border rounded-1" >
-                        <div class="row">
-                            <div class="col-4 pt-1">Cp Plan</div>
-                            <div class="col-4"><span><del>₹2950</del></span><br><span>₹2490</span></div>
-                            <div class="col-4">
-                                <button class="btn btn-dark">Add</button>
-                            </div>
-                        </div>
-                        
-                    </div>
+                    
                     
                 </div>
             </div>
-        {% endfor %}
-        
+        {% endfor %} {% endcomment %}
+
+        {% comment %} {% for room in rooms %}
+        <div class="col-lg-12 mb-5">
+            <div class="portfolio-img rounded overflow-hidden shadow">
+                <div class="carousel mt-4">
+                    <!-- Carousel Images -->
+                    <div class="carousel-images" id="second-carousel-images-{{ forloop.counter }}">
+                        {% for image in room.images.all %}
+                            <img src="{{ image.image.url }}" alt="Image for {{ room.category_name }}">
+                        {% endfor %}
+                    </div>
+    
+                    <!-- Navigation Buttons -->
+                    <button class="carousel-btn left" onclick="prevSecondImage({{ forloop.counter }})">&#10094;</button>
+                    <button class="carousel-btn right" onclick="nextSecondImage({{ forloop.counter }})">&#10095;</button>
+                </div>
+    
+                <h5 class="text-gray m-3">{{ room.category_name }}</h5>
+                {% comment %} <p class="expandable-text ps-3" id="room-{{ forloop.counter }}">
+                    {{ room.category_name }} Room: A refined accommodation offering upscale amenities and a comfortable atmosphere, designed to provide guests with a luxurious and enjoyable stay experience.
+                    <a href="#" class="more-link text-primary">More</a>
+                </p> {% endcomment %}
+    
+                {% comment %} <ul class="responsive-dotted-list ps-3 pt-0">
+                    <li class="expandable-item">Item 1</li>
+                    <li class="expandable-item">Item 2</li>
+                    <li class="expandable-item">Item 3</li>
+                    <li class="expandable-item">Item 4</li>
+                    <li class="expandable-item">Item 5</li>
+                    <li class="expandable-item">Item 6</li>
+                    <a href="#" class="more-link text-primary">More</a>
+                </ul>
+    
+                
+                <p class="text ms-3 m-1"><span class="text-danger">*</span>Hurry, Only {{ room.available_rooms }} Rooms Left!</p>
+                
+                {%if room.available_rooms > 0 %}
+                {% for plan in rateplanmaxuser %}
+                    {% if plan.room_category.category_name == room.category_name %}
+                        <div class="m-3 p-3 border rounded-1">
+                            <div class="row">
+                                <div class="col-12 pt-1"><b>{{ plan.rate_plan_name }}</b> {% endcomment %}
+                                    {% comment %} <p>For {{ plan.max_persons }} Adults & {{ plan.childmaxallowed }} <i class='bx bx-child'></i> </p> {% endcomment %}
+                                    {% comment %} <p>In This Plan: {{ plan.rate_plan_description }}</p> {% endcomment %}
+                                    {% comment %} {{ room.uprice }}  {{plan.base_price}} {{room.delprice}} {% endcomment %}
+                                {% comment %} </div>
+                                <div class="col-7"><span><del>₹ {{plan.base_price|add:room.delprice}}</del></span><br>
+                                    <span><b>₹ {{room.uprice|add:plan.base_price}}</b></span><br>
+                                    <span>tax:{{room.tax}}</span>
+                                </div>
+                                <div class="col-5">
+                                    <center><button class="btn btn-dark w-100 mt-2">Add</button></center>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                {%else%}
+                
+                <button class="btn btn-danger m-2 float-end">All Rooms Sold</button>
+                {%endif%}
+            </div>
+        </div>
+    {% endfor %} {% endcomment %}
+
+
+    {% for room in rooms %}
+    <div class="col-lg-12 mb-5">
+        <div class="portfolio-img rounded overflow-hidden shadow">
+            <div class="carousel mt-4">
+                <div class="carousel-images" id="second-carousel-images-{{ forloop.counter }}">
+                    {% for image in room.images.all %}
+                    <img src="{{ image.image.url }}" alt="Image for {{ room.category_name }}">
+                    {% endfor %}
+                </div>
+                <button class="carousel-btn left" onclick="prevSecondImage({{ forloop.counter }})">&#10094;</button>
+                <button class="carousel-btn right" onclick="nextSecondImage({{ forloop.counter }})">&#10095;</button>
+            </div>
+            
+            <h5 class="text-gray m-3">{{ room.category_name }}</h5>
+            {%if forloop.counter == 1 %}
+            <ul class="responsive-dotted-list ps-3 pt-0">
+                <li class="expandable-item">Item 1</li>
+                <li class="expandable-item">Item 2</li>
+                <li class="expandable-item">Item 3</li>
+                <li class="expandable-item">Item 4</li>
+                <li class="expandable-item">Item 5</li>
+                <li class="expandable-item">Item 6</li>
+                <a href="#" class="more-link text-primary">More</a>
+            </ul>
+            {%endif%}
+            
+            <p class="text ms-3 m-1"><span class="text-danger">*</span>Hurry, Only {{ room.available_rooms }} Rooms Left!</p>
+    
+            {% if room.available_rooms > 0 %}
+            {% for plan in rateplanmaxuser %}
+            {% if plan.room_category.category_name == room.category_name %}
+            <div class="m-3 p-3 border rounded-1">
+                <div class="row">
+                    <div class="col-12 pt-1">
+                        <b>{{ plan.rate_plan_name }}</b> 
+
+                        <button class="btn btn-light float-end" data-bs-toggle="modal" data-bs-target="#planModal{{ forloop.counter }}">
+                            <i class="bi bi-info-circle"></i> 
+                        </button>
+
+                        <p>For {{ plan.max_persons }} Adults & {{ plan.childmaxallowed }} Child <i class='bx bx-child'></i></p>
+                        
+                                <!-- Info Button for each plan -->
+           
+
+            <!-- Modal for each plan -->
+            <div class="modal fade" id="planModal{{ forloop.counter }}" tabindex="-1" aria-labelledby="planModalLabel{{ forloop.counter }}" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="planModalLabel{{ forloop.counter }}">Plan: {{ plan.rate_plan_name }} </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>In This Plan: {{ plan.rate_plan_description }}</p>
+                            <hr>
+                            <p>cancellation policy:</p>
+                            <p>Free Cancellation upto 48 hours before check-in: Free Cancellation upto 48 hours before check-in</p>
+                            <!-- You can add more information as needed -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+                    </div>
+                    <div class="col-7">
+                        <span><del>₹ {{ plan.base_price|add:room.delprice }}</del></span><br>
+                        <span><b>₹ {{ room.uprice|add:plan.base_price }}</b></span><br>
+                    </div>
+                    <div class="col-5">
+                        <center>
+                            <button class="btn btn-dark w-100 mt-2"
+                                onclick="addToCart('{{ forloop.counter }}', '{{ room.category_name }}', '{{ plan.rate_plan_name }}', {{ plan.max_persons }}, {{ plan.childmaxallowed }}, {{ room.uprice|add:plan.base_price }}, {{ room.tax }}, {{ room.available_rooms }})">
+                                Add
+                            </button>
+                        </center>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+            {% else %}
+            <button class="btn btn-danger m-2 float-end">All Rooms Sold</button>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+    
+
             </div>
         </div>
     </div>
     <!-- Header End -->
+     
+    
+<!-- Cart Popup Modal -->
+<div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cartModalLabel">Cart Summary</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Cart Items -->
+                <div id="cart-items" class="mb-3 "></div>
+
+                <!-- Cart Summary Section -->
+                <div class="card  p-2 border-top pt-3">
+                    <h6>Cart Summary</h6>
+                    <div class="d-flex justify-content-between">
+                        <p>Total Price</p> <p>₹<span id="total-price">0</span></p>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <p>Total Tax</p> <p>₹<span id="total-tax">0</span></p>
+                    </div><hr>
+                    <div class="d-flex justify-content-between">
+                        <p><b>Grand Total</b></p> <p><b>₹<span id="grand-total">0</span></b></p>
+                    </div>
+                    <button class="btn btn-dark">Continue to book</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Cart View -->
+<div id="bottom-cart-view" class="fixed-bottom d-none px-3 py-2" style="height: auto; background: white; border-radius: 12px 12px 0 0; color: white; box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.2);">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h6>Total: ₹<span id="fixed-total-price">0</span></h6>
+            <h6>Add-Rooms: <span id="total-rooms">0</span></h6> <!-- Show total rooms -->
+        </div>
+        <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#cartModal" style="font-size: 16px; ;">View Cart</button>
+    </div>
+</div>
+
+
+
+
+<script>
+    const cart = {};  // Cart object to store room data
+    let totalPrice = 0;  // Total price of items in the cart
+    let totalTax = 0;  // Total tax for items in the cart
+    let totalRooms = 0;  // Total rooms added to the cart
+    
+    // Function to toggle visibility of bottom cart view
+    function toggleCartVisibility() {
+        const bottomCartView = document.getElementById("bottom-cart-view");
+        const cartItemsDiv = document.getElementById("cart-items");
+        const isVisible = Object.keys(cart).some((roomId) => cart[roomId]?.count > 0);
+    
+        bottomCartView.classList.toggle("d-none", !isVisible);
+        if (!isVisible) {
+            cartItemsDiv.innerHTML = "";
+        }
+    }
+    
+    // Function to add a room to the cart
+    function addToCart(roomId, categoryName, ratePlanName, adults, children, roomPrice, taxRate, availableRooms) {
+        // Initialize the room entry in the cart if not already there
+        if (!cart[roomId]) {
+            cart[roomId] = {
+                count: 0,
+                category: categoryName,
+                ratePlan: ratePlanName,
+                adultsPerRoom: adults,  // Store adults per room as per rate plan
+                childrenPerRoom: children,  // Store children per room as per rate plan
+                price: roomPrice,
+                taxRate: taxRate,
+                max: availableRooms,
+                adults: 0,  // Initialize total adults count
+                children: 0  // Initialize total children count
+            };
+        }
+    
+        // Check how many rooms are already booked in this category
+        let totalBookedInCategory = 0;
+        for (const roomKey in cart) {
+            if (cart[roomKey].category === categoryName) {
+                totalBookedInCategory += cart[roomKey].count;
+            }
+        }
+    
+        // Only allow adding rooms if total booked rooms are less than available rooms
+        if (totalBookedInCategory < availableRooms) {
+            // Increment the count of rooms
+            cart[roomId].count += 1;
+    
+            // Increment adults and children based on rate plan
+            cart[roomId].adults += adults;  // Add the number of adults from the rate plan
+            cart[roomId].children += children;  // Add the number of children from the rate plan
+    
+            // Update total price and tax
+            totalPrice += roomPrice;
+            const taxAmount = (roomPrice * taxRate) / 100;
+            totalTax += taxAmount;
+            totalRooms += 1; // Increment the total rooms count
+    
+            updateCart();
+            toggleCartVisibility();
+        } else {
+            alert("All rooms in this category are booked!");
+        }
+    }
+    
+    // Function to remove a room from the cart
+    function removeFromCart(roomId) {
+        if (cart[roomId] && cart[roomId].count > 0) {
+            // Decrease the total price and tax
+            totalPrice -= cart[roomId].price;
+            const taxAmount = (cart[roomId].price * cart[roomId].taxRate) / 100;
+            totalTax -= taxAmount;
+    
+            // Decrease the total rooms
+            totalRooms -= 1;
+    
+            // Decrease the count of adults and children based on the rate plan
+            cart[roomId].adults -= cart[roomId].adultsPerRoom; // Decrease by per room count
+            cart[roomId].children -= cart[roomId].childrenPerRoom; // Decrease by per room count
+    
+            // Decrease the count of rooms
+            cart[roomId].count -= 1;
+    
+            if (cart[roomId].count === 0) {
+                delete cart[roomId];
+            }
+    
+            updateCart();
+            toggleCartVisibility();
+        }
+    }
+    
+    // Function to update the cart display
+    function updateCart() {
+        const cartItemsDiv = document.getElementById("cart-items");
+        cartItemsDiv.innerHTML = "";  // Clear the current cart items
+    
+        // Loop through each cart item and display it
+        for (const roomId in cart) {
+            if (cart[roomId].count > 0) {
+                const room = cart[roomId];
+                const roomDiv = document.createElement("div");
+                roomDiv.classList.add("cart-item", "border", "rounded", "p-2", "mb-2", "d-flex", "shadow" ,"justify-content-between");
+                roomDiv.style.background = "#FFF";
+                roomDiv.style.fontSize = "14px";
+    
+                roomDiv.innerHTML = `
+                    <div>
+                        <h6>${room.category} - ${room.ratePlan}</h6>
+                        <p>Adults: ${room.adults} | Children: ${room.children}</p>
+                        <p>Price: ₹${room.price} | Tax Rate: ${room.taxRate}%</p>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <button class="btn  btn-success me-2" onclick="addToCart('${roomId}', '${room.category}', '${room.ratePlan}', ${room.adultsPerRoom}, ${room.childrenPerRoom}, ${room.price}, ${room.taxRate}, ${room.max})" ${
+                        cart[roomId].count >= room.max ? "disabled" : ""
+                    }>+</button>
+                        <span>${room.count}</span>
+                        <button class="btn  btn-danger ms-2" onclick="removeFromCart('${roomId}')">-</button>
+                    </div>
+                `;
+                cartItemsDiv.appendChild(roomDiv);
+            }
+        }
+    
+        // Update the cart summary with total prices and taxes
+        document.getElementById("total-price").innerText = totalPrice.toFixed(2);
+        document.getElementById("total-tax").innerText = totalTax.toFixed(2);
+        document.getElementById("grand-total").innerText = (totalPrice + totalTax).toFixed(2);
+        document.getElementById("fixed-total-price").innerText = totalPrice.toFixed(2);
+        document.getElementById("total-rooms").innerText = totalRooms;  // Display total rooms
+    }
+    
+    // Function to update button availability based on room count
+    function updateRoomButtonAvailability() {
+        const roomButtons = document.querySelectorAll(".btn-success");
+        roomButtons.forEach((btn) => {
+            const roomId = btn.getAttribute('data-room-id');
+            const categoryName = btn.getAttribute('data-category-name');
+            const availableRooms = btn.getAttribute('data-available-rooms');
+    
+            // Calculate total booked rooms in this category
+            let totalBookedInCategory = 0;
+            for (const roomKey in cart) {
+                if (cart[roomKey].category === categoryName) {
+                    totalBookedInCategory += cart[roomKey].count;
+                }
+            }
+    
+            // Disable button if rooms are fully booked
+            if (totalBookedInCategory >= availableRooms) {
+                btn.disabled = true;
+            } else {
+                btn.disabled = false;
+            }
+        });
+    }
+    
+    // Ensure room button availability is checked on page load
+    document.addEventListener("DOMContentLoaded", () => {
+        updateRoomButtonAvailability();  // Run availability check
+    });
+    
+    
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     <script>
-        {% comment %} const currentIndex = {};
-
-        // Initialize each carousel's index to 0
-        document.addEventListener("DOMContentLoaded", function() {
-            {% for room in rooms %}
-                currentIndex[{{ forloop.counter }}] = 0;
-            {% endfor %}
-        });
-        
-        function showImage(carouselId) {
-            const imagesContainer = document.getElementById(`carousel-images-${carouselId}`);
-            const images = imagesContainer.querySelectorAll('img');
-            const totalImages = images.length;
-        
-            if (currentIndex[carouselId] >= totalImages) {
-                currentIndex[carouselId] = 0;
-            } else if (currentIndex[carouselId] < 0) {
-                currentIndex[carouselId] = totalImages - 1;
-            }
-        
-            imagesContainer.style.transform = `translateX(-${currentIndex[carouselId] * 100}%)`;
-        }
-        
-        function nextImage(carouselId) {
-            currentIndex[carouselId]++;
-            showImage(carouselId);
-        }
-        
-        function prevImage(carouselId) {
-            currentIndex[carouselId]--;
-            showImage(carouselId);
-        } {% endcomment %}
+       
         
         // Objects to store the current index of each carousel
 const firstCarouselIndex = {};
@@ -524,6 +908,10 @@ function updateSecondCarousel(id) {
         
         
     </script>
+
+
+
+{% comment %}     
     
     <!-- Header Start -->
     <div class="container-fluid py-1 my-1 " >
@@ -539,12 +927,12 @@ function updateSecondCarousel(id) {
             </div>
         </div>
     </div>
-    <!-- Header End -->
+    <!-- Header End --> {% endcomment %}
 
 
   
 
-
+{% comment %} 
     <!-- About Start -->
     <div class="container-xxl py-4" id="about">
         <div class="container">
@@ -572,11 +960,11 @@ function updateSecondCarousel(id) {
                         </div>
                         <div class="col-sm-6">
                            <img class="img-fluid rounded" src="{% static 'vendorwebcss/img/happyclintsbig.png'%}" alt="">
-                       </div>
+                       </div> {% endcomment %}
                         {% comment %} <div class="col-sm-6">
                             <img class="img-fluid rounded" src="{% static 'vendorwebcss/img/happyclientsgirl.png'%}" alt="">
                         </div> {% endcomment %}
-                    </div>
+                    {% comment %} </div>
                     <div class="d-flex align-items-center mb-3">
                         <h5 class="border-end pe-3 me-3 mb-0">Happy Clients</h5>
                         <h2 class="text-primary fw-bold mb-0" data-toggle="counter-up">{{i.clientscount}} </h2><span class="text-primary fw-bold"> + </span>
@@ -595,9 +983,9 @@ function updateSecondCarousel(id) {
             </div>
         </div>
     </div>
-    <!-- About End -->
+    <!-- About End --> {% endcomment %}
 
-
+{% comment %} 
      <!-- Team Start -->
      <div class="container-xxl py-1 pb-5" id="rooms">
        <div class="container">
@@ -675,9 +1063,9 @@ function updateSecondCarousel(id) {
         </div>
     </div>
     <!-- Service End -->
-     {%endif%}
+     {%endif%} {% endcomment %}
 
-
+{% comment %} 
     <!-- service Start -->
     <div class="container-xxl py-6 pt-5" id="services">
         <div class="container">
@@ -860,7 +1248,7 @@ function updateSecondCarousel(id) {
                 </div>
             </div>
         </div>
-    </div>
+    </div> {% endcomment %}
     <!-- Copyright End -->
 
 {% comment %} 
@@ -868,7 +1256,7 @@ function updateSecondCarousel(id) {
     <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a> {% endcomment %}
 
 
-    <!-- JavaScript Libraries -->
+    {% comment %} <!-- JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'vendorwebcss/lib/wow/wow.min.js'%}"></script>
@@ -878,10 +1266,11 @@ function updateSecondCarousel(id) {
     <script src="{% static 'vendorwebcss/lib/counterup/counterup.min.js'%}"></script>
     <script src="{% static 'vendorwebcss/lib/owlcarousel/owl.carousel.min.js'%}"></script>
     <script src="{% static 'vendorwebcss/lib/isotope/isotope.pkgd.min.js'%}"></script>
-    <script src="{% static 'vendorwebcss/lib/lightbox/js/lightbox.min.js'%}"></script>
+    
 
     <!-- Template Javascript -->
-    <script src="{% static 'vendorwebcss/js/main.js'%}"></script>
+    <script src="{% static 'vendorwebcss/js/main.js'%}"></script> {% endcomment %}
+    
 </body>
 
 </html>
@@ -1124,7 +1513,7 @@ function updateSecondCarousel(id) {
                  </nav>
                  <!-- Navbar End --> {% endcomment %}
              
-             
+{% comment %}              
                  <!-- Header Start -->
                  <div class="container-fluid py-6 my-6 mt-3" id="guestexperiance">
                      <div class="container">
@@ -1179,11 +1568,11 @@ function updateSecondCarousel(id) {
                                      </div>
                                      <div class="col-sm-6">
                                         <img class="img-fluid rounded" src="{% static 'vendorwebcss/img/happyclintsbig.png'%}" alt="">
-                                    </div>
+                                    </div> {% endcomment %}
                                      {% comment %} <div class="col-sm-6">
                                          <img class="img-fluid rounded" src="{% static 'vendorwebcss/img/happyclientsgirl.png'%}" alt="">
                                      </div> {% endcomment %}
-                                 </div>
+                                 {% comment %} </div>
                                  <div class="d-flex align-items-center mb-3">
                                      <h5 class="border-end pe-3 me-3 mb-0">Happy Clients</h5>
                                      <h2 class="text-primary fw-bold mb-0" data-toggle="counter-up">{{i.clientscount}} </h2><span class="text-primary fw-bold"> + </span>
@@ -1467,7 +1856,7 @@ function updateSecondCarousel(id) {
                              </div>
                          </div>
                      </div>
-                 </div>
+                 </div> {% endcomment %}
                  <!-- Copyright End -->
              
              
@@ -1476,7 +1865,7 @@ function updateSecondCarousel(id) {
               {% endcomment %}
              
                  <!-- JavaScript Libraries -->
-                 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+                <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
                  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
                  <script src="{% static 'vendorwebcss/lib/wow/wow.min.js'%}"></script>
                  <script src="{% static 'vendorwebcss/lib/easing/easing.min.js'%}"></script>

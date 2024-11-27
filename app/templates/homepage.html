@@ -342,10 +342,21 @@
 <!-- Ensure you have Bootstrap CSS included in the <head> section -->
   <!-- Search Input: Add this at the top of your page, before your room display loop -->
 <div class="row mb-4 mt-4">
-  <div class="col-4"></div>
-  <div class="col-3"></div>
-  <div class="col-5 end">
+  <div class="col-5 ">
       <input type="text" id="search-input" class="form-control" placeholder="Search by room name...">
+  </div>
+  <div class="col-3 "></div>
+  <div class="col-2">
+    <form action="{% url 'inventory_push' %}" method="post"> 
+        {% csrf_token %}
+        <input type="submit" value="Sync Inventory" class="btn btn-info">
+      </form>
+  </div>
+  <div class="col-2">
+    <a href="{% url 'rate_push' %}" class="btn btn-info">
+      <div data-i18n="Analytics">Sync Rates</div>
+      
+    </a>
   </div>
 </div>
 

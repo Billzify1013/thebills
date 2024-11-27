@@ -7,7 +7,7 @@ from django.conf.urls.static import static
 from django.contrib.auth import views as auth_view
 from .newcode import *
 from . import dynamicrates
-from . import aiosellbook ,travelagancy,stayinvoices,purches
+from . import aiosellbook ,travelagancy,stayinvoices,purches,companyies
 
 urlpatterns = [
     path('',views.loginpage,name="loginpage"),
@@ -90,8 +90,12 @@ urlpatterns = [
     path('aminitysales/',loyltys.aminitysales,name="aminitysales"),
     path('searchaminitiesinvoicedata/',loyltys.searchaminitiesinvoicedata,name="searchaminitiesinvoicedata"),
     path('generate_aminitiesinvoice_excel/',donwloadexcel.generate_aminitiesinvoice_excel,name="generate_aminitiesinvoice_excel"),
-     path('generate_purchesinvoice_excel/',donwloadexcel.generate_purchesinvoice_excel,name="generate_purchesinvoice_excel"),
-    
+    path('generate_purchesinvoice_excel/',donwloadexcel.generate_purchesinvoice_excel,name="generate_purchesinvoice_excel"),
+    path('search_user/', loyltys.search_user, name='search_user'),
+    path('check_product/', loyltys.check_product, name='check_product'),
+
+
+
     # ajax data
     path('getloyltydataajax',loyltys.getloyltydataajax,name="getloyltydataajax"),
     path('deleteloyltyajaxdata',loyltys.deleteloyltyajaxdata,name="deleteloyltyajaxdata"),
@@ -218,6 +222,8 @@ urlpatterns = [
     path('purchesinvoices/<int:id>/', purches.purchesinvoices, name='purchesinvoices'),
     path('purchessales/', purches.purchessales, name='purchessales'),
     path('searpurchesinvoicedata/', purches.searpurchesinvoicedata, name='searpurchesinvoicedata'),
+    path('get_supplier_details/', purches.get_supplier_details, name='get_supplier_details'),
+    path('fetch-supplier-items/', purches.fetch_supplier_items, name='fetch_supplier_items'),
 
     # channel manager changeroompage 
     path('channalmanager/', purches.channalmanager, name='channalmanager'),
@@ -241,8 +247,16 @@ urlpatterns = [
     path('guestplans/', dynamicrates.guestplans, name='guestplans'),
 
 
+    path('update_room_book_advance/', views.update_room_book_advance, name='update_room_book_advance'),
 
-
+    # company management  
+    path('comaypage/', companyies.comaypage, name='comaypage'),
+    path('add_company/', companyies.add_company, name='add_company'),
+    path('deletecompany/<int:id>/', companyies.deletecompany, name='deletecompany'),
+    path('get-companies/', companyies.get_companies, name='get_companies'),
+    path('submit-form/', companyies.submit_form, name='submit_form'),
+    path('gotocmpbills/<int:id>/', companyies.gotocmpbills, name='gotocmpbills'),
+   
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

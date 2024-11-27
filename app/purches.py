@@ -693,3 +693,84 @@ def channalmanager(request):
 
     except Exception as e:
         return render(request, "404.html", {"error_message": str(e)}, status=500)
+
+
+
+
+from django.http import JsonResponse
+from .models import Supplier
+from django.db.models import Q
+
+
+def get_supplier_details(request):
+    if request.method == "GET":
+        supplier_name = request.GET.get('supplier_name', '').strip()
+
+        # Ensure that the user is authenticated
+        if not request.user.is_authenticated:
+            return JsonResponse({'status': 'error', 'message': 'User is not authenticated'})
+
+        if supplier_name:
+            # Filter suppliers based on the logged-in user and supplier name
+            suppliers = Supplier.objects.filter(
+                vendor=request.user,  # Only show suppliers linked to the current logged-in user
+                customercontact__icontains=supplier_name  # Partial match for the supplier name
+            )
+
+            if suppliers.exists():
+                supplier = suppliers.last()  # You can modify to return multiple suppliers if needed
+                supplier_data = {
+                    'customername': supplier.customername,
+                    'customercontact': supplier.customercontact,
+                    'customeremail': supplier.customeremail,
+                    'customeraddress': supplier.customeraddress,
+                    'customergst': supplier.customergst,
+                    'companyname': supplier.companyname,
+                    'invoicenumber': supplier.invoicenumber,
+                    'invoicedate': supplier.invoicedate,
+                    'taxtype': supplier.taxtype,
+                    'total_item_amount': str(supplier.total_item_amount),
+                    'discount_amount': str(supplier.discount_amount),
+                    'subtotal_amount': str(supplier.subtotal_amount),
+                    'gst_amount': str(supplier.gst_amount),
+                    'sgst_amount': str(supplier.sgst_amount),
+                    'grand_total_amount': str(supplier.grand_total_amount),
+                    'modeofpayment': supplier.modeofpayment,
+                    'cash_amount': str(supplier.cash_amount),
+                    'online_amount': str(supplier.online_amount),
+                    'sattle': supplier.sattle
+                }
+
+                return JsonResponse({'status': 'success', 'data': supplier_data})
+            else:
+                return JsonResponse({'status': 'error', 'message': 'No supplier found'})
+
+        return JsonResponse({'status': 'error', 'message': 'Supplier name is required'})
+    
+import json
+@csrf_exempt
+def fetch_supplier_items(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        description = data.get("description", "").strip()
+
+        if description:
+            # Filter SupplierInvoiceItem based on the description
+            # Fetch all matching items
+            items = SupplierInvoiceItem.objects.filter(
+                vendor=request.user,
+                description__icontains=description
+            ).values(
+                'id', 'description', 'price', 'tax_rate', 'hsncode', 'discount_amount'
+            )
+
+            # Remove duplicates using a dictionary to retain the first occurrence
+            unique_items = {item['description']: item for item in items}.values()
+
+            # Convert to a list for further processing
+            items = list(unique_items)
+            return JsonResponse({'success': True, 'items': list(items)}, status=200)
+        
+        return JsonResponse({'success': False, 'error': 'No description provided.'}, status=400)
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method.'}, status=405)

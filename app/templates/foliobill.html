@@ -218,19 +218,31 @@
                 <b><i class='bx bxs-edit'></i> edit</b>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt3">
+                  
+                  {%for data in invoice_data%}
+                  <a class="btn dropdown-item " href="{% url 'guestregform' id=data.customer.id %}"><i class='bx bx-id-card mb-1'></i> Regstratrion Form</a>
+                  
+                  <a class="btn dropdown-item " href="{% url 'changeroompage' id=data.id %}"><i class='bx bx-exclude'></i> Change Room</a>
+
+                  
+                  <a class="btn dropdown-item " data-bs-toggle="modal" data-bs-target="#backDropModal"><i class='bx bxl-paypal'></i> Add Payment</a>
+
                   <form action="{%url 'openposforroom' %}" method="post">
                     {% csrf_token %}
-                    {%for data in invoice_data%}
                     <input type="hidden" name="invcid" value="{{data.id}}" style="display:none"/>
                     <input type="hidden" name="roomno" value="{{data.room_no}}" style="display:none"/>
                   <button class="dropdown-item btn" type="submit" href=""><i class='bx bx-sitemap'></i> Add Service</button>
                   
                   </form>
-                  <a class="btn dropdown-item " href="{% url 'guestregform' id=data.customer.id %}"><i class='bx bx-id-card mb-1'></i> Regstratrion Form</a>
-                  
-                  <a class="btn dropdown-item " href="{% url 'changeroompage' id=data.id %}"><i class='bx bx-exclude'></i> Change Room</a>
+                  <a class="btn dropdown-item" id="billToCompanyBtn" data-bs-toggle="modal" data-bs-target="#billToCompanyModal">
+                    <i class='bx bxl-paypal'></i> Bill To Company
+                  </a>
+               
+                  {%endfor%}
                 
-                  {%endfor%}</div>
+               </div>
+
+                  
               </div>
             </div>
             
@@ -254,7 +266,7 @@
                     </div>
                   </div>
                     
-                
+                <p>checkin Date : {{data.customer.checkindate}}</p>
                 <p>CheckOut Date: {{data.customer.checkoutdate}} <span style="font-size:10px">Checkout time not update please check it</span></p>
                 {%if data.customer_gst_number%}
                 <p>gstin: {{data.customer_gst_number}}</p>
@@ -570,6 +582,41 @@
 </div>
 <!--/ Bootstrap modals -->
 
+{% comment %} bill companymodel {% endcomment %}
+<!-- Modal --><div class="modal fade" id="billToCompanyModal" tabindex="-1" aria-labelledby="billToCompanyModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="billToCompanyForm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="billToCompanyModalLabel">Bill To Company</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="companySelect" class="form-label">Select Company</label>
+            <select id="companySelect" class="form-select" name="company_id" required>
+              <option value="">Select a company</option>
+              <!-- Options will be populated via AJAX -->
+            </select>
+          </div>
+
+          <!-- Invoice options populated dynamically -->
+          {% for data in invoice_data %}
+            <input value="{{ data.id }}" type="hidden" name="invoice_id">
+          {% endfor %}
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
 
 
 
@@ -618,7 +665,7 @@
                 />
               </div>
               {%endif%}
-          {%endfor%}
+          
   
               <div class="col mb-3">
                 <label for="nameBackdrop" class="form-label">Guest Gst Number(optional)</label>
@@ -628,9 +675,11 @@
                   id="nameBackdrop"
                   class="form-control"
                   placeholder=""
+                  value="{{data.customer_gst_number}}"
                   
                 />
               </div>
+              {%endfor%}
           </div>
           {%for data in invoice_data%}
           {% if data.Due_amount == 0.00%}
@@ -709,5 +758,78 @@
     });
 </script>
 
+
+<script>
+  $(document).ready(function () {
+    // Fetch company data on modal open
+    $('#billToCompanyBtn').on('click', function () {
+        $.ajax({
+            url: '/get-companies/', // URL to fetch companies
+            type: 'GET',
+            success: function (data) {
+                const companySelect = $('#companySelect');
+                companySelect.empty();
+                companySelect.append('<option value="">Select a company</option>');
+                data.forEach(company => {
+                    companySelect.append(`<option value="${company.id}">${company.companyname} - ${company.contact}</option>`);
+                });
+            },
+            error: function () {
+                alert('Error fetching companies. Please try again.');
+            }
+        });
+    });
+
+    // Submit the form
+    $('#billToCompanyForm').on('submit', function (e) {
+        e.preventDefault();  // Prevent default form submission
+
+        const company_id = $('#companySelect').val();  // Get the selected company ID
+        const invoice_id = $('input[name="invoice_id"]').val();  // Get the hidden invoice ID
+        const value = $('input[name="value"]').val() || 'N/A';  // Get the value or default to 'N/A'
+
+        // Check if company and invoice IDs are selected
+        if (!company_id || !invoice_id) {
+            alert('Please select a company and an invoice.');
+            return;
+        }
+
+        const formData = {
+            company_id: company_id,
+            invoice_id: invoice_id,
+            value: value,
+            csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()  // Include CSRF token
+        };
+
+        $.ajax({
+            url: '/submit-form/',  // URL to submit the form
+            type: 'POST',
+            data: formData,
+            success: function (response) {
+                // Check if response contains success status
+                if (response.status === 'success') {
+                    alert(response.message);  // Show success message
+                    $('#billToCompanyModal').modal('hide');  // Close the modal
+                    $('#billToCompanyForm')[0].reset();  // Reset the form
+                    location.reload();
+                } else {
+                    alert(response.message || 'An error occurred during form submission.');  // Show error message if any
+                    location.reload();
+                  }
+            },
+            error: function (xhr) {
+                // Handle errors and display as alerts
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    alert(`Error: ${xhr.responseJSON.message}`);  // Display detailed error message
+                } else {
+                    alert('An unexpected error occurred. Please try again.');  // Fallback error message
+                }
+            }
+        });
+    });
+});
+
+
+</script>
 
 {%endblock%}

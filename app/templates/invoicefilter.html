@@ -41,15 +41,15 @@
 </div>
 
 
-<div class="container mb-3 mt-0">
+<div class="container mb-0 mt-0">
 <div class="card" >
 <div class="row">
-  <div class="col-8">
-  <h5 class="card-header">Invoices Month: {{current_month}} {{current_year}}  </h5>
+  <div class="col-9">
+  <h5 class="card-header">Guest Stayed Invoices: <b>{{first_day_of_month}}</b> TO <b> {{last_day_of_month}}</b></h5>
 </div>
 
-<div class="col-3 m-2">
-  <a href=""  data-bs-toggle="modal"  data-bs-target="#backDropModalsearchdate" class="btn btn-outline-primary float-end" style=>Change Month/Year</a>
+<div class="col-2 m-2">
+  <a href=""  data-bs-toggle="modal"  data-bs-target="#backDropModalsearchdate" class="btn btn-outline-primary float-end" style=>Change Dates</a>
    
 
 
@@ -59,8 +59,37 @@
 </div>
 
 
+<div class="row m-4 mt-0 mb-0 p-3 " style="border:2px solid lightgray;border-radius:8px">
 
-  <div class="row m-4 p-4 " style="border:2px solid lightgray;border-radius:8px">
+  
+  <table class="col-8 borderd ms-3">
+    <h4>Recived Amount Data</h4>
+    <thead>
+        <tr>
+            <th>Payment Mode</th>
+            <th>Total Payment</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for mode, amount in payment_totals.items %}
+            <tr>
+                <td>{{ mode|capfirst }}</td>  <!-- Capitalize the payment mode -->
+                <td>{{ amount|floatformat:2 }}</td>  <!-- Format the amount to 2 decimal places -->
+            </tr>
+        {% endfor %}
+        <tr class="border-2 ">
+          <td><b>Total Recived Payment</b></td>
+          <td><b>{{ total_payment|floatformat:2 }}</b></td>
+        
+        </tr>
+    </tbody>
+    
+  </table>
+  
+  </div>
+
+
+  <div class="row m-4 p-3 " style="border:2px solid lightgray;border-radius:8px">
 
 
     <div class="col-7 ">
@@ -71,13 +100,14 @@
     <p>Total Amount: <b><span id="totalAmount">0</span></b></p>
     <p>Total Tax: <b><span id="totalTax">0</span></b></p>
     <p>Grand Total: <b><span id="grandTotal">0</span></b></p>
+    
   </div>
-
+  
 </div>
 
 
     <div class="col-3">
-      
+    
         <label id="basic-icon-default-company2" class=""
               >All Channel</label>
           <div class="input-group input-group-merge">
@@ -94,12 +124,13 @@
   </div>
 </div>
 
- 
+
+
  
 </div></div>
     
 {%if guesthistory%}
-<div class="container">
+<div class="container mt-1">
  <!-- Bootstrap Table with Header - Light -->
  <div class="card">
     <h5 class="card-header">Invoices Month: {{current_month}} {{current_year}}
@@ -109,12 +140,14 @@
       <table id="guestHistoryTable" class="table">
         <thead class="table-light">
           <tr>
+            
             <th>Guest</th>
             <th>GST-No</th>
             <th>Total ₹</th>
             <th>Tax ₹</th>
             <th>With Tax ₹</th>
             <th>Channel</th>
+            
             <th>Invoice</th>
             <th>Actions</th>
           </tr>
@@ -264,10 +297,21 @@
         <div class="modal-body">
           <div class="row">
             <div class="col mb-3">
-              <label for="nameBackdrop" class="form-label">Month</label>
+              <label for="nameBackdrop" class="form-label">Start Date</label>
               <input
-                type="month"
-                name="monthname"
+                type="date"
+                name="start_date"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter RoomName"
+              />
+            </div>
+
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">End Date</label>
+              <input
+                type="date"
+                name="end_date"
                 id="nameBackdrop"
                 class="form-control"
                 placeholder="Enter RoomName"

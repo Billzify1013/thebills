@@ -54,7 +54,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'app.middleware.DailySessionExpiryMiddleware',
-    'app.middleware.OneSessionPerUserMiddleware',
     'django.middleware.gzip.GZipMiddleware', # Add this line for Gzip compression
 ]
 
@@ -83,17 +82,17 @@ WSGI_APPLICATION = 'hotelmanagementsystem.wsgi.application'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 
-# main database aws free tier
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'thebillstm',
-        'USER':'postgresBills',
-        'PASSWORD':'billzifydata',
-        'HOST':'thebillstm.cpy6g6quw55m.ap-south-1.rds.amazonaws.com',
-        'PORT':'5432'
-    }
-}
+# # main database aws free tier
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'thebillstm',
+#         'USER':'postgresBills',
+#         'PASSWORD':'billzifydata',
+#         'HOST':'thebillstm.cpy6g6quw55m.ap-south-1.rds.amazonaws.com',
+#         'PORT':'5432'
+#     }
+# }
 
 
 # DATABASES = {
@@ -120,12 +119,12 @@ DATABASES = {
 
 
 # # testng database
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 
 

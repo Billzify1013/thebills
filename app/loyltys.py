@@ -1358,3 +1358,158 @@ def deleteloylty(request,id):
     except Exception as e:
         return render(request, "404.html", {"error_message": str(e)}, status=500)
 
+
+
+# def search_user(request):
+#     if request.user.is_authenticated:
+#         user = request.user
+#         # Get the mobile number from the GET request as a string
+#         mobile_number = request.GET.get('mobile_number', '').strip()
+
+#         # Validate if the mobile number is provided
+#         if not mobile_number:
+#             return JsonResponse({'success': False, 'message': 'Mobile number is required'})
+
+#         try:
+#             print("try is worked")
+#             # Search for a guest with the given mobile number and vendor
+#             # Assuming 'guestphome' is a string field and 'vendor' is the authenticated user
+#             guest = Gueststay.objects.filter(vendor=user, guestphome=mobile_number).last()  # Adjust to your actual model fields
+#             print(guest)
+#             # If a guest is found, return their details
+#             guest_details = {
+#                 'name': guest.guestname,  # Adjust to your model fields
+#                 'email': guest.guestemail,
+#                 'mobile': guest.guestphome,
+#                 'address': guest.guestcity,  # Adjust if necessary
+#             }
+
+#             return JsonResponse({'success': True, 'user': guest_details})
+        
+#         except Gueststay.DoesNotExist:
+#             # If no guest is found, return an error message
+#             return JsonResponse({'success': False, 'message': 'No guest found with this mobile number for the current user.'})
+        
+#         except Exception as e:
+#             # Return a generic error message in case of unexpected issues
+#             return JsonResponse({'success': False, 'message': str(e)})
+        
+
+def search_user(request):
+    if request.user.is_authenticated:
+        user = request.user
+        # Get the mobile number from the GET request
+        mobile_number = request.GET.get('mobile_number', '').strip()
+
+        # Validate if the mobile number is provided
+        if not mobile_number:
+            return JsonResponse({'success': False, 'message': 'Mobile number is required'})
+
+        try:
+            # First, check in the AminitiesInvoice model
+            invoice = AminitiesInvoice.objects.filter(vendor=user, customercontact=mobile_number).last()  # Adjust field names if necessary
+
+            if invoice:
+                # If a matching entry is found in AminitiesInvoice, return those details
+                guest_details = {
+                    'name': invoice.customername,
+                    'email': invoice.customeremail,
+                    'mobile': invoice.customercontact,
+                    'address': invoice.customeraddress,
+                    'customercompany': invoice.customercompany,
+                    'customergst': invoice.customergst,
+                    
+                }
+                return JsonResponse({'success': True, 'user': guest_details})
+
+           
+            else:
+                 # If no matching entry in AminitiesInvoice, check in Gueststay
+                guest = Gueststay.objects.filter(vendor=user, guestphome=mobile_number).last()  # Adjust field names if necessary
+
+                # If a matching guest is found in Gueststay, return those details
+                guest_details = {
+                    'name': guest.guestname,
+                    'email': guest.guestemail,
+                    'mobile': guest.guestphome,
+                    'address': guest.guestcity,
+                    'customercompany': 'none',
+                    'customergst': 'none',
+                }
+                return JsonResponse({'success': True, 'user': guest_details})
+
+            # If no guest is found in either model, return an error message
+            return JsonResponse({'success': False, 'message': 'No user found with this mobile number for the current user.'})
+
+        except Exception as e:
+            # Return a generic error message in case of unexpected issues
+            return JsonResponse({'success': False, 'message': str(e)})
+        
+
+
+import re
+def check_product(request):
+    if request.user.is_authenticated:
+        user = request.user
+        product_name = request.GET.get('product_name', '').strip()
+
+        if product_name:
+            try:
+                # Normalize spaces in the input
+                normalized_product_name = re.sub(r'\s+', ' ', product_name).strip()
+
+                # Search for products matching the product_name
+                products = Items.objects.filter(
+                    vendor=user,
+                    description__icontains=normalized_product_name
+                )
+
+                products2 = LaundryServices.objects.filter(
+                            vendor=user,
+                            name__icontains=normalized_product_name
+                        )
+                if products.exists():
+                    # Prepare a list of products for suggestions
+                    product_suggestions = []
+                    for product in products:
+                        product_suggestions.append({
+                            'id': product.id,
+                            'description': product.description,
+                            'price': product.price,
+                            'hsncode': product.hsncode,
+                            'category_tax': product.category_tax.taxrate if product.category_tax else None
+                        })
+
+                    return JsonResponse({
+                        'success': True,
+                        'products': product_suggestions
+                    })
+
+                
+                elif products2.exists():
+                    # Prepare a list of products for suggestions
+                    product_suggestions = []
+                    for product in products2:
+                        product_suggestions.append({
+                            'id': product.id,
+                            'description': product.name,
+                            'price': product.price,
+                            # 'hsncode': product.hsncode,
+                            # 'category_tax': product.category_tax.taxrate if product.category_tax else None
+                        })
+
+                    return JsonResponse({
+                        'success': True,
+                        'products': product_suggestions
+                    })
+                else:
+                    return JsonResponse({'success': False, 'message': 'No products found.'})
+            except Exception as e:
+                return JsonResponse({'success': False, 'message': str(e)})
+
+        else:
+            return JsonResponse({'success': False, 'message': 'Product name is required.'})
+
+
+
+
