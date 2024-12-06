@@ -86,10 +86,10 @@ WSGI_APPLICATION = 'hotelmanagementsystem.wsgi.application'
 DATABASES = {
      'default': {
          'ENGINE': 'django.db.backends.postgresql',
-         'NAME': 'pmsdatabase',
+         'NAME': 'databasepms',
          'USER':'superuser',
          'PASSWORD':'superpassword',
-         'HOST':'pmsdatabase.cpy6g6quw55m.ap-south-1.rds.amazonaws.com',
+         'HOST':'databasepms.cpy6g6quw55m.ap-south-1.rds.amazonaws.com',
          'PORT':'5432'
      }
 }
