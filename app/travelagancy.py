@@ -361,8 +361,8 @@ def addadvancebookingfromtrvel(request):
             Saveadvancebookdata = SaveAdvanceBookGuestData.objects.create(vendor=user,bookingdate=bookingdate,noofrooms=noofrooms,bookingguest=guestname,
                 bookingguestphone=phone,staydays=totalstaydays,advance_amount=advanceamount,reamaining_amount=reaminingamount,discount=discountamount,
                 total_amount=totalamount,channal=channal,checkoutdate=bookenddate,email='',address_city='',state='',country='',totalguest=guestcount,
-                action='book',booking_id='',cm_booking_id='',segment=travelname,special_requests='',pah=True,amount_after_tax=totalamount,amount_before_tax=0.00,
-                  tax=0.00,currency="INR",checkin=current_date,Payment_types='postpaid'  )
+                action='book',booking_id=None,cm_booking_id=None,segment=travelname,special_requests='',pah=True,amount_after_tax=totalamount,amount_before_tax=0.00,
+                  tax=0.00,currency="INR",checkin=current_date,Payment_types='postpaid',is_selfbook=False  )
             paymenttypes = 'postpaid'
             if int(advanceamount) > 0:
                 InvoicesPayment.objects.create(vendor=user,invoice=None,payment_amount=advanceamount,payment_date=current_date,

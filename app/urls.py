@@ -41,7 +41,10 @@ urlpatterns = [
     path('addguestdata/',views.addguestdata,name="addguestdata"),
     path('addguestdatafromadvanceroombook/',views.addguestdatafromadvanceroombook,name="addguestdatafromadvanceroombook"),
     path('guestregform/<int:id>/',views.guestregform,name="guestregform"),
+    path('addpaymenttobooking/<int:booking_id>/',views.addpaymenttobooking,name="addpaymenttobooking"),
 
+    path('addpymenttoboking/',views.addpymenttoboking,name="addpymenttoboking"),
+    path('websettings/',views.websettings,name="websettings"),
     path('bookingdate/',views.bookingdate,name="bookingdate"),
     path('addadvancebooking/',views.addadvancebooking,name="addadvancebooking"),
     path('advanceroomhistory/',views.advanceroomhistory,name="advanceroomhistory"),
@@ -52,6 +55,7 @@ urlpatterns = [
     path('deleteroom/<int:id>/',views.deleteroom,name="deleteroom"),
     path('openposforroom/',views.openposforroom,name="openposforroom"),
     path('chekinonebyoneguestdata/',views.chekinonebyoneguestdata,name="chekinonebyoneguestdata"),
+    path('guestaddfromfolio/',views.guestaddfromfolio,name="guestaddfromfolio"),
     path('opencheckinforadvanebooking/<int:pk>/',views.opencheckinforadvanebooking,name="opencheckinforadvanebooking"),
     path('invoicepage/<int:id>/',views.invoicepage,name="invoicepage"),
     path('addpaymentfolio/',views.addpaymentfolio,name="addpaymentfolio"),
@@ -101,7 +105,8 @@ urlpatterns = [
     path('deleteloyltyajaxdata',loyltys.deleteloyltyajaxdata,name="deleteloyltyajaxdata"),
     path('getguestdatabyajaxinform',loyltys.getguestdatabyajaxinform,name="getguestdatabyajaxinform"),
     path('getrateplandata',loyltys.getrateplandata,name="getrateplandata"),
-
+    path('receipt/<int:booking_id>/', views.receipt_view, name='receipt_view'),
+    path('advancebookingdeletebe/<int:id>/',views.advancebookingdeletebe,name="advancebookingdeletebe"),
 
     # loylty.py data
     path('setting/',loyltys.setting,name="setting"),
@@ -256,7 +261,23 @@ urlpatterns = [
     path('get-companies/', companyies.get_companies, name='get_companies'),
     path('submit-form/', companyies.submit_form, name='submit_form'),
     path('gotocmpbills/<int:id>/', companyies.gotocmpbills, name='gotocmpbills'),
-   
+
+    path('process-cart/', views.cart_processing, name='your_cart_processing_view'),
+    path('searchwebsitedata/',employeemanage.searchwebsitedata,name='searchwebsitedata'),
+
+
+    # websettings deleteaminity
+    path('addaminities/', hourlypage.addaminities, name='addaminities'),
+    path('deleteaminity/<int:id>/', hourlypage.deleteaminity, name='deleteaminity'),
+    path('addoffers/', hourlypage.addoffers, name='addoffers'),
+    path('addcp/', hourlypage.addcp, name='addcp'),
+    path('addcatimg/', hourlypage.addcatimg, name='addcatimg'),
+    path('deleteimg/<int:id>/', hourlypage.deleteimg, name='deleteimg'),
+    path('addhotelimg/', hourlypage.addhotelimg, name='addhotelimg'),
+    path('deletehotelimg/<int:id>/', hourlypage.deletehotelimg, name='deletehotelimg'),
+    path('addcontactbe/', hourlypage.addcontactbe, name='addcontactbe'),
+    path('updatebookeg/', hourlypage.updatebookeg, name='updatebookeg'),
+
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

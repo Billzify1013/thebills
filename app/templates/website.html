@@ -168,9 +168,44 @@ html, body {
     touch-action: manipulation;
 }
     
+
+/* Heart Style */
+.heart {
+    width: 12px;
+    height: 12px;
+    background-color: red;
+    clip-path: polygon(50% 0%, 100% 37%, 82% 100%, 50% 80%, 18% 100%, 0% 37%);
+    opacity: 0; /* Start invisible */
+    animation: floatUp 1.3s ease-in-out forwards;
+    z-index: 1000; /* Ensure it stays above all elements */
+}
+
+/* Heart Float Animation */
+@keyframes floatUp {
+    0% {
+        transform: translate(0, -50%) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50px) scale(1.5); /* Float upwards */
+        opacity: 0;
+    }
+}
+
+
+
 </style>
 
 </head>
+
+
+{%if emptydata%}
+
+<h6 class="text text-danger p-3" style="margin-top:305px">{{emptydata}}</h6>
+
+{%else%}
+
+
 <body data-bs-spy="scroll" data-bs-target=".navbar" data-bs-offset="51">
     <!-- Spinner Start -->
     <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
@@ -180,32 +215,7 @@ html, body {
     </div>
     <!-- Spinner End -->
 
-{% comment %} 
-    <!-- Navbar Start -->
-    <nav class="navbar navbar-expand-lg bg-white navbar-light fixed-top shadow py-lg-0 px-4 px-lg-5 wow fadeIn" data-wow-delay="0.1s">
-        <a href="index.html" class="navbar-brand d-block d-lg-none">
-            <h2 class="text-primary fw-bold m-0">{{profile.name}}</h2>
-        </a>
-        <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse justify-content-between py-4 py-lg-0" id="navbarCollapse">
-            <div class="navbar-nav ms-auto py-0">
-                <a href="#home" class="nav-item nav-link active">Home</a>
-                <a href="#about" class="nav-item nav-link">About Us</a>
-                <a href="#about" class="nav-item nav-link">Guest Experiences</a>
-                <a href="#rooms" class="nav-item nav-link">Rooms & Suites</a>
-                <a href="#pricingoffer" class="nav-item nav-link">Offers & Packages</a>
-            
-                <a href="#services" class="nav-item nav-link">Amenities</a>
-            
-                <a href="#gallary" class="nav-item nav-link">Gallary</a>
-                <a href="#testimonial" class="nav-item nav-link">Guests Say</a>
-                <a href="#contact" class="nav-item nav-link">Contact</a>
-            </div>
-        </div>
-    </nav>
-    <!-- Navbar End --> {% endcomment %}
+
     <div style="height:60px;width:100%;box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px; position: fixed;
     top: 0;
     left: 0;z-index: 1000;background-color: white;
@@ -213,12 +223,15 @@ html, body {
             <img src="{{profile.profile_image.url}}" class="mt-1" height="50px">
     </div>
     
+   
+
     <!-- Header Start -->
     <div class=" w-100 py-5 my-6 mt-5" id="navbarCollapse">
         <div class="container">
             <div class="row g-1 align-items-center ">
                 {% comment %} hotel profile data  {% endcomment %}
                 {% for room in profiledata %}
+                
                 <div class="col-lg-12 mb-4  ">
                     <div class="portfolio-img rounded overflow-hidden shadow">
                         <div class="carousel mt-4">
@@ -233,10 +246,11 @@ html, body {
                             <button class="carousel-btn left" onclick="prevFirstImage({{ forloop.counter }})">&#10094;</button>
                             <button class="carousel-btn right" onclick="nextFirstImage({{ forloop.counter }})">&#10095;</button>
                         </div>
-                        
+                        {%for csll in prfmcdata%}
                         <h5 class="text-gray  m-3" >{{room.name}}</h5>
                         <p class="expandable-text ps-3" id="room-{{ forloop.counter }}">
                             {{ room.address }}  </p>
+                            <p class="ms-3">{{csll.guestemail}}
                         </p>
                     
                        
@@ -244,11 +258,17 @@ html, body {
                         <div class="m-3  " >
                             <hr>
                             <div class="row">
+                                
                                 <div class="col-3 "><a href="#target-div" style="text-decoration:none">₹ Price</a></div>|
-                                <div class="col-5"><i class="bi bi-compass"></i> &nbsp;&nbsp;&nbsp;Direction</div>|
+                                <div class="col-5">
+                                    <a  href="{{csll.linkmap}}">
+                                        <i class="bi bi-compass"></i> &nbsp;&nbsp;&nbsp;Direction
+                                    </a>
+                                    </div>|
                                 <div class="col-3">
-                                  <a  href="tel:+91{{profile.contact}}"><i class="bi bi-telephone-fill"></i>  Call</a>
+                                  <a  href="tel:+91{{csll.phome}}"><i class="bi bi-telephone-fill"></i>  Call</a>
                                 </div>
+                                {%endfor%}
                             </div>
                             
                         </div>
@@ -261,7 +281,8 @@ html, body {
                 <div class="col-lg-12 mb-5 mt-4">
               
                     <div class="portfolio-img rounded overflow-hidden shadow">
-                        <form class="">
+                        <form action="{% url 'searchwebsitedata' %}" method="post">
+                            {% csrf_token %}
                             <div class="row p-2">
                             <div class=" col-5  w-50 ">
                                 <label for="zipCode" class="form-label">CheckIn Date </label>
@@ -269,66 +290,35 @@ html, body {
                                   type="date"
                                   class="form-control"
                                   value="{{today|date:'Y-m-d'}}"
-                                  id="zipCode"
-                                  name="checkouttime"
+                                  id="zipcode"
+                                  name="checkin_date" required
                                   placeholder="Like: 11:00am"
                                   maxlength="8"
                                 />
                               </div> 
+
+                              <input type="hidden"  name="userid" value="{{user}}" />
                               
-                              
+                              <input type="hidden" id="check-in" value="{{today}}" />
+                              <input type="hidden" id="check-out" value="{{tomorrow}}" />
                               <div class="col-5 w-50 ">
                                 <label for="zipCode" class="form-label">CheckOut Date </label>
                                 <input
                                   type="date"
                                   class="form-control"
-                                  value="{{tommrow|date:'Y-m-d'}}"
-                                  id="zipCode"
-                                  name="checkouttime"
+                                  value="{{tomorrow|date:'Y-m-d'}}"
+                                  id="xxx"
+                                  name="checkout_date" required
                                   placeholder="Like: 11:00am"
                                   maxlength="8"
                                 />
                               </div> 
                             </div>
 
-                            <div class="row p-2">
-                                <div class=" col-5  w-50 ">
-                                    <label for="zipCode" class="form-label">Adults </label>
-                                    <select id="country" name="adults" required class="select2 form-select">
-                                        <option value="2">2</option>
-                                        <option value="1">1</option>
-                                        
-                                        <option value="3">3</option>
-                                        <option value="4">4</option>
-                                        <option value="5">5</option>
-                                        <option value="6">6</option>
-                                        <option value="7">7</option>
-                                        <option value="8">8</option>
-                                        <option value="9">9</option>
-                                        <option value="10">10</option>
-                                    </select>
-                                  </div> 
-                                  
-                                  
-                                  <div class="col-5 w-50 ">
-                                    <label for="zipCode" class="form-label">Child (7 - 12 yrs) </label>
-                                    <select id="country" name="adults" required class="select2 form-select">
-                                        <option value="1">0</option>
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3">3</option>
-                                        <option value="4">4</option>
-                                        <option value="5">5</option>
-                                        <option value="6">6</option>
-                                        <option value="7">7</option>
-                                        <option value="8">8</option>
-                                        <option value="9">9</option>
-                                        <option value="10">10</option>
-                                    </select>
-                                  </div> 
-                                </div>
+                           
+                            
                                 <div class="col-12 w-100 p-2 mb-2 mt-2">
-                                <button href="#target-div" class="btn btn-primary w-100 ">Continue to book</button>
+                                <button href="#target-div" type="submit" class="btn btn-primary w-100 ">Change Dates</button>
                                 </div>
 
                         </form>
@@ -336,124 +326,7 @@ html, body {
                 </div>
              
             <h5 class="text-gray  m-1  py-4"style="color:gray"   id="target-div">Choose your rooms</h5>
-            {% comment %} {% for room in rooms %}
-            <div class="col-lg-12 mb-5  " >
-                <div class="portfolio-img rounded overflow-hidden shadow">
-                    <div class="carousel mt-4">
-                        <!-- Carousel Images -->
-                        <div class="carousel-images" id="second-carousel-images-{{ forloop.counter }}">
-                            {% for image in room.images.all %}
-                                <img src="{{ image.image.url }}" alt="Image for {{ room.category_name }}">
-                            {% endfor %}
-                        </div>
-                    
-                        <!-- Navigation Buttons -->
-                        <button class="carousel-btn left" onclick="prevSecondImage({{ forloop.counter }})">&#10094;</button>
-                        <button class="carousel-btn right" onclick="nextSecondImage({{ forloop.counter }})">&#10095;</button>
-                    </div>
-                    
-                    <h5 class="text-gray  m-3" >{{room.category_name}}</h5>
-                    <p class="expandable-text ps-3" id="room-{{ forloop.counter }}">
-                        {{ room.category_name }} Room: A refined accommodation offering upscale amenities and a comfortable atmosphere, designed to provide guests with a luxurious and enjoyable stay experience.
-                        <a href="#" class="more-link text-primary">More</a>
-                    </p>
-                
-                    <ul class="responsive-dotted-list ps-3 pt-0">
-                        <li class="expandable-item">Item 1</li>
-                        <li class="expandable-item">Item 2</li>
-                        <li class="expandable-item">Item 3</li>
-                        <li class="expandable-item">Item 4</li>
-                        <li class="expandable-item">Item 5</li>
-                        <li class="expandable-item">Item 6</li>
-                        <a href="#" class="more-link text-primary">More</a>
-                    </ul>
-                    {%for plan in rateplanmaxuser%}
-                    {%if plan.room_category.category_name == room.category_name%}
-                    <div class="m-3 p-3 border rounded-1" >
-                        <div class="row">
-                            <div class="col-12 pt-1"><b>{{plan.rate_plan_name}}</b>
-                                <p>For <b>{{plan.max_persons}} Adults</b> And {{plan.childmaxallowed}} Children </p>
-                            <p>In This Plan: {{plan.rate_plan_description}}</p>
-                            </div>
-                            <div class="col-7"><span><del>₹2350</del></span><br><span>₹1990</span></div>
-                            <div class="col-5">
-                                <center><button class="btn btn-dark w-100 mt-2">Add</button></center>
-                            </div>
-                        </div>
-                        
-                    </div>
-                    {%endif%}
-                    {%endfor%}
-
-                    
-                    
-                </div>
-            </div>
-        {% endfor %} {% endcomment %}
-
-        {% comment %} {% for room in rooms %}
-        <div class="col-lg-12 mb-5">
-            <div class="portfolio-img rounded overflow-hidden shadow">
-                <div class="carousel mt-4">
-                    <!-- Carousel Images -->
-                    <div class="carousel-images" id="second-carousel-images-{{ forloop.counter }}">
-                        {% for image in room.images.all %}
-                            <img src="{{ image.image.url }}" alt="Image for {{ room.category_name }}">
-                        {% endfor %}
-                    </div>
-    
-                    <!-- Navigation Buttons -->
-                    <button class="carousel-btn left" onclick="prevSecondImage({{ forloop.counter }})">&#10094;</button>
-                    <button class="carousel-btn right" onclick="nextSecondImage({{ forloop.counter }})">&#10095;</button>
-                </div>
-    
-                <h5 class="text-gray m-3">{{ room.category_name }}</h5>
-                {% comment %} <p class="expandable-text ps-3" id="room-{{ forloop.counter }}">
-                    {{ room.category_name }} Room: A refined accommodation offering upscale amenities and a comfortable atmosphere, designed to provide guests with a luxurious and enjoyable stay experience.
-                    <a href="#" class="more-link text-primary">More</a>
-                </p> {% endcomment %}
-    
-                {% comment %} <ul class="responsive-dotted-list ps-3 pt-0">
-                    <li class="expandable-item">Item 1</li>
-                    <li class="expandable-item">Item 2</li>
-                    <li class="expandable-item">Item 3</li>
-                    <li class="expandable-item">Item 4</li>
-                    <li class="expandable-item">Item 5</li>
-                    <li class="expandable-item">Item 6</li>
-                    <a href="#" class="more-link text-primary">More</a>
-                </ul>
-    
-                
-                <p class="text ms-3 m-1"><span class="text-danger">*</span>Hurry, Only {{ room.available_rooms }} Rooms Left!</p>
-                
-                {%if room.available_rooms > 0 %}
-                {% for plan in rateplanmaxuser %}
-                    {% if plan.room_category.category_name == room.category_name %}
-                        <div class="m-3 p-3 border rounded-1">
-                            <div class="row">
-                                <div class="col-12 pt-1"><b>{{ plan.rate_plan_name }}</b> {% endcomment %}
-                                    {% comment %} <p>For {{ plan.max_persons }} Adults & {{ plan.childmaxallowed }} <i class='bx bx-child'></i> </p> {% endcomment %}
-                                    {% comment %} <p>In This Plan: {{ plan.rate_plan_description }}</p> {% endcomment %}
-                                    {% comment %} {{ room.uprice }}  {{plan.base_price}} {{room.delprice}} {% endcomment %}
-                                {% comment %} </div>
-                                <div class="col-7"><span><del>₹ {{plan.base_price|add:room.delprice}}</del></span><br>
-                                    <span><b>₹ {{room.uprice|add:plan.base_price}}</b></span><br>
-                                    <span>tax:{{room.tax}}</span>
-                                </div>
-                                <div class="col-5">
-                                    <center><button class="btn btn-dark w-100 mt-2">Add</button></center>
-                                </div>
-                            </div>
-                        </div>
-                    {% endif %}
-                {% endfor %}
-                {%else%}
-                
-                <button class="btn btn-danger m-2 float-end">All Rooms Sold</button>
-                {%endif%}
-            </div>
-        </div>
-    {% endfor %} {% endcomment %}
+          
 
 
     {% for room in rooms %}
@@ -471,13 +344,11 @@ html, body {
             
             <h5 class="text-gray m-3">{{ room.category_name }}</h5>
             {%if forloop.counter == 1 %}
+            
             <ul class="responsive-dotted-list ps-3 pt-0">
-                <li class="expandable-item">Item 1</li>
-                <li class="expandable-item">Item 2</li>
-                <li class="expandable-item">Item 3</li>
-                <li class="expandable-item">Item 4</li>
-                <li class="expandable-item">Item 5</li>
-                <li class="expandable-item">Item 6</li>
+                {%for ame in aminities%}
+                <li class="expandable-item">{{ame.description}}</li>
+                {%endfor%}
                 <a href="#" class="more-link text-primary">More</a>
             </ul>
             {%endif%}
@@ -513,7 +384,15 @@ html, body {
                             <p>In This Plan: {{ plan.rate_plan_description }}</p>
                             <hr>
                             <p>cancellation policy:</p>
-                            <p>Free Cancellation upto 48 hours before check-in: Free Cancellation upto 48 hours before check-in</p>
+                            
+                             <p>{{cpolicy.cancellention_policy}}</p><hr>
+
+                                <label for="full-name"><b>Terms & Conditions</b><br><br>
+                                {% for line in terms_lines %}
+                                    <p>{{ line }}</p>
+                                {% endfor %}
+                        
+                           
                             <!-- You can add more information as needed -->
                         </div>
                     </div>
@@ -525,13 +404,51 @@ html, body {
                     <div class="col-7">
                         <span><del>₹ {{ plan.base_price|add:room.delprice }}</del></span><br>
                         <span><b>₹ {{ room.uprice|add:plan.base_price }}</b></span><br>
+                        <span class="text-success"><b>GET ₹ {{room.offeramount}}</b> Off</span><br>
+                         
                     </div>
                     <div class="col-5">
                         <center>
-                            <button class="btn btn-dark w-100 mt-2"
+                            {% comment %} <button class="btn btn-dark w-100 mt-2"
                                 onclick="addToCart('{{ forloop.counter }}', '{{ room.category_name }}', '{{ plan.rate_plan_name }}', {{ plan.max_persons }}, {{ plan.childmaxallowed }}, {{ room.uprice|add:plan.base_price }}, {{ room.tax }}, {{ room.available_rooms }})">
                                 Add
-                            </button>
+                            </button> {% endcomment %}
+                            {% comment %} <button class="btn btn-dark w-100 mt-2" id="add-to-cart-{{ forloop.counter }}"
+                            onclick="addToCart('{{ forloop.counter }}', '{{ room.category_name }}', '{{ plan.rate_plan_name }}', {{ plan.max_persons }}, {{ plan.childmaxallowed }}, {{ room.uprice|add:plan.base_price }}, {{ room.tax }}, {{ room.available_rooms }}, {{ room.offeramount }})">
+                            Add to Cart
+                          </button> {% endcomment %}
+
+                          {% comment %} <button class="btn btn-dark w-100 mt-2" 
+        id="add-to-cart-{{ forloop.counter }}" 
+        onclick="addToCart('{{ forloop.counter }}', 
+                          '{{ room.category_name }}', 
+                          '{{ plan.rate_plan_name }}', 
+                          {{ plan.max_persons }}, 
+                          {{ plan.childmaxallowed }}, 
+                          {{ room.uprice|add:plan.base_price }}, 
+                          {{ room.tax }}, 
+                          {{ room.available_rooms }}, 
+                          {{ room.offeramount }})">
+    Add to Cart
+</button> {% endcomment %}
+
+<button class="btn btn-dark w-100 mt-2 position-relative overflow-hidden" 
+        id="add-to-cart-{{ forloop.counter }}" 
+        onclick="handleAddToCartAnimation(this, '{{ forloop.counter }}', 
+                          '{{ room.category_name }}', 
+                          '{{ plan.rate_plan_name }}', 
+                          {{ plan.max_persons }}, 
+                          {{ plan.childmaxallowed }}, 
+                          {{ room.uprice|add:plan.base_price }}, 
+                          {{ room.tax }}, 
+                          {{ room.available_rooms }}, 
+                          {{ room.offeramount }})">
+    Add to Cart
+</button>
+
+
+
+                          
                         </center>
                     </div>
                 </div>
@@ -546,14 +463,79 @@ html, body {
     {% endfor %}
     
 
-            </div>
-        </div>
-    </div>
+        
     <!-- Header End -->
 
-    {{offers}}
-     
-    <!-- Cart Popup Modal -->
+    <script>
+        function handleAddToCartAnimation(button, roomId, categoryName, ratePlanName, adults, children, roomPrice, taxRate, availableRooms, offerAmount) {
+            // Trigger the cart functionality
+            addToCart(roomId, categoryName, ratePlanName, adults, children, roomPrice, taxRate, availableRooms, offerAmount);
+    
+            // Create hearts and add animation above the button
+            const buttonRect = button.getBoundingClientRect(); // Get button position
+            for (let i = 0; i < 3; i++) {
+                const heart = document.createElement("div");
+                heart.className = "heart";
+                heart.style.left = `${Math.random() * 80 + 10}%`; // Random horizontal position within button
+                heart.style.top = `-${Math.random() * 20}px`; // Slight random vertical offset
+                heart.style.animationDelay = `${i * 0.3}s`; // Slight delay for each heart
+                document.body.appendChild(heart);
+    
+                // Position the heart above the button
+                const topPosition = buttonRect.top + window.scrollY - 20; // Adjust for scroll position
+                heart.style.position = "absolute";
+                heart.style.left = `${buttonRect.left + button.offsetWidth / 2}px`;
+                heart.style.top = `${topPosition}px`;
+    
+                // Remove the heart after the animation
+                setTimeout(() => {
+                    heart.remove();
+                }, 2000); // Match animation duration
+            }
+        }
+    </script>
+    
+    
+
+    <div class="container" style="display:none">
+        {% if cheapest_room and cheapest_rate_plan %}
+            <div class="card">
+                <h5 class="card-header">Cheapest Room Available</h5>
+                <div class="card-body">
+                    <h6 class="card-title">{{ cheapest_room.category_name }}</h6>
+                    <p class="card-text">
+                        Rate Plan: <strong>{{ cheapest_rate_plan.rate_plan_name }}</strong><br>
+                        Total Price: ₹{{ lowest_price }}<br>
+                        Adults Allowed: {{ cheapest_rate_plan.max_persons }}<br>
+                        Children Allowed: {{ cheapest_rate_plan.childmaxallowed }}<br>
+                        Tax Rate: {{ cheapest_room.tax }}%<br>
+                        Offer: ₹{{ cheapest_room.offeramount }} off<br>
+                        Available Rooms: {{ cheapest_room.available_rooms }}
+                    </p>
+                    <button class="btn btn-dark">Book Now</button>
+                </div>
+            </div>
+        {% else %}
+            <p class="text-danger">No rooms are available at the moment.</p>
+        {% endif %}
+    </div>
+    
+    <div class="col-lg-12 mb-5 card p-3">
+    <div class="form-group mb-5  ">
+        <label for="full-name"><b>Terms & Conditions</b><br><br>
+        {% for line in terms_lines %}
+            <p>{{ line }}</p>
+        {% endfor %}
+
+        <div>
+    </div>
+
+</div>
+</div>
+</div>
+
+
+<!-- Cart Popup Modal -->
 <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-fullscreen">
         <div class="modal-content">
@@ -561,42 +543,158 @@ html, body {
                 <h5 class="modal-title" id="cartModalLabel">Cart Summary</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+            
             <div class="modal-body">
                 <!-- Cart Items -->
+                
                 <div id="cart-items" class="mb-3"></div>
-
-                <!-- Offers Section -->
-                <div id="offers-section" class="mb-3">
-                    <h6>Available Offers</h6>
-                    <div id="offer-list" class="card p-2 border-top pt-3"></div>
+                <div class="card p-2 border-top mb-1">
+                    <p class="text-success"><b>BOOK NOW & PAY LATER</b> (Pay At Hotel)</p>
+                    <p>CheckIn Date: {{today}}</p>
+                    <p>CheckOut Date: {{tomorrow}}</p>
+                    <p>Total Days: <span id="days-diff">{{daysdiff}}</span></p> <!-- This will show the number of days -->
+                   
                 </div>
-
+                
                 <!-- Cart Summary Section -->
-                <div class="card p-2 border-top pt-3">
-                    <h6>Cart Summary</h6>
+                <div class="card p-2 border-top pt-3 mb-5">
+                    <h6>Cart Summary (for <b>{{daysdiff}}</b> days)</h6>
+                    
+                    <!-- Success message container (hidden by default) -->
+                    <div id="success-message" style="display: none; padding: 10px; background-color: #d4edda; color: #155724; border-radius: 5px;">
+                        <!-- Success message will be inserted here -->
+                    </div>
+
                     <div class="d-flex justify-content-between">
-                        <p>Total Price</p>
+                        <p>Total Amount</p>
                         <p>₹<span id="total-price">0</span></p>
+                    </div>
+                    <div class="d-flex justify-content-between text-success">
+                        <p>Discount</p>
+                        <p><i class="bi bi-gift"></i> ₹<span id="discount-amount">0</span></p>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <p>Subtotal</p>
+                        <p>₹<span id="subtotal-amount">0</span></p>
                     </div>
                     <div class="d-flex justify-content-between">
                         <p>Total Tax</p>
                         <p>₹<span id="total-tax">0</span></p>
                     </div>
-                    <div class="d-flex justify-content-between text-success">
-                        <p>Discount</p>
-                        <p>-₹<span id="discount-amount">0</span></p>
-                    </div>
+                    
                     <hr>
                     <div class="d-flex justify-content-between">
                         <p><b>Grand Total</b></p>
                         <p><b>₹<span id="grand-total">0</span></b></p>
                     </div>
-                    <button class="btn btn-dark">Continue to Book</button>
-                </div>
+                    <hr>
+
+                   
+
+                <div class="mt-3" id="toggle-card" style="display: none; ">
+                    <!-- Hidden form initially -->
+                     
+                <h4 class="ms2 text-center" id="scrollmain">Guest Details</h4><hr>
+                    <form id="cart-form" method="post" >
+                    {% csrf_token %}
+
+                        <div class=" col-12  p-1 ">
+                            <label for="zipCode" class="form-label"><i class="bi bi-person-fill"></i> YOUR NAME </label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              
+                              name="guestname"
+                              placeholder="EX: VAIDIK JAIN"
+                              maxlength=""
+                              required
+                            />
+                          </div> 
+
+                          <div class=" col-12  p-1 ">
+                            <label for="zipCode" class="form-label"><i class="bi bi-telephone-fill"></i> YOUR PHONE </label>
+                            <input
+                                type="tel"
+                                pattern="[6-9][0-9]{9}"
+                              class="form-control"
+                              
+                              name="guestphone"
+                              placeholder="EX: 9179223301"
+                              maxlength="10"
+                              required
+                            />
+                          </div> 
+
+                          
+
+                          <div class=" col-12  p-1 ">
+                            <label for="zipCode" class="form-label"><i class="bi bi-globe"></i> Country</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              value="INDIA"
+                              name="Country"
+                              placeholder="INDIA"
+                              maxlength="30"
+                              required
+                            />
+                          </div> 
+
+                          <div class=" col-12  p-1 ">
+                            <label for="zipCode" class="form-label"><i class="bi bi-geo-alt"></i> Address</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                             
+                              name="adress"
+                              placeholder="EX: Mumbai 101223"
+                              maxlength="50"
+                            />
+                          </div> 
+
+                          <div class=" col-12  p-1 mb-2">
+                            <label for="zipCode" class="form-label"><i class="bi bi-vector-pen"></i> Speacial Request ! </label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              
+                              name="Speacialrequest"
+                              placeholder="Request Here!"
+                              maxlength="50"
+                            />
+                          </div> 
+
+                          <input type="hidden" id="userid" value="{{user}}" />
+                   
+                    <p class="ps-2">By proceeding, I agree to hotel terms and conditions and cancellation policies</p>
+
+                    <button type="submit" class="btn btn-success w-100 mb-3">BOOKING DONE</button>
+                </form>
+            </div>
+
+             <!-- Toggle Button -->
+             <button type="button" id="toggleButton" herf="#scrollmain" class="btn btn-dark">Continue</button>
+                   
+            </div>
             </div>
         </div>
     </div>
 </div>
+
+
+<script>
+    // JavaScript to handle the toggling of the form visibility with scrollable div
+    document.getElementById('toggleButton').addEventListener('click', function() {
+        const form = document.getElementById('toggle-card');
+        if (form.style.display === 'none' || form.style.display === '') {
+            form.style.display = 'block';  // Show the form
+            
+            document.getElementById('toggleButton').style.display = "none";
+        } else {
+            form.style.display = 'none';  // Hide the form
+        }
+    });
+</script>
 
 
 <!-- Bottom Cart View -->
@@ -606,120 +704,137 @@ html, body {
             <h6>Total: ₹<span id="fixed-total-price">0</span></h6>
             <h6>Add-Rooms: <span id="total-rooms">0</span></h6> <!-- Show total rooms -->
         </div>
-        <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#cartModal" style="font-size: 16px; ;">View Cart</button>
+        <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#cartModal" style="font-size: 16px;">View Cart</button>
     </div>
 </div>
 
 
-
-
 <script>
-    const cart = {};  // Cart object to store room data
-    let totalPrice = 0;  // Total price of items in the cart
-    let totalTax = 0;  // Total tax for items in the cart
-    let totalRooms = 0;  // Total rooms added to the cart
-    
-    // Function to toggle visibility of bottom cart view
+    const cart = {}; // Holds the cart items
+    let totalPrice = 0; // Total price for the cart
+    let totalTax = 0; // Total tax for the cart
+    let totalRooms = 0; // Total rooms booked
+    let totalDiscount = 0; // Total discount applied
+
+    // Automatically add the cheapest room to the cart
+    document.addEventListener("DOMContentLoaded", () => {
+        const cheapestRoomId = "{{ cheapest_room.id|default:'' }}";
+        const cheapestRoomCategory = "{{ cheapest_room.category_name|escapejs }}";
+        const cheapestRatePlanName = "{{ cheapest_rate_plan.rate_plan_name|escapejs }}";
+        const cheapestRoomAdults = parseInt("{{ cheapest_rate_plan.max_persons|default:0 }}");
+        const cheapestRoomChildren = parseInt("{{ cheapest_rate_plan.childmaxallowed|default:0 }}");
+        const cheapestRoomPrice = parseFloat("{{ lowest_price|default:0 }}");
+        const cheapestRoomTaxRate = parseFloat("{{ cheapest_room.tax|default:0 }}");
+        const cheapestRoomAvailable = parseInt("{{ cheapest_room.available_rooms|default:0 }}", 10);
+        const cheapestRoomOffer = parseFloat("{{ cheapest_room.offeramount|default:0 }}");
+
+        if (cheapestRoomId && cheapestRoomAvailable > 0) {
+            addToCart(
+                cheapestRoomId,
+                cheapestRoomCategory,
+                cheapestRatePlanName,
+                cheapestRoomAdults,
+                cheapestRoomChildren,
+                cheapestRoomPrice,
+                cheapestRoomTaxRate,
+                cheapestRoomAvailable,
+                cheapestRoomOffer
+            );
+        }
+    });
+
+    // Toggle the visibility of the cart section
     function toggleCartVisibility() {
         const bottomCartView = document.getElementById("bottom-cart-view");
         const cartItemsDiv = document.getElementById("cart-items");
         const isVisible = Object.keys(cart).some((roomId) => cart[roomId]?.count > 0);
-    
+
         bottomCartView.classList.toggle("d-none", !isVisible);
         if (!isVisible) {
-            cartItemsDiv.innerHTML = "";
+            cartItemsDiv.innerHTML = ""; // Clear cart display if cart is empty
         }
     }
-    
-    // Function to add a room to the cart
-    function addToCart(roomId, categoryName, ratePlanName, adults, children, roomPrice, taxRate, availableRooms) {
-        // Initialize the room entry in the cart if not already there
+
+    // Add room to the cart
+    function addToCart(roomId, categoryName, ratePlanName, adults, children, roomPrice, taxRate, availableRooms, offerAmount) {
         if (!cart[roomId]) {
             cart[roomId] = {
                 count: 0,
                 category: categoryName,
                 ratePlan: ratePlanName,
-                adultsPerRoom: adults,  // Store adults per room as per rate plan
-                childrenPerRoom: children,  // Store children per room as per rate plan
+                adultsPerRoom: adults,
+                childrenPerRoom: children,
                 price: roomPrice,
                 taxRate: taxRate,
                 max: availableRooms,
-                adults: 0,  // Initialize total adults count
-                children: 0  // Initialize total children count
+                adults: 0,
+                children: 0,
+                offerAmount: offerAmount
             };
         }
-    
-        // Check how many rooms are already booked in this category
+
         let totalBookedInCategory = 0;
         for (const roomKey in cart) {
             if (cart[roomKey].category === categoryName) {
                 totalBookedInCategory += cart[roomKey].count;
             }
         }
-    
-        // Only allow adding rooms if total booked rooms are less than available rooms
+
         if (totalBookedInCategory < availableRooms) {
-            // Increment the count of rooms
             cart[roomId].count += 1;
-    
-            // Increment adults and children based on rate plan
-            cart[roomId].adults += adults;  // Add the number of adults from the rate plan
-            cart[roomId].children += children;  // Add the number of children from the rate plan
-    
-            // Update total price and tax
+            cart[roomId].adults += adults;
+            cart[roomId].children += children;
             totalPrice += roomPrice;
-            const taxAmount = (roomPrice * taxRate) / 100;
-            totalTax += taxAmount;
-            totalRooms += 1; // Increment the total rooms count
-    
+            totalTax += (roomPrice * taxRate) / 100;
+            totalRooms += 1;
+            totalDiscount += offerAmount;
+
             updateCart();
             toggleCartVisibility();
         } else {
             alert("All rooms in this category are booked!");
         }
     }
-    
-    // Function to remove a room from the cart
+
+    // Remove room from the cart
     function removeFromCart(roomId) {
         if (cart[roomId] && cart[roomId].count > 0) {
-            // Decrease the total price and tax
             totalPrice -= cart[roomId].price;
-            const taxAmount = (cart[roomId].price * cart[roomId].taxRate) / 100;
-            totalTax -= taxAmount;
-    
-            // Decrease the total rooms
+            totalTax -= (cart[roomId].price * cart[roomId].taxRate) / 100;
             totalRooms -= 1;
-    
-            // Decrease the count of adults and children based on the rate plan
-            cart[roomId].adults -= cart[roomId].adultsPerRoom; // Decrease by per room count
-            cart[roomId].children -= cart[roomId].childrenPerRoom; // Decrease by per room count
-    
-            // Decrease the count of rooms
+            totalDiscount -= cart[roomId].offerAmount;
+
+            cart[roomId].adults -= cart[roomId].adultsPerRoom;
+            cart[roomId].children -= cart[roomId].childrenPerRoom;
             cart[roomId].count -= 1;
-    
+
             if (cart[roomId].count === 0) {
                 delete cart[roomId];
             }
-    
+
             updateCart();
             toggleCartVisibility();
         }
     }
-    
-    // Function to update the cart display
+
+    // Update the cart display and totals
     function updateCart() {
         const cartItemsDiv = document.getElementById("cart-items");
-        cartItemsDiv.innerHTML = "";  // Clear the current cart items
-    
-        // Loop through each cart item and display it
+        cartItemsDiv.innerHTML = ""; // Clear the cart display
+        const daysDiff = getDays(); // Get the number of days for the stay
+
+        let totalPriceAdjusted = 0;
+        let totalTaxAdjusted = 0;
+        let totalDiscountAdjusted = 0;
+
         for (const roomId in cart) {
             if (cart[roomId].count > 0) {
                 const room = cart[roomId];
                 const roomDiv = document.createElement("div");
-                roomDiv.classList.add("cart-item", "border", "rounded", "p-2", "mb-2", "d-flex", "shadow" ,"justify-content-between");
+                roomDiv.classList.add("cart-item", "border", "rounded", "p-2", "mb-2", "d-flex", "shadow", "justify-content-between");
                 roomDiv.style.background = "#FFF";
                 roomDiv.style.fontSize = "14px";
-    
+
                 roomDiv.innerHTML = `
                     <div>
                         <h6>${room.category} - ${room.ratePlan}</h6>
@@ -727,57 +842,150 @@ html, body {
                         <p>Price: ₹${room.price} | Tax Rate: ${room.taxRate}%</p>
                     </div>
                     <div class="d-flex align-items-center">
-                        <button class="btn  btn-success me-2" onclick="addToCart('${roomId}', '${room.category}', '${room.ratePlan}', ${room.adultsPerRoom}, ${room.childrenPerRoom}, ${room.price}, ${room.taxRate}, ${room.max})" ${
-                        cart[roomId].count >= room.max ? "disabled" : ""
-                    }>+</button>
+                        <button class="btn btn-success me-2" onclick="addToCart('${roomId}', '${room.category}', '${room.ratePlan}', ${room.adultsPerRoom}, ${room.childrenPerRoom}, ${room.price}, ${room.taxRate}, ${room.max}, ${room.offerAmount})" ${
+                            cart[roomId].count >= room.max ? "disabled" : ""
+                        }>+</button>
                         <span>${room.count}</span>
-                        <button class="btn  btn-danger ms-2" onclick="removeFromCart('${roomId}')">-</button>
+                        <button class="btn btn-danger ms-2" onclick="removeFromCart('${roomId}')">-</button>
                     </div>
                 `;
                 cartItemsDiv.appendChild(roomDiv);
+
+                totalPriceAdjusted += room.price * room.count * daysDiff;
+                totalTaxAdjusted += (room.price * room.count * room.taxRate) / 100 * daysDiff;
+                totalDiscountAdjusted += room.offerAmount * room.count * daysDiff;
             }
         }
-    
-        // Update the cart summary with total prices and taxes
-        document.getElementById("total-price").innerText = totalPrice.toFixed(2);
-        document.getElementById("total-tax").innerText = totalTax.toFixed(2);
-        document.getElementById("grand-total").innerText = (totalPrice + totalTax).toFixed(2);
-        document.getElementById("fixed-total-price").innerText = totalPrice.toFixed(2);
-        document.getElementById("total-rooms").innerText = totalRooms;  // Display total rooms
+
+        const discountAmount = totalDiscountAdjusted;
+        const subtotalAmount = totalPriceAdjusted + totalTaxAdjusted - discountAmount;
+        const grandTotal = totalPriceAdjusted + totalTaxAdjusted;
+
+        // Update the totals display
+        document.getElementById("fixed-total-price").innerText = totalPriceAdjusted.toFixed(2);
+        document.getElementById("total-price").innerText = (totalPriceAdjusted + discountAmount).toFixed(2);
+        document.getElementById("total-tax").innerText = totalTaxAdjusted.toFixed(2);
+        document.getElementById("grand-total").innerText = grandTotal.toFixed(2);
+        document.getElementById("total-rooms").innerText = totalRooms;
+        document.getElementById("discount-amount").innerText = discountAmount.toFixed(2);
+        document.getElementById("subtotal-amount").innerText = totalPriceAdjusted.toFixed(2);
     }
-    
-    // Function to update button availability based on room count
-    function updateRoomButtonAvailability() {
-        const roomButtons = document.querySelectorAll(".btn-success");
-        roomButtons.forEach((btn) => {
-            const roomId = btn.getAttribute('data-room-id');
-            const categoryName = btn.getAttribute('data-category-name');
-            const availableRooms = btn.getAttribute('data-available-rooms');
-    
-            // Calculate total booked rooms in this category
-            let totalBookedInCategory = 0;
-            for (const roomKey in cart) {
-                if (cart[roomKey].category === categoryName) {
-                    totalBookedInCategory += cart[roomKey].count;
-                }
-            }
-    
-            // Disable button if rooms are fully booked
-            if (totalBookedInCategory >= availableRooms) {
-                btn.disabled = true;
-            } else {
-                btn.disabled = false;
-            }
-        });
+
+    // Get the number of days from the stay duration
+    function getDays() {
+        const days = parseInt(document.getElementById("days-diff").innerText, 10);
+        return isNaN(days) || days <= 0 ? 1 : days;
     }
-    
-    // Ensure room button availability is checked on page load
-    document.addEventListener("DOMContentLoaded", () => {
-        updateRoomButtonAvailability();  // Run availability check
+
+    // Handle form submission via JavaScript
+   
+    document.addEventListener("DOMContentLoaded", function () {
+        const csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
+        
+        if (csrfTokenElement) {
+            const csrfToken = csrfTokenElement.value;
+            console.log("CSRF Token:", csrfToken);
+        
+            document.getElementById("cart-form").addEventListener("submit", function (event) {
+                event.preventDefault();  // Prevent the default form submission
+        
+                // Ensure the cart object and other variables exist
+                console.log("Cart object:", cart);
+        
+                const checkInDate = document.getElementById("check-in") ? document.getElementById("check-in").value : '';
+                const checkOutDate = document.getElementById("check-out") ? document.getElementById("check-out").value : '';
+                console.log("Check-in Date:", checkInDate);
+                console.log("Check-out Date:", checkOutDate);
+        
+                console.log("Total Price:", totalPrice);
+                console.log("Total Tax:", totalTax);
+                console.log("Total Discount:", totalDiscount);
+                console.log("Total Rooms:", totalRooms);
+        
+                // Collect form data with null checks for optional fields
+            const guestName = document.querySelector('[name="guestname"]').value || '';  // Default to empty string if undefined
+            const guestPhone = document.querySelector('[name="guestphone"]').value || '';  // Default to empty string if undefined
+            const guestCountry = document.querySelector('[name="Country"]').value || '';  // Default to empty string if undefined
+            const guestAddress = document.querySelector('[name="adress"]').value || null;  // Null if no value provided
+            const specialRequest = document.querySelector('[name="Speacialrequest"]').value || null;  // Null if no value provided
+            const userids = document.getElementById("userid").value;
+            
+                // Prepare the full cart and form data
+                const cartData = {
+                    items: Object.keys(cart).map(roomId => ({
+                        id: roomId,
+                        count: cart[roomId].count,
+                        category: cart[roomId].category,
+                        ratePlan: cart[roomId].ratePlan,
+                        price: cart[roomId].price,
+                        taxRate: cart[roomId].taxRate,
+                        offerAmount: cart[roomId].offerAmount,
+                        adults:cart[roomId].adults,
+                        children:cart[roomId].children,
+
+                    })),
+                    totalPrice: totalPrice,
+                    totalTax: totalTax,
+                    totalDiscount: totalDiscount,
+                    totalRooms: totalRooms,
+                    checkIn: checkInDate,
+                    checkOut: checkOutDate,
+                    days: getDays(),
+                    guestName: guestName,
+                    guestPhone: guestPhone,
+                    guestCountry: guestCountry,
+                    guestAddress: guestAddress,
+                    specialRequest: specialRequest,
+                    userid:userids,
+                };
+        
+                console.log("Full Data Sent:", cartData);
+        
+                // Send data via fetch API
+                fetch("{% url 'your_cart_processing_view' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": csrfToken,
+                    },
+                    body: JSON.stringify(cartData)
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Response from server:", data);
+                        if (data.success) {
+                            //alert("Booking successfully done!");
+                            const bookingId = data.id; // Assuming the server sends the booking ID
+                            window.location.href = `/receipt/${bookingId}/`;
+                        } else {
+                            alert(data.message);
+                            window.location.reload();
+                           
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        alert("There was an error processing the cart.");
+                        window.location.reload();
+                    });
+            });
+        } else {
+            console.error("CSRF Token element not found.");
+            alert("There was an error processing the cart.");
+            window.location.reload();
+        }
     });
+    
+
+    
+    
+    
     
     
 </script>
+
+
+
 
 
 
@@ -927,365 +1135,6 @@ function updateSecondCarousel(id) {
 
 
 
-{% comment %}     
-    
-    <!-- Header Start -->
-    <div class="container-fluid py-1 my-1 " >
-        <div class="container">
-            <div class="row g-1 align-items-center ">
-                
-                <div class="col-lg-6 mb-1">
-              
-                    <div class="portfolio-img rounded overflow-hidden shadow">
-                       
-                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Header End --> {% endcomment %}
-
-
-  
-
-{% comment %} 
-    <!-- About Start -->
-    <div class="container-xxl py-4" id="about">
-        <div class="container">
-            <div class="row g-5">
-                <div class="col-lg-12 wow fadeInUp" data-wow-delay="0.1s">
-                    <div class="d-flex align-items-center mb-5">
-                       {%for i in about%}
-                        <div class="years flex-shrink-0 text-center me-4">
-                            <h1 class="display-1 mb-0">{{i.years}}</h1>
-                            <h5 class="mb-0">Years</h5>
-                        </div>
-                        <h3 class="lh-base mb-0"> of experience in the hotel industry,</h3>
-                    </div>
-                    <p class="mb-4">At our hotel, we provide customized solutions that cater to your unique needs. Our dedication to excellence means that we offer competitive pricing while maintaining high-quality standards. With our assurance of timely service delivery, we empower hotels to strengthen their online visibility and achieve success in the industry.</p>
-                    <p class="mb-3"><i class="far fa-check-circle text-primary me-3"></i>Afordable Prices</p>
-                    <p class="mb-3"><i class="far fa-check-circle text-primary me-3"></i>Premium Quality Service</p>
-                    <p class="mb-3"><i class="far fa-check-circle text-primary me-3"></i>Excellence in Hospitality</p>
-                    <p class="mb-3"><i class="far fa-check-circle text-primary me-3"></i>Timely Service Assurance</p>
-                    <a class="btn btn-primary py-3 px-5 mt-3" href="">Read More</a>
-                </div>
-                <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.5s">
-                    <div class="row g-3 mb-4">
-                        <div class="col-sm-6">
-                            <img class="img-fluid rounded" src="{% static 'vendorwebcss/img/happyclientscouple.png'%}" alt="">
-                        </div>
-                        <div class="col-sm-6">
-                           <img class="img-fluid rounded" src="{% static 'vendorwebcss/img/happyclintsbig.png'%}" alt="">
-                       </div> {% endcomment %}
-                        {% comment %} <div class="col-sm-6">
-                            <img class="img-fluid rounded" src="{% static 'vendorwebcss/img/happyclientsgirl.png'%}" alt="">
-                        </div> {% endcomment %}
-                    {% comment %} </div>
-                    <div class="d-flex align-items-center mb-3">
-                        <h5 class="border-end pe-3 me-3 mb-0">Happy Clients</h5>
-                        <h2 class="text-primary fw-bold mb-0" data-toggle="counter-up">{{i.clientscount}} </h2><span class="text-primary fw-bold"> + </span>
-                    </div>
-                    <p class="mb-4">Our priority is your satisfaction, ensuring every stay exceeds expectations.
-                       Delighting guests with personalized service and memorable experiences.
-                       Join our community of satisfied guests who've enjoyed unforgettable stays with us.</p>
-                    <div class="d-flex align-items-center mb-3">
-                        <h5 class="border-end pe-3 me-3 mb-0">Fabulous Reviews</h5>
-                        <h2 class="text-primary fw-bold mb-0" data-toggle="counter-up">{{i.reviewscount}}</h2><span class="text-primary fw-bold"> + </span>
-                    </div>
-                    <p class="mb-0">Discover why our hotel consistently earns glowing reviews from satisfied guests.
-                       Join the ranks of delighted visitors who have shared their positive experiences with us.</p>
-                </div>
-                {%endfor%}
-            </div>
-        </div>
-    </div>
-    <!-- About End --> {% endcomment %}
-
-{% comment %} 
-     <!-- Team Start -->
-     <div class="container-xxl py-1 pb-5" id="rooms">
-       <div class="container">
-           <div class="row g-5 mb-5 wow fadeInUp" data-wow-delay="0.1s">
-               <div class="col-lg-6">
-                   <h3 class="display-5 mb-0">Room and Suite</h3>
-               </div>
-               
-           </div>
-           <div class="row g-4">
-               {%if rooms%}
-               {%for i in rooms%}
-               <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                   <div class="team-item position-relative">
-                       <h5 class="ms-2">{{i.category_name}}</h5>
-                       {%if i.roomimg and i.roomimg.url %}
-                       <img class="img-fluid rounded" src="{{i.roomimg.url}}" alt="">
-                       {%endif%}
-                       <div class="team-text bg-white rounded-end p-4">
-                           <div>
-                               <h5>{{i.category_name}} Room</h5>
-                               <span>Starts From <span class="text-primary">{{i.catprice}}</span><br>
-                               <span style="font-size:11px" class="text-success"><i class="bi bi-gift-fill"></i>Find Amazing Deals - Click the Arrow!</span>
-                           </div>
-                           <a href="#pricingoffer" ><i class="fa fa-arrow-right fa-2x text-primary"></i></a>
-                       </div>
-                   </div>
-               </div>
-               {%endfor%}
-               {%endif%}
-           </div>
-       </div>
-   </div>
-   <!-- Team End -->
-
-{%if offers%}
-    <!-- Service Start -->
-    <div class="container-fluid bg-light my-5 py-3" id="pricingoffer">
-        <div class="container">
-            <div class="row g-5 mb-1 wow fadeInUp" data-wow-delay="0.1s">
-                <div class="col-lg-6">
-                    <h1 class="display-5 mb-3">Offers & Packages</h1>
-                </div>
-                
-            </div>
-            <div class="row g-4">
-               {%for offer in offers%}
-                <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
-                    <div class="service-item d-flex flex-column flex-sm-row bg-white rounded h-100 p-4 p-lg-5">
-                        
-                        <div class="ms-sm-4">
-                           <div class="row">
-                               <div class="col-8"><h4 class="mb-3 text-primary pt-4">{{offer.category.category_name}} Rooms</h4></div>
-                               <div class="col-4">
-                                   <img class="img-fluid mt-2 mb-2" style="width:90PX;height:70px;border-radius:5px 20px" src="{{offer.category.roomimg.url}}" alt="">
-                            
-                               </div>
-                               
-                           </div>
-                           <h6 class="mb-1">Start from <span class="text-primary">{{offer.category.catprice}}</span></h6>
-                            <a href="tel:+91{{profile.contact}}" style="text-decoration:none"> <img class="img-fluid mt-2 mb-2" style="width:95%;height:130px;pointer-events: none;" src="{% static 'vendorwebcss/img/APPLY1.png'%}" alt="">
-                           <P style="margin-top:-123px;width:75%;margin-left:65px" class="text-black-50"><b>{{offer.code}}</b><br>
-                               <SPAN class="text-success" style="font-size:14px">Save ₹{{offer.amount}} on this booking</APAN><br>
-                               <span class="text-black-50 " style="font-size:11px">Use code WELCOME & get ₹{{offer.amount}} off.</span>
-                           </P></a><br><br>
-                           <span><b><i class="bi bi-award-fill"></i></b></span><br>
-                            <span>Experience unparalleled luxury in our hotel Rooms, featuring elegant decor and premium amenities for a truly indulgent stay.</span>
-                           </div>
-                    </div>
-                </div>
-                {%endfor%}
-                
-                
-            </div>
-        </div>
-    </div>
-    <!-- Service End -->
-     {%endif%} {% endcomment %}
-
-{% comment %} 
-    <!-- service Start -->
-    <div class="container-xxl py-6 pt-5" id="services">
-        <div class="container">
-            <div class="row g-5 mb-5 align-items-center wow fadeInUp" data-wow-delay="0.1s">
-                <div class="col-lg-6">
-                    <h1 class="display-5 mb-0">Amenities</h1>
-                </div>
-            </div>
-            <div class="row g-4 portfolio-container wow fadeInUp" data-wow-delay="0.1s">
-                <div class="col-lg-12 col-md-6 portfolio-item first">
-                    <div class="portfolio-img rounded overflow-hidden shadow">
-                   <p class="mb-4 m-4">Our dedicated team is here to provide exceptional service, ensuring every moment of your stay is comfortable and enjoyable.</p>
-                   {% for i in service%} 
-                   <p class="mb-3 ms-4"><i class="far fa-check-circle text-primary me-3"></i>{{i.service_name}}</p>
-                   {%endfor%} 
-                  
-                    <a class="btn btn-primary py-3 px-5 mt-3 ms-4 mb-4" href="tel:+91{{profile.contact}}">Book Now</a>
-                    </div>
-                </div>
-                
-            </div>
-        </div>
-    </div>
-    <!-- Projects End -->
-   
-    <!-- gallary Start -->
-    <div class="container-fluid bg-light py-5 my-5" id="gallary">
-       <div class="container-fluid py-5">
-           <h1 class="display-5 text-center mb-5 wow fadeInUp" data-wow-delay="0.1s">Gallary</h1>
-           <div class="row justify-content-center">
-               <div class="col-lg-3 d-none d-lg-block">
-                   <div class="testimonial-left h-100">
-                       <img class="img-fluid wow fadeIn" data-wow-delay="0.1s" src="{% static 'vendorwebcss/img/testimonial-1.jpg'%}" alt="">
-                       <img class="img-fluid wow fadeIn" data-wow-delay="0.3s" src="{% static 'vendorwebcss/img/testimonial-2.jpg'%}" alt="">
-                       <img class="img-fluid wow fadeIn" data-wow-delay="0.5s" src="{% static 'vendorwebcss/img/testimonial-3.jpg'%}" alt="">
-                   </div>
-               </div>
-               <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.5s">
-                   <div class="owl-carousel testimonial-carousel">
-                       {% for img in gallary %}
-                       <div class="testimonial-item text-center">
-                           
-                           <div class="col-sm-12">
-                             <center>  <img class="img-fluid  h-100" style="width:90%;border-radius:10px 60px" src="{{img.gallary_img.url}}" alt=""></center>
-                           </div>
-                           
-                       </div>
-                       {%endfor%}
-                      
-                       
-
-                   </div>
-               </div>
-               <div class="col-lg-3 d-none d-lg-block">
-                   <div class="testimonial-right h-100">
-                       <img class="img-fluid wow fadeIn" data-wow-delay="0.1s" src="{% static 'vendorwebcss/img/testimonial-1.jpg'%}" alt="">
-                       <img class="img-fluid wow fadeIn" data-wow-delay="0.3s" src="{% static 'vendorwebcss/img/testimonial-2.jpg'%}" alt="">
-                       <img class="img-fluid wow fadeIn" data-wow-delay="0.5s" src="{% static 'vendorwebcss/img/testimonial-3.jpg'%}" alt="">
-                   </div>
-               </div>
-           </div>
-       </div>
-   </div>
-   <!-- gallary End -->
-
-  
-
-
-    <!-- Testimonial Start -->
-    <div class="container-fluid py-5 my-5" id="testimonial">
-        <div class="container-fluid py-5">
-            <h1 class="display-5 text-center mb-5 wow fadeInUp" data-wow-delay="0.1s">Guest Stories</h1>
-            <div class="row justify-content-center">
-                <div class="col-lg-3 d-none d-lg-block">
-                    <div class="testimonial-left h-100">
-                        <img class="img-fluid wow fadeIn" data-wow-delay="0.1s" src="{% static 'vendorwebcss/img/testimonial-1.jpg'%}" alt="">
-                        <img class="img-fluid wow fadeIn" data-wow-delay="0.3s" src="{% static 'vendorwebcss/img/testimonial-2.jpg'%}" alt="">
-                        <img class="img-fluid wow fadeIn" data-wow-delay="0.5s" src="{% static 'vendorwebcss/img/testimonial-3.jpg'%}" alt="">
-                    </div>
-                </div>
-                <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.5s">
-                    <div class="owl-carousel testimonial-carousel">
-                        <div class="testimonial-item text-center">
-                            <div class="position-relative mb-5">
-                                <img class="img-fluid rounded-circle border border-secondary p-2 mx-auto" src="{% static 'vendorwebcss/img/testimonial-1.jpg'%}" alt="">
-                                <div class="testimonial-icon">
-                                    <i class="fa fa-quote-left text-primary"></i>
-                                </div>
-                            </div>
-                            <p class="fs-5 fst-italic">A wonderful experience from start to finish. The staff were incredibly friendly, and the amenities were fantastic. We'll definitely be back!.</p>
-                            <hr class="w-25 mx-auto">
-                            <h5>Ananya</h5>
-                            <span>Doctor</span>
-                        </div>
-                        <div class="testimonial-item text-center">
-                            <div class="position-relative mb-5">
-                                <img class="img-fluid rounded-circle border border-secondary p-2 mx-auto" src="{% static 'vendorwebcss/img/testimonial-2.jpg'%}" alt="">
-                                <div class="testimonial-icon">
-                                    <i class="fa fa-quote-left text-primary"></i>
-                                </div>
-                            </div>
-                            
-                            <p class="fs-5 fst-italic">We felt right at home from the moment we arrived. The attention to detail and the friendly atmosphere made our vacation perfect.</p>
-                            <hr class="w-25 mx-auto">
-                            <h5>Neel </h5>
-                            <span>Student</span>
-                        </div>
-                        <div class="testimonial-item text-center">
-                            <div class="position-relative mb-5">
-                                <img class="img-fluid rounded-circle border border-secondary p-2 mx-auto" src="{% static 'vendorwebcss/img/testimonial-3.jpg'%}" alt="">
-                                <div class="testimonial-icon">
-                                    <i class="fa fa-quote-left text-primary"></i>
-                                </div>
-                            </div>
-                            <p class="fs-5 fst-italic">An outstanding hotel with a welcoming atmosphere. The staff went above and beyond to ensure our comfort. We can't wait to return!</p>
-                            <hr class="w-25 mx-auto">
-                            <h5>Aarav </h5>
-                            <span>Salse Manager</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 d-none d-lg-block">
-                    <div class="testimonial-right h-100">
-                        <img class="img-fluid wow fadeIn" data-wow-delay="0.1s" src="{% static 'vendorwebcss/img/testimonial-1.jpg'%}" alt="">
-                        <img class="img-fluid wow fadeIn" data-wow-delay="0.3s" src="{% static 'vendorwebcss/img/testimonial-2.jpg'%}" alt="">
-                        <img class="img-fluid wow fadeIn" data-wow-delay="0.5s" src="{% static 'vendorwebcss/img/testimonial-3.jpg'%}" alt="">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Testimonial End -->
-
-
-    <!-- Contact Start -->
-    <div class="container-xxl pb-5" id="contact">
-        <div class="container py-5">
-            <div class="row g-5 mb-5 wow fadeInUp" data-wow-delay="0.1s">
-                <div class="col-lg-6">
-                    <h1 class="display-5 mb-0">Let's book happiness</h1>
-                </div>
-                <div class="col-lg-6 text-lg-end">
-                    <a class="btn btn-primary py-3 px-5" href="tel:+91{{profile.contact}}">Contact Us</a>
-                </div>
-            </div>
-            <div class="row g-5">
-                <div class="col-lg-5 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                    <p class="mb-2">Address:</p>
-                    <h3 class="fw-bold">{{profile.address}}</h3>
-                    <hr class="w-100">
-                    <p class="mb-2">Call :</p>
-                    <h3 class="fw-bold">{{profile.contact}}</h3>
-                    <hr class="w-100">
-                    <p class="mb-2">Mail :</p>
-                    <h3 class="fw-bold">{{profile.email}}</h3>
-                    <hr class="w-100">
-                    <p class="mb-2">Call on:</p>
-                    <div class="d-flex pt-2">
-                        <a class="btn btn-square btn-primary me-2" href="tel:+91{{profile.contact}}"><i class="bi bi-telephone-fill"></i></a>
-                    </div>
-                </div>
-                
-            </div>
-        </div>
-    </div>
-    <!-- Contact End -->
-
-
-    
-
-
-    <!-- Copyright Start -->
-    <div class="container-fluid bg-dark text-white py-4">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                        &copy; <a class="border-bottom text-secondary" href="#">WWW.Billzify.com</a>, All Right Reserved.
-                    </div>
-                    
-                </div>
-            </div>
-        </div>
-    </div> {% endcomment %}
-    <!-- Copyright End -->
-
-{% comment %} 
-    <!-- Back to Top -->
-    <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a> {% endcomment %}
-
-
-    {% comment %} <!-- JavaScript Libraries -->
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{% static 'vendorwebcss/lib/wow/wow.min.js'%}"></script>
-    <script src="{% static 'vendorwebcss/lib/easing/easing.min.js'%}"></script>
-    <script src="{% static 'vendorwebcss/lib/waypoints/waypoints.min.js'%}"></script>
-    <script src="{% static 'vendorwebcss/lib/typed/typed.min.js'%}"></script>
-    <script src="{% static 'vendorwebcss/lib/counterup/counterup.min.js'%}"></script>
-    <script src="{% static 'vendorwebcss/lib/owlcarousel/owl.carousel.min.js'%}"></script>
-    <script src="{% static 'vendorwebcss/lib/isotope/isotope.pkgd.min.js'%}"></script>
-    
-
-    <!-- Template Javascript -->
-    <script src="{% static 'vendorwebcss/js/main.js'%}"></script> {% endcomment %}
     
 </body>
 
@@ -1494,391 +1343,7 @@ function updateSecondCarousel(id) {
              </head>
              
              <body data-bs-spy="scroll" data-bs-target=".navbar" data-bs-offset="51">
-                 {% comment %} <!-- Spinner Start -->
-                 <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
-                     <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
-                         <span class="sr-only">Loading...</span>
-                     </div>
-                 </div> {% endcomment %}
-                 <!-- Spinner End -->
-             
-{% comment %}              
-                 <!-- Navbar Start -->
-                 <nav class="navbar navbar-expand-lg bg-white navbar-light fixed-top shadow py-lg-0 px-4 px-lg-5 wow fadeIn" data-wow-delay="0.1s">
-                     <a href="index.html" class="navbar-brand d-block d-lg-none">
-                         <h2 class="text-primary fw-bold m-0">{{profile.name}}</h2>
-                     </a>
-                     <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-                         <span class="navbar-toggler-icon"></span>
-                     </button>
-                     <div class="collapse navbar-collapse justify-content-between py-4 py-lg-0" id="navbarCollapse">
-                         <div class="navbar-nav ms-auto py-0">
-                             <a href="#home" class="nav-item nav-link active">Home</a>
-                             <a href="#about" class="nav-item nav-link">About Us</a>
-                             <a href="#about" class="nav-item nav-link">Guest Experiences</a>
-                             <a href="#rooms" class="nav-item nav-link">Rooms & Suites</a>
-                             <a href="#pricingoffer" class="nav-item nav-link">Offers & Packages</a>
-                         
-                             <a href="#services" class="nav-item nav-link">Amenities</a>
-                         
-                             <a href="#gallary" class="nav-item nav-link">Gallary</a>
-                             <a href="#testimonial" class="nav-item nav-link">Guests Say</a>
-                             <a href="#contact" class="nav-item nav-link">Contact</a>
-                         </div>
-                     </div>
-                 </nav>
-                 <!-- Navbar End --> {% endcomment %}
-             
-{% comment %}              
-                 <!-- Header Start -->
-                 <div class="container-fluid py-6 my-6 mt-3" id="guestexperiance">
-                     <div class="container">
-                         <div class="row g-5 align-items-center">
-                             <div class="col-lg-6 py-6 pb-0 pt-lg-0">
-                                 <h3 class="text-primary  mb-3" style="margin-top:-50px">Welcome To &#x1F44B;</h3>
-                                 <h6 class="display-3 mb-3" style="font-family: 'Cinzel', serif;"> {{profile.name}} </h6>
-                                 <h2 class="typed-text-output d-inline"></h2>
-                                 <div class="typed-text end-last d-none">A warm welcome  , Explore. Experience. Enjoy , Art of Hospitality, Comfort Meets Elegance , Love in Luxury</div>
-                                 <div class="d-flex align-items-center pt-5">
-
-                                    
-                                     <a href="#pricingoffer" class="btn  btn-primary py-3 px-4 me-5 ">Explore Offers</a>
-                                 </div>
-                             </div>
-                             <div class="col-lg-6 mb-5">
-                                 <img class="img-fluid mt-4" src="{% static 'vendorwebcss/img/welcomeroom.jpeg'%}" style="border-radius: 20px 80px" alt="">
-                             </div>
-                         </div>
-                     </div>
-                 </div>
-                 <!-- Header End -->
-             
-             
-               
-             
-             
-                 <!-- About Start -->
-                 <div class="container-xxl py-6" id="about">
-                     <div class="container">
-                         <div class="row g-5">
-                             <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
-                                 <div class="d-flex align-items-center mb-5">
-                                    {%for i in about%}
-                                     <div class="years flex-shrink-0 text-center me-4">
-                                         <h1 class="display-1 mb-0">{{i.years}}</h1>
-                                         <h5 class="mb-0">Years</h5>
-                                     </div>
-                                     <h3 class="lh-base mb-0"> of experience in the hotel industry,</h3>
-                                 </div>
-                                 <p class="mb-4">At our hotel, we provide customized solutions that cater to your unique needs. Our dedication to excellence means that we offer competitive pricing while maintaining high-quality standards. With our assurance of timely service delivery, we empower hotels to strengthen their online visibility and achieve success in the industry.</p>
-                                 <p class="mb-3"><i class="far fa-check-circle text-primary me-3"></i>Afordable Prices</p>
-                                 <p class="mb-3"><i class="far fa-check-circle text-primary me-3"></i>Premium Quality Service</p>
-                                 <p class="mb-3"><i class="far fa-check-circle text-primary me-3"></i>Excellence in Hospitality</p>
-                                 <p class="mb-3"><i class="far fa-check-circle text-primary me-3"></i>Timely Service Assurance</p>
-                                 <a class="btn btn-primary py-3 px-5 mt-3" href="">Read More</a>
-                             </div>
-                             <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.5s">
-                                 <div class="row g-3 mb-4">
-                                     <div class="col-sm-6">
-                                         <img class="img-fluid rounded" src="{% static 'vendorwebcss/img/happyclientscouple.png'%}" alt="">
-                                     </div>
-                                     <div class="col-sm-6">
-                                        <img class="img-fluid rounded" src="{% static 'vendorwebcss/img/happyclintsbig.png'%}" alt="">
-                                    </div> {% endcomment %}
-                                     {% comment %} <div class="col-sm-6">
-                                         <img class="img-fluid rounded" src="{% static 'vendorwebcss/img/happyclientsgirl.png'%}" alt="">
-                                     </div> {% endcomment %}
-                                 {% comment %} </div>
-                                 <div class="d-flex align-items-center mb-3">
-                                     <h5 class="border-end pe-3 me-3 mb-0">Happy Clients</h5>
-                                     <h2 class="text-primary fw-bold mb-0" data-toggle="counter-up">{{i.clientscount}} </h2><span class="text-primary fw-bold"> + </span>
-                                 </div>
-                                 <p class="mb-4">Our priority is your satisfaction, ensuring every stay exceeds expectations.
-                                    Delighting guests with personalized service and memorable experiences.
-                                    Join our community of satisfied guests who've enjoyed unforgettable stays with us.</p>
-                                 <div class="d-flex align-items-center mb-3">
-                                     <h5 class="border-end pe-3 me-3 mb-0">Fabulous Reviews</h5>
-                                     <h2 class="text-primary fw-bold mb-0" data-toggle="counter-up">{{i.reviewscount}}</h2><span class="text-primary fw-bold"> + </span>
-                                 </div>
-                                 <p class="mb-0">Discover why our hotel consistently earns glowing reviews from satisfied guests.
-                                    Join the ranks of delighted visitors who have shared their positive experiences with us.</p>
-                             </div>
-                             {%endfor%}
-                         </div>
-                     </div>
-                 </div>
-                 <!-- About End -->
-             
-             
-                  <!-- Team Start -->
-                  <div class="container-xxl py-1 pb-5" id="rooms">
-                    <div class="container">
-                        <div class="row g-5 mb-5 wow fadeInUp" data-wow-delay="0.1s">
-                            <div class="col-lg-6">
-                                <h3 class="display-5 mb-0">Room and Suite</h3>
-                            </div>
-                            
-                        </div>
-                        <div class="row g-4">
-                            {%if rooms%}
-                            {%for i in rooms%}
-                            <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                                <div class="team-item position-relative">
-                                    <h5 class="ms-2">{{i.category_name}}</h5>
-                                    {%if i.roomimg and i.roomimg.url %}
-                                    <img class="img-fluid rounded" src="{{i.roomimg.url}}" alt="">
-                                    {%endif%}
-                                    <div class="team-text bg-white rounded-end p-4">
-                                        <div>
-                                            <h5>{{i.category_name}} Room</h5>
-                                            <span>Starts From <span class="text-primary">{{i.catprice}}</span><br>
-                                            <span style="font-size:11px" class="text-success"><i class="bi bi-gift-fill"></i>Find Amazing Deals - Click the Arrow!</span>
-                                        </div>
-                                        <a href="#pricingoffer" ><i class="fa fa-arrow-right fa-2x text-primary"></i></a>
-                                    </div>
-                                </div>
-                            </div>
-                            {%endfor%}
-                            {%endif%}
-                        </div>
-                    </div>
-                </div>
-                <!-- Team End -->
-             
-             {%if offers%}
-                 <!-- Service Start -->
-                 <div class="container-fluid bg-light my-5 py-3" id="pricingoffer">
-                     <div class="container">
-                         <div class="row g-5 mb-1 wow fadeInUp" data-wow-delay="0.1s">
-                             <div class="col-lg-6">
-                                 <h1 class="display-5 mb-3">Offers & Packages</h1>
-                             </div>
-                             
-                         </div>
-                         <div class="row g-4">
-                            {%for offer in offers%}
-                             <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
-                                 <div class="service-item d-flex flex-column flex-sm-row bg-white rounded h-100 p-4 p-lg-5">
-                                     
-                                     <div class="ms-sm-4">
-                                        <div class="row">
-                                            <div class="col-8"><h4 class="mb-3 text-primary pt-4">{{offer.category.category_name}} Rooms</h4></div>
-                                            <div class="col-4">
-                                                <img class="img-fluid mt-2 mb-2" style="width:90PX;height:70px;border-radius:5px 20px" src="{{offer.category.roomimg.url}}" alt="">
-                                         
-                                            </div>
-                                            
-                                        </div>
-                                        <h6 class="mb-1">Start from <span class="text-primary">{{offer.category.catprice}}</span></h6>
-                                         <a href="tel:+91{{profile.contact}}" style="text-decoration:none"> <img class="img-fluid mt-2 mb-2" style="width:95%;height:130px;pointer-events: none;" src="{% static 'vendorwebcss/img/APPLY1.png'%}" alt="">
-                                        <P style="margin-top:-123px;width:75%;margin-left:65px" class="text-black-50"><b>{{offer.code}}</b><br>
-                                            <SPAN class="text-success" style="font-size:14px">Save ₹{{offer.amount}} on this booking</APAN><br>
-                                            <span class="text-black-50 " style="font-size:11px">Use code WELCOME & get ₹{{offer.amount}} off.</span>
-                                        </P></a><br><br>
-                                        <span><b><i class="bi bi-award-fill"></i></b></span><br>
-                                         <span>Experience unparalleled luxury in our hotel Rooms, featuring elegant decor and premium amenities for a truly indulgent stay.</span>
-                                        </div>
-                                 </div>
-                             </div>
-                             {%endfor%}
-                             
-                             
-                         </div>
-                     </div>
-                 </div>
-                 <!-- Service End -->
-                  {%endif%}
-             
-             
-                 <!-- service Start -->
-                 <div class="container-xxl py-6 pt-5" id="services">
-                     <div class="container">
-                         <div class="row g-5 mb-5 align-items-center wow fadeInUp" data-wow-delay="0.1s">
-                             <div class="col-lg-6">
-                                 <h1 class="display-5 mb-0">Amenities</h1>
-                             </div>
-                         </div>
-                         <div class="row g-4 portfolio-container wow fadeInUp" data-wow-delay="0.1s">
-                             <div class="col-lg-12 col-md-6 portfolio-item first">
-                                 <div class="portfolio-img rounded overflow-hidden shadow">
-                                <p class="mb-4 m-4">Our dedicated team is here to provide exceptional service, ensuring every moment of your stay is comfortable and enjoyable.</p>
-                                {% for i in service%} 
-                                <p class="mb-3 ms-4"><i class="far fa-check-circle text-primary me-3"></i>{{i.service_name}}</p>
-                                {%endfor%} 
-                               
-                                 <a class="btn btn-primary py-3 px-5 mt-3 ms-4 mb-4" href="tel:+91{{profile.contact}}">Book Now</a>
-                                 </div>
-                             </div>
-                             
-                         </div>
-                     </div>
-                 </div>
-                 <!-- Projects End -->
-                
-                 <!-- gallary Start -->
-                 <div class="container-fluid bg-light py-5 my-5" id="gallary">
-                    <div class="container-fluid py-5">
-                        <h1 class="display-5 text-center mb-5 wow fadeInUp" data-wow-delay="0.1s">Gallary</h1>
-                        <div class="row justify-content-center">
-                            <div class="col-lg-3 d-none d-lg-block">
-                                <div class="testimonial-left h-100">
-                                    <img class="img-fluid wow fadeIn" data-wow-delay="0.1s" src="{% static 'vendorwebcss/img/testimonial-1.jpg'%}" alt="">
-                                    <img class="img-fluid wow fadeIn" data-wow-delay="0.3s" src="{% static 'vendorwebcss/img/testimonial-2.jpg'%}" alt="">
-                                    <img class="img-fluid wow fadeIn" data-wow-delay="0.5s" src="{% static 'vendorwebcss/img/testimonial-3.jpg'%}" alt="">
-                                </div>
-                            </div>
-                            <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.5s">
-                                <div class="owl-carousel testimonial-carousel">
-                                    {% for img in gallary %}
-                                    <div class="testimonial-item text-center">
-                                        
-                                        <div class="col-sm-12">
-                                          <center>  <img class="img-fluid  h-100" style="width:90%;border-radius:10px 60px" src="{{img.gallary_img.url}}" alt=""></center>
-                                        </div>
-                                        
-                                    </div>
-                                    {%endfor%}
-                                   
-                                    
-
-                                </div>
-                            </div>
-                            <div class="col-lg-3 d-none d-lg-block">
-                                <div class="testimonial-right h-100">
-                                    <img class="img-fluid wow fadeIn" data-wow-delay="0.1s" src="{% static 'vendorwebcss/img/testimonial-1.jpg'%}" alt="">
-                                    <img class="img-fluid wow fadeIn" data-wow-delay="0.3s" src="{% static 'vendorwebcss/img/testimonial-2.jpg'%}" alt="">
-                                    <img class="img-fluid wow fadeIn" data-wow-delay="0.5s" src="{% static 'vendorwebcss/img/testimonial-3.jpg'%}" alt="">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- gallary End -->
-             
-               
-             
-             
-                 <!-- Testimonial Start -->
-                 <div class="container-fluid py-5 my-5" id="testimonial">
-                     <div class="container-fluid py-5">
-                         <h1 class="display-5 text-center mb-5 wow fadeInUp" data-wow-delay="0.1s">Guest Stories</h1>
-                         <div class="row justify-content-center">
-                             <div class="col-lg-3 d-none d-lg-block">
-                                 <div class="testimonial-left h-100">
-                                     <img class="img-fluid wow fadeIn" data-wow-delay="0.1s" src="{% static 'vendorwebcss/img/testimonial-1.jpg'%}" alt="">
-                                     <img class="img-fluid wow fadeIn" data-wow-delay="0.3s" src="{% static 'vendorwebcss/img/testimonial-2.jpg'%}" alt="">
-                                     <img class="img-fluid wow fadeIn" data-wow-delay="0.5s" src="{% static 'vendorwebcss/img/testimonial-3.jpg'%}" alt="">
-                                 </div>
-                             </div>
-                             <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.5s">
-                                 <div class="owl-carousel testimonial-carousel">
-                                     <div class="testimonial-item text-center">
-                                         <div class="position-relative mb-5">
-                                             <img class="img-fluid rounded-circle border border-secondary p-2 mx-auto" src="{% static 'vendorwebcss/img/testimonial-1.jpg'%}" alt="">
-                                             <div class="testimonial-icon">
-                                                 <i class="fa fa-quote-left text-primary"></i>
-                                             </div>
-                                         </div>
-                                         <p class="fs-5 fst-italic">A wonderful experience from start to finish. The staff were incredibly friendly, and the amenities were fantastic. We'll definitely be back!.</p>
-                                         <hr class="w-25 mx-auto">
-                                         <h5>Ananya</h5>
-                                         <span>Doctor</span>
-                                     </div>
-                                     <div class="testimonial-item text-center">
-                                         <div class="position-relative mb-5">
-                                             <img class="img-fluid rounded-circle border border-secondary p-2 mx-auto" src="{% static 'vendorwebcss/img/testimonial-2.jpg'%}" alt="">
-                                             <div class="testimonial-icon">
-                                                 <i class="fa fa-quote-left text-primary"></i>
-                                             </div>
-                                         </div>
-                                         
-                                         <p class="fs-5 fst-italic">We felt right at home from the moment we arrived. The attention to detail and the friendly atmosphere made our vacation perfect.</p>
-                                         <hr class="w-25 mx-auto">
-                                         <h5>Neel </h5>
-                                         <span>Student</span>
-                                     </div>
-                                     <div class="testimonial-item text-center">
-                                         <div class="position-relative mb-5">
-                                             <img class="img-fluid rounded-circle border border-secondary p-2 mx-auto" src="{% static 'vendorwebcss/img/testimonial-3.jpg'%}" alt="">
-                                             <div class="testimonial-icon">
-                                                 <i class="fa fa-quote-left text-primary"></i>
-                                             </div>
-                                         </div>
-                                         <p class="fs-5 fst-italic">An outstanding hotel with a welcoming atmosphere. The staff went above and beyond to ensure our comfort. We can't wait to return!</p>
-                                         <hr class="w-25 mx-auto">
-                                         <h5>Aarav </h5>
-                                         <span>Salse Manager</span>
-                                     </div>
-                                 </div>
-                             </div>
-                             <div class="col-lg-3 d-none d-lg-block">
-                                 <div class="testimonial-right h-100">
-                                     <img class="img-fluid wow fadeIn" data-wow-delay="0.1s" src="{% static 'vendorwebcss/img/testimonial-1.jpg'%}" alt="">
-                                     <img class="img-fluid wow fadeIn" data-wow-delay="0.3s" src="{% static 'vendorwebcss/img/testimonial-2.jpg'%}" alt="">
-                                     <img class="img-fluid wow fadeIn" data-wow-delay="0.5s" src="{% static 'vendorwebcss/img/testimonial-3.jpg'%}" alt="">
-                                 </div>
-                             </div>
-                         </div>
-                     </div>
-                 </div>
-                 <!-- Testimonial End -->
-             
-             
-                 <!-- Contact Start -->
-                 <div class="container-xxl pb-5" id="contact">
-                     <div class="container py-5">
-                         <div class="row g-5 mb-5 wow fadeInUp" data-wow-delay="0.1s">
-                             <div class="col-lg-6">
-                                 <h1 class="display-5 mb-0">Let's book happiness</h1>
-                             </div>
-                             <div class="col-lg-6 text-lg-end">
-                                 <a class="btn btn-primary py-3 px-5" href="tel:+91{{profile.contact}}">Contact Us</a>
-                             </div>
-                         </div>
-                         <div class="row g-5">
-                             <div class="col-lg-5 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                                 <p class="mb-2">Address:</p>
-                                 <h3 class="fw-bold">{{profile.address}}</h3>
-                                 <hr class="w-100">
-                                 <p class="mb-2">Call :</p>
-                                 <h3 class="fw-bold">{{profile.contact}}</h3>
-                                 <hr class="w-100">
-                                 <p class="mb-2">Mail :</p>
-                                 <h3 class="fw-bold">{{profile.email}}</h3>
-                                 <hr class="w-100">
-                                 <p class="mb-2">Call on:</p>
-                                 <div class="d-flex pt-2">
-                                     <a class="btn btn-square btn-primary me-2" href="tel:+91{{profile.contact}}"><i class="bi bi-telephone-fill"></i></a>
-                                 </div>
-                             </div>
-                             
-                         </div>
-                     </div>
-                 </div>
-                 <!-- Contact End -->
-             
-             
-                 
-             
-             
-                 <!-- Copyright Start -->
-                 <div class="container-fluid bg-dark text-white py-4">
-                         <div class="container">
-                             <div class="row">
-                                 <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                                     &copy; <a class="border-bottom text-secondary" href="#">WWW.Billzify.com</a>, All Right Reserved.
-                                 </div>
-                                 
-                             </div>
-                         </div>
-                     </div>
-                 </div> {% endcomment %}
-                 <!-- Copyright End -->
-             
-             
-                 {% comment %} <!-- Back to Top -->
-                 <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
-              {% endcomment %}
+            
              
                  <!-- JavaScript Libraries -->
                 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
@@ -1895,6 +1360,8 @@ function updateSecondCarousel(id) {
                  <!-- Template Javascript -->
                  <script src="{% static 'vendorwebcss/js/main.js'%}"></script>
              </body>
+
+             {%endif%}
              
              </html>
 

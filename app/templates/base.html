@@ -385,6 +385,13 @@
               </a>
             </li> 
 
+            <li class="menu-item text-uppercase {% if active_page == 'websettings' %}active{% endif %} ">
+              <a href="{% url 'websettings'  %}" class="menu-link">
+                <i class='menu-icon bx bxl-chrome'></i>
+                <div data-i18n="Analytics">BE-Website Settings</div>
+              </a>
+            </li> 
+
 
             {% comment %} <li class="menu-header small text-uppercase">
               <span class="menu-header-text">Billzify Mall</span>

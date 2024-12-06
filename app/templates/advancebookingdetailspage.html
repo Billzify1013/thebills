@@ -5,7 +5,40 @@
 
 
 
-
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%endif%}
+</div>
+{%endfor%}
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 1000);
+      setTimeout(function() {
+        $("#danger-alert").fadeTo(500, 0).slideUp(500, function(){
+            $(this).remove(); 
+        });
+    }, 5000);
+      
+  });
+</script>
+{%endif%}
 
 
 
@@ -19,16 +52,22 @@
             <p class="text ">
                 {%if guestdata%}
                 {%for i in guestdata%}
+                {%if i.booking_id%}
+                BOOKING-ID:<b> {{i.booking_id}} </b><br>
+                {%endif%}
+                Booking Date: {{i.checkin}}<br>
                 Name: {{i.bookingguest}}<br>
                 Phone: {{i.bookingguestphone}}<br>
-                Booking Date: {{i.bookingdate}}<br>
                 Advance amount: {{i.advance_amount}}<br>
                 Reamaining amount: {{i.reamaining_amount}}<br>
                 Discount amount: {{i.discount}}<br>
                 TOTAL amount (incl discount): {{i.total_amount}}<br>
+                TOTAL Tax amount: {{i.tax}}<br>
+                Without Tax Total amount: {{i.amount_before_tax}}<br>
                 Stay Days: {{i.staydays}}<br>
                 Booking From: {{i.channal.channalname}}<br>
                 Stay Days: {{i.staydays}}<br>
+                Pay At Hotel: {{i.pah}} ( {{i.Payment_types}} )<br>
                 {%endfor%}
                 {%endif%}
                
@@ -41,7 +80,9 @@
                     {{forloop.counter}}<br>
                     Room {{i.roomno.room_name}}<br>
                     Room Sell-price {{i.sell_rate}} (For 1 Day Exclude Tax)<br>
-                    Room Rate-Plan {{i.rateplan_code}}<br><hr>
+                    Room Rate-Plan {{i.rateplan_code}}<br>
+                    Adults:{{i.adults}}<br>
+                    Child:{{i.children}}<br><hr>
                 {%endfor%}
             </p>
                 {%endif%}

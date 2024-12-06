@@ -501,8 +501,8 @@ class SaveAdvanceBookGuestData(models.Model):
         ("modify","modify"),
     ]
     action = models.CharField(max_length=20, choices=ACTION_CHOICES,blank=True,null=True)
-    booking_id = models.CharField(max_length=100)
-    cm_booking_id = models.CharField(max_length=100)
+    booking_id = models.CharField(max_length=100,null=True, blank=True)
+    cm_booking_id = models.CharField(max_length=100,null=True, blank=True)
     checkin = models.DateField()
     segment = models.CharField(max_length=50)
     special_requests = models.TextField(blank=True, null=True)
@@ -527,6 +527,7 @@ class SaveAdvanceBookGuestData(models.Model):
         ("partially","partially"),
     ]
     Payment_types = models.CharField(max_length=20, choices=ACTION_CHOICES_payment,blank=True,null=True)
+    is_selfbook = models.BooleanField(default=False)
     
 
 class RoomBookAdvance(models.Model):
@@ -684,13 +685,28 @@ class companyinvoice(models.Model):
 
 # Offer model: represents the discount offers, can be quantity or price-based
 class OfferBE(models.Model):
-    offer_type_choices = [
-        ('quantity', 'Quantity Based Discount'),
-        ('price', 'Price Based Discount')
-    ]
-    
+    description = models.CharField(max_length=150)
     vendor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='offers')
-    offer_type = models.CharField(max_length=10, choices=offer_type_choices)
-    min_quantity = models.PositiveIntegerField(blank=True, null=True, default=None)  # Required for quantity-based offer
     min_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, default=None)  # Required for price-based offer
-    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2)
+    discount_percentage = models.IntegerField(default=0)
+
+
+class beaminities(models.Model):
+    vendor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='aminities')
+    description = models.CharField(max_length=50)
+    
+
+class becallemail(models.Model):
+    vendor = models.ForeignKey(User, on_delete=models.CASCADE)
+    phome = models.BigIntegerField(validators=[MaxValueValidator(9999999999)])
+    guestemail = models.EmailField(default=None, blank=True)
+    linkmap = models.URLField(default=None, blank=True)
+    
+
+class cancellationpolicy(models.Model):
+    vendor = models.ForeignKey(User, on_delete=models.CASCADE)
+    cancellention_policy = models.CharField(max_length=50, null=True, blank=True)
+
+class bestatus(models.Model):
+    vendor = models.ForeignKey(User, on_delete=models.CASCADE)
+    is_active = models.BooleanField()

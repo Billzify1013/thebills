@@ -325,3 +325,202 @@ def eventsalse(request):
     
          
      
+def addaminities(request):
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            servicename = request.POST.get('servicename', '')
+            if beaminities.objects.filter(vendor=user,description=servicename).exists():
+                messages.error(request, "Name already exists!")
+            else:
+                beaminities.objects.create(vendor=user,description=servicename)
+                messages.success(request, "Name added!")
+
+            return redirect('websettings')
+
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)    
+
+def deleteaminity(request,id):
+    try:
+        if request.user.is_authenticated :
+            user = request.user
+            if beaminities.objects.filter(vendor=user,id=id).exists():
+                beaminities.objects.filter(vendor=user,id=id).delete()
+                messages.success(request, "Name deleted!")
+
+            else:
+                messages.error(request, "Name Not exists!")
+
+            return redirect('websettings')
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)    
+
+
+def addoffers(request):
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            discription = request.POST.get('discription', '')
+            discountpersantage = request.POST.get('discountpersantage', '')
+            offerminprice = request.POST.get('offerminprice', '')
+            if OfferBE.objects.filter(vendor=user).exists():
+                OfferBE.objects.filter(vendor=user).delete()
+
+                OfferBE.objects.create(vendor=user,description=discription,min_price=float(offerminprice),
+                                       discount_percentage=discountpersantage)
+
+                messages.success(request, "Offer Added!")
+            else:
+                OfferBE.objects.create(vendor=user,description=discription,min_price=float(offerminprice),
+                                       discount_percentage=discountpersantage)
+                messages.success(request, "Offer Added!")
+
+            return redirect('websettings')
+
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)    
+
+
+def addcp(request):
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            cp = request.POST.get('cp', '')
+            if cancellationpolicy.objects.filter(vendor=user).exists():
+                cancellationpolicy.objects.filter(vendor=user).delete()
+
+                cancellationpolicy.objects.create(vendor=user,cancellention_policy=cp)
+
+                messages.success(request, "cancellention_policy Added!")
+            else:
+                cancellationpolicy.objects.create(vendor=user,cancellention_policy=cp)
+                messages.success(request, "cancellention_policy  Added!")
+
+            return redirect('websettings')
+
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)    
+    
+
+
+def addcatimg(request):
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            roomcat = request.POST.get('roomcat', '')
+            galaryimg = request.FILES.get('galaryimg')
+            roomcategory = RoomsCategory.objects.get(id=roomcat)
+            RoomImage.objects.create(vendor=user,category=roomcategory,image=galaryimg)
+            messages.success(request, "Image  Added!")
+
+            return redirect('websettings')
+
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)    
+
+
+def deleteimg(request,id):
+    try:
+        if request.user.is_authenticated :
+            user = request.user
+            if RoomImage.objects.filter(vendor=user,id=id).exists():
+                RoomImage.objects.filter(vendor=user,id=id).delete()
+                messages.success(request, "image deleted!")
+
+            else:
+                messages.error(request, "image not exists!")
+
+            return redirect('websettings')
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)    
+
+
+def deletehotelimg(request,id):
+    try:
+        if request.user.is_authenticated :
+            user = request.user
+            if HoelImage.objects.filter(vendor=user,id=id).exists():
+                HoelImage.objects.filter(vendor=user,id=id).delete()
+                messages.success(request, "image deleted!")
+
+            else:
+                messages.error(request, "image not exists!")
+
+            return redirect('websettings')
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)   
+
+def addhotelimg(request):
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            addhotelimg = request.FILES.get('addhotelimg')
+            HoelImage.objects.create(vendor=user,image=addhotelimg)
+            messages.success(request, "Image  Added!")
+
+            return redirect('websettings')
+
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)   
+    
+
+
+def addcontactbe(request):
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            emails = request.FILES.get('emails')
+            contact = request.FILES.get('contact')
+            url = request.FILES.get('url')
+            HoelImage.objects.create(vendor=user,image=addhotelimg)
+            messages.success(request, "Image  Added!")
+
+            return redirect('websettings')
+
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)  
+    
+def updatebookeg(request):
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            checkinpt = request.FILES.get('checkinpt')
+            if bestatus.objects.filter(vendor=user).exists():
+                pass
+            else:
+                bestatus.objects.create(vendor=user,is_active=True)
+
+            ckdata = bestatus.objects.get(vendor=user)
+
+            if ckdata.is_active is True:
+                bestatus.objects.filter(vendor=user).update(is_active=False)
+               
+            else:
+                bestatus.objects.filter(vendor=user).update(is_active=True)
+
+
+            return redirect('websettings')
+
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)  

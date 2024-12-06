@@ -396,6 +396,11 @@
         <option value="">All Status</option>
       </select>
     </div>
+    
+
+    <div class=" ms-5 " style="padding-left:190px" >
+        <button id="printBtn" class="btn btn-primary mt-3 ms-4">Print Filterd Table</button>
+    </div>
   </div>
 
   <!-- Summary Section -->
@@ -405,6 +410,8 @@
     <p><b>Data From:</b> {{first_day_of_month}} <b>TO</b> {{last_day_of_month}}</p>
   </div>
 </div>
+
+
 
 
 
@@ -433,7 +440,9 @@
           {% if data.action == 'cancel' %}
           <td><strong><del>{{ data.bookingguest }}</del></strong></td>
           {%else%}
-          <td><strong>{{ data.bookingguest }}</strong></td>
+          <td><strong>{{ data.bookingguest }}</strong>
+            
+          </td>
           {%endif%}
           <td>{{ data.bookingguestphone }}</td>
           <td>{{ data.channal.channalname }}</td>
@@ -475,7 +484,10 @@
           </button>
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="{% url 'advancebookingdetails' id=data.id %}"><i class="bx bx-edit-alt me-1"></i>Details</a></li>
+            <li><a class="dropdown-item" href="{% url 'receipt_view' booking_id=data.id %}"><i class='bx bx-conversation'></i>Voucher</a></li>
+            <li><a class="dropdown-item" href="{% url 'addpaymenttobooking' booking_id=data.id %}"><i class='bx bxl-paypal'></i>Add-Payment</a></li>
             <li><a class="dropdown-item" href="{% url 'advancebookingdelete' id=data.id %}"><i class="bx bx-trash me-1"></i> Cancel</a></li>
+            
             
           </ul>
           </td>
@@ -495,6 +507,7 @@
 </div>
 
 
+
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const channelFilter = document.getElementById("channelFilter");
@@ -503,21 +516,22 @@
     const tableBody = document.getElementById("bookingTableBody");
     const totalRowsSpan = document.getElementById("totalRows");
     const totalAmountSpan = document.getElementById("totalAmount");
-
+    const printBtn = document.getElementById("printBtn");
+  
     const tableRows = Array.from(tableBody.querySelectorAll("tr"));
-
+  
     // Function to populate filter options
     function populateFilters() {
       const channels = new Set();
       const payments = new Set();
       const statuses = new Set();
-
+  
       tableRows.forEach((row) => {
         channels.add(row.getAttribute("data-channel"));
         payments.add(row.getAttribute("data-payment"));
         statuses.add(row.getAttribute("data-status"));
       });
-
+  
       // Populate Channel Filter
       channels.forEach((channel) => {
         const option = document.createElement("option");
@@ -525,7 +539,7 @@
         option.textContent = channel;
         channelFilter.appendChild(option);
       });
-
+  
       // Populate Payment Type Filter
       payments.forEach((payment) => {
         const option = document.createElement("option");
@@ -533,7 +547,7 @@
         option.textContent = payment;
         paymentFilter.appendChild(option);
       });
-
+  
       // Populate Booking Status Filter
       statuses.forEach((status) => {
         const option = document.createElement("option");
@@ -542,7 +556,7 @@
         statusFilter.appendChild(option);
       });
     }
-
+  
     // Function to filter the table and update the summary
     function filterTable() {
       const selectedChannel = channelFilter.value;
@@ -550,18 +564,18 @@
       const selectedStatus = statusFilter.value;
       let totalRows = 0;
       let totalAmount = 0;
-
+  
       tableRows.forEach((row) => {
         const rowChannel = row.getAttribute("data-channel");
         const rowPayment = row.getAttribute("data-payment");
         const rowStatus = row.getAttribute("data-status");
         const rowAmount = parseFloat(row.getAttribute("data-amount")) || 0;
-
+  
         // Check if the row matches the filters
         const matchesChannel = !selectedChannel || rowChannel === selectedChannel;
         const matchesPayment = !selectedPayment || rowPayment === selectedPayment;
         const matchesStatus = !selectedStatus || rowStatus === selectedStatus;
-
+  
         if (matchesChannel && matchesPayment && matchesStatus) {
           row.style.display = "";
           totalRows += 1;
@@ -570,26 +584,79 @@
           row.style.display = "none";
         }
       });
-
+  
       // Update the summary
       totalRowsSpan.textContent = totalRows;
       totalAmountSpan.textContent = totalAmount.toFixed(2);
     }
-
+  
+    // Function to print the filtered table, including headers, excluding "Actions" column
+    function printFilteredTable() {
+      // Open a new window for printing
+      const printWindow = window.open("", "_blank", "width=800,height=600");
+  
+      // Clone the table to create a printable version
+      const clonedTable = document.createElement("table");
+      clonedTable.classList.add("table", "table-bordered", "table-striped");
+  
+      // Clone the table headers, excluding the "Actions" column (last column)
+      const thead = document.createElement("thead");
+      const headerRow = document.createElement("tr");
+  
+      // Add desired headers for the print version
+      const headerData = [
+        "Guest Name", "Phone", "Channel", "Stay Dates", 
+        "Total Amount", "Payment Type", "Status", "Confirmation"
+      ];
+  
+      headerData.forEach((headerText) => {
+        const th = document.createElement("th");
+        th.textContent = headerText;
+        headerRow.appendChild(th);
+      });
+  
+      thead.appendChild(headerRow);
+      clonedTable.appendChild(thead);
+  
+      // Clone the filtered table rows, excluding the "Actions" column (last cell)
+      const tbody = document.createElement("tbody");
+      const visibleRows = Array.from(tableRows).filter(row => row.style.display !== "none");
+  
+      visibleRows.forEach((row) => {
+        const rowClone = row.cloneNode(true);
+  
+        // Remove the last cell (Actions) from each row
+        rowClone.removeChild(rowClone.lastElementChild);
+  
+        tbody.appendChild(rowClone);
+      });
+      clonedTable.appendChild(tbody);
+  
+      // Write the cloned table to the print window and trigger print
+      printWindow.document.write("<html><head><title>Print Filtered Table</title>");
+      printWindow.document.write("<style>table, th, td {border: 1px solid black; border-collapse: collapse;} th, td {padding: 8px; text-align: left;}</style>");
+      printWindow.document.write("</head><body>");
+      printWindow.document.write("<h2>Filtered Booking History</h2>");
+      printWindow.document.write(clonedTable.outerHTML);
+      printWindow.document.write("</body></html>");
+      printWindow.document.close();
+      printWindow.print();
+    }
+  
     // Initialize filters and set up event listeners
     populateFilters();
     channelFilter.addEventListener("change", filterTable);
     paymentFilter.addEventListener("change", filterTable);
     statusFilter.addEventListener("change", filterTable);
-
+  
+    // Handle the Print button click
+    printBtn.addEventListener("click", printFilteredTable);
+  
     // Initial filter to show all data
     filterTable();
   });
+  
 </script>
-
-
-
-
 
 
    

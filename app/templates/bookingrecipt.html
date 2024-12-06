@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hotel Booking Receipt</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.1/css/bootstrap.min.css">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f7f7f7;
+    }
+    .receipt-container {
+      max-width: 700px;
+      margin: 20px auto;
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .brand-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .brand-logo {
+      max-width: 120px;
+    }
+    .divider {
+      border-top: 1px solid #ddd;
+      margin: 20px 0;
+    }
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .value-text {
+      font-weight: bold;
+    }
+    .highlight {
+      color: #007bff;
+    }
+    .footer {
+      text-align: center;
+      font-size: 0.9rem;
+      margin-top: 20px;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  {% if messages%}
+{% for msg in messages %}
+<div class="container mt-5">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <div id="success-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%endif%}
+</div>
+{%endfor%}
+
+<script>
+    $(document).ready(function() {
+        // Fade out the alert after 5 seconds (5000 milliseconds)
+        setTimeout(function() {
+            $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+                $(this).remove(); 
+            });
+        }, 2000);
+    });
+</script>
+{%endif%}
+
+  <div class="receipt-container">
+    <!-- Branding -->
+     {%for hotel in hoteldata%}
+    <div class="brand-header">
+      <img src="{{hotel.profile_image.url}}" alt="Hotel Logo" class="brand-logo">
+      
+      <h3 class="mt-2"><b>{{hotel.name}}</b></h3>
+      <h6 class="mt-1">PH:<b>{{hotel.contact}}</b></h6>
+      <h6 class="mt-1">Address:<b>{{hotel.address}}, {{hotel.zipcode}}, {{hotel.counrty}}</b></h6>
+      <h6 class="mt-1">GST NO:<b>{{hotel.gstin}}</b></h6>
+
+    </div>
+    
+
+    {%for data in advancebookdata%}
+    <!-- Greeting -->
+    <p>Hi <span class="highlight">{{data.bookingguest}}</span>,</p>
+    <p>Thank you for choosing <strong><b>{{hotel.name}}</b></strong>.</p>
+    {%endfor%}
+    {%endfor%}
+
+    {%for data in advancebookdata%}
+    <!-- Booking ID -->
+    <p><strong>Booking ID:</strong> <span class="highlight">{{data.booking_id}}</span></p>
+
+    
+    <!-- Reservation Details -->
+    <div class="divider"></div>
+    <div class="section">
+      <p class="section-title">Reservation Details</p>
+      <div class="row">
+        <div class="col-6">Booking Date:</div>
+        <div class="col-6 text-end">{{data.checkin}}</div>
+        <div class="col-6">Checkin Date:</div>
+        <div class="col-6 text-end">{{data.bookingdate}}</div>
+        <div class="col-6">Checkout Date:</div>
+        <div class="col-6 text-end">{{data.checkoutdate}}</div>
+        <div class="col-6">Status:</div>
+        <div class="col-6 text-end highlight">{{data.action}}</div>
+        <div class="col-6">Booking Source:</div>
+        <div class="col-6 text-end">BILLZIFY BE</div>
+        <div class="col-6">Number of Rooms:</div>
+        <div class="col-6 text-end">{{data.noofrooms}}</div>
+        <div class="col-6">Number of Guests:</div>
+        <div class="col-6 text-end">{{data.totalguest}}</div>
+      </div>
+
+    </div>
+
+    
+    <!-- Guest Details -->
+    <div class="divider"></div>
+    <div class="section">
+      <p class="section-title">Guest Details</p>
+      <div class="row">
+        <div class="col-6">Name:</div>
+        <div class="col-6 text-end">{{data.bookingguest}}</div>
+        <div class="col-6">Phone:</div>
+        <div class="col-6 text-end">{{data.bookingguestphone}}</div>
+        <div class="col-6">Email:</div>
+        <div class="col-6 text-end">{{data.email}}</div>
+        <div class="col-6">Special Request:</div>
+        <div class="col-6 text-end">{{data.special_requests}}</div>
+      </div>
+    </div>
+    
+    <!-- Payment Details -->
+    <div class="divider"></div>
+    <div class="section">
+      <p class="section-title">Payment Details</p>
+      <div class="row">
+        <div class="col-6">TOTAL AMOUNT:</div>
+        <div class="col-6 text-end">INR {{data.amount_before_tax|add:data.discount}}</div>
+        <div class="col-6">Discounts AMOUNT:</div>
+        <div class="col-6 text-end">INR {{data.discount}}</div>
+        <div class="col-6">SUBTOTAL AMOUNT:</div>
+        <div class="col-6 text-end">INR {{data.amount_before_tax}}</div>
+        <div class="col-6">TOTAL TAX AMOUNT:</div>
+        <div class="col-6 text-end">INR {{data.tax}}</div>
+        <div class="col-6">GRAND TOTAL-AMOUNT:</div>
+        <div class="col-6 text-end value-text">INR {{data.amount_after_tax}} </div>
+        <hr>
+        <div class="col-6">Advance Amount:</div>
+        <div class="col-6 text-end">{{data.advance_amount}}</div>
+        <div class="col-6">Payment Type:</div>
+        <div class="col-6 text-end">Pay@Hotel</div>
+      </div>
+
+      <hr>
+      <p class="section-title">Rooms Breakdown</p>
+      {%for book in advancebookingdatas%}
+      <hr>
+      <div class="row">
+        <div class="col-6">Adults:</div>
+        <div class="col-6 text-end">{{book.adults}}</div>
+        <div class="col-6">Children:</div>
+        <div class="col-6 text-end">{{book.children}}</div>
+        <div class="col-6">Room Type:</div>
+        <div class="col-6 text-end">{{book.roomno.room_name}} {{book.roomno.room_type.category_name}}</div>
+        <div class="col-6">Rate Plan:</div>
+        <div class="col-6 text-end">{{book.rateplan_code}}</div>
+      </div>
+      {%endfor%}
+
+    </div>
+
+    <!-- Footer -->
+    <div class="divider"></div>
+    <p class="footer">Thank you for staying with us! We look forward to welcoming you again.</p>
+    
+    <a class="btn btn-danger" href="#" onclick="openModal({{ data.id }})">
+      <i class="bx bx-trash me-1"></i> Cancel
+  </a>
+</div>
+{%endfor%}
+
+<!-- Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="deleteModalLabel">Cancel Booking</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              Are you sure you want to cancel this booking?
+          </div>
+          <div class="modal-footer">
+              <!-- Cancel button: Just close the modal -->
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <!-- Confirm button: Proceed with cancellation -->
+              <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Cancel Booking</button>
+          </div>
+      </div>
+  </div>
+</div>
+
+<script>
+// Function to open the modal and set the booking ID
+function openModal(id) {
+  // Set the booking ID in the delete button's data attribute
+  document.getElementById('confirmDeleteBtn').setAttribute('data-id', id);
+  // Show the modal
+  var myModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+  myModal.show();
+}
+
+// Handle confirmation when the user clicks the 'Cancel Booking' button
+document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+  var bookingId = this.getAttribute('data-id');
+  // Correct URL construction
+  var url = "/advancebookingdeletebe/" + bookingId + "/";  // Make sure the URL is constructed properly
+  window.location.href = url;  // Redirect to the correct URL
+});
+</script>
+
+<!-- Bootstrap JS and CSS -->
+<!-- Make sure you include these dependencies in your project -->
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.1/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

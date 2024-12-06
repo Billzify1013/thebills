@@ -1,0 +1,696 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <div id="success-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%endif%}
+</div>
+{%endfor%}
+
+<script>
+    $(document).ready(function() {
+        // Fade out the alert after 5 seconds (5000 milliseconds)
+        setTimeout(function() {
+            $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+                $(this).remove(); 
+            });
+        }, 1000);
+    });
+</script>
+{%endif%}
+
+
+
+<div class="row mb-3">
+
+  <div class="col-3 ">
+      
+      <div class="nav-align-top mb-4">
+          <ul class="nav nav-pills mb-3 nav-fill text-right" role="tablist" style="text-align:left">
+            <li class="nav-item w-100 m-1 mt-3 " >
+              <button
+                type="button"
+                class="nav-link active " 
+               style="text-align:left"
+                role="tab"
+                data-bs-toggle="tab"
+                data-bs-target="#navs-pills-justified-stop"
+                aria-controls="navs-pills-justified-stop"
+                aria-selected="true"
+              >
+              <i class='bx bx-shape-square'></i> Manage Stop And On BE
+              </button>
+            </li>
+            <li class="nav-item w-100 m-1">
+              <button
+                type="button"
+                class="nav-link"
+                style="text-align:left"
+                role="tab"
+                data-bs-toggle="tab"
+                data-bs-target="#navs-pills-justified-hgl"
+                aria-controls="navs-pills-justified-hgl"
+                aria-selected="false"
+              >
+              <i class='bx bxs-image mb-1'></i> Hotel Gallary
+              </button>
+            </li>
+            <li class="nav-item w-100 m-1">
+              <button
+                type="button"
+                class="nav-link"
+                style="text-align:left"
+                role="tab"
+                data-bs-toggle="tab"
+                data-bs-target="#navs-pills-justified-ctd"
+                aria-controls="navs-pills-justified-ctd"
+                aria-selected="false"
+              >
+              <i class='bx bxs-category-alt'></i> Contact Details
+              </button>
+            </li>
+          
+            
+           
+          </ul>
+          
+        </div>
+
+      
+  </div>
+  <div class="col-9">
+      <div class="card ">
+          <div class="tab-content">
+              <!--loylty div start-->
+              <div class="tab-pane fade show active" id="navs-pills-justified-stop" role="tabpanel">
+                  <h5><i class='bx bx-shape-square'></i>On/Off Sell on Booking Engine</h5>
+                 
+                  
+                  <div class="col-12 mt-3  mb-md-0">
+                            
+                  <form action="{% url 'updatebookeg' %}" method="POST"  >
+                      {% csrf_token %}
+                  
+                    <div class="row">
+                     
+                      <div class="col-6 mb-6">
+                        <label for="nameBackdrop" class="form-label">Update Status</label>
+                        {% for i in checkstatus%}
+                        {% if i.is_active == True%}
+                        <input name="checkinpt" value="on"  class="form-check-input ms-1 mt-1 " checked style="height:25px;width:25px;display:block" type="checkbox"  />
+                        <p class="m-1 text-success">CURRENT: BOOKING-ENGINE ON</p>
+                        {%else%}
+                        <input name="checkinpt" value="off"   class="form-check-input ms-1 mt-1" style="height:25px;width:25px;display:block" type="checkbox"  />
+                        <p class="m-1 text-danger">CURRENT: BOOKING-ENGINE OFF</p>
+                        {%endif%}
+                        {%endfor%}
+                      </div>
+                      
+                  </div>
+                  <button type="submit" class="btn btn-primary mt-4 ms-1 w-25">
+                      Update
+                  </button>
+                  
+              </form>
+
+              
+
+          </div></div>
+                  
+              <!--loylty div end-->
+
+             
+
+              <!--tax div start-->
+              <div class="tab-pane fade show " id="navs-pills-justified-hgl" role="tabpanel">
+                  <h5><i class='bx bxs-image mb-1'></i>  Add Images To Websites Gallary</h5>
+                  <div class="col-12 mb-2">
+                      <button
+                        class="btn btn-primary mb-4 float-end"
+                        data-bs-toggle="collapse"
+                        href="#multiCollapseExample1"
+                        role="button"
+                        aria-expanded="false"
+                        aria-controls="multiCollapseExample1"
+  
+                        ><i class='bx bxs-plus-circle mb-1'></i> Add Images </button>
+                      
+                  </div>
+                  <div class="collapse multi-collapse" id="multiCollapseExample1">
+                            
+                      <form action="{% url 'addhotelimg' %}" method="POST"  enctype="multipart/form-data">
+                          {% csrf_token %}
+                      
+                        <div class="row">
+
+                          
+                          <div class="col-6 mb-6">
+                            <label for="nameBackdrop" class="form-label">Choose Image</label>
+                            <input
+                              type="file"
+                              name="addhotelimg"
+                              maxlength="60"
+                              id="nameBackdrop"
+                              class="form-control"
+                              placeholder="Like Free Wifi,Swiming Pool!"
+                              required
+                            />
+                          </div>
+                          
+                      </div>
+                      <button type="submit" class="btn btn-primary mt-4 ms-3 w-25">
+                          Add
+                      </button>
+                      
+                  </form></div>
+  
+                  <table class="table mt-5">
+                      <thead class="table">
+                        <tr>
+                          <th>Image Url</th>
+                          
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody class="table-border-bottom-0">
+              
+                          {% for data in hotelimgs%}
+                        <tr>
+                          <td> <strong></strong>
+                          <img src="{{data.image.url}}" height="30"/>
+                          </td>
+                      
+                          <td>
+                              <a href="{% url 'deletehotelimg' id=data.id %}"><span class="badge bg-label-danger  "><i class='bx bxs-trash'></i></span></a>
+                          </td>
+                        </tr>
+                        {%endfor%}
+                 
+                      
+                      </tbody>
+                    </table>
+
+                 
+
+              </div>
+              <!--tax div end-->
+              
+
+                <!--category div start-->
+              <div class="tab-pane fade" id="navs-pills-justified-ctd" role="tabpanel">
+                  <h5><i class='bx bxs-image mb-1'></i>Contact Data </h5>
+                  <form action="{% url 'addcontactbe' %}" method="POST"  >
+                      {% csrf_token %}
+                  
+                    <div class="row">
+                      <div class="col-6 mb-6">
+                        <label for="nameBackdrop" class="form-label">BE Email</label>
+                        <input
+                          type="email"
+                          name="emails"
+                          maxlength="50"
+                          id="nameBackdrop"
+                          class="form-control"
+                          placeholder="email"
+                          required
+                        />
+                      </div>
+                      <div class="col-6 mb-6">
+                        <label for="nameBackdrop" class="form-label">Contact</label>
+                        <input
+                          type="number"
+                          name="contact"
+                          maxlength="10"
+                          id="nameBackdrop"
+                          class="form-control"
+                          placeholder="Phone"
+                          required
+                        />
+                      </div>
+                      <div class="col-6 mt-2 mb-6">
+                        <label for="nameBackdrop" class="form-label">Google Map Url</label>
+                        <input
+                          type="url"
+                          name="url"
+                          maxlength=""
+                          id="nameBackdrop"
+                          class="form-control"
+                          placeholder="Location link"
+                          required
+                        />
+                      </div>
+
+                    
+                      
+                  </div>
+                  <button type="submit" class="btn btn-primary mt-4  w-25">
+                      Add
+                  </button>
+                  
+              </form>
+                
+              <table class="table mt-5">
+                  <thead class="table">
+                    <tr>
+                      <th>Contact Data</th>
+                    </tr>
+                  </thead> 
+                  <tbody class="table-border-bottom-0">
+          
+                      {% for data in ctdata%}
+                    <tr>
+                      <td>Phone :<strong>{{data.phome}}</strong></td><br>
+                      <td>Email :<strong>{{data.guestemail}}</strong></td>
+                    </tr>
+                    {%endfor%}
+             
+                  
+                  </tbody>
+                </table>
+
+              </div>
+              <!--category div end-->
+              
+           
+            
+
+
+           
+            
+            
+            </div>
+
+             
+      </div>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="row mt-3 w-100">
+
+    <div class="col-3 ">
+        
+        <div class="nav-align-top mb-4">
+            <ul class="nav nav-pills mb-3 nav-fill text-right" role="tablist" style="text-align:left">
+              <li class="nav-item w-100 m-1 mt-3 " >
+                <button
+                  type="button"
+                  class="nav-link active " 
+                 style="text-align:left"
+                  role="tab"
+                  data-bs-toggle="tab"
+                  data-bs-target="#navs-pills-justified-Amenities"
+                  aria-controls="navs-pills-justified-Amenities"
+                  aria-selected="true"
+                >
+                <i class='bx bx-shape-square'></i> Amenities
+                </button>
+              </li>
+              <li class="nav-item w-100 m-1">
+                <button
+                  type="button"
+                  class="nav-link"
+                  style="text-align:left"
+                  role="tab"
+                  data-bs-toggle="tab"
+                  data-bs-target="#navs-pills-justified-profile"
+                  aria-controls="navs-pills-justified-profile"
+                  aria-selected="false"
+                >
+                <i class='bx bxs-image mb-1'></i> Gallary
+                </button>
+              </li>
+              <li class="nav-item w-100 m-1">
+                <button
+                  type="button"
+                  class="nav-link"
+                  style="text-align:left"
+                  role="tab"
+                  data-bs-toggle="tab"
+                  data-bs-target="#navs-pills-justified-messages"
+                  aria-controls="navs-pills-justified-messages"
+                  aria-selected="false"
+                >
+                <i class='bx bxs-category-alt'></i> Cancellation policy
+                </button>
+              </li>
+              <li class="nav-item w-100 m-1 m-1">
+                <button
+                  type="button"
+                  class="nav-link "
+                  style="text-align:left"
+                  role="tab"
+                  data-bs-toggle="tab"
+                  data-bs-target="#navs-pills-justified-sms"
+                  aria-controls="navs-pills-justified-sms"
+                  aria-selected="true"
+                >
+                <i class='bx bxs-home-smile mb-1'></i> OFFERS & Package
+                </button>
+              </li>
+              
+             
+            </ul>
+            
+          </div>
+
+        
+    </div>
+    <div class="col-9">
+        <div class="card ">
+            <div class="tab-content">
+                <!--loylty div start-->
+                <div class="tab-pane fade show active" id="navs-pills-justified-Amenities" role="tabpanel">
+                    <h5><i class='bx bx-shape-square'></i> Create Amenities</h5>
+                    <div class="col-12 mb-2">
+                        <button
+                          class="btn btn-primary mb-4 float-end"
+                          data-bs-toggle="collapse"
+                          href="#multiCollapseExample1"
+                          role="button"
+                          aria-expanded="false"
+                          aria-controls="multiCollapseExample1"
+    
+                          ><i class='bx bxs-plus-circle mb-1'></i> Add  Amenities</button>
+                        
+                    </div>
+                    <br>
+                    <div class="col-12 mt-3  mb-md-0">
+                            <div class="collapse multi-collapse" id="multiCollapseExample1">
+                              
+                    <form action="{% url 'addaminities' %}" method="POST"  >
+                        {% csrf_token %}
+                    
+                      <div class="row">
+                        <div class="col-6 mb-6">
+                          <label for="nameBackdrop" class="form-label">Amenities Name</label>
+                          <input
+                            type="text"
+                            name="servicename"
+                            maxlength="60"
+                            id="nameBackdrop"
+                            class="form-control"
+                            placeholder="Like Free Wifi,Swiming Pool!"
+                            required
+                          />
+                        </div>
+                        
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-4 ms-3 w-25">
+                        Add
+                    </button>
+                    
+                </form></div>
+
+                <table class="table mt-5">
+                    <thead class="table">
+                      <tr>
+                        <th>Amenities name</th>
+                        
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+            
+                        {% for data in amenities%}
+                      <tr>
+                        <td> <strong>{{data.description}}</strong></td>
+                    
+                        <td>
+                            <a href="{% url 'deleteaminity' id=data.id%}"><span class="badge bg-label-danger  "><i class='bx bxs-trash'></i></span></a>
+                        </td>
+                      </tr>
+                      {%endfor%}
+               
+                    
+                    </tbody>
+                  </table>
+
+            </div></div>
+                    
+                <!--loylty div end-->
+
+               
+
+                <!--tax div start-->
+                <div class="tab-pane fade show " id="navs-pills-justified-profile" role="tabpanel">
+                    <h5><i class='bx bxs-image mb-1'></i>  Add Images To Websites Gallary</h5>
+                    <div class="col-12 mb-2">
+                        <button
+                          class="btn btn-primary mb-4 float-end"
+                          data-bs-toggle="collapse"
+                          href="#multiCollapseExample1"
+                          role="button"
+                          aria-expanded="false"
+                          aria-controls="multiCollapseExample1"
+    
+                          ><i class='bx bxs-plus-circle mb-1'></i> Add Images </button>
+                        
+                    </div>
+                    <div class="collapse multi-collapse" id="multiCollapseExample1">
+                              
+                        <form action="{% url 'addcatimg' %}" method="POST"  enctype="multipart/form-data">
+                            {% csrf_token %}
+                        
+                          <div class="row">
+
+                            <div class="col-6 mb-6">
+                              <label for="nameBackdrop" class="form-label">Choose Room Category</label>
+                                
+                                <select class="form-control" name="roomcat"  placeholder="Select Category" required>
+                                  {%for cat in roomcat%}
+                                  <option value="{{cat.id}}">{{cat.category_name}}</option>
+                                  {%endfor%}
+                                </select>
+                              </div>
+                            <div class="col-6 mb-6">
+                              <label for="nameBackdrop" class="form-label">Choose Image</label>
+                              <input
+                                type="file"
+                                name="galaryimg"
+                                maxlength="60"
+                                id="nameBackdrop"
+                                class="form-control"
+                                placeholder="Like Free Wifi,Swiming Pool!"
+                                required
+                              />
+                            </div>
+                            
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-4 ms-3 w-25">
+                            Add
+                        </button>
+                        
+                    </form></div>
+    
+                    <table class="table mt-5">
+                        <thead class="table">
+                          <tr>
+                            <th>Image Url</th>
+                            
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody class="table-border-bottom-0">
+                
+                            {% for data in gallary%}
+                          <tr>
+                            <td>{{data.category.category_name}}</td>
+                            <td> <strong></strong>
+                            <img src="{{data.image.url}}" height="30"/>
+                            </td>
+                        
+                            <td>
+                                <a href="{% url 'deleteimg' id=data.id %}"><span class="badge bg-label-danger  "><i class='bx bxs-trash'></i></span></a>
+                            </td>
+                          </tr>
+                          {%endfor%}
+                   
+                        
+                        </tbody>
+                      </table>
+
+                   
+
+                </div>
+                <!--tax div end-->
+                
+
+                  <!--category div start-->
+                <div class="tab-pane fade" id="navs-pills-justified-messages" role="tabpanel">
+                    <h5><i class='bx bxs-image mb-1'></i>Cancellation policy</h5>
+                    <form action="{% url 'addcp' %}" method="POST"  enctype="multipart/form-data">
+                        {% csrf_token %}
+                    
+                      <div class="row">
+                        <div class="col-6 mb-6">
+                          <label for="nameBackdrop" class="form-label">Full Cancellation policy</label>
+                          <input
+                            type="text"
+                            name="cp"
+                            maxlength="50"
+                            id="nameBackdrop"
+                            class="form-control"
+                            placeholder="Free Cancellation upto 48 hours before check-in"
+                            required
+                          />
+                        </div>
+
+                      
+                        
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-4  w-25">
+                        Add
+                    </button>
+                    
+                </form>
+                  
+                <table class="table mt-5">
+                    <thead class="table">
+                      <tr>
+                        <th>cancellention-policy</th>
+                      </tr>
+                    </thead> 
+                    <tbody class="table-border-bottom-0">
+            
+                        {% for data in cpdata%}
+                      <tr>
+                        <td>CURRENT :<strong>{{data.cancellention_policy}}</strong></td>
+                        
+                      </tr>
+                      {%endfor%}
+               
+                    
+                    </tbody>
+                  </table>
+
+                </div>
+                <!--category div end-->
+                
+              <!--sms marketing div start-->
+              <div class="tab-pane fade" id="navs-pills-justified-sms" role="tabpanel">
+                <h5><i class='bx bxs-image mb-1'></i>OFFERS & PACKAGES Management</h5>
+                    <form action="{%url 'addoffers' %}" method="POST" >
+                        {% csrf_token %}
+                    
+                      <div class="row">
+                        <div class="col-6 mb-6">
+                            <label for="nameBackdrop" class="form-label">Offer description</label>
+                            <input
+                              type="text"
+                              name="discription"
+                              maxlength="60"
+                              id="nameBackdrop"
+                              class="form-control"
+                              placeholder="Add ₹ 2000 Amount Rooms And Get this offer!"
+                              required
+                            />
+                          </div>
+
+                        <div class="col-6 mb-6">
+                          <label for="nameBackdrop" class="form-label">Offer Discount In %</label>
+                          <input
+                            type="number"
+                            name="discountpersantage"
+                            maxlength="60"
+                            id="nameBackdrop"
+                            class="form-control"
+                            placeholder="Like 10 ,20, 25!"
+                            required
+                          />
+                        </div>
+
+                        <div class="col-6 mb-6">
+                            <label for="nameBackdrop" class="form-label">Offer minimum Price </label>
+                            <input
+                              type="number"
+                              name="offerminprice"
+                              maxlength="60"
+                              id="nameBackdrop"
+                              class="form-control"
+                              placeholder="Like 1500,2500,2000!"
+                              required
+                            />
+                          </div>
+
+                        
+                        
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-4  w-25">
+                        Add New
+                    </button>
+                    
+                </form>
+                  
+                <table class="table mt-5">
+                    <thead class="table">
+                      <tr>
+                        <th>Description</th>
+                        <th>Minimum Price</th>
+                        <th>Discount %</th>
+                      </tr>
+                    </thead> 
+                    <tbody class="table-border-bottom-0">
+                    
+                        {% for data in offers%}
+                      <tr>
+                        <td> <strong>{{data.description}}</strong></td>
+                        <td> <strong>{{data.min_price}}</strong></td>
+                        <td> <strong>{{data.discount_percentage}}</strong></td>
+                    
+                        
+                      </tr>
+                      {%endfor%}
+               
+                    
+                    </tbody>
+                  </table>
+
+                </div>
+             </div>
+             <!--sms Marketing-->
+              
+
+
+             
+              
+              
+              </div>
+
+               
+        </div>
+    </div>
+
+</div>
+
+
+<div class="col-xl-6">
+    
+      
+    </div>
+  </div>
+
+{%endblock%}
