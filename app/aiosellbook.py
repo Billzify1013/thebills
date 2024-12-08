@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 @csrf_exempt
 def aiosell_new_reservation(request):
-    if request.method == 'POST':
+    # if request.method == 'POST':
         try:
             data = json.loads(request.body)
 
@@ -16,13 +16,13 @@ def aiosell_new_reservation(request):
             logger.info("Received new reservation data: %s", data)
 
             # Verify required fields before proceeding
-            required_fields = ["bookingId", "hotelCode", "channel", "checkin", "checkout", "guest", "rooms"]
-            for field in required_fields:
-                if field not in data:
-                    return JsonResponse({'success': False, 'message': f'Missing required field: {field}'}, status=400)
-
+            # required_fields = ["bookingId", "hotelCode", "channel", "checkin", "checkout", "guest", "rooms"]
+            # for field in required_fields:
+            #     if field not in data:
+            #         return JsonResponse({'success': False, 'message': f'Missing required field: {field}'}, status=400)
+            print(data)
             # For testing, send a response without saving data
-            return JsonResponse({'success': True, 'message': 'Function is working, data received successfully.'})
+            return JsonResponse({'success': True, 'message': 'Reservation Updated Successfully'})
 
         except json.JSONDecodeError as e:
             logger.error("Invalid JSON format: %s", e)

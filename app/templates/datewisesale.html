@@ -4,45 +4,161 @@
 
 
 {% load static %}
+
+
+<span class="m-3 text-danger">{{erroe}}</span>
+
 <div class="row">
+    
     <div class="col-3 p-2">
         <div class="card p-3">
-            <h4>Start Date: {{startdate}}</h4>
-            <h4>End Date: {{enddate}}</h4>
+            <center><h4 class="pt-2"><b> {{startdate}}</b><br>
+            <i class='bx bx-chevrons-down m-1' style="font-size:30px"></i> <br>
+            <b>{{enddate}}</b></h4></center><br>
         </div>
     </div>
     <div class="col-3 p-2">
-        <div class="card p-3">Settled Sales Invoices Total Amount<br><br>
-            <h5>{{sattle_total_amount}}</h5>
+        <b><div class="card p-3">Total Amount from Both Folio Bills and Settled Bills<br><br><br>
+           <center> <h5>₹ {{grand_total_amount|floatformat:2}}</h5> </center>
+        </div></b>
+    </div>
+
+    <div class="col-3 p-2">
+        <div class="card p-3"><b>Total Amount of Settled Sales Invoices</b><br>
+            <center>  <b><h5>₹ {{sattle_total_amount|floatformat:2}}</h5></b></center><br>
         </div>
 
     </div>
     <div class="col-3 p-2">
-        <div class="card p-3">Folio Sales Invoices Total Amount<br><br>
-            <h5>{{folio_total_amount}}</h5>
-        </div>
+        <b><div class="card p-3">Unbilled Folio Sales Total Amount<br><br>
+            <center><b><h5>₹ {{folio_total_amount|floatformat:2}}</h5></b></center><br>
+        </div></b>
     </div>
     <div class="col-3 p-2">
-        <div class="card p-3">Overall Tax Amount<br><br>
-            <h5>{{total_gst_amount}}</h5>
-        </div>
+        <b><div class="card p-3">Total Tax Amount from Unbilled Folio and Settled Sales Invoice<br><br>
+           <center> <h5>₹ {{total_gst_amount|floatformat:2}}</h5></center>
+        </div></b>
     </div>
-    <div class="col-3 p-2">
-        <div class="card p-3">Overall Total  Amount<br><br>
-            <h5>{{grand_total_amount}}</h5>
-        </div>
-    </div>
+    
 
     <div class="col-3 p-2">
-        <div class="card p-3">Overall Due Invoice Amount<br><br>
-            <h5>{{total_cash_amount}}</h5>
-        </div>
+        <b><div class="card p-3">Total Amount Due from Guests<br><br><br>
+            <center><h5>₹ {{total_cash_amount|floatformat:2}}</h5></center>
+        </div></b>
     </div>
-    <div class="col-6 p-2">
-        <div class="card p-3">Overall Accepted Invoice Amount<br><br>
-            <h5>{{total_online_amount}}</h5>
-        </div>
+    <div class="col-3 p-2">
+        <b><div class="card p-3">Total Amount Collected<br><br><br><br>
+            <center><h5>₹ {{total_online_amount|floatformat:2}}</h5></cener>
+        </div></b>
     </div> 
 
+    <div class="col-3 p-2">
+        <b><div class="card p-3">Total Amount After Tax<br><br><br><br>
+            <center><h5 id="final-profit">₹ </h5></cener>
+        </div></b>
+    </div> 
+
+
+
+
+    <div class="w-100  mt-4 mb-5">
+    
+        <h4>Sales By All Channel</h4>
+        <div class="card mt-4">
+            <table class="table table-bordered" style="background-color: white;">
+                <thead>
+                    <tr style="font-weight: bold;">
+                        <th>Channel</th>
+                        <th>Total Grand Total</th>
+                        <th>Tax Amount</th>
+                        <th>Net Profit</th>
+                        <th>Invoice Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in channel_data %}
+                    <tr>
+                        <td>{{ data.customer__channel }}</td>
+                        <td>₹{{ data.total_grand_total|floatformat:2|default:0 }}</td>
+                        <td>₹{{ data.total_tax_amount|floatformat:2|default:0 }}</td>
+                        <td>₹{{ data.net_profit|floatformat:2|default:0 }}</td>
+                        <td>{{ data.total_invoices }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr style="font-weight: bold; background-color: #f8f9fa;">
+                        <td><strong>Total</strong></td>
+                        <td>₹{{ total_grand_total_sum|floatformat:2|default:0 }}</td>
+                        <td>₹{{ total_tax_amount_sum|floatformat:2|default:0 }}</td>
+                        <td>₹{{ net_profit_sum|floatformat:2|default:0 }}</td>
+                        <td>{{ total_invoices_count }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        
+        
+  
+
+    <div class="card w-25 p-1 mt-4 mb-5">
+                  
+  <form action="{% url 'finddatevisesales'%}" method="post">
+    {% csrf_token %}   
+  <div class="">
+  <div class="row card-body">
+    <h5>Search by Sales Date</h5>
+    <div class="col-12" > 
+      <labal>Start Date</label>
+      <input  type="date" name="startdate" placeholder="select CheckIn Date" class="form-control "   required id="dateInput"/>
+    </div>
+
+    <div class="col-12 mt-3" >
+      <labal>End Date</label>
+    <input type="date" name="enddate" placeholder="select CheckOut Date" id="dateInputs" class=" form-control"  required/>
+  </div>
+  <div class="col-12 mt-4" >
+    <input type="submit" class="btn mb-1 w-100 btn-primary "/>
+  </div>
+ 
+  </div></div>
+     </form>
+    </div>
+
+</div>
+    
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div style="display:none">
+    <span id="grand-total">{{ grand_total_amount|floatformat:2 }}</span>
+<span id="total-gst">{{ total_gst_amount|floatformat:2 }}</span></div>
+
+
+<script>
+    // Get the values from the DOM
+    const grandTotal = parseFloat(document.getElementById('grand-total').textContent) || 0;
+    const totalGst = parseFloat(document.getElementById('total-gst').textContent) || 0;
+
+    // Calculate the profit
+    const profit = grandTotal - totalGst;
+
+    // Display the result
+    document.getElementById('final-profit').textContent = "₹" +profit.toFixed(2);
+</script>
 
 {%endblock%}

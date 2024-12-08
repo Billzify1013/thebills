@@ -261,14 +261,15 @@
                                 <th>HSN/SAC</th>
                                 <th>Price</th>
                                 <th>Qty/Day</th>
-                                <th>Total(incl/tax,discount)
+                                <th>Total<br>(incl/Qty,tax,discount)
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
                             {%for iteams in invoiceitemdata%}
                             <tr >
-                                <td style="font-size:13px">{{iteams.description}}</td>
+                                <td style="font-size:13px">{{iteams.description}}<br>
+                                    <p style="font-size:12px">{{iteams.mdescription}}</p></td>
                                 {%for data in invoice_data%}
                                 {%if data.taxtype == 'GST'%}
                                 <td style="font-size:13px">{{iteams.sgst_rate}} %  </td>
@@ -362,12 +363,12 @@
                     {%for data in invoice_data%}
                             {%if data.taxtype == 'GST'%}
                                 <span class="text w-50">Cgst Total</span> 
-                                <span class="text float-end">₹ {{data.gst_amount}}</span><br>
+                                <span class="text float-end">₹ {{sstamounts}}</span><br>
                                 <span class="text w-50">Sgst Total</span> 
-                                <span class="text float-end">₹ {{data.sgst_amount}}</span>
+                                <span class="text float-end">₹ {{gstamounts}}</span>
                             {%else%}
                             <span class="text w-50">Igst Total</span> 
-                            <span class="text float-end">₹ {{data.gst_amount|add:data.sgst_amount}}</span><br>
+                            <span class="text float-end">₹ {{istamts}}</span><br>
                             
                             {%endif%}
                     {%endfor%}

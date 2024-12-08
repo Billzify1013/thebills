@@ -406,43 +406,71 @@ def invoicepage(request, id):
             itemid = invoice_data.id
             status = invoice_data.foliostatus
 
-            invoice_data = Invoice.objects.filter(vendor=user, customer=userid)
+            invoice_datas = Invoice.objects.filter(vendor=user, customer=userid)
             invoiceitemdata = InvoiceItem.objects.filter(vendor=user, invoice=itemid)
             loyltydata = loylty_data.objects.filter(vendor=user, Is_active=True)
             invcpayments = InvoicesPayment.objects.filter(vendor=user,invoice=itemid)
             
+           
             if status is False:
-                # for datas in invoice_data:
-                #     cashamt = 0 #datas.cash_amount
-                #     onlineamt = 0 #datas.online_amount
-                #     grandamt = 0#datas.grand_total_amount
-                # print(cashamt,onlineamt,grandamt)
-                # remainamt =  True
-                # remainamtinrs = 0
-                # testamt=cashamt + onlineamt
-                # if testamt == grandamt:
-                #     remainamt = False
-                # remainamtinrs = grandamt - testamt
-                # print(testamt)
-                return render(request, 'foliobill.html', {
-                    'active_page': 'foliobillingpage',
-                    'profiledata': profiledata,
-                    'guestdata': guestdata,
-                    'invoice_data': invoice_data,
-                    'invoiceitemdata': invoiceitemdata,
-                    'loyltydata': loyltydata,
-                    # 'remainamt':remainamt,
-                    # 'remainamtinrs':remainamtinrs,
-                    'invcpayments':invcpayments,
-                })
+                if invoice_data.taxtype == 'GST':
+                    gstamounts = invoice_data.gst_amount
+                    sstamounts = invoice_data.sgst_amount
+                    return render(request, 'foliobill.html', {
+                        'active_page': 'foliobillingpage',
+                        'profiledata': profiledata,
+                        'guestdata': guestdata,
+                        'invoice_data': invoice_datas,
+                        'invoiceitemdata': invoiceitemdata,
+                        'loyltydata': loyltydata,
+                        # 'remainamt':remainamt,
+                        # 'remainamtinrs':remainamtinrs,
+                        'invcpayments':invcpayments,
+                        'gstamounts':gstamounts,
+                        'sstamounts':sstamounts
+                    })
+
+                else:
+                    istamts = invoice_data.sgst_amount + invoice_data.gst_amount
+             
+                    return render(request, 'foliobill.html', {
+                        'active_page': 'foliobillingpage',
+                        'profiledata': profiledata,
+                        'guestdata': guestdata,
+                        'invoice_data': invoice_datas,
+                        'invoiceitemdata': invoiceitemdata,
+                        'loyltydata': loyltydata,
+                        # 'remainamt':remainamt,
+                        # 'remainamtinrs':remainamtinrs,
+                        'invcpayments':invcpayments,
+                        'istamts':istamts
+                    })
             else:
-                return render(request, 'invoicepage.html', {
-                    'profiledata': profiledata,
-                    'guestdata': guestdata,
-                    'invoice_data': invoice_data,
-                    'invoiceitemdata': invoiceitemdata,
-                    'invcpayments':invcpayments,
-                })
+                if invoice_data.taxtype == 'GST':
+                    gstamounts = invoice_data.gst_amount
+                    sstamounts = invoice_data.sgst_amount
+                    return render(request, 'invoicepage.html', {
+                        'profiledata': profiledata,
+                        'guestdata': guestdata,
+                        'invoice_data': invoice_datas,
+                        'invoiceitemdata': invoiceitemdata,
+                        'invcpayments':invcpayments,
+                        'gstamounts':gstamounts,
+                        'sstamounts':sstamounts
+                    })
+                else:
+                    istamts = invoice_data.sgst_amount + invoice_data.gst_amount
+
+                    return render(request, 'invoicepage.html', {
+                        'profiledata': profiledata,
+                        'guestdata': guestdata,
+                        'invoice_data': invoice_datas,
+                        'invoiceitemdata': invoiceitemdata,
+                        'invcpayments':invcpayments,
+                        
+                        'istamts':istamts
+                    })
+             
         else:
             return render(request, 'login.html')
     # except Exception as e:
@@ -1216,46 +1244,46 @@ def addguestdatafromadvanceroombook(request):
                                                         subtotal_amount=0.0,gst_amount=0.0,sgst_amount=0.0,accepted_amount=0.00,
                                                         Due_amount=0.00,grand_total_amount=0.0,modeofpayment=paymentstatus,room_no=0.0,taxtype=taxtypes)
                         
-                    if saveguestdata.is_selfbook==True:
+                    # if saveguestdata.is_selfbook==False:
                         
-                        totalrooms = RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id=saveguestdata).all()
-                        print(len(totalrooms))
-                        updatediscountamount = int(discount)
-                        if len(totalrooms)>1:
-                            updatediscountamount = int(discount) / int(len(totalrooms))
-                        print(updatediscountamount)
-                        staydays = saveguestdata.staydays
-                        Invtotal_amount = 0.0
-                        Invsub_total = 0.0
-                        Invtaxamt = 0.0
-                        if paidstatus == "Paid":
-                            statuspaid = True
-                        else:
-                            statuspaid = False
-                        for i in totalrooms:
-                            rid = i.roomno.id
-                            roomdata = Rooms.objects.get(vendor=user,id=rid)
+                    #     totalrooms = RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id=saveguestdata).all()
+                    #     print(len(totalrooms))
+                    #     updatediscountamount = int(discount)
+                    #     if len(totalrooms)>1:
+                    #         updatediscountamount = int(discount) / int(len(totalrooms))
+                    #     print(updatediscountamount)
+                    #     staydays = saveguestdata.staydays
+                    #     Invtotal_amount = 0.0
+                    #     Invsub_total = 0.0
+                    #     Invtaxamt = 0.0
+                    #     if paidstatus == "Paid":
+                    #         statuspaid = True
+                    #     else:
+                    #         statuspaid = False
+                    #     for i in totalrooms:
+                    #         rid = i.roomno.id
+                    #         roomdata = Rooms.objects.get(vendor=user,id=rid)
                             
-                            roomprice = int(roomdata.price) * int(staydays)
-                            roomprice = roomprice - updatediscountamount
+                    #         roomprice = int(roomdata.price) * int(staydays)
+                    #         roomprice = roomprice - updatediscountamount
                 
-                            taxrate = roomdata.tax.taxrate
-                            hsn = roomdata.room_type.Hsn_sac
-                            gstrate = taxrate/2
-                            Invtotal_amount = Invtotal_amount  + roomdata.price * staydays
-                            Invsub_total = Invsub_total +  roomprice
-                            Invtaxamt = Invtaxamt + (roomprice*taxrate/100)
-                            incltaxprice = roomprice + (roomprice*taxrate/100)
-                            InvoiceItem.objects.create(vendor=user,invoice=Invoiceid,description=roomdata.room_name,hsncode=hsn,
-                                            quantity_likedays=staydays,price=roomdata.price,total_amount=incltaxprice,cgst_rate=gstrate,sgst_rate=gstrate,paidstatus=statuspaid)
-                            print(taxrate)
-                        Invgrandtotal = Invsub_total + Invtaxamt
-                        Invtaxamt = Invtaxamt /2
+                    #         taxrate = roomdata.tax.taxrate
+                    #         hsn = roomdata.room_type.Hsn_sac
+                    #         gstrate = taxrate/2
+                    #         Invtotal_amount = Invtotal_amount  + roomdata.price * staydays
+                    #         Invsub_total = Invsub_total +  roomprice
+                    #         Invtaxamt = Invtaxamt + (roomprice*taxrate/100)
+                    #         incltaxprice = roomprice + (roomprice*taxrate/100)
+                    #         InvoiceItem.objects.create(vendor=user,invoice=Invoiceid,description=roomdata.room_name,hsncode=hsn,
+                    #                         quantity_likedays=staydays,price=roomdata.price,total_amount=incltaxprice,cgst_rate=gstrate,sgst_rate=gstrate,paidstatus=statuspaid)
+                    #         print(taxrate)
+                    #     Invgrandtotal = Invsub_total + Invtaxamt
+                    #     Invtaxamt = Invtaxamt /2
 
-                    else:
-                        totalrooms = RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id=saveguestdata).all()
-                        staydays = saveguestdata.staydays
-                        for i in totalrooms:
+                    # else:
+                    totalrooms = RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id=saveguestdata).all()
+                    staydays = saveguestdata.staydays
+                    for i in totalrooms:
                             rid = i.roomno.id
                             roomdata = Rooms.objects.get(vendor=user,id=rid)
                             selllprice = i.sell_rate
@@ -1263,21 +1291,43 @@ def addguestdatafromadvanceroombook(request):
                             toalamtitem = selllprice + taxes
                             hsn = roomdata.room_type.Hsn_sac
                             gstrate = roomdata.tax.taxrate/2
-                            InvoiceItem.objects.create(vendor=user,invoice=Invoiceid,description=roomdata.room_name,
-                                                        hsncode=hsn,quantity_likedays=staydays,price=roomdata.price,
+                            if RatePlan.objects.filter(vendor=user,room_category_id=roomdata.room_type.id,rate_plan_name=i.rateplan_code,
+                                            max_persons=i.adults,childmaxallowed=i.children):
+                                ipbs = RatePlan.objects.get(vendor=user,room_category_id=roomdata.room_type.id,rate_plan_name=i.rateplan_code,
+                                            max_persons=i.adults,childmaxallowed=i.children)
+                                base_price = ipbs.base_price + roomdata.price
+                                msecs = roomdata.room_type.category_name + " : " + i.rateplan_code + " " + " for "+ str(i.adults) + " adults " + " " +   " and " + str(i.children) + " " + "Child"
+                                InvoiceItem.objects.create(vendor=user,invoice=Invoiceid,description=roomdata.room_name,
+                                                        mdescription=msecs,hsncode=hsn,quantity_likedays=staydays,price=base_price,
+                                                        total_amount=toalamtitem,cgst_rate=gstrate,sgst_rate=gstrate,
+                                                        paidstatus=True)
+                            else:
+                                if RatePlanforbooking.objects.filter(vendor=user,rate_plan_name=i.rateplan_code):
+                                    pdatas= RatePlanforbooking.objects.get(vendor=user,rate_plan_name=i.rateplan_code)
+                                    base_price = i.adults * (pdatas.base_price) + roomdata.price
+                                    msecs = roomdata.room_type.category_name + " : " + i.rateplan_code + " " + " for "+ str(i.adults) + " adults " + " " +   " and " + str(i.children) + " " + "Child"
+                                    InvoiceItem.objects.create(vendor=user,invoice=Invoiceid,description=roomdata.room_name,
+                                                        mdescription=msecs,hsncode=hsn,quantity_likedays=staydays,price=base_price,
+                                                        total_amount=toalamtitem,cgst_rate=gstrate,sgst_rate=gstrate,
+                                                        paidstatus=True)
+
+                                else:
+
+                                    InvoiceItem.objects.create(vendor=user,invoice=Invoiceid,description=roomdata.room_name,
+                                                        mdescription="ONLY ROOM",hsncode=hsn,quantity_likedays=staydays,price=roomdata.price,
                                                         total_amount=toalamtitem,cgst_rate=gstrate,sgst_rate=gstrate,
                                                         paidstatus=True)
                             
 
-                        totalitemamount = saveguestdata.amount_before_tax + float(saveguestdata.discount)
-                        discamts = float(saveguestdata.discount)
-                        subttlamt = saveguestdata.amount_before_tax
-                        gtamts = saveguestdata.amount_after_tax
-                        taxamts = saveguestdata.tax/2
+                    totalitemamount = saveguestdata.amount_before_tax + float(saveguestdata.discount)
+                    discamts = float(saveguestdata.discount)
+                    subttlamt = saveguestdata.amount_before_tax
+                    gtamts = saveguestdata.amount_after_tax
+                    taxamts = saveguestdata.tax/2
 
-                        fisrroom = RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id=saveguestdata).first()
+                    fisrroom = RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id=saveguestdata).first()
 
-                        Invoice.objects.filter(vendor=user,id=Invoiceid.id).update(total_item_amount=totalitemamount,
+                    Invoice.objects.filter(vendor=user,id=Invoiceid.id).update(total_item_amount=totalitemamount,
                                     discount_amount=discamts,subtotal_amount=subttlamt,
                                     modeofpayment=paymentstatus,grand_total_amount=gtamts,
                                     gst_amount=taxamts,sgst_amount=taxamts,room_no=fisrroom.roomno.room_name)
@@ -1325,13 +1375,13 @@ def addguestdatafromadvanceroombook(request):
                              Due_amount=float(saveguestdata.total_amount),accepted_amount=0.00
                             )
                         
-                    if saveguestdata.is_selfbook==True:
-                        Invoice.objects.filter(vendor=user,id=Invoiceid.id).update(total_item_amount=Invtotal_amount,
-                                        discount_amount=discount,subtotal_amount=Invsub_total,
-                                        modeofpayment=paymentstatus,grand_total_amount=Invgrandtotal,
-                                        gst_amount=Invtaxamt,sgst_amount=Invtaxamt,room_no=roomno)
-                    else:
-                        pass
+                    # if saveguestdata.is_selfbook==False:
+                    #     Invoice.objects.filter(vendor=user,id=Invoiceid.id).update(total_item_amount=Invtotal_amount,
+                    #                     discount_amount=discount,subtotal_amount=Invsub_total,
+                    #                     modeofpayment=paymentstatus,grand_total_amount=Invgrandtotal,
+                    #                     gst_amount=Invtaxamt,sgst_amount=Invtaxamt,room_no=roomno)
+                    # else:
+                    #     pass
 
             
                 #Invoice start here
@@ -2158,6 +2208,7 @@ def addadvancebooking(request):
             sellingprices = 0    
             totaltax = 0   
             guestcountsstored = int(guestcount) 
+            changedguestct = guestcountsstored
             for i in my_array:
                     roomid = int(i['id'])
                     roomsellprice = int(float(i['price']))
@@ -2172,11 +2223,15 @@ def addadvancebooking(request):
 
                     # # manage rate plan guests
                     maxperson = roomid.max_person
-                    if guestcountsstored > maxperson:
-                        guestcountsstored = guestcountsstored - maxperson
+                    if changedguestct >= maxperson:
+                        print(changedguestct,"1st before ")
+                        changedguestct = changedguestct - maxperson
+                        print(changedguestct,"1st if ")
                         satteldcount = maxperson
                     else:
-                        satteldcount = guestcountsstored
+                        print(changedguestct,"else")
+                        satteldcount = changedguestct
+
 
                     RoomBookAdvance.objects.create(vendor=user,saveguestdata=Saveadvancebookdata,bookingdate=bookingdate,roomno=roomid,
                                                     bookingguest=guestname,bookingguestphone=phone
@@ -3707,7 +3762,7 @@ def cart_processing(request):
                     if not room:
                         print(f"No available room for category: {category_name}")
                         continue
-
+                    sellratebydays = (item['price']) * days
                     RoomBookAdvance.objects.create(
                         vendor_id=userids,
                         saveguestdata=Saveadvancebookdata,
@@ -3723,7 +3778,7 @@ def cart_processing(request):
                         guest_name='',
                         adults=ads,
                         children=cds,
-                        sell_rate=item['price']
+                        sell_rate=sellratebydays
                     )
 
                     # Handling check-in and check-out times
@@ -3997,3 +4052,8 @@ def websettings(request):
             print(checkstatus)
             return render(request,'websetings.html',{'active_page': 'websettings','amenities':amenities,'offers':offers,
                                                      'checkstatus':checkstatus,'ctdata':ctdata,'cpdata':cpdata,'roomcat':roomcat,'gallary':gallary,'hotelimgs':hotelimgs})
+     
+
+
+
+

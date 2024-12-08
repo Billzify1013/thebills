@@ -1448,6 +1448,92 @@ def search_user(request):
 
 
 import re
+# def check_product(request):
+#     if request.user.is_authenticated:
+#         user = request.user
+#         product_name = request.GET.get('product_name', '').strip()
+
+#         if product_name:
+#             try:
+#                 # Normalize spaces in the input
+#                 normalized_product_name = re.sub(r'\s+', ' ', product_name).strip()
+
+#                 # Search for products matching the product_name
+#                 products = Items.objects.filter(
+#                     vendor=user,
+#                     description__icontains=normalized_product_name
+#                 )
+
+#                 products2 = LaundryServices.objects.filter(
+#                             vendor=user,
+#                             name__icontains=normalized_product_name
+#                         )
+
+#                 products3 = AminitiesInvoiceItem.objects.filter(vendor=user,
+#                                 description__icontains=normalized_product_name 
+#                                 )
+#                 if products.exists():
+#                     # Prepare a list of products for suggestions
+#                     product_suggestions = []
+#                     for product in products:
+#                         product_suggestions.append({
+#                             'id': product.id,
+#                             'description': product.description,
+#                             'price': product.price,
+#                             'hsncode': product.hsncode,
+#                             'category_tax': product.category_tax.taxrate if product.category_tax else None
+#                         })
+
+#                     return JsonResponse({
+#                         'success': True,
+#                         'products': product_suggestions
+#                     })
+
+                
+#                 elif products2.exists():
+#                     # Prepare a list of products for suggestions
+#                     product_suggestions = []
+#                     for product in products2:
+#                         product_suggestions.append({
+#                             'id': product.id,
+#                             'description': product.name,
+#                             'price': product.price,
+#                             # 'hsncode': product.hsncode,
+#                             # 'category_tax': product.category_tax.taxrate if product.category_tax else None
+#                         })
+
+#                     return JsonResponse({
+#                         'success': True,
+#                         'products': product_suggestions
+#                     })
+                
+#                 elif products3.exists():
+#                     # Prepare a list of products for suggestions
+#                     product_suggestions = []
+#                     for product in products3:
+#                         product_suggestions.append({
+#                             'id': product.id,
+#                             'description': product.description,
+#                             'price': product.price,
+#                             'hsncode': product.hsncode,
+#                             'category_tax': product.tax_rate if product.tax_rate else None
+#                         })
+
+#                     return JsonResponse({
+#                         'success': True,
+#                         'products': product_suggestions
+#                     })
+
+
+#                 else:
+#                     return JsonResponse({'success': False, 'message': 'No products found.'})
+#             except Exception as e:
+#                 return JsonResponse({'success': False, 'message': str(e)})
+
+#         else:
+#             return JsonResponse({'success': False, 'message': 'Product name is required.'})
+
+
 def check_product(request):
     if request.user.is_authenticated:
         user = request.user
@@ -1457,54 +1543,68 @@ def check_product(request):
             try:
                 # Normalize spaces in the input
                 normalized_product_name = re.sub(r'\s+', ' ', product_name).strip()
+                print(f"Normalized Product Name: {normalized_product_name}")
 
-                # Search for products matching the product_name
-                products = Items.objects.filter(
+                # Search for latest product in AminitiesInvoiceItem
+                product3 = AminitiesInvoiceItem.objects.filter(
                     vendor=user,
                     description__icontains=normalized_product_name
-                )
+                ).order_by('-id').first()  # Fetch the latest entry
 
-                products2 = LaundryServices.objects.filter(
-                            vendor=user,
-                            name__icontains=normalized_product_name
-                        )
-                if products.exists():
-                    # Prepare a list of products for suggestions
-                    product_suggestions = []
-                    for product in products:
-                        product_suggestions.append({
-                            'id': product.id,
-                            'description': product.description,
-                            'price': product.price,
-                            'hsncode': product.hsncode,
-                            'category_tax': product.category_tax.taxrate if product.category_tax else None
-                        })
-
+                if product3:
+                    print("Product3 found:", product3)
                     return JsonResponse({
                         'success': True,
-                        'products': product_suggestions
+                        'products': [{
+                            'id': product3.id,
+                            'description': product3.description,
+                            'price': product3.price,
+                            'hsncode': product3.hsncode,
+                            'category_tax': product3.tax_rate if product3.tax_rate else None
+                        }]
                     })
 
-                
-                elif products2.exists():
-                    # Prepare a list of products for suggestions
-                    product_suggestions = []
-                    for product in products2:
-                        product_suggestions.append({
-                            'id': product.id,
-                            'description': product.name,
-                            'price': product.price,
-                            # 'hsncode': product.hsncode,
-                            # 'category_tax': product.category_tax.taxrate if product.category_tax else None
-                        })
+                # Search for latest product in LaundryServices
+                product2 = LaundryServices.objects.filter(
+                    vendor=user,
+                    name__icontains=normalized_product_name
+                ).order_by('-id').first()  # Fetch the latest entry
 
+                if product2:
+                    print("Product2 found:", product2)
                     return JsonResponse({
                         'success': True,
-                        'products': product_suggestions
+                        'products': [{
+                            'id': product2.id,
+                            'description': product2.name,
+                            'price': product2.price,
+                        }]
                     })
-                else:
-                    return JsonResponse({'success': False, 'message': 'No products found.'})
+
+                # Search for latest product in Items
+                product1 = Items.objects.filter(
+                    vendor=user,
+                    description__icontains=normalized_product_name
+                ).order_by('-id').first()  # Fetch the latest entry
+
+                if product1:
+                    print("Product1 found:", product1)
+                    return JsonResponse({
+                        'success': True,
+                        'products': [{
+                            'id': product1.id,
+                            'description': product1.description,
+                            'price': product1.price,
+                            'hsncode': product1.hsncode,
+                            'category_tax': product1.category_tax.taxrate if product1.category_tax else None
+                        }]
+                    })
+
+                print("No matching product found")
+                return JsonResponse({'success': False, 'message': 'No products found.'})
+
             except Exception as e:
+                print("Error occurred:", str(e))
                 return JsonResponse({'success': False, 'message': str(e)})
 
         else:

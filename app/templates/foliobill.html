@@ -220,13 +220,6 @@
                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt3">
                   
                   {%for data in invoice_data%}
-                  <a class="btn dropdown-item " href="{% url 'guestregform' id=data.customer.id %}"><i class='bx bx-id-card mb-1'></i> Regstratrion Form</a>
-                  
-                  <a class="btn dropdown-item " href="{% url 'changeroompage' id=data.id %}"><i class='bx bx-exclude'></i> Change Room</a>
-
-                  
-                  <a class="btn dropdown-item " data-bs-toggle="modal" data-bs-target="#backDropModal"><i class='bx bxl-paypal'></i> Add Payment</a>
-
                   <form action="{%url 'openposforroom' %}" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="invcid" value="{{data.id}}" style="display:none"/>
@@ -234,6 +227,14 @@
                   <button class="dropdown-item btn" type="submit" href=""><i class='bx bx-sitemap'></i> Add Service</button>
                   
                   </form>
+                  <a class="btn dropdown-item " href="{% url 'guestregform' id=data.customer.id %}"><i class='bx bx-id-card mb-1'></i> Regstratrion Form</a>
+                  
+                  <a class="btn dropdown-item " href="{% url 'changeroompage' id=data.id %}"><i class='bx bx-exclude'></i> Change Room</a>
+
+                  
+                  <a class="btn dropdown-item " data-bs-toggle="modal" data-bs-target="#backDropModal"><i class='bx bxl-paypal'></i> Add Payment</a>
+
+                  
                   <a class="btn dropdown-item" id="billToCompanyBtn" data-bs-toggle="modal" data-bs-target="#billToCompanyModal">
                     <i class='bx bxl-paypal'></i> Bill To Company
                   </a>
@@ -302,7 +303,7 @@
                                 <th>HSN/SAC</th>
                                 <th>Price</th>
                                 <th>Qty/Day</th>
-                                <th>Total(incl/tax,discount)
+                                <th>Total<br>(incl/Qty,tax,discount)
                                 </th>
                                 <th>Action</th>
                             </tr>
@@ -318,7 +319,8 @@
                                     <span class="badge bg-label-warning me-1">UnPaid</span>
                                    
                                     {%endif%} {% endcomment %}
-                                    {{iteams.description}}</td>
+                                    {{iteams.description}}<br>
+                                    <p style="font-size:12px">{{iteams.mdescription}}</p></td>
                                 {%for data in invoice_data%}
                                 {%if data.taxtype == 'GST'%}
                                 <td style="font-size:18px">{{iteams.sgst_rate}} %  </td>
@@ -432,12 +434,12 @@
                         {%for data in invoice_data%}
                                 {%if data.taxtype == 'GST'%}
                                     <span class="text w-50">Cgst Total</span> 
-                                    <span class="text float-end">₹ {{data.gst_amount}}</span><br>
+                                    <span class="text float-end">₹ {{sstamounts}}</span><br>
                                     <span class="text w-50">Sgst Total</span> 
-                                    <span class="text float-end">₹ {{data.sgst_amount}}</span>
+                                    <span class="text float-end">₹ {{gstamounts}}</span>
                                 {%else%}
                                 <span class="text w-50">Igst Total</span> 
-                                    <span class="text float-end">₹ {{data.sgst_amount|add:data.sgst_amount}}</span>
+                                    <span class="text float-end">₹ {{istamts}}</span>
 
                                 {%endif%}
                         {%endfor%}

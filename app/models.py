@@ -170,6 +170,7 @@ class InvoiceItem(models.Model):
     vendor = models.ForeignKey(User,on_delete=models.CASCADE)
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
     description = models.CharField(max_length=100)
+    mdescription = models.CharField(max_length=100)
     hsncode = models.IntegerField(default=0,blank=True)
     quantity_likedays = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -407,8 +408,8 @@ class AminitiesInvoiceItem(models.Model):
     quantity = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    tax_rate = models.DecimalField(max_digits=5, decimal_places=2, validators=[MinValueValidator(0)],blank=True)
-    hsncode = models.CharField(max_length=8,blank=True)
+    tax_rate = models.PositiveIntegerField(blank=True,null=True)
+    hsncode = models.CharField(max_length=8,blank=True,null=True)
     discount_amount = models.DecimalField(max_digits=10, decimal_places=2,blank=True)
     subtotal_amt = models.DecimalField(max_digits=10, decimal_places=2)
     tax_amt = models.DecimalField(max_digits=10, decimal_places=2,blank=True)
@@ -553,6 +554,7 @@ class RoomBookAdvance(models.Model):
     adults = models.PositiveIntegerField()
     children = models.PositiveIntegerField()
     sell_rate = models.FloatField()
+    
     def __str__(self) -> str:
         return self.bookingguest
 

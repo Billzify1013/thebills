@@ -486,12 +486,15 @@ def addcontactbe(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
-            emails = request.FILES.get('emails')
-            contact = request.FILES.get('contact')
-            url = request.FILES.get('url')
-            HoelImage.objects.create(vendor=user,image=addhotelimg)
-            messages.success(request, "Image  Added!")
-
+            emails = request.POST.get('emails')
+            contact = request.POST.get('contact')
+            url = request.POST.get('url')
+            if  becallemail.objects.filter(vendor=user).exists():
+                becallemail.objects.filter(vendor=user).update(phome=contact,guestemail=emails,linkmap=url)
+                messages.success(request, "Contact details updated!")
+            else:
+                becallemail.objects.create(vendor=user,phome=contact,guestemail=emails,linkmap=url)
+                messages.success(request, "Contact details updated!")
             return redirect('websettings')
 
         else:

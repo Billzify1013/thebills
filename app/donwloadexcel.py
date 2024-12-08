@@ -322,6 +322,15 @@ def generate_purchesinvoice_excel(request):
         else:
             return redirect('loginpage')
     except Exception as e:
-        return render(request, '404.html', {'error_message': str(e)}, status=500)    
-    
+        return render(request, '404.html', {'error_message': str(e)}, status=500)   
+
+
+
+
+
+
+
+
+
+
      

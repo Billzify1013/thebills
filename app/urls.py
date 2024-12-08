@@ -81,6 +81,7 @@ urlpatterns = [
     path('userdatacheckbychandanbillsteam/',employeemanage.userdatacheckbychandanbillsteam,name="userdatacheckbychandanbillsteam"),
     path('searchuserdata/',employeemanage.searchuserdata,name="searchuserdata"),
     path('finddatevisesales/',employeemanage.finddatevisesales,name="finddatevisesales"),
+    path('todaysales/',employeemanage.todaysales,name="todaysales"),
     # aminityinvoice codes
     path('aminityinvoice/',loyltys.aminityinvoice,name="aminityinvoice"),
     path('addaminitiesinvoice/',loyltys.addaminitiesinvoice,name="addaminitiesinvoice"),

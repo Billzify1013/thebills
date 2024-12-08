@@ -338,6 +338,7 @@
               </div>
               <div class="col-6">
                   <div class="mb-3">
+                    
                       <div class="input-group input-group-merge">
                         <span id="basic-icon-default-company2" class="input-group-text"
                           >Check-OUT</span>
@@ -360,6 +361,7 @@
           <div class="row">
             <div class="col-3">
               <div class="mb-3 mt-3">
+                ID-TYPE
                   <div class="input-group input-group-merge">
                     <span id="basic-icon-default-company2" class="input-group-text"
                       ><i class='bx bx-time-five' ></i></span>
@@ -377,6 +379,7 @@
 
           <div class="col-3">
             <div class="mb-3 mt-3">
+              ID-NUMBER
               <div class="input-group input-group-merge">
                 <span id="basic-icon-default-company2" class="input-group-text"
                   ><i class='bx bxs-group'></i></span>
@@ -396,6 +399,7 @@
 
           <div class="col-2">
               <div class="mb-3 mt-3">
+                TOTAL GUEST
                   <div class="input-group input-group-merge">
                     <span id="basic-icon-default-company2" class="input-group-text"
                       ><i class='bx bxs-group'></i></span>
@@ -415,6 +419,7 @@
           </div>
           <div class="col-2">
               <div class="mb-3 mt-3">
+                ADULTS
                   <div class="input-group input-group-merge">
                     <span id="basic-icon-default-company2" class="input-group-text"
                       ><i class='bx bxs-user'></i></span>
@@ -422,7 +427,7 @@
                       type="number" 
                       required
                       name = "guestadults"
-                      id="basic-icon-default-company"
+                      id="adultsinp"
                       class="form-control"
                       placeholder="Adults"
                       aria-label="ACME Inc."
@@ -434,6 +439,7 @@
 
           <div class="col-2">
               <div class="mb-3 mt-3">
+                CHILDREN
                   <div class="input-group input-group-merge">
                     <span id="basic-icon-default-company2" class="input-group-text"
                       ><i class='bx bx-child'></i></span>
@@ -441,7 +447,7 @@
                       type="number"
                       required
                       name = "guestchildren"
-                      id="basic-icon-default-company"
+                      id="childinp"
                       class="form-control"
                       placeholder="Children"
                       aria-label="ACME Inc."
@@ -538,7 +544,7 @@
             <th>Room No</th>
             <th>Price</th>
             <th>Tax</th>
-            <th>Sell Rate</th>
+            <th>Sell Rate(Without Tax)</th>
             <th>Adults</th>
             <th>Children</th>
             <th>Action</th>
@@ -572,6 +578,44 @@
           </tr>
           {%endfor%}
             
+          <p>Total Adults: <span id="total-adults">0</span></p>
+<p>Total Children: <span id="total-children">0</span></p>
+
+<script>
+    // Function to calculate totals
+    function calculateTotals() {
+        // Get all adults and children inputs
+        const adultsInputs = document.querySelectorAll('.adults');
+        const childrenInputs = document.querySelectorAll('.children');
+
+        // Initialize totals
+        let totalAdults = 0;
+        let totalChildren = 0;
+
+        // Loop through adults inputs and sum their values
+        adultsInputs.forEach(input => {
+            totalAdults += parseInt(input.value) || 0; // Default to 0 if value is empty or NaN
+        });
+
+        // Loop through children inputs and sum their values
+        childrenInputs.forEach(input => {
+            totalChildren += parseInt(input.value) || 0;
+        });
+
+        // Update the totals in the DOM
+        document.getElementById('total-adults').textContent = totalAdults;
+        document.getElementById('total-children').textContent = totalChildren;
+
+        document.getElementById('adultsinp').value = totalAdults;
+        document.getElementById('childinp').value = totalChildren;
+        
+    }
+
+    // Trigger calculation when DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        calculateTotals();
+    });
+</script>
           
         
           
@@ -628,7 +672,7 @@
                   <div class="row mt-0" >
                    
 
-                  <div class="col-8 ms-4">
+                  {% comment %} <div class="col-8 ms-4">
                     <div class="card-body">
                         <p class="card-text" style="margin-bottom:-15px">If You Want To Add More Discount To Click.</p>
   
@@ -663,7 +707,7 @@
                             </div>
 
                             
-                        </div></div></div>
+                        </div></div></div> {% endcomment %}
 
                         <div class="row ms-2" >
                   <p class="demo-inline-spacing ">
@@ -760,7 +804,7 @@
                   <div class="col-6 mt-3 float-start">
 
                  <button type="submit" class="btn btn-primary mt-4 mb-4 ms-3  w-100" id="submitButton" > Booking Done</button>
-                 <span class="text text-danger ms-3 text-left" style="font-size:15px"><b>Note</b>After you click 'Booking Done', any extra discounts or loyalty points will be added to your final bill shown in the folio. </span>
+                 <span class="text text-danger ms-3 text-left" style="font-size:15px"><b>Note</b>LOylty points are not work with OTA and BOOKING_ENGINE BOOKINS</span>
                   
                 </div>
 

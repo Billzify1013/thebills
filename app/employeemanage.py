@@ -949,77 +949,231 @@ def finddatevisesales(request):
             user=request.user
             startdate = request.POST.get('startdate')
             enddate = request.POST.get('enddate')
-            Invoice.objects.filter(vendor=user,invoice_date__range=[startdate,enddate],foliostatus=True)
 
-            total_grand_total_amount = Invoice.objects.filter(
-                vendor=user,
-                invoice_date__range=[startdate, enddate],
-                foliostatus=True
-            ).aggregate(total_amount=Sum('grand_total_amount'))
+            if Invoice.objects.filter(vendor=user,invoice_date__range=[startdate,enddate]).exists():
 
-            # `total_grand_total_amount` is a dictionary with the sum under the key 'total_amount'
-            sattle_total_amount = float(total_grand_total_amount['total_amount'])
-            print(sattle_total_amount,"total amount searched")
+                total_grand_total_amount = Invoice.objects.filter(
+                    vendor=user,
+                    invoice_date__range=[startdate, enddate],
+                    foliostatus=True
+                ).aggregate(total_amount=Sum('grand_total_amount'))
 
-            folio_total_grand_total_amount = Invoice.objects.filter(
-                vendor=user,
-                invoice_date__range=[startdate, enddate],
-                foliostatus=False
-            ).aggregate(total_amount=Sum('grand_total_amount'))
+                try:
+                    # `total_grand_total_amount` is a dictionary with the sum under the key 'total_amount'
+                    sattle_total_amount = float(total_grand_total_amount['total_amount'])
+                    print(sattle_total_amount,"total amount searched")
+                except (TypeError, ValueError):
+                    sattle_total_amount = 0.00
 
-            # `total_grand_total_amount` is a dictionary with the sum under the key 'total_amount'
-            folio_total_amount = folio_total_grand_total_amount['total_amount']
-            print(folio_total_amount,"folio total amount searched")
+                folio_total_grand_total_amount = Invoice.objects.filter(
+                    vendor=user,
+                    invoice_date__range=[startdate, enddate],
+                    foliostatus=False
+                ).aggregate(total_amount=Sum('grand_total_amount'))
 
-                        
-            # Aggregate the sum of `gst_amount`
-            gst_amount_sum = Invoice.objects.filter(
-                vendor=user,
-                invoice_date__range=[startdate, enddate]
-            ).aggregate(total_gst_amount=Sum('gst_amount'))
+                try:
+                    # `total_grand_total_amount` is a dictionary with the sum under the key 'total_amount'
+                    folio_total_amount = folio_total_grand_total_amount['total_amount']
+                    print(folio_total_amount,"folio total amount searched")
+                except (TypeError, ValueError):
+                    folio_total_amount = 0.00
+                            
+                # Aggregate the sum of `gst_amount`
+                gst_amount_sum = Invoice.objects.filter(
+                    vendor=user,
+                    invoice_date__range=[startdate, enddate]
+                ).aggregate(total_gst_amount=Sum('gst_amount'))
 
-            total_gst_amount = float(gst_amount_sum['total_gst_amount'])
-            if total_gst_amount == None:
-                pass
+                total_gst_amount = float(gst_amount_sum['total_gst_amount'])
+                if total_gst_amount == None:
+                    pass
+                else:
+                    total_gst_amount = total_gst_amount * 2
+                print(total_gst_amount,"total gst amount")
+
+                grand_total_grand_total_amount = Invoice.objects.filter(
+                    vendor=user,
+                    invoice_date__range=[startdate, enddate]
+                ).aggregate(total_amount=Sum('grand_total_amount'))
+
+                # `total_grand_total_amount` is a dictionary with the sum under the key 'total_amount'
+                grand_total_amount = float(grand_total_grand_total_amount['total_amount'])
+                print(grand_total_amount," total amount searched")
+
+                # Aggregate the sum of `cash_amount`
+                cash_amount_sum = Invoice.objects.filter(
+                    vendor=user,
+                    invoice_date__range=[startdate, enddate]
+                ).aggregate(total_cash_amount=Sum('Due_amount'))
+
+                # # Access the correct key 'total_cash_amount'
+                total_cash_amount =float( cash_amount_sum['total_cash_amount'])
+                print(total_cash_amount,"total cash")
+
+                online_amount_sum = Invoice.objects.filter(
+                    vendor=user,
+                    invoice_date__range=[startdate, enddate]
+                ).aggregate(total_online_amount=Sum('accepted_amount'))
+
+                # Access the correct key 'total_online_amount'
+                total_online_amount = float(online_amount_sum['total_online_amount'])
+                print(total_online_amount,"online amount")
+                
+            # Query to get the data with totals for each channel
+                # Query to get the data with totals for each channel
+                channel_data = Invoice.objects.filter(
+                    vendor=user,
+                    invoice_date__range=[startdate, enddate]
+                ).values('customer__channel').annotate(
+                    total_grand_total=Sum('grand_total_amount'),
+                    total_gst_amount=Sum('gst_amount'),
+                    total_sgst_amount=Sum('sgst_amount'),
+                    total_invoices=Count('id'),
+                    total_tax_amount=Sum(F('gst_amount') + F('sgst_amount')),  # Sum of GST and SGST as tax amount
+                    net_profit=Sum(F('grand_total_amount') - (F('gst_amount') + F('sgst_amount')))  # Net Profit
+                )
+
+                # Calculate the total sums across all channels (Grand total sum, Tax sum, Net Profit)
+                total_grand_total_sum = channel_data.aggregate(Sum('total_grand_total'))['total_grand_total__sum'] or 0
+                total_tax_amount_sum = channel_data.aggregate(Sum('total_tax_amount'))['total_tax_amount__sum'] or 0
+                net_profit_sum = total_grand_total_sum - total_tax_amount_sum  # Calculate net profit for the entire period
+
+                # Calculate total invoices count
+                total_invoices_count = sum(data['total_invoices'] for data in channel_data)
+
+                return render(request,'datewisesale.html',{'active_page':'index','sattle_total_amount':sattle_total_amount,
+                                                    'channel_data': channel_data,
+                                                    'total_grand_total_sum': total_grand_total_sum,
+                                                    'total_tax_amount_sum': total_tax_amount_sum,
+                                                    'net_profit_sum': net_profit_sum,
+                                                    'total_invoices_count': total_invoices_count,'total_cash_amount':total_cash_amount,'total_online_amount':total_online_amount,'grand_total_amount':grand_total_amount,'startdate':startdate,'enddate':enddate,'folio_total_amount':folio_total_amount,'total_gst_amount':total_gst_amount})
             else:
-                total_gst_amount = total_gst_amount * 2
-            print(total_gst_amount,"total gst amount")
-
-            grand_total_grand_total_amount = Invoice.objects.filter(
-                vendor=user,
-                invoice_date__range=[startdate, enddate]
-            ).aggregate(total_amount=Sum('grand_total_amount'))
-
-            # `total_grand_total_amount` is a dictionary with the sum under the key 'total_amount'
-            grand_total_amount = float(grand_total_grand_total_amount['total_amount'])
-            print(grand_total_amount," total amount searched")
-
-            # Aggregate the sum of `cash_amount`
-            cash_amount_sum = Invoice.objects.filter(
-                vendor=user,
-                invoice_date__range=[startdate, enddate]
-            ).aggregate(total_cash_amount=Sum('Due_amount'))
-
-            # # Access the correct key 'total_cash_amount'
-            total_cash_amount =float( cash_amount_sum['total_cash_amount'])
-            print(total_cash_amount,"total cash")
-
-            online_amount_sum = Invoice.objects.filter(
-                vendor=user,
-                invoice_date__range=[startdate, enddate]
-            ).aggregate(total_online_amount=Sum('accepted_amount'))
-
-            # Access the correct key 'total_online_amount'
-            total_online_amount = float(online_amount_sum['total_online_amount'])
-            print(total_online_amount,"online amount")
-            
-            return render(request,'datewisesale.html',{'active_page':'index','sattle_total_amount':sattle_total_amount,
-                                                       'total_cash_amount':total_cash_amount,'total_online_amount':total_online_amount,'grand_total_amount':grand_total_amount,'startdate':startdate,'enddate':enddate,'folio_total_amount':folio_total_amount,'total_gst_amount':total_gst_amount})
-
+                return render(request,'datewisesale.html',{'active_page':'index','startdate':startdate,'enddate':enddate,
+                                        'erroe':"NO DATA FIND ON THIS DATES"})
         else:
             return redirect('loginpage')
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)  
+
+
+
+def todaysales(request):
+    # try:
+        if request.user.is_superuser :
+            user=request.user
+
+            today = datetime.now().date()
+            yestarday = today - timedelta(days=1)
+
+            startdate = yestarday
+            enddate = today
+            
+            if Invoice.objects.filter(vendor=user,invoice_date__range=[startdate,enddate]).exists():
+
+                total_grand_total_amount = Invoice.objects.filter(
+                    vendor=user,
+                    invoice_date__range=[startdate, enddate],
+                    foliostatus=True
+                ).aggregate(total_amount=Sum('grand_total_amount'))
+
+                try:
+                    # `total_grand_total_amount` is a dictionary with the sum under the key 'total_amount'
+                    sattle_total_amount = float(total_grand_total_amount['total_amount'])
+                    print(sattle_total_amount,"total amount searched")
+                except (TypeError, ValueError):
+                    sattle_total_amount = 0.00
+
+                folio_total_grand_total_amount = Invoice.objects.filter(
+                    vendor=user,
+                    invoice_date__range=[startdate, enddate],
+                    foliostatus=False
+                ).aggregate(total_amount=Sum('grand_total_amount'))
+
+                try:
+                    # `total_grand_total_amount` is a dictionary with the sum under the key 'total_amount'
+                    folio_total_amount = folio_total_grand_total_amount['total_amount']
+                    print(folio_total_amount,"folio total amount searched")
+                except (TypeError, ValueError):
+                    folio_total_amount = 0.00
+                            
+                # Aggregate the sum of `gst_amount`
+                gst_amount_sum = Invoice.objects.filter(
+                    vendor=user,
+                    invoice_date__range=[startdate, enddate]
+                ).aggregate(total_gst_amount=Sum('gst_amount'))
+
+                total_gst_amount = float(gst_amount_sum['total_gst_amount'])
+                if total_gst_amount == None:
+                    pass
+                else:
+                    total_gst_amount = total_gst_amount * 2
+                print(total_gst_amount,"total gst amount")
+
+                grand_total_grand_total_amount = Invoice.objects.filter(
+                    vendor=user,
+                    invoice_date__range=[startdate, enddate]
+                ).aggregate(total_amount=Sum('grand_total_amount'))
+
+                # `total_grand_total_amount` is a dictionary with the sum under the key 'total_amount'
+                grand_total_amount = float(grand_total_grand_total_amount['total_amount'])
+                print(grand_total_amount," total amount searched")
+
+                # Aggregate the sum of `cash_amount`
+                cash_amount_sum = Invoice.objects.filter(
+                    vendor=user,
+                    invoice_date__range=[startdate, enddate]
+                ).aggregate(total_cash_amount=Sum('Due_amount'))
+
+                # # Access the correct key 'total_cash_amount'
+                total_cash_amount =float( cash_amount_sum['total_cash_amount'])
+                print(total_cash_amount,"total cash")
+
+                online_amount_sum = Invoice.objects.filter(
+                    vendor=user,
+                    invoice_date__range=[startdate, enddate]
+                ).aggregate(total_online_amount=Sum('accepted_amount'))
+
+                # Access the correct key 'total_online_amount'
+                total_online_amount = float(online_amount_sum['total_online_amount'])
+                print(total_online_amount,"online amount")
+                
+            # Query to get the data with totals for each channel
+                # Query to get the data with totals for each channel
+                channel_data = Invoice.objects.filter(
+                    vendor=user,
+                    invoice_date__range=[startdate, enddate]
+                ).values('customer__channel').annotate(
+                    total_grand_total=Sum('grand_total_amount'),
+                    total_gst_amount=Sum('gst_amount'),
+                    total_sgst_amount=Sum('sgst_amount'),
+                    total_invoices=Count('id'),
+                    total_tax_amount=Sum(F('gst_amount') + F('sgst_amount')),  # Sum of GST and SGST as tax amount
+                    net_profit=Sum(F('grand_total_amount') - (F('gst_amount') + F('sgst_amount')))  # Net Profit
+                )
+
+                # Calculate the total sums across all channels (Grand total sum, Tax sum, Net Profit)
+                total_grand_total_sum = channel_data.aggregate(Sum('total_grand_total'))['total_grand_total__sum'] or 0
+                total_tax_amount_sum = channel_data.aggregate(Sum('total_tax_amount'))['total_tax_amount__sum'] or 0
+                net_profit_sum = total_grand_total_sum - total_tax_amount_sum  # Calculate net profit for the entire period
+
+                # Calculate total invoices count
+                total_invoices_count = sum(data['total_invoices'] for data in channel_data)
+
+                return render(request,'datewisesale.html',{'active_page':'todaysales','sattle_total_amount':sattle_total_amount,
+                                                    'channel_data': channel_data,
+                                                    'total_grand_total_sum': total_grand_total_sum,
+                                                    'total_tax_amount_sum': total_tax_amount_sum,
+                                                    'net_profit_sum': net_profit_sum,
+                                                    'total_invoices_count': total_invoices_count,'total_cash_amount':total_cash_amount,'total_online_amount':total_online_amount,'grand_total_amount':grand_total_amount,'startdate':startdate,'enddate':enddate,'folio_total_amount':folio_total_amount,'total_gst_amount':total_gst_amount})
+            else:
+                return render(request,'datewisesale.html',{'active_page':'todaysales','startdate':startdate,'enddate':enddate,
+                                        'erroe':"NO DATA FIND ON THIS DATES"})
+        else:
+            return redirect('loginpage')
+    # except Exception as e:
+    #     return render(request, '404.html', {'error_message': str(e)}, status=500)  
+
+
 
 
 
