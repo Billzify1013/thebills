@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-ale$nh!1)-^(ni^hlrlrq$+=xuwm*8!ffb^cn907j&r+ul_=bk
 DEBUG = False
 # DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['.billzify.com']
 
 
 # Application definition
@@ -193,4 +193,4 @@ SESSION_COOKIE_AGE = 86400  # 24 hours in seconds
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
 
-# CSRF_TRUSTED_ORIGINS = ['https://www.billzify.com','https://billzify.com']
+# CSRF_TRUSTED_ORIGINS = ['https://www.billzify.com','https://live.billzify.com']
