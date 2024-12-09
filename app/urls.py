@@ -14,7 +14,7 @@ urlpatterns = [
     path('homepage/',views.homepage,name="homepage"),
     path('index/',views.index,name="index"),
     path('changeindexyear/', views.changeindexyear, name='changeindexyear'),
-    path('signuppage/',views.signuppage,name="signuppage"),
+    # path('signuppage/',views.signuppage,name="signuppage"),
     path('loginpage/',views.loginpage,name="loginpage"),
     path('advanceroombookpage/',views.advanceroombookpage,name="advanceroombookpage"),
     path('subscriptionplanpage/',views.subscriptionplanpage,name="subscriptionplanpage"),
@@ -192,8 +192,7 @@ urlpatterns = [
     # aiosell booking management
     path('aiosell/new_reservation/', aiosellbook.aiosell_new_reservation, name='aiosell_new_reservation'),
     path('update_reservation', aiosellbook.aiosell_new_reservation, name='aiosell_new_reservation'),
-    path('update_reservation/', aiosellbook.aiosell_new_reservation, name='aiosell_new_reservation'),
-
+    
     
     # travel agancy handling
     path('travelagancy/', travelagancy.travelagancy, name='travelagancy'),
@@ -281,6 +280,11 @@ urlpatterns = [
     path('deletehotelimg/<int:id>/', hourlypage.deletehotelimg, name='deletehotelimg'),
     path('addcontactbe/', hourlypage.addcontactbe, name='addcontactbe'),
     path('updatebookeg/', hourlypage.updatebookeg, name='updatebookeg'),
+
+
+    path('createsubplan/',employeemanage.createsubplan,name="createsubplan"),
+    path('addmsgtouser/',employeemanage.addmsgtouser,name="addmsgtouser"),
+
 
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

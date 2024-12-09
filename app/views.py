@@ -1879,19 +1879,20 @@ def signup(request):
             form = UserCreationForm(request.POST)
             if form.is_valid():
                 form.save()
-                username = form.cleaned_data.get('username')
-                raw_password = form.cleaned_data.get('password1')
-                user = authenticate(username=username, password=raw_password)
-                login(request, user)
+                # username = form.cleaned_data.get('username')
+                # raw_password = form.cleaned_data.get('password1')
+                # user = authenticate(username=username, password=raw_password)
+                # login(request, user)
                 form = UserCreationForm()
                 messages.success(request,'Registerd Succesfully!   ')
-                return render(request, 'login.html', {'form': form}) 
+                
+                return redirect('handleuser')
         else:
             form = UserCreationForm()
-        return render(request, 'signup.html', {'form': form})
+        return redirect('handleuser')
     except Exception as e:
         messages.error(request, f'An error occurred: {str(e)}')
-        return redirect('signuppage')
+        return redirect('handleuser')
 
 from django.contrib.sessions.models import Session
 from django.utils import timezone

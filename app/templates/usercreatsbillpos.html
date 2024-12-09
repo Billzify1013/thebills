@@ -1,1 +1,334 @@
-user creationsuperadmin page
+
+{% extends "publicbase.html" %}
+{% block content %}
+{%load static%}
+
+
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <div id="success-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%endif%}
+</div>
+{%endfor%}
+{%endif%}
+
+<body>
+ <!-- Content -->
+
+ 
+
+  <div class="container">
+    
+    <div class="box">
+
+      
+    <div class="container-xxl">
+        <div class="authentication-wrapper authentication-basic container-p-y">
+          <div class="authentication-inner">
+            <!-- Register Card -->
+            <div class="card">
+              <div class="card-body">
+               
+                <h4 class="mb-2">Adventure starts here 🚀</h4>
+<p class="mb-4">Make your Hotel management easy and fun!</p>
+<form action="{% url 'signup' %}" method="post">
+  {% csrf_token %}
+  <div class="mb-3">
+    <label for="username" class="form-label">Username</label>
+    <input
+      type="text"
+      class="form-control"
+      id="username"
+      name="username"
+      placeholder="Enter your username"
+    />
+    {% for error in form.username.errors %}
+    <div class="error">{{ error }}</div>
+    {% endfor %}
+  </div>
+
+  <div class="mb-3">
+    <label for="password1" class="form-label">Password</label>
+    <input
+      type="password"
+      class="form-control"
+      id="password1"
+      name="password1"
+      placeholder="Enter your password"
+    />
+    {% for error in form.password1.errors %}
+    <div class="error">{{ error }}</div>
+    {% endfor %}
+  </div>
+
+  <div class="mb-3">
+    <label for="password2" class="form-label">Confirm Password</label>
+    <input
+      type="password"
+      class="form-control"
+      id="password2"
+      name="password2"
+      placeholder="Confirm your password"
+    />
+    {% for error in form.password2.errors %}
+    <div class="error">{{ error }}</div>
+    {% endfor %}
+  </div>
+
+  <div class="mb-3">
+    <div class="form-check">
+      <input class="form-check-input" required type="checkbox" id="terms-conditions" name="terms" />
+      <label class="form-check-label" for="terms-conditions">
+        I agree to <a href="">privacy policy</a> & <a href="">terms</a>
+      </label>
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary d-grid w-100">Sign up</button>
+</form>
+
+<p class="text-center mt-3">
+  <span>Already have an account?</span>
+  <a href="{% url 'loginpage' %}">
+    <span>Sign in instead</span>
+  </a>
+</p>
+
+                
+            <!-- Register Card -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+    
+</div>
+
+
+
+
+{% comment %} second working here {% endcomment %}
+
+<DIV class="ROW">
+
+    <div class="col-4"> 
+        <div class="card">
+            <div class="card">
+                <div class="card-body">
+                 
+                  <h4 class="mb-2">Create User Subscription</h4>
+ 
+  <form action="{% url 'createsubplan' %}" method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="username" class="form-label">select user</label>
+      <select
+        type="text"
+        class="form-control"
+       
+        name="user"
+        placeholder="Enter your username"
+      >
+
+      {%for i in users%}
+      <option value="{{i.id}}">{{i.username}} {{i.first_name}}</option>
+
+      {%endfor%}
+
+    </select>
+    </div>
+
+    
+  
+    <div class="mb-3">
+      <label for="password1" class="form-label">Plans</label>
+      <select
+      type="text"
+      class="form-control"
+     
+      name="plans"
+      placeholder="Enter your username"
+    >
+
+    {%for i in subplan%}
+    <option value="{{i.id}}">{{i.name}} {{i.price}}</option>
+
+    {%endfor%}
+
+  </select>
+    </div>
+  
+    <div class="mb-3">
+      <label for="password2" class="form-label">Start Date</label>
+      <input
+        type="date"
+        class="form-control"
+        
+        name="startdate"
+        placeholder="Confirm your password"
+      />
+      
+    </div>
+
+    <div class="mb-3">
+        <label for="password2" class="form-label">End Date</label>
+        <input
+          type="date"
+          class="form-control"
+         
+          name="enddate"
+          placeholder="Confirm your password"
+        />
+        
+      </div>
+  
+    
+  
+    <button type="submit" class="btn btn-primary d-grid w-100">Create Subscription</button>
+  </form>
+  
+ 
+  
+                  
+              <!-- Register Card -->
+            </div>
+          </div>
+        </div>
+    </div>
+    
+    <div class="col-4"> 
+        <div class="card">
+            <div class="card-body">
+             
+              <h4 class="mb-2">user message data</h4>
+<form action="{% url 'addmsgtouser' %}" method="post">
+{% csrf_token %}
+
+<div class="mb-3">
+    <label for="username" class="form-label">select user</label>
+    <select
+      type="text"
+      class="form-control"
+     
+      name="user"
+      placeholder="Enter your username"
+    >
+
+    {%for i in users%}
+    <option value="{{i.id}}">{{i.username}} {{i.first_name}}</option>
+
+    {%endfor%}
+
+  </select>
+  </div>
+
+
+<div class="mb-3">
+  <label for="username" class="form-label">Default Limit</label>
+  <input
+    type="number"
+    class="form-control"
+   
+    name="msglimit"
+    placeholder="Enter your username"
+  />
+ 
+</div>
+
+
+<button type="submit" class="btn btn-primary d-grid w-100">add messages</button>
+</form>
+
+
+              
+          <!-- Register Card -->
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-4"> 
+        <div class="card">
+            <div class="card-body">
+         <h3>dynamic create from superadmin</h3>
+
+              
+          <!-- Register Card -->
+        </div>
+      </div>
+    </div>
+    
+    
+    </DIV>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<style>
+  * {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+}
+
+
+
+.container {
+display: flex;
+flex-wrap: wrap; /* Allows the flex items to wrap to the next line */
+justify-content: space-between; /* Adjusts spacing between flex items */
+padding: 10px;
+}
+
+.box {
+flex: 1 1 30%; /* Grows and shrinks to 30% of the container's width */
+margin: 10px;
+padding: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+.box {
+  flex: 1 1 45%; /* Adjusts to 45% width on medium screens */
+}
+}
+
+@media (max-width: 480px) {
+.box {
+  flex: 1 1 100%; /* Stacks the divs vertically on small screens */
+}
+#lgimg{
+  height:300px;
+}
+}
+
+</style>
+</body>
+  <!-- / Content -->
+
+  {%endblock%}
+
+
+

@@ -911,17 +911,8 @@ def userdatacheckbychandanbillsteam(request):
         if request.user.is_superuser:
             current_date = datetime.now().date()
             userdata = Subscription.objects.order_by('user', 'end_date')
+            
             return render(request,'usersdatabybills.html',{'userdata':userdata})
-        else:
-            return redirect('loginpage')
-    except Exception as e:
-        return render(request, '404.html', {'error_message': str(e)}, status=500)    
-    
-def handleuser(request):
-    try:
-        if request.user.is_superuser:
-
-            return render(request,'usercreatsbillpos.html')
         else:
             return redirect('loginpage')
     except Exception as e:
@@ -1434,3 +1425,94 @@ def searchwebsitedata(request):
         'terms_lines':terms_lines,
         'cpolicy':cpolicy
     })
+
+
+
+
+from django.contrib.auth.forms import UserCreationForm
+def handleuser(request):
+    try:
+        if request.user.is_superuser:
+            form = UserCreationForm()
+            users= User.objects.all()
+            subplan = SubscriptionPlan.objects.all()
+            return render(request,'usercreatsbillpos.html',{'form': form,'users':users,'subplan':subplan})
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)    
+    
+
+
+def createsubplan(request):
+    # try:
+        if request.user.is_superuser and request.method=="POST":
+            user = request.POST.get('user')
+            plans = request.POST.get('plans')
+            startdate = request.POST.get('startdate')
+            enddate = request.POST.get('enddate')
+            if User.objects.filter(id=user).exists():
+                userid = User.objects.get(id=user)
+                if SubscriptionPlan.objects.filter(id=plans).exists():
+                    subid = SubscriptionPlan.objects.get(id=plans)
+                    Subscription.objects.create(
+                        user=userid,
+                        plan=subid,
+                        start_date=startdate,
+                        end_date=enddate
+                    )
+                    if onlinechannls.objects.filter(vendor=userid,channalname="self").exists():
+                        pass
+                    else:
+                        onlinechannls.objects.create(vendor=userid,channalname="self")
+
+                    messages.success(request,'Plan created!')
+
+                else:
+                    messages.error(request,'Plan not found')
+            else:
+                    messages.error(request,'user not found')
+
+            return redirect('handleuser')
+
+
+        else:
+            return redirect('handleuser')
+    # except Exception as e:
+    #     return render(request, '404.html', {'error_message': str(e)}, status=500)    
+    
+
+
+def addmsgtouser(request):
+    # try:
+        if request.user.is_superuser and request.method=="POST":
+            user = request.POST.get('user')
+            msglimit = int(request.POST.get('msglimit'))
+            Messgesinfo
+            if User.objects.filter(id=user).exists():
+                userid = User.objects.get(id=user)
+                if Messgesinfo.objects.filter(vendor=userid).exists():
+                    msgdata = Messgesinfo.objects.get(vendor=userid)
+                    defaludatas = msgdata.defaultlimit
+                    changeslmt = msglimit+defaludatas
+                    Messgesinfo.objects.filter(vendor=userid).update(defaultlimit=changeslmt)
+
+                else:
+                    Messgesinfo.objects.create(vendor=userid,
+                                     defaultlimit=msglimit, changedlimit=0  )
+                    
+                messages.success(request,'messages added!')
+                return redirect('handleuser')
+
+            else:
+                    messages.error(request,'msg Plan not found')
+                    return redirect('handleuser')
+
+        else:
+                messages.error(request,'user not found')
+                return redirect('handleuser')
+    # except Exception as e:
+    #     return render(request, '404.html', {'error_message': str(e)}, status=500)    
+    
+
+
