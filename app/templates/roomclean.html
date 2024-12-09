@@ -16,98 +16,16 @@
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 
-{% comment %} 
-<div class="row ">
-    <h5 class="text ms-2">Cleaned Rooms
-        <span class="float-end text-small me-3">Data Will Be Update Every-Day Automatically</span>
-    </h5>
-{% for i in cleanrooms %}
-<div class="col-2 col-outline-danger">
-    <div class="card mt-3">
-    <div class="card-body ">
-        <center><i class='bx bx-happy text-success ' style="font-size:25px"></i>
-            
-            
-        <h6 class="card-title  mt-1 mb-0 text-center">{{i.rooms.room_name}}</h6>
-        <p class="mt-0 text-center">{{i.rooms.room_type}}</p>
-        
-    </center>
-        
-    </div>
-</div>
-</div> 
-{%endfor%}
-</div>
+<div class="ps-5" style="height:60px;width:100%;background:white;box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;">
 
-<div class="row mt-5">
-    <h5 class="text ms-2 ">Uncleaned Rooms</h5>
-    {% for i in uncleandroom %}
-    
-    <div class="col-2 col-outline-danger">
-        <a href="#" style="text-decoration:none "  data-bs-toggle="modal"
-        data-bs-target="#modalToggle" onclick="getroomnumberpopup({{i.id}})">
-        <div class="card mt-3">
-        <div class="card-body ">
-            <center>  <i class='bx bx-sad text-danger' style="font-size:25px"></i>
-                
-                
-            <h4 class="card-title   mt- text-center">{{i.room_name}}</h4>
-            <p class="card-title   mt- text-center">{{i.room_type}}</p>
-            
-        </center>
-            
-        </div>
-    </div></a>
-    </div> 
-    {%endfor%}
-    </div> {% endcomment %}
-{% comment %} 
-    
-<div class="container">
-      <div class="row">
-        <h5 class="text ms-2 mt-4 mb-4"><b>{{hotelname}}</b>
-        </h5>
-        {% for i in rooms %}
-        {% if i.is_clean %}
-          
-            
-        <div class="col-12 col-md-4 col-lg-2 mt-3">
-            <div class="card">
-              <a href="{%url 'cleanroombtn' id=i.id%}"><i class="bi bi-stars fs-5 m-2 text-info text-end float-end"></i></a>
-            
-            
-                <div class="card-body text-center">
-                    <i class='bx bx-happy text-success' style="font-size:25px"></i>
-                    <h6 class="card-title mt-1 mb-0">{{ i.room_name }}</h6>
-                    <p class="mt-0">{{ i.room_type }}clean</p>
-                </div>
-            </div>
-        </div>
-        {%else%}
-        
-        <div class="col-12 col-md-4 col-lg-2 mt-3">
-          <div class="card">
-            
-            <a href="{%url 'cleanroombtn' id=i.id%}"><i class="fa fa-broom text-danger fs-5  m-2 text-end float-end"></i></a>
-              <div class="card-body text-center">
-                  <i class='bx bx-happy text-success' style="font-size:25px"></i>
-                  <h6 class="card-title mt-1 mb-0">{{ i.room_name }}</h6>
-                  <p class="mt-0">{{ i.room_type }}</p>
-              </div>
-          </div>
-      </div>
-      {%endif%}
-        {% endfor %}
-    </div>
-    
-    </div>
+  <img src="{{hotelname.profile_image.url}}"   style="height:50px;width:auto" />
 
-  </div> {% endcomment %}
+</div>
 
 
   <div class="container">
     <div class="row">
-      <h5 class="text ms-2 mt-4 mb-4"><b>{{ hotelname }}</b></h5>
+      <h5 class="text ms-2 mt-4 mb-4"><b></b></h5>
       {% for i in rooms %}
         {% if i.is_clean %}
           <!-- Two columns on mobile, four on medium screens, and two on large screens -->

@@ -117,7 +117,7 @@
 
                 <li class="menu-item text-uppercase {% if active_page == 'homepage' %}active{% endif %} ">
                   <a href="{% url 'homepage'  %}" class="menu-link">
-                    <i class='menu-icon bx bx-dna'></i>
+                    <i class='menu-icon bx bx-home'></i>
                     <div data-i18n="Analytics">Home</div>
                   </a>
                 </li>
@@ -176,11 +176,18 @@
                 </li>
 
                 <li class="menu-item text-uppercase {% if active_page == 'roomclean' %}active{% endif %} ">
-                  <a href="{% url 'roomclean' user=request.user.id %}" class="menu-link">
+                  <a  id="open-roomclean" class="menu-link">
                     <i class='menu-icon bx bxs-paint'></i>
                     <div data-i18n="Analytics">Rooms Cleaning</div>
                   </a>
                 </li>
+
+                <script>
+                  document.getElementById('open-roomclean').addEventListener('click', function() {
+                      // Open the URL in a new tab
+                      window.open("{% url 'roomclean' user.id %}", '_blank');
+                  });
+              </script>
 
                 <li class="menu-item text-uppercase {% if active_page == 'dailyattendance' %}active{% endif %} ">
                   <a href="{% url 'dailyattendance'  %}" class="menu-link">
@@ -244,27 +251,27 @@
 
 
                 <li class="menu-header small text-uppercase">
-                  <span class="menu-header-text">Amenities Management</span>
+                  <span class="menu-header-text">POS Management</span>
                 </li>
 
                 <li class="menu-item text-uppercase {% if active_page == 'aminityinvoice' %}active{% endif %} ">
                   <a href="{% url 'aminityinvoice'  %}" class="menu-link">
                     <i class='menu-icon bx bx-laptop'></i>
-                    <div data-i18n="Analytics">Amenities Invoicing</div>
+                    <div data-i18n="Analytics">POS Invoicing</div>
                   </a>
                 </li>
 
                 <li class="menu-item text-uppercase {% if active_page == 'aminityhistory' %}active{% endif %} ">
                   <a href="{% url 'aminityhistory'  %}" class="menu-link">
                     <i class='menu-icon bx mb-1 bx-timer'></i>
-                    <div data-i18n="Analytics">Amenities History</div>
+                    <div data-i18n="Analytics">POS History</div>
                   </a>
                 </li>
 
                 <li class="menu-item text-uppercase {% if active_page == 'aminitysales' %}active{% endif %} ">
                   <a href="{% url 'aminitysales'  %}" class="menu-link">
                     <i class='menu-icon bx bx-analyse'></i>
-                    <div data-i18n="Analytics">Amenities Sales</div>
+                    <div data-i18n="Analytics">POS Sales</div>
                   </a>
                 </li>
 
@@ -357,32 +364,9 @@
               </a>
             </li> 
 
-            {% comment %} <li class="menu-item text-uppercase {% if active_page == 'offers' %}active{% endif %} ">
-              <a href="{% url 'offers'  %}" class="menu-link">
-                <i class='menu-icon bx  bx-gift'></i>
-                <div data-i18n="Analytics">Offers</div>
-              </a>
-            </li> {% endcomment %}
-
-
-            {% comment %} <li class="menu-header small text-uppercase">
-              <span class="menu-header-text">Qr Management</span>
-            </li> {% endcomment %}
-
-            {% comment %} <li class="menu-item text-uppercase {% if active_page == 'qrindex' %}active{% endif %} ">
-              <a href="{% url 'Website'  %}" class="menu-link">
-                <i class='menu-icon bx bx-qr-scan'></i>
-                <div data-i18n="Analytics">Qr Management</div>
-              </a>
-            </li> {% endcomment %}
-
-
-            {% comment %} <li class="menu-item text-uppercase {% if active_page == 'websetting' %}active{% endif %} ">
-              <a href="{% url 'websetting' %}" class="menu-link">
-                <i class='menu-icon bx bx-cog'></i>
-                <div data-i18n="Analytics">Website Setting</div>
-              </a>
-            </li>  {% endcomment %}
+            <li class="menu-header small text-uppercase">
+              <span class="menu-header-text">BOOKING - ENGINE</span>
+            </li>
 
             
             <li class="menu-item text-uppercase {% if active_page == 'mobileview' %}active{% endif %} ">
@@ -629,8 +613,17 @@
               <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
                 <!-- Search -->
                 <div class="navbar-nav align-items-center">
-                  <a href="{% url 'homepage'  %}" class="menu-link text-gray"><i class='menu-icon bx bx-dna'></i></a>
-                  <a href="{% url 'todaybookingpage'  %}" class="menu-link text-gray ms-3"><i class='menu-icon bx bxs-plane-land'></i></a>
+                 
+                  <a
+                          type=""
+                          class=""
+                          data-bs-toggle="modal"
+                          data-bs-target="#basicModalgoshourtcut"
+                          style="cursor: pointer;"
+                        >
+                          <i style="font-size:25px" class='bx bx-grid-alt'></i>
+                        </a>
+
                 </div>
                 <!-- /Search -->
   
@@ -975,6 +968,156 @@
     <div id="content">
        
     </div>
+
+
+
+
+      <!-- Modal -->
+      <div class="modal fade" id="basicModalgoshourtcut"  tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog" role="document" >
+          <div class="modal-content ">
+            <div class="modal-header bg-light">
+              <h5 class="modal-title" id="exampleModalLabel1">Shortcuts</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body bg-light">
+
+              <div class="row"> 
+                <div class="col-3 p-1">
+                  <a href="{% url 'homepage'  %}"><div class="card m-2" style="height:80px">
+                   <center> <h6 class="mt-3"><br>
+                    <b>HOME</b></h6></center>
+                  </div></a>
+                </div>
+
+                <div class="col-3 p-1">
+                  <a href="{% url 'advanceroombookpage'  %}"><div class="card m-2" style="height:80px">
+                   <center> <h6 class=" mt-4">
+                    
+                    <b>ADVANCE-BOOKING</b></h6></center>
+                  </div></a>
+                </div>
+
+                <div class="col-3 p-1">
+                  <a href="{% url 'weekviews' %}"><div class="card m-2" style="height:80px">
+                   <center> <h6 class="mt-3"><br>
+                    <b>VIEWS</b></h6></center>
+                  </div></a>
+                </div>
+
+                <div class="col-3 p-1">
+                  <a href="{% url 'aminityinvoice'  %}"><div class="card m-2" style="height:80px">
+                   <center> <h6 class="mt-3"><br>
+                    <b>POS</b></h6></center>
+                  </div></a>
+                </div>
+
+                <div class="col-3 p-1">
+                  <a href="{% url 'guestplans'  %}"><div class="card m-2" style="height:80px">
+                   <center> <h6 class="mt-3"><br>
+                    <b>PLAN</b></h6></center>
+                  </div></a>
+                </div>
+
+
+                <div class="col-3 p-1">
+                  <a href="{% url 'guesthistory'  %}"><div class="card m-2" style="height:80px">
+                   <center> <h6 class="mt-3"><br>
+                    <b>HISTORY</b></h6></center>
+                  </div></a>
+                </div>
+
+                <div class="col-3 p-1">
+                  <a href="{% url 'stayinvoice' %}"><div class="card m-2" style="height:80px">
+                   <center> <h6 class="mt-3"><br>
+                    <b>PAYMENTS</b></h6></center>
+                  </div></a>
+                </div>
+                
+                
+
+                <div class="col-3 p-1">
+                  <a href="{% url 'exceldatapage' %}"><div class="card m-2" style="height:80px">
+                   <center> <h6 class="mt-3"><br>
+                    <b>EXCEL-REPORT</b></h6></center>
+                  </div></a>
+                </div>
+
+                <div class="col-3 p-1">
+                  <a href="{% url 'mobileview' user=request.user %}"><div class="card m-2" style="height:80px">
+                   <center> <h6 class="mt-3"><br>
+                    <b>BOOKING-ENGINE</b></h6></center>
+                  </div></a>
+                </div>
+
+                <div class="col-3 p-1">
+                  <a href="{% url 'websettings'  %}"><div class="card m-2" style="height:80px">
+                   <center> <h6 class="mt-3"><br>
+                    <b>ENGINE-SETTINGS</b></h6></center>
+                  </div></a>
+                </div>
+
+
+                <div class="col-3 p-1">
+                  <a href="{% url 'purchesinvoice'  %}"><div class="card m-2" style="height:80px">
+                   <center> <h6 class="mt-3"><br>
+                    <b>PURCHES</b></h6></center>
+                  </div></a>
+                </div>
+
+                <div class="col-3 p-1">
+                  <a href="{% url 'index'  %}"><div class="card m-2" style="height:80px">
+                   <center> <h6 class="mt-3"><br>
+                    <b>SALES</b></h6></center>
+                  </div></a>
+                </div>
+
+                <div class="col-3 p-1">
+                  <a href="{% url 'eventpackage'  %}"><div class="card m-2" style="height:80px">
+                   <center> <h6 class="mt-3"><br>
+                    <b>EVENTS</b></h6></center>
+                  </div></a>
+                </div>
+
+                <div class="col-3 p-1">
+                  <a href="{% url 'employee'  %}"><div class="card m-2" style="height:80px">
+                   <center> <h6 class="mt-3"><br>
+                    <b>EMPLOYEE</b></h6></center>
+                  </div></a>
+                </div>
+
+                <div class="col-3 p-1">
+                  <a href="{% url 'comaypage' %}"><div class="card m-2" style="height:80px">
+                   <center> <h6 class="mt-3"><br>
+                    <b>COMPANY</b></h6></center>
+                  </div></a>
+                </div>
+
+                <div class="col-3 p-1">
+                  <a href="{% url 'travelagancy' %}"><div class="card m-2" style="height:80px">
+                   <center> <h6 class="mt-3"><br>
+                    <b>AGENCY</b></h6></center>
+                  </div></a>
+                </div>
+              
+                
+
+              </div>
+
+
+
+
+              
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
     <script>
         // Show the loader when the page is loading

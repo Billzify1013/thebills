@@ -11,6 +11,7 @@ import requests
 from django.conf import settings
 import urllib.parse
 from django.db.models import Sum
+from django.urls import reverse
 
 
 def setting(request):
@@ -940,8 +941,10 @@ def saveaminitiesinvoice(request):
                     cash_amount=cashamount,
                     online_amount=onlineamount,
                 )
-
-            return redirect("aminityinvoice")
+                
+            url = reverse('aminitiesinvoice', args=[invoiceid])
+            return redirect(url)
+            # return redirect("aminityinvoice")
         else:
             return redirect("loginpage")
     except Exception as e:

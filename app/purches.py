@@ -659,6 +659,8 @@ def searpurchesinvoicedata(request):
 
 from django.http import HttpResponseRedirect
 from .models import Supplier
+
+
 def channalmanager(request):
     try:
         if request.user.is_authenticated:

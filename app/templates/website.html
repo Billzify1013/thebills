@@ -315,7 +315,7 @@ html, body {
                               </div> 
                             </div>
 
-                           
+                          
                             
                                 <div class="col-12 w-100 p-2 mb-2 mt-2">
                                 <button href="#target-div" type="submit" class="btn btn-primary w-100 ">Change Dates</button>
@@ -550,8 +550,8 @@ html, body {
                 <div id="cart-items" class="mb-3"></div>
                 <div class="card p-2 border-top mb-1">
                     <p class="text-success"><b>BOOK NOW & PAY LATER</b> (Pay At Hotel)</p>
-                    <p>CheckIn Date: {{today}}</p>
-                    <p>CheckOut Date: {{tomorrow}}</p>
+                    <p>CheckIn Date: {{today}} ,Check-In Time: {{profile.checkintimes}}</p>
+                    <p>CheckOut Date: {{tomorrow}} ,Check-Out Time: {{profile.checkouttimes}}</p>
                     <p>Total Days: <span id="days-diff">{{daysdiff}}</span></p> <!-- This will show the number of days -->
                    
                 </div>

@@ -940,6 +940,8 @@ def openroomclickformpage(request, id):
             room_data = Rooms.objects.filter(vendor=user, room_name=id)
             roomno = id
             cat_data = Rooms.objects.get(vendor=user, room_name=id)
+            today = datetime.now().date()
+            bookingdates = Booking.objects.filter(vendor=user,room=cat_data,check_in_date__gt=today).first()
             
             roomscategory_id = cat_data.room_type.id
             loyltydata = loylty_data.objects.filter(vendor=user, Is_active=True)
@@ -954,7 +956,8 @@ def openroomclickformpage(request, id):
                 'room_data': room_data,
                 'loyltydata': loyltydata,
                 'meal_plan':meal_plan,
-                'ratedata':ratedata
+                'ratedata':ratedata,
+                'bookingdates':bookingdates,
             })
         else:
             return redirect('loginpage')

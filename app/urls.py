@@ -79,6 +79,8 @@ urlpatterns = [
     path('deleteitemstofolio/',views.deleteitemstofolio,name="deleteitemstofolio"),
     # for users check data
     path('userdatacheckbychandanbillsteam/',employeemanage.userdatacheckbychandanbillsteam,name="userdatacheckbychandanbillsteam"),
+    path('handleuser/',employeemanage.handleuser,name="handleuser"),
+    
     path('searchuserdata/',employeemanage.searchuserdata,name="searchuserdata"),
     path('finddatevisesales/',employeemanage.finddatevisesales,name="finddatevisesales"),
     path('todaysales/',employeemanage.todaysales,name="todaysales"),
@@ -189,7 +191,7 @@ urlpatterns = [
     
     # aiosell booking management
     path('aiosell/new_reservation/', aiosellbook.aiosell_new_reservation, name='aiosell_new_reservation'),
-    path('update_reservation/', aiosellbook.aiosell_new_reservation, name='aiosell_new_reservation'),
+    path('update_reservation', aiosellbook.aiosell_new_reservation, name='aiosell_new_reservation'),
 
     
     # travel agancy handling

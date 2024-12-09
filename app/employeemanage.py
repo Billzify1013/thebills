@@ -659,20 +659,7 @@ def roomclean(request,user):
             user = user 
             today = datetime.now().date()
             lastday = datetime.now().date()
-            # lastday += timedelta(days=1)
             lastday -= timedelta(days=1)
-            # today += timedelta(days=1)
-            # RoomCleaning.objects.filter(vendor=user,current_date__lte =lastday ).all().delete()
-            # Subquery to get all room IDs that are cleaned by the current vendor today
-            # cleaned_rooms_subquery = RoomCleaning.objects.filter(
-            #     vendor=user,
-            #     current_date=today,
-            #     status=True,
-            #     rooms=OuterRef('pk')
-            # ).values('rooms')
-                
-            # Query to get all rooms for the current vendor that are not in the RoomCleaning model today
-            # 
 
             roomdata = Rooms.objects.filter(vendor=user).order_by('room_name')
             cleanrooms = RoomCleaning.objects.filter(vendor=user, current_date=today, status=True)
@@ -681,12 +668,13 @@ def roomclean(request,user):
             return render(request, 'roomclean.html', {
                 'active_page': 'roomclean',
                 'rooms': roomdata,
-                'hotelname':hotelname
+                'hotelname':hotelnames
             })
        
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)    
     
+
          
 def cleanroom(request):
     try:
@@ -922,12 +910,23 @@ def userdatacheckbychandanbillsteam(request):
     try:
         if request.user.is_superuser:
             current_date = datetime.now().date()
-            userdata = Subscription.objects.order_by('user', 'end_date').distinct('user')
+            userdata = Subscription.objects.order_by('user', 'end_date')
             return render(request,'usersdatabybills.html',{'userdata':userdata})
         else:
             return redirect('loginpage')
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)    
+    
+def handleuser(request):
+    try:
+        if request.user.is_superuser:
+
+            return render(request,'usercreatsbillpos.html')
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)    
+    
     
 def searchuserdata(request):
     try:

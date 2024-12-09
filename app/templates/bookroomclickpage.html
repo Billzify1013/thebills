@@ -84,7 +84,7 @@
 
 <div class="row">
 
-
+  
 <div class="content-wrapper">
   <!--header start-->
       <div class="container-xxl flex-grow-1 container-p-y">
@@ -371,7 +371,7 @@
                           class="form-control"
                           placeholder="Phone"
                           aria-label="ACME Inc."
-                          
+                          max="{{ bookingdates.check_in_date|date:"Y-m-d" }}" 
                           aria-describedby="basic-icon-default-company2"
                           required
                         />
@@ -380,6 +380,8 @@
                     
               </div>
           </div>
+
+          
 
           <div class="row">
           <div class="col-3">

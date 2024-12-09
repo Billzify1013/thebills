@@ -425,6 +425,7 @@
         <tr>
           <th>Guest Name</th>
           <th>Phone</th>
+          <th>Booking-Id</th>
           <th>Channel</th>
           <th>Stay Dates</th>
           <th>Total Amount</th>
@@ -445,6 +446,7 @@
           </td>
           {%endif%}
           <td>{{ data.bookingguestphone }}</td>
+          <td>{{ data.booking_id}}</td>
           <td>{{ data.channal.channalname }}</td>
           <td><span class="badge bg-label-primary">{{ data.bookingdate }} - {{ data.checkoutdate }}</span></td>
           <td>{{ data.total_amount }}</td>
@@ -605,7 +607,7 @@
   
       // Add desired headers for the print version
       const headerData = [
-        "Guest Name", "Phone", "Channel", "Stay Dates", 
+        "Guest Name", "Phone", "Booking-Id" ,"Channel", "Stay Dates", 
         "Total Amount", "Payment Type", "Status", "Confirmation"
       ];
   

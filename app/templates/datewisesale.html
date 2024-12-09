@@ -14,47 +14,55 @@
         <div class="card p-3">
             <center><h4 class="pt-2"><b> {{startdate}}</b><br>
             <i class='bx bx-chevrons-down m-1' style="font-size:30px"></i> <br>
-            <b>{{enddate}}</b></h4></center><br>
+            <b>{{enddate}}</b></h4></center>
+            <span class="badge bg-label-success">DATES</span>
         </div>
     </div>
     <div class="col-3 p-2">
-        <b><div class="card p-3">Total Amount from Both Folio Bills and Settled Bills<br><br><br>
+        <b><div class="card p-3">TOTAL SALES<br><br><br>
            <center> <h5>₹ {{grand_total_amount|floatformat:2}}</h5> </center>
+           <span class="badge bg-label-success">TOTAL-SALE</span>
         </div></b>
     </div>
 
     <div class="col-3 p-2">
         <div class="card p-3"><b>Total Amount of Settled Sales Invoices</b><br>
-            <center>  <b><h5>₹ {{sattle_total_amount|floatformat:2}}</h5></b></center><br>
+            <center>  <b><h5>₹ {{sattle_total_amount|floatformat:2}}</h5></b></center>
+            <span class="badge bg-label-success">CHECK-OUT</span>
         </div>
 
     </div>
     <div class="col-3 p-2">
         <b><div class="card p-3">Unbilled Folio Sales Total Amount<br><br>
-            <center><b><h5>₹ {{folio_total_amount|floatformat:2}}</h5></b></center><br>
+            <center><b><h5>₹ {{folio_total_amount|floatformat:2}}</h5></b></center>
+            <span class="badge bg-label-warning">CHECK-IN</span>
         </div></b>
     </div>
     <div class="col-3 p-2">
-        <b><div class="card p-3">Total Tax Amount from Unbilled Folio and Settled Sales Invoice<br><br>
+        <b><div class="card p-3">Total Tax Amount <br><br>
            <center> <h5>₹ {{total_gst_amount|floatformat:2}}</h5></center>
+           <span class="badge bg-label-DANGER">TAX-AMOUNT</span>
         </div></b>
     </div>
     
 
     <div class="col-3 p-2">
-        <b><div class="card p-3">Total Amount Due from Guests<br><br><br>
+        <b><div class="card p-3">Total Amount Due <br><BR>
             <center><h5>₹ {{total_cash_amount|floatformat:2}}</h5></center>
+            <span class="badge bg-label-DANGER">DUE</span>
         </div></b>
     </div>
     <div class="col-3 p-2">
-        <b><div class="card p-3">Total Amount Collected<br><br><br><br>
-            <center><h5>₹ {{total_online_amount|floatformat:2}}</h5></cener>
+        <b><div class="card p-3">Total Amount Collected<br><br>
+            <center><h5>₹ {{total_online_amount|floatformat:2}}</h5></center>
+                <span class="badge bg-label-success">RECIVED</span>
         </div></b>
     </div> 
 
     <div class="col-3 p-2">
-        <b><div class="card p-3">Total Amount After Tax<br><br><br><br>
-            <center><h5 id="final-profit">₹ </h5></cener>
+        <b><div class="card p-3">Total Amount After Tax<br><br>
+            <center><h5 id="final-profit">₹ </h5></center>
+                <span class="badge bg-label-success">PROFIT</span>
         </div></b>
     </div> 
 

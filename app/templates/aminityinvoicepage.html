@@ -63,7 +63,7 @@
     width: 100%;
     background-color: #fff;
     border-radius: 8px;
-    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: ;
     padding: 30px;
 }
 
@@ -191,15 +191,23 @@
         <div class="invoice-container mt-0" id="invoice" >
             <div class="header" style="margin-top:-30px">
                 <div class="row">
-                    <div class="col-2">
+                    <div class="col-12">
                         {%for i in profiledata%}
-                        <img src="{{i.profile_image.url}}" class="mt-4 ms-2" alt="Header Image">
+                      <center>  <img src="{{i.profile_image.url}}" class="mt-4 ms-2" style="height:60px;width:auto"  alt="Header Image">
+                        <div style="font-size:12px">
+                        <p style="font-size:18px"><b>{{i.name}}</b></p>
+                        <p>{{i.address}} ,{{i.counrty}}, {{i.zipcode}}<br>
+                        
+                        Email:{{i.email}}<br>
+                        Phone: {{i.contact}}<br>
+                        GstIn: {{i.gstin}}</p>
+                        </div></center>
                         {%endfor%}
+
                     </div>
-                    <div class="col-10">
-                <img src="{% static 'undercss/assets/img/avatars/inv1 - Copy.png'%}" alt="Header Image">
-            </div></div></div>
-            <div class="invoice-details">{%for data in invoice_data%}
+                    </div></div>
+            <div class="invoice-details" style="font-size:12px;margin-top:15px">
+                {%for data in invoice_data%}
                 <div class="left">
                     <h6>Invoice</h6>
                     <p>Invoice #: {{data.invoicenumber}}</p>
@@ -207,7 +215,7 @@
                     
                     
                 </div> 
-                <div class="center">
+                <div class="center" style="font-size:12px">
                     <h6>Customer Information</h6>
                 <p>Name: {{data.customername}}<br>
                 Phone: {{data.customercontact}}<br>
@@ -221,7 +229,7 @@
                 {%endif%}
                 </div>
                 {%endfor%}
-                <div class="right">
+                {% comment %} <div class="right" style="font-size:12px">
                     {%for i in profiledata%}
                     <h6>{{i.name}}</h6>
                     <p>{{i.address}}</p>
@@ -230,7 +238,7 @@
                     <p>Phone: {{i.contact}}</p>
                     <p>GstIn: {{i.gstin}}</p>
                     {%endfor%}
-                </div>
+                </div> {% endcomment %}
             </div>
            
 
@@ -323,7 +331,7 @@
             </div>
 
             <div class="footer" >
-                <img src="{% static 'undercss/assets/img/avatars/inv2.png'%}" style="padding-top:-225px" class="mb-3" width="100%" alt="Footer Image">
+                {% comment %} <img src="{% static 'undercss/assets/img/avatars/inv2.png'%}" style="padding-top:-225px" class="mb-3" width="100%" alt="Footer Image"> {% endcomment %}
             <span class="text mb-2 float-end" >WWW.Billzify.com</span>
             </div>
         </div>
