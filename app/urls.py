@@ -192,6 +192,7 @@ urlpatterns = [
     # aiosell booking management
     path('aiosell/new_reservation/', aiosellbook.aiosell_new_reservation, name='aiosell_new_reservation'),
     path('update_reservation', aiosellbook.aiosell_new_reservation, name='aiosell_new_reservation'),
+    path('update_reservation/', aiosellbook.aiosell_new_reservation, name='aiosell_new_reservation'),
 
     
     # travel agancy handling
