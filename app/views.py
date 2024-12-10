@@ -1092,8 +1092,9 @@ def addguestdata(request):
                                                     grand_total_amount=grandtotal_amount,modeofpayment='',room_no=roomname,
                                                     taxtype=taxtypes,accepted_amount=0.00 ,Due_amount=grandtotal_amount,)
                 
+                msecs = cat.category_name + " : " + rateplanname + " " + " for "+ str(adults) + " adults " + " " +   " and " + str(children) + " " + "Child"
                 invoiceitem = InvoiceItem.objects.create(vendor=user,invoice=Invoiceid,description=room_details,quantity_likedays=staydays,
-                                        paidstatus=False,price=roomprice,cgst_rate=tax_rate,sgst_rate=tax_rate,hsncode=hsnno,total_amount=invcitemtotal)  
+                                        mdescription=msecs,paidstatus=False,price=roomprice,cgst_rate=tax_rate,sgst_rate=tax_rate,hsncode=hsnno,total_amount=grandtotal_amount)  
                 Rooms.objects.filter(vendor=user,room_name=roomno).update(checkin=1)
                 
                 roominventorydata = RoomsInventory.objects.filter(vendor=user,date__range = [checkindate,checkoutdate])
