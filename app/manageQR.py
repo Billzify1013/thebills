@@ -61,16 +61,44 @@ def deletelaundryitem(request,id):
     
 
 
-def changeroompage(request,id):
-        if request.user.is_authenticated:
-            user=request.user
-            invoice_id = id
-            valid_room_names = Rooms.objects.filter(vendor=user).values_list('room_name', flat=True)
-            invcitemdata = InvoiceItem.objects.filter(vendor=user, invoice_id=invoice_id, description__in=valid_room_names)
+# def changeroompage(request,id):
+#         if request.user.is_authenticated:
+#             user=request.user
+#             invoice_id = id
+#             # valid_room_names = Rooms.objects.filter(vendor=user).values_list('room_name', flat=True)
+#             valid_room_names = Rooms.objects.filter(vendor=user).values_list('room_name', flat=True)
+
+#             invcitemdata = InvoiceItem.objects.filter(vendor=user, invoice_id=invoice_id, description__in=valid_room_names)
             
-            avlrooms = Rooms.objects.filter(vendor=user,checkin=0)
-            return render(request,'changerom.html',{'avlrooms':avlrooms,'invcitemdata':invcitemdata,'invoice_id':invoice_id})
+#             avlrooms = Rooms.objects.filter(vendor=user,checkin=0)
+#             return render(request,'changerom.html',{'avlrooms':avlrooms,'invcitemdata':invcitemdata,'invoice_id':invoice_id})
            
+def changeroompage(request, id):
+    if request.user.is_authenticated:
+        user = request.user
+        invoice_id = id
+
+        # Get the valid room names (room_number) as integers from Rooms model
+        valid_room_numbers = Rooms.objects.filter(vendor=user).values_list('room_name', flat=True)
+
+        # Convert the integers to strings for comparison with the 'description' field
+        valid_room_names = [str(room_number) for room_number in valid_room_numbers]
+
+        # Filter InvoiceItem based on description matching valid room names
+        invcitemdata = InvoiceItem.objects.filter(
+            vendor=user,
+            invoice_id=invoice_id,
+            description__in=valid_room_names  # 'description' is a string, so valid_room_names should be strings
+        )
+
+        # Available rooms where checkin is 0
+        avlrooms = Rooms.objects.filter(vendor=user, checkin=0)
+
+        return render(request, 'changerom.html', {
+            'avlrooms': avlrooms,
+            'invcitemdata': invcitemdata,
+            'invoice_id': invoice_id
+        })
 
 
 import json
