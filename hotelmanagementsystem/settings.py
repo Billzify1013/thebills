@@ -27,7 +27,8 @@ SECRET_KEY = 'django-insecure-ale$nh!1)-^(ni^hlrlrq$+=xuwm*8!ffb^cn907j&r+ul_=bk
 DEBUG = False
 # DEBUG = True
 
-ALLOWED_HOSTS = ['.billzify.com']
+# ALLOWED_HOSTS = ['.billzify.com']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition

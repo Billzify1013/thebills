@@ -62,16 +62,10 @@ def deletelaundryitem(request,id):
 
 
 def changeroompage(request,id):
-    # try:
         if request.user.is_authenticated:
             user=request.user
             invoice_id = id
-            # invcitemdata = InvoiceItem.objects.filter(vendor=user,invoice_id=invoice_id)
-            # for i in invcitemdata:
-            #     roomname = i.description
-            #     Rooms.objects.filter(vendor=user,room_name=roomname)
             valid_room_names = Rooms.objects.filter(vendor=user).values_list('room_name', flat=True)
-            # Filter InvoiceItem records where the description matches a valid room name
             invcitemdata = InvoiceItem.objects.filter(vendor=user, invoice_id=invoice_id, description__in=valid_room_names)
             
             avlrooms = Rooms.objects.filter(vendor=user,checkin=0)
