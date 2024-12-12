@@ -333,7 +333,7 @@ def inventory_push(request):
 
 
 def update_inventory_task(user_id, start_date_str, end_date_str):
-    max_attempts = 5
+    max_attempts = 1
     attempt = 0
 
     while attempt < max_attempts:

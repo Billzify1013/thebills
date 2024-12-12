@@ -513,7 +513,6 @@ class SaveAdvanceBookGuestData(models.Model):
     amount_before_tax = models.FloatField()
     tax = models.FloatField()
     currency = models.CharField(max_length=10)
-
     advance_amount = models.BigIntegerField(default=0)
     reamaining_amount = models.BigIntegerField(default=0)
     total_amount = models.BigIntegerField(default=0)

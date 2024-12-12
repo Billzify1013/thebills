@@ -95,27 +95,6 @@ DATABASES = {
 }
 
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'hotelmanagement',
-#         'USER':'postgres',
-#         'PASSWORD':'postgres123',
-#         'HOST':'hotelmanagements.c5ekyoys6y25.eu-north-1.rds.amazonaws.com'
-#     }
-# }
-
-# testing postgress connection
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'thebillsdatabase',
-#         'USER':'postgres',
-#         'PASSWORD':'1013',
-#         'HOST':'localhost'
-#     }
-# }
 
 
 # # testng database
