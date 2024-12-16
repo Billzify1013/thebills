@@ -2332,8 +2332,7 @@ def addadvancebooking(request):
                         Messgesinfo.objects.filter(vendor=user).update(changedlimit=addmsg)
                         profilename = HotelProfile.objects.get(vendor=user)
                         mobile_number = phone
-                        user_name = "chandan"
-                        val = 5
+                        
                         message_content = f"Dear guest, Your booking at {profilename.name} is confirmed. Advance payment of Rs.{advanceamount} received. Check-in date: {bookingdate}. We're thrilled to host you and make your stay unforgettable. For assistance, contact us at {profilename.contact}. -BILLZIFY"
                             
                         base_url = "http://control.yourbulksms.com/api/sendhttp.php"

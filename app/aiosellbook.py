@@ -38,6 +38,14 @@ def aiosell_new_reservation(request):
                     cmBookingId = data['cmBookingId']
                     channel = data['channel']
                     bookingdate = data['bookedOn']
+                    if bookingId=='null':
+                         bookingId=None
+                    else:
+                         pass
+                    if cmBookingId=='null':
+                        cmBookingId=None
+                    else:
+                        pass
                     # Parse the date and time string into a datetime object
                     booking_datetime = datetime.strptime(bookingdate, '%Y-%m-%d %H:%M:%S')
 
@@ -67,13 +75,13 @@ def aiosell_new_reservation(request):
 
                     # Example 3: Access guest details
                     guest = data['guest']
-                    guestname = guest['firstName'] + " " + guest['lastName']
+                    guestname = str(guest['firstName']) + " " + str(guest['lastName'])
                     guetemail =  guest['email']
                     guestphone =  guest['phone']
-                    guestaddress =  guest['address']['line1'] + " " + guest['address']['city'] + " " + guest['address']['zipCode']
+                    guestaddress =  str(guest['address']['line1']) + " " + str(guest['address']['city']) + " " + str(guest['address']['zipCode'])
                     
-                    state = guest['address']['state']
-                    country = guest['address']['country']
+                    state = str(guest['address']['state'])
+                    country = str(guest['address']['country'])
 
                     if checkpah=='true':
                         pahr = True
@@ -285,11 +293,12 @@ def aiosell_new_reservation(request):
 
                             return JsonResponse({'success': True, 'message': 'Reservation Updated Successfully'})
                             
-
+                
                 elif action=='modify':
                         
                         return JsonResponse({'success': True, 'message': 'Reservation Modified Successfully'})
                 elif action=='cancel':
+                        hotelCode = data['hotelCode']
                         bookingIds = data['bookingId']
                         vendordata = VendorCM.objects.get(hotelcode=hotelCode)
                         channel = data['channel']
