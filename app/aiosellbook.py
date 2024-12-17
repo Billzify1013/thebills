@@ -163,6 +163,11 @@ def aiosell_new_reservation(request):
                                 GuestName = room['guestName']
                                 adults =  int(room['occupancy']['adults']) 
                                 children = int(room['occupancy']['children'])
+
+                                if rateplanCode == 'null':
+                                    rateplanCode=None
+                                else:
+                                    pass
                                 
                                 # print("  Prices:")
                                 totalsell = 0.0

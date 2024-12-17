@@ -548,11 +548,11 @@ class RoomBookAdvance(models.Model):
     bookingstatus = models.BooleanField(default=False)
 
     totalguest = models.CharField(max_length=10,null=True,blank=True,default="")
-    rateplan_code = models.CharField(max_length=50)
-    guest_name = models.CharField(max_length=100)
-    adults = models.PositiveIntegerField()
-    children = models.PositiveIntegerField()
-    sell_rate = models.FloatField()
+    rateplan_code = models.CharField(max_length=50,null=True,blank=True)
+    guest_name = models.CharField(max_length=100,null=True,blank=True)
+    adults = models.PositiveIntegerField(null=True,blank=True)
+    children = models.PositiveIntegerField(null=True,blank=True)
+    sell_rate = models.FloatField(null=True,blank=True)
     
     def __str__(self) -> str:
         return self.bookingguest
