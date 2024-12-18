@@ -107,34 +107,82 @@
         </div>
         
         
-  
+  <div class="row mt-4">
+    {%if bookingdata%}
+    <h4>Today Recents Bookings</h4>
+    <div class="col-9">
+        <div class="row">
+            {%for i in bookingdata%}
+    <div class="col-6 mb-3">
+        <div class="card p-2">
+            <div class="row">
+                <div class="col-7"><p> 
+                    <i class='bx bxs-face-mask'></i> {{i.bookingguest}}<br>
+                    <i class='bx bxs-phone-call'></i> {{i.bookingguestphone}}<br>
+                    <i class='bx bx-rupee'></i>  {{i.amount_after_tax}}
+                </p></div>
+                    <div class="col-5 pt-1">
+                        <span class="badge bg-label-success mb-3">{{i.channal.channalname}}</span>
+                        {% if i.checkinstatus %}
+                        <span class="badge bg-label-success">Check-In</span>
+                        {%else%}
+                        <span class="badge bg-label-warning">NOT-Check-In</span>
+                        {%endif%}
+                        
+                    </div>
+            </div>
+           
 
-    <div class="card w-25 p-1 mt-4 mb-5">
-                  
-  <form action="{% url 'finddatevisesales'%}" method="post">
-    {% csrf_token %}   
-  <div class="">
-  <div class="row card-body">
-    <h5>Search by Sales Date</h5>
-    <div class="col-12" > 
-      <labal>Start Date</label>
-      <input  type="date" name="startdate" placeholder="select CheckIn Date" class="form-control "   required id="dateInput"/>
+        </div>
     </div>
 
-    <div class="col-12 mt-3" >
-      <labal>End Date</label>
-    <input type="date" name="enddate" placeholder="select CheckOut Date" id="dateInputs" class=" form-control"  required/>
-  </div>
-  <div class="col-12 mt-4" >
-    <input type="submit" class="btn mb-1 w-100 btn-primary "/>
-  </div>
- 
-  </div></div>
-     </form>
-    </div>
+    {%endfor%}
 
+
+   
+</div>{% endif %}
 </div>
+
+<div class="col-3">
     
+    <div class="card  p-1  mb-5">
+             
+        <form action="{% url 'finddatevisesales'%}" method="post">
+          {% csrf_token %}   
+        <div class="">
+        <div class="row card-body">
+          <h5>Search by Sales Date</h5>
+          <div class="col-12" > 
+            <labal>Start Date</label>
+            <input  type="date" name="startdate" placeholder="select CheckIn Date" class="form-control "   required id="dateInput"/>
+          </div>
+      
+          <div class="col-12 mt-3" >
+            <labal>End Date</label>
+          <input type="date" name="enddate" placeholder="select CheckOut Date" id="dateInputs" class=" form-control"  required/>
+        </div>
+        <div class="col-12 mt-4" >
+          <input type="submit" class="btn mb-1 w-100 btn-primary "/>
+        </div>
+       
+        </div></div>
+           </form>
+          </div>
+      
+        
+          
+      
+      </div>
+</div>
+   
+
+  </div>
+
+      
+
+   
+
+
     
     
 

@@ -711,3 +711,8 @@ class cancellationpolicy(models.Model):
 class bestatus(models.Model):
     vendor = models.ForeignKey(User, on_delete=models.CASCADE)
     is_active = models.BooleanField()
+
+class Roomcleancheck(models.Model):
+    vendor = models.ForeignKey(User, on_delete=models.CASCADE)
+    current_date = models.DateField(null=True)
+    

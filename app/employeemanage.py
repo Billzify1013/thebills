@@ -684,9 +684,11 @@ def cleanroom(request):
             today = datetime.now().date()
             # today += timedelta(days=1)
             if RoomCleaning.objects.filter(vendor=user,rooms_id=roomid,current_date=today,status=True).exists():
+         
                 return redirect('roomclean')
             else:
                 RoomCleaning.objects.create(vendor=user,rooms_id=roomid,current_date=today,status=True)
+               
                 return redirect('roomclean')
         else:
             return redirect('loginpage')
@@ -1069,7 +1071,7 @@ def todaysales(request):
                 try:
                     # `total_grand_total_amount` is a dictionary with the sum under the key 'total_amount'
                     sattle_total_amount = float(total_grand_total_amount['total_amount'])
-                    print(sattle_total_amount,"total amount searched")
+                    
                 except (TypeError, ValueError):
                     sattle_total_amount = 0.00
 
@@ -1082,7 +1084,7 @@ def todaysales(request):
                 try:
                     # `total_grand_total_amount` is a dictionary with the sum under the key 'total_amount'
                     folio_total_amount = folio_total_grand_total_amount['total_amount']
-                    print(folio_total_amount,"folio total amount searched")
+                    
                 except (TypeError, ValueError):
                     folio_total_amount = 0.00
                             
@@ -1097,7 +1099,7 @@ def todaysales(request):
                     pass
                 else:
                     total_gst_amount = total_gst_amount * 2
-                print(total_gst_amount,"total gst amount")
+               
 
                 grand_total_grand_total_amount = Invoice.objects.filter(
                     vendor=user,
@@ -1106,7 +1108,7 @@ def todaysales(request):
 
                 # `total_grand_total_amount` is a dictionary with the sum under the key 'total_amount'
                 grand_total_amount = float(grand_total_grand_total_amount['total_amount'])
-                print(grand_total_amount," total amount searched")
+          
 
                 # Aggregate the sum of `cash_amount`
                 cash_amount_sum = Invoice.objects.filter(
@@ -1116,7 +1118,7 @@ def todaysales(request):
 
                 # # Access the correct key 'total_cash_amount'
                 total_cash_amount =float( cash_amount_sum['total_cash_amount'])
-                print(total_cash_amount,"total cash")
+               
 
                 online_amount_sum = Invoice.objects.filter(
                     vendor=user,
@@ -1125,7 +1127,7 @@ def todaysales(request):
 
                 # Access the correct key 'total_online_amount'
                 total_online_amount = float(online_amount_sum['total_online_amount'])
-                print(total_online_amount,"online amount")
+                
                 
             # Query to get the data with totals for each channel
                 # Query to get the data with totals for each channel
@@ -1148,12 +1150,20 @@ def todaysales(request):
 
                 # Calculate total invoices count
                 total_invoices_count = sum(data['total_invoices'] for data in channel_data)
+                today
+                
+                bookingdata=SaveAdvanceBookGuestData.objects.filter(vendor=user,
+                                            bookingdate=today,
+                                                        )
+                
+                print(bookingdata)
 
                 return render(request,'datewisesale.html',{'active_page':'todaysales','sattle_total_amount':sattle_total_amount,
                                                     'channel_data': channel_data,
                                                     'total_grand_total_sum': total_grand_total_sum,
                                                     'total_tax_amount_sum': total_tax_amount_sum,
                                                     'net_profit_sum': net_profit_sum,
+                                                    'bookingdata':bookingdata,
                                                     'total_invoices_count': total_invoices_count,'total_cash_amount':total_cash_amount,'total_online_amount':total_online_amount,'grand_total_amount':grand_total_amount,'startdate':startdate,'enddate':enddate,'folio_total_amount':folio_total_amount,'total_gst_amount':total_gst_amount})
             else:
                 return render(request,'datewisesale.html',{'active_page':'todaysales','startdate':startdate,'enddate':enddate,

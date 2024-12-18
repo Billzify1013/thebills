@@ -22,9 +22,11 @@ def rate_push(request):
                 thread.start()
             
             # Redirect to the desired page immediately
+            messages.success(request,"Rates has been started successfully.")
             return redirect('homepage')  # Replace 'homepage' with your actual URL name
         else:
-            return JsonResponse({"success": False, "message": "User is not authenticated."}, status=403)
+            messages.success(request,"User is not authenticated.")
+            return redirect('loginpage')
 
 
 

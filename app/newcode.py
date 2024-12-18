@@ -297,7 +297,7 @@ import json
 import requests
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-
+from django.contrib import messages
 
 
 
@@ -308,6 +308,9 @@ import time
 from django.shortcuts import redirect
 from django.http import JsonResponse
 from django.contrib.auth.models import User
+
+
+
 
 def inventory_push(request):
     if request.method == 'POST':
@@ -324,13 +327,15 @@ def inventory_push(request):
             thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
             thread.start()
             
-            # Redirect to the desired page immediately
+            # Add a success message
+            messages.success(request, "Inventory sync has been started successfully.")
             return redirect('homepage')  # Replace 'homepage' with your actual URL name
         else:
-            return JsonResponse({"success": False, "message": "User is not authenticated."}, status=403)
+            messages.error(request, "User is not authenticated.")
+            return redirect('loginpage')
 
-    return JsonResponse({"success": False, "message": "Only POST requests are allowed."}, status=405)
-
+    messages.error(request, "Only POST requests are allowed.")
+    return redirect('homepage')
 
 def update_inventory_task(user_id, start_date_str, end_date_str):
     max_attempts = 1

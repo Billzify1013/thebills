@@ -184,6 +184,9 @@ urlpatterns = [
     path('api/update-inventory/', inventory_push, name='update_inventory'),
     path('rate_push/', dynamicrates.rate_push, name='rate_push'),
 
+    # demo create link
+    path("create_demo/", views.create_demo, name="create_demo"),
+
     # cleaning
     path('cleanroombtn/<int:id>/', loyltys.cleanroombtn, name='cleanroombtn'),
     path('cleanroombtnweek/<int:id>/', loyltys.cleanroombtnweek, name='cleanroombtnweek'),

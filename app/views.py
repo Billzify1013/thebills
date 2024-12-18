@@ -525,80 +525,6 @@ def rooms(request):
 
 
 
-# def homepage(request):
-#     try:
-#         if request.user.is_authenticated:
-#             user = request.user
-#             showtimeb = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-
-#             # Filter data
-#             category = RoomsCategory.objects.filter(vendor=user).order_by('id')
-#             rooms = Rooms.objects.filter(vendor=user).order_by('id')
-#             desired_date = datetime.now().date()
-
-#             # Update checkout status for guests
-#             Gueststay.objects.filter(Q(vendor=user, checkoutdate__date__lte=desired_date) | Q(vendor=user, checkoutdate__date=desired_date)).update(checkoutstatus=True)
-
-#             # Query sets
-#             dats = Gueststay.objects.filter(vendor=user, checkoutdate__date__lte=desired_date, checkoutstatus=True, checkoutdone=False)
-#             datsin = Gueststay.objects.filter(vendor=user, checkindate__date=desired_date)
-#             tax = Taxes.objects.filter(vendor=user).all()
-#             arriwaldata = RoomBookAdvance.objects.filter(
-#                   # Include the vendor condition
-#                 Q(vendor=user,bookingdate=desired_date,checkinstatus=False) | 
-#                 Q(vendor=user,bookingdate__lte=desired_date, checkoutdate__gt=desired_date,checkinstatus=False)
-#             )
-#             bookedmisseddata = RoomBookAdvance.objects.filter(vendor=user, checkoutdate__lte=desired_date, checkinstatus=False)
-#             saveguestallroomcheckout = RoomBookAdvance.objects.filter(vendor=user, checkoutdate=desired_date, checkinstatus=True)
-            
-#             # Update rooms based on filtered data
-#             for i in saveguestallroomcheckout:
-#                 Rooms.objects.filter(vendor=user, room_name=i.roomno.room_name).exclude(checkin=6).update(checkin=2)
-#             print(saveguestallroomcheckout)
-#             for i in dats:
-#                 Rooms.objects.filter(vendor=user, room_name=i.roomno).exclude(checkin=6).update(checkin=2)
-
-#             for i in bookedmisseddata:
-#                 if i.roomno.checkin == 5 or i.roomno.checkin == 4:
-#                     Rooms.objects.filter(vendor=user, id=i.roomno.id).update(checkin=0)
-
-#             for data in arriwaldata:
-#                 if data.roomno.checkin not in [1, 2, 5]:
-#                     Rooms.objects.filter(vendor=user, id=data.roomno.id).update(checkin=4)
-
-#             # Additional queries
-#             checkintimedata = HotelProfile.objects.filter(vendor=user)
-#             stayover = Rooms.objects.filter(vendor=user, checkin=1).count()
-#             availablerooms = Rooms.objects.filter(vendor=user, checkin=0).count()
-#             totalrooms = Rooms.objects.filter(vendor=user).count()
-#             checkoutcount = Gueststay.objects.filter(vendor=user, checkoutdate__date=desired_date, checkoutstatus=True, checkoutdone=False).count()
-#             checkincountdays = len(datsin)
-
-#             # Create rooms dictionary
-#             roomsdict = {}
-#             for cat in category:
-#                 roomsdict[cat.category_name] = [[room.room_name, room.checkin] for room in rooms.filter(room_type=cat)]
-
-#             return render(request, 'homepage.html', {
-#                 'active_page': 'homepage',
-#                 'category': category,
-#                 'rooms': rooms,
-#                 'roomsdict': roomsdict,
-#                 'tax': tax,
-#                 'checkintimedata': checkintimedata,
-#                 'stayover': stayover,
-#                 'availablerooms': availablerooms,
-#                 'checkincount': checkincountdays,
-#                 'checkoutcount': checkoutcount,
-#                 'arriwalcount': len(arriwaldata)
-#             })
-#         else:
-#             return redirect('loginpage')
-#     except Exception as e:
-#         return render(request, '404.html', {'error_message': str(e)}, status=500)
-    
-# update by me code
-
 
 def homepage(request):
     try:
@@ -611,6 +537,15 @@ def homepage(request):
             rooms = Rooms.objects.filter(vendor=user).order_by('id')
             # desired_date = datetime.now().date() + timedelta(days=1)
             desired_date = datetime.now().date()
+            if Roomcleancheck.objects.filter(vendor=user,current_date=desired_date).exists():
+                pass
+            else:
+
+                Roomcleancheck.objects.create(vendor=user,current_date=desired_date)
+                roomsclans = Rooms.objects.filter(vendor=user, checkin__in=[1, 2])
+                roomsclans.update(is_clean=False)
+                Roomcleancheck.objects.filter(vendor=user).exclude(current_date=desired_date).delete()
+
             
             # Update checkout status for guests
             Gueststay.objects.filter(Q(vendor=user, checkoutdate__date__lte=desired_date) | Q(vendor=user, checkoutdate__date=desired_date)).update(checkoutstatus=True)
@@ -4058,6 +3993,93 @@ def websettings(request):
                                                      'checkstatus':checkstatus,'ctdata':ctdata,'cpdata':cpdata,'roomcat':roomcat,'gallary':gallary,'hotelimgs':hotelimgs})
      
 
+from django.views.decorators.http import require_POST
+@csrf_exempt
+@require_POST  # Ensure that only POST requests are processed
+def create_demo(request):
+    # Check if the request contains JSON or form data
+    if request.content_type == 'application/json':
+        # If the data is JSON
+        try:
+            data = json.loads(request.body)  # Parse the JSON request body
+            name = data.get("name", "")
+            email = data.get("email", "")
+            phone = data.get("phone", "")
+            business_name = data.get("businessname", "")
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON format."}, status=400)
+    else:
+        # If the data is form-encoded
+        name = request.POST.get("name", "")
+        email = request.POST.get("email", "")
+        phone = request.POST.get("phone", "")
+        business_name = request.POST.get("businessname", "")
+
+    # Validation to ensure that all fields are provided
+    if not name or not email or not phone or not business_name:
+        return JsonResponse({"error": "All fields are required."}, status=400)
+
+        
+
+    # Optional: Save to the database if needed
+    Freedemo.objects.create(
+        name=name,
+        email=email,
+        phone=phone,
+        businessname=business_name
+    )
+
+    # fulldata = name + str(email) + str(phone) + str(business_name)
+
+    # message_content = f"Dear {name}, Welcome to {fulldata}. We are delighted to have you with us and look forward to making your stay enjoyable. Thank you for choosing us. - Billzify"
+
+    # base_url = "http://control.yourbulksms.com/api/sendhttp.php"
+    # params = {
+    #                 "authkey": settings.YOURBULKSMS_API_KEY,
+    #                 "mobiles": 8889381013,
+    #                 "sender": "BILZFY",
+    #                 "route": "2",
+    #                 "country": "0",
+    #                 "DLT_TE_ID": "1707171889808133640",
+    #             }
+    # encoded_message = urllib.parse.urlencode({"message": message_content})
+    # url = f"{base_url}?authkey={params['authkey']}&mobiles={params['mobiles']}&sender={params['sender']}&route={params['route']}&country={params['country']}&DLT_TE_ID={params['DLT_TE_ID']}&{encoded_message}"
+
+    # try:
+    #                 response = requests.get(url)
+    #                 if response.status_code == 200:
+    #                     try:
+    #                         response_data = response.json()
+    #                         if response_data.get("Status") == "success":
+    #                             messages.success(request, "SMS sent successfully.")
+    #                         else:
+    #                             messages.success(
+    #                                 request,
+    #                                 response_data.get(
+    #                                     "Description", "Failed to send SMS"
+    #                                 ),
+    #                             )
+    #                     except ValueError:
+    #                         messages.success(request, "Failed to parse JSON response")
+    #                 else:
+    #                     messages.success(
+    #                         request,
+    #                         f"Failed to send SMS. Status code: {response.status_code}",
+    #                     )
+    # except requests.RequestException as e:
+    #                 messages.success(request, f"Error: {str(e)}")
+
+    # Return a success response
+    return JsonResponse({
+        "message": "Demo request submitted successfully!",
+        "data": {
+            "name": name,
+            "email": email,
+            "phone": phone,
+            "business_name": business_name,
+        }
+    }, status=200)
 
 
 
