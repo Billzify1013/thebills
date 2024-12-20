@@ -137,6 +137,20 @@
                 </li> 
 
                 
+                <li class="menu-header small text-uppercase">
+                  <span class="menu-header-text">Room Views </span>
+                </li> 
+
+                <li class="menu-item text-uppercase {% if active_page == 'weekviews' %}active{% endif %} ">
+                  <a href="{% url 'weekviews' %}" class="menu-link">
+                    
+                    <i class='menu-icon bx bx-dna'></i>
+                    <div data-i18n="Analytics">Week view</div>
+                  </a>
+                </li> 
+
+
+                
 
                 <li class="menu-header small text-uppercase">
                   <span class="menu-header-text">Folio  Management</span>
@@ -160,6 +174,21 @@
 
                 <li class="menu-header small text-uppercase">
                   <span class="menu-header-text">Channel Manager</span>
+                </li>
+
+                <li class="menu-item text-uppercase {% if active_page == 'gridview' %}active{% endif %} ">
+                  <a href="{% url 'gridview' %}" class="menu-link">
+                    <i class='menu-icon bx bxs-grid'></i>
+                    <div data-i18n="Analytics">Grid view</div>
+                  </a>
+                </li> 
+
+
+                <li class="menu-item text-uppercase {% if active_page == 'bulkupdate' %}active{% endif %} ">
+                  <a href="{% url 'bulkupdate'  %}" class="menu-link">
+                    <i class='bx menu-icon bxl-jquery'></i>
+                    <div data-i18n="Analytics">Bulk Update</div>
+                  </a>
                 </li>
 
                 <li class="menu-item text-uppercase {% if active_page == 'channalmanager' %}active{% endif %} ">
@@ -216,25 +245,7 @@
                   </a>
                 </li>
 
-                <li class="menu-header small text-uppercase">
-                  <span class="menu-header-text">Room Views </span>
-                </li> 
-
-                <li class="menu-item text-uppercase {% if active_page == 'weekviews' %}active{% endif %} ">
-                  <a href="{% url 'weekviews' %}" class="menu-link">
-                    
-                    <i class='menu-icon bx bx-dna'></i>
-                    <div data-i18n="Analytics">Week view</div>
-                  </a>
-                </li> 
-
-                <li class="menu-item text-uppercase {% if active_page == 'gridview' %}active{% endif %} ">
-                  <a href="{% url 'gridview' %}" class="menu-link">
-                    <i class='menu-icon bx bxs-grid'></i>
-                    <div data-i18n="Analytics">Grid view</div>
-                  </a>
-                </li> 
-
+                
 
                
 

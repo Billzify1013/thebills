@@ -32,7 +32,7 @@
         .calendar {
             display: grid;
             grid-template-columns: repeat(7, 1fr); /* 7 columns for 7 days */
-            gap: 15px;
+            gap: 3px;
             margin-top: 20px;
         }
 
@@ -85,7 +85,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center; /* Center content vertically */
-            gap: 5px; /* Reduced gap */
+            gap: 1px; /* Reduced gap */
         }
 
         /* Card Text */
@@ -103,7 +103,9 @@
             margin: 0; /* Remove margin */
             display: inline-block; /* Keep them inline */
             white-space: nowrap; /* Prevent line breaks */
-            text-align: center; /* Center text */
+            text-align:left/* Center text */
+            
+          
         }
 
         .revenue {
@@ -188,13 +190,14 @@
                 <div class="card-header">
                     {{ inventory.date.day }}
                 </div>
-                <div class="card-body">
+                <div class="card-body" style="margin-top:-25px">
                     {% if inventory.available_rooms is not None %}
-                        <p class="availability">Available:<b> {{ inventory.available_rooms }}</b> <br> 
+                        <p class="availability" style="margin-left:-10px">Available:<b> {{ inventory.available_rooms }}</b> <br> 
                             Booked: <b>{{ inventory.booked_rooms }}</b> <br> 
                             Price:₹ {{ inventory.price }}<br>
                             Occupancy: {{ inventory.occupancy }} %<br>
-                            <b>{{ inventory.revenue }}</b>
+                            
+                            
                         </p> 
                     {% else %}
                         <p class="card-text">No data</p>

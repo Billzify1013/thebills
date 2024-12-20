@@ -454,6 +454,7 @@ class RoomsInventory(models.Model):
     booked_rooms = models.IntegerField(blank=True,null=True,default=0)
     price = models.DecimalField(max_digits=10, decimal_places=1)
     occupancy = models.IntegerField()
+    
 
     def __str__(self):
         return f"{self.vendor.username} for {self.room_category.category_name,self.date}"

@@ -1526,3 +1526,246 @@ def addmsgtouser(request):
     
 
 
+def bulkupdate(request):
+    if request.user.is_authenticated:
+        user=request.user
+        roomcat = RoomsCategory.objects.filter(vendor=user)
+        today = datetime.now().date()
+        return render(request,'bulkpage.html',{'roomcat':roomcat,'active_page':'bulkupdate','today':today})
+
+    else:
+        return redirect('loginpage')
+
+from django.http import HttpResponse
+from .newcode import *
+# Create your views here.
+from .dynamicrates import *
+import threading
+
+
+
+
+
+
+def bulkinventoryform(request):
+    if request.user.is_authenticated and request.method == "POST":
+        # Get the selected category IDs
+        user = request.user
+        selected_ids = request.POST.getlist('selected_categories')
+        startdate = request.POST.get('startdate')
+        enddate = request.POST.get('enddate')
+        print(enddate, startdate)
+
+        # Query the selected categories from the database
+        selected_categories = RoomsCategory.objects.filter(vendor=user, id__in=selected_ids)
+        print(selected_categories)
+        print(selected_ids)
+
+        # Prepare category_data with availability values
+        category_data = {}
+        for category_id in selected_categories:
+            # Check if availability input exists for this category
+            availability_key = f'catavaibility_{category_id.id}'
+            availability_value = request.POST.get(availability_key, None)
+
+            if availability_value:  # Ensure value is not None or empty
+                category_data[category_id.id] = int(availability_value)  # Store as integer
+
+        # अब category_data में IDs और उनकी availability वैल्यू हैं
+        print(category_data)
+
+        # Parse the start and end dates
+        checkindate = datetime.strptime(startdate, '%Y-%m-%d').date()
+        checkoutdate = datetime.strptime(enddate, '%Y-%m-%d').date()
+
+        # Generate the list of all dates between check-in and check-out (inclusive)
+        all_dates = [checkindate + timedelta(days=x) for x in range((checkoutdate - checkindate).days + 1)]
+
+        for roomtype in selected_categories:  # Iterate through all selected categories
+            # Query the RoomsInventory model to check if records exist for all those dates
+            existing_inventory = RoomsInventory.objects.filter(
+                vendor=user, room_category_id=roomtype.id, date__in=all_dates
+            )
+
+            # Get the list of dates that already exist in the inventory
+            existing_dates = set(existing_inventory.values_list('date', flat=True))
+            print(existing_inventory, "exists inventory")
+
+            # Identify the missing dates by comparing all_dates with existing_dates
+            missing_dates = [date for date in all_dates if date not in existing_dates]
+
+            # Get the total room count for the current category
+            roomcount = Rooms.objects.filter(vendor=user, room_type_id=roomtype.id).exclude(checkin=6).count()
+
+            # Get availability value for the current category from category_data
+            availability_value = category_data.get(roomtype.id, roomcount)  # Default to roomcount if not provided
+
+            # Deduct availability and update bookings for existing inventory
+            for inventory in existing_inventory:
+                trms = inventory.booked_rooms
+                if trms==0:
+                    trms=1
+                else:
+                    pass
+                occupncies = (trms*100//availability_value)
+                inventory.total_availibility = availability_value  # Update with the provided value
+                inventory.occupancy=occupncies
+                inventory.save()
+
+            # Fetch category data
+            catdatas = RoomsCategory.objects.get(vendor=user, id=roomtype.id)
+            totalrooms = Rooms.objects.filter(vendor=user, room_type_id=roomtype.id).exclude(checkin=6).count()
+            occupancy = (1 * 100 // totalrooms) if totalrooms else 0
+
+            # Create missing inventory entries
+            if missing_dates:
+                for missing_date in missing_dates:
+                    RoomsInventory.objects.create(
+                        vendor=user,
+                        date=missing_date,
+                        room_category_id=roomtype.id,
+                        total_availibility=availability_value,  # Use availability from category_data
+                        booked_rooms=0,  # Set according to your logic
+                        price=catdatas.catprice,
+                        occupancy=occupancy
+                    )
+                print(f"Missing dates have been created for category {roomtype}: {missing_dates}")
+            else:
+                print(f"All dates already exist in the inventory for category {roomtype}.")
+
+        # Trigger background API tasks for the user
+        start_date = str(checkindate)
+        end_date = str(checkoutdate)
+        if VendorCM.objects.filter(vendor=user):
+            start_date = str(checkindate)
+            end_date = str(checkoutdate)
+            thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
+            thread.start()
+            # for dynamic pricing
+            if VendorCM.objects.filter(vendor=user, dynamic_price_active=True):
+                thread = threading.Thread(target=rate_hit_channalmanager, args=(user.id, start_date, end_date))
+                thread.start()
+            else:
+                pass
+        else:
+            pass
+
+        messages.success(request, "Inventory Updated Successfully!")
+        
+        # Do whatever processing is needed, then return a response
+        return redirect('bulkupdate')
+    else:
+        # roomcat = RoomCategory.objects.all()  # Replace with your actual query
+        messages.success(request, "Something Went Wrong!")
+        return redirect('bulkupdate')
+    
+
+
+
+
+def bulkformprice(request):
+    if request.user.is_authenticated and request.method == "POST":
+        # Get the selected category IDs
+        user = request.user
+        selected_ids = request.POST.getlist('selected_categories')
+        startdate = request.POST.get('startdate')
+        enddate = request.POST.get('enddate')
+        print(enddate, startdate)
+
+        # Query the selected categories from the database
+        selected_categories = RoomsCategory.objects.filter(vendor=user, id__in=selected_ids)
+        print(selected_categories)
+        print(selected_ids)
+
+        # Prepare category_data with availability values
+        category_data = {}
+        for category_id in selected_categories:
+            # Check if availability input exists for this category
+            availability_key = f'catavaibility_{category_id.id}'
+            availability_value = request.POST.get(availability_key, None)
+
+            if availability_value:  # Ensure value is not None or empty
+                category_data[category_id.id] = int(availability_value)  # Store as integer
+
+        # अब category_data में IDs और उनकी availability वैल्यू हैं
+        print(category_data)
+
+        # Parse the start and end dates
+        checkindate = datetime.strptime(startdate, '%Y-%m-%d').date()
+        checkoutdate = datetime.strptime(enddate, '%Y-%m-%d').date()
+
+        # Generate the list of all dates between check-in and check-out (inclusive)
+        all_dates = [checkindate + timedelta(days=x) for x in range((checkoutdate - checkindate).days + 1)]
+
+        for roomtype in selected_categories:  # Iterate through all selected categories
+            # Query the RoomsInventory model to check if records exist for all those dates
+            existing_inventory = RoomsInventory.objects.filter(
+                vendor=user, room_category_id=roomtype.id, date__in=all_dates
+            )
+
+            # Get the list of dates that already exist in the inventory
+            existing_dates = set(existing_inventory.values_list('date', flat=True))
+            print(existing_inventory, "exists inventory")
+
+            # Identify the missing dates by comparing all_dates with existing_dates
+            missing_dates = [date for date in all_dates if date not in existing_dates]
+
+            # Get the total room count for the current category
+            roomcount = Rooms.objects.filter(vendor=user, room_type_id=roomtype.id).exclude(checkin=6).count()
+
+            # Get availability value for the current category from category_data
+            availability_value = category_data.get(roomtype.id, roomcount)  # Default to roomcount if not provided
+
+            # Deduct availability and update bookings for existing inventory
+            for inventory in existing_inventory:
+                inventory.price = float(availability_value)  # Update with the provided value
+                
+                inventory.save()
+
+            # Fetch category data
+            catdatas = RoomsCategory.objects.get(vendor=user, id=roomtype.id)
+            totalrooms = Rooms.objects.filter(vendor=user, room_type_id=roomtype.id).exclude(checkin=6).count()
+            occupancy = (1 * 100 // totalrooms) if totalrooms else 0
+
+            # Create missing inventory entries
+            if missing_dates:
+                for missing_date in missing_dates:
+                    RoomsInventory.objects.create(
+                        vendor=user,
+                        date=missing_date,
+                        room_category_id=roomtype.id,
+                        total_availibility=totalrooms,  # Use availability from category_data
+                        booked_rooms=0,  # Set according to your logic
+                        price=float(availability_value),
+                        occupancy=occupancy
+                        
+                    )
+                print(f"Missing dates have been created for category {roomtype}: {missing_dates}")
+            else:
+                print(f"All dates already exist in the inventory for category {roomtype}.")
+
+        # Trigger background API tasks for the user
+        start_date = str(checkindate)
+        end_date = str(checkoutdate)
+        if VendorCM.objects.filter(vendor=user):
+            start_date = str(checkindate)
+            end_date = str(checkoutdate)
+            thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
+            thread.start()
+            # for dynamic pricing
+            # if VendorCM.objects.filter(vendor=user, dynamic_price_active=True):
+            thread = threading.Thread(target=rate_hit_channalmanager, args=(user.id, start_date, end_date))
+            thread.start()
+            # else:
+            #     pass
+        else:
+            pass
+
+        messages.success(request, "Price Updated Successfully!")
+        
+        # Do whatever processing is needed, then return a response
+        return redirect('bulkupdate')
+    else:
+        # roomcat = RoomCategory.objects.all()  # Replace with your actual query
+        messages.success(request, "Something Went Wrong!")
+        return redirect('bulkupdate')

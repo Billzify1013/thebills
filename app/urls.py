@@ -287,6 +287,11 @@ urlpatterns = [
 
     path('createsubplan/',employeemanage.createsubplan,name="createsubplan"),
     path('addmsgtouser/',employeemanage.addmsgtouser,name="addmsgtouser"),
+    path('bulkupdate/',employeemanage.bulkupdate,name="bulkupdate"),
+    path('bulkinventoryform/',employeemanage.bulkinventoryform,name="bulkinventoryform"),
+    path('bulkformprice/',employeemanage.bulkformprice,name="bulkformprice"),
+
+    
 
 
 

@@ -31,250 +31,10 @@ def rate_push(request):
 
 
 
-# def rate_hit_channalmanager(user_id, start_date_str, end_date_str):
-#     try:
-#             user = User.objects.get(id=user_id)  # Ensure the user exists
-#             if not user.is_authenticated:
-#                 print("User is not authenticated.")
-#                 return
-#             current_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-#             end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-#             while current_date <= end_date:
-#                 print(f"Processing date: {current_date}")
-
-#                 current_date += timedelta(days=1)
-
-#             print("succesfully dynamic rate",user)
-#             # print(start_date_str)
-#             # roomscat = RoomsCategory.objects.filter(vendor=user)
-#             # current_date = datetime.now().date() + timedelta(days=2)
-
-#             # roomsdata = []
-#             # for category in roomscat:
-#             #     if RoomsInventory.objects.filter(vendor=user,date=current_date,room_category=category):
-#             #         roomdata = RoomsInventory.objects.get(vendor=user,date=current_date,room_category=category)
-#             #         roomcount = Rooms.objects.filter(vendor=user,room_type=category).exclude(checkin=6).count()
-#             #         print(roomcount)
-
-#             #         occupancy = (roomdata.booked_rooms* 100//roomcount)
-#             #         print(occupancy,"occupany in category",category)
-
-#             # print(type(roomsdata))
-                  
-#             # Your existing logic for updating inventory goes here
-
-#             # Call your inventory update function
-#             success = update_rates_cm(user, start_date_str, end_date_str)
-            
-           
-#     except Exception as e:
-#             print(f"Error occurred: {str(e)}")
-
-
-# def update_rates_cm(user, start_date_str, end_date_str):
-#     # try:
-#         # Fetch room categories for the vendor
-#         room_categories = RoomsCategory.objects.filter(vendor=user)
-#         inventory_updates = []
-#         print("succesfully ru by chandan dynamic rate",user)
 
 from decimal import Decimal
 import requests
 
-# def rate_hit_channalmanager(user_id, start_date_str, end_date_str):
-#     try:
-#         user = User.objects.get(id=user_id)  # Ensure the user exists
-#         if not user.is_authenticated:
-#             print("User is not authenticated.")
-#             return
-        
-#         print("Starting dynamic rate update for user:", user)
-#         start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-#         end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-
-#         roomscat = RoomsCategory.objects.filter(vendor=user)
-        
-#         # Loop over each day in the date range
-#         current_date = start_date
-#         while current_date <= end_date:
-            
-#             print(f"Processing date: {current_date}")
-#             for category in roomscat:
-#                 total_rooms = Rooms.objects.filter(vendor=user, room_type=category).exclude(checkin=6).count()
-#                 # Try to fetch the inventory record for this date and category
-#                 room_inventory = RoomsInventory.objects.filter(
-#                     vendor=user, 
-#                     date=current_date, 
-#                     room_category=category
-#                 ).first()
-                
-#                 # If no inventory record exists, create one with default values
-#                 if not room_inventory:
-                    
-#                     room_inventory = RoomsInventory.objects.create(
-#                         vendor=user,
-#                         room_category=category,
-#                         date=current_date,
-#                         total_availibility=total_rooms,
-#                         booked_rooms=0,
-#                         price=category.catprice,  # Assume `default_price` is a field in `RoomsCategory`
-#                         occupancy=0  # Since no rooms are booked
-#                     )
-#                     print(f"Created new inventory record for {category} on {current_date} with {total_rooms} total rooms available.")
-#                 print(category.catprice,'cat price')
-#                 # Calculate occupancy based on available data
-#                 if room_inventory.total_availibility > 0:
-#                     occupancy = (room_inventory.booked_rooms * 100 // total_rooms)
-#                     room_inventory.occupancy = occupancy
-#                     print(f"Occupancy for {category} on {current_date}: {occupancy}%")
-                
-#                     # Apply dynamic pricing rules based on occupancy and conditions
-#                     if occupancy > 90:
-#                         # High demand, high occupancy - Premium pricing
-#                         room_inventory.price = category.catprice * Decimal('1.3')  # Increase rate by 30%
-#                     elif occupancy > 80:
-#                         # Moderate-high demand - Moderate premium pricing
-#                         room_inventory.price = category.catprice* Decimal('1.2')  # Increase rate by 20%
-#                     elif occupancy > 60:
-#                         # Moderate demand - Standard rate with minor increase
-#                         room_inventory.price = category.catprice * Decimal('1.15')  # Increase rate by 10%
-#                     elif occupancy > 50:
-#                         # Moderate demand - Standard rate with minor increase
-#                         room_inventory.price = category.catprice * Decimal('1.1')  # Increase rate by 10%
-#                     elif occupancy < 30:
-#                         # Low occupancy - Last-minute discount to encourage bookings
-#                         room_inventory.price = category.catprice * Decimal('0.85')  # Decrease rate by 15%
-#                         print('decreaseby 20 per')
-#                     elif occupancy < 50:
-#                         # Below average occupancy - Light discount
-#                         room_inventory.price = category.catprice  # category price
-#                         print('decreaseby 10 per')
-                    
-#                     # Additional conditions for date-based pricing adjustments
-#                     days_to_date = (current_date - datetime.now().date()).days
-#                     if days_to_date < 7 and occupancy < 40:
-#                         print('decreaseby 15 per')
-#                         # Last-minute pricing, less than a week away, and low occupancy
-#                         room_inventory.price = category.catprice * Decimal('0.85')  # Decrease by 15%
-#                     elif days_to_date > 30 and occupancy < 50:
-#                         # Early bird pricing for dates over a month away and low occupancy
-#                         room_inventory.price = category.catprice * Decimal('0.9')  # Decrease by 10%
-#                         print('decreaseby 10 per')
-                    
-
-#                     # occupancy update
-#                     room_inventory.occupancy = occupancy
-#                     # Save the updated inventory
-#                     room_inventory.save()
-#                     print(f"Updated price for {category} on {current_date}: {room_inventory.price}")
-#                 else:
-#                     print(f"Total availability for {category} on {current_date} is zero. No occupancy calculation.")
-            
-#             # Move to the next date
-#             current_date += timedelta(days=1)
-        
-#         # Call your inventory update function for external channel manager integration
-#         success = update_rates_cm(user, start_date_str, end_date_str)
-#         if success:
-#             print("Rates successfully updated in the channel manager.")
-#         else:
-#             print("Failed to update rates in the channel manager.")
-        
-#     except Exception as e:
-#         print(f"Error occurred: {str(e)}")
-
-# def update_rates_cm(user, start_date_str, end_date_str):
-#     try:
-#         room_categories = RoomsCategory.objects.filter(vendor=user)
-#         inventory_updates = []
-#         print("Successfully executed dynamic rate update to channel manager for:", user)
-        
-#         # Implement any additional logic needed for external channel manager integration here
-#         return True
-#     except Exception as e:
-#         print(f"Error occurred in channel manager update: {str(e)}")
-#         return False
-
-
-
-
-
-# def rate_hit_channalmanager(user_id, start_date_str, end_date_str):
-#     try:
-#         user = User.objects.get(id=user_id)
-#         if not user.is_authenticated:
-#             print("User is not authenticated.")
-#             return
-        
-#         print("Starting dynamic rate update for user:", user)
-#         start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-#         end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-#         roomscat = RoomsCategory.objects.filter(vendor=user)
-        
-#         vendorcmdata = VendorCM.objects.get(vendor=user)
-#         chooseplannumber = vendorcmdata.dynamic_price_plan
-#         # Loop over each day in the date range
-#         current_date = start_date
-#         while current_date <= end_date:
-#             for category in roomscat:
-#                 total_rooms = Rooms.objects.filter(vendor=user, room_type=category).exclude(checkin=6).count()
-#                 room_inventory = RoomsInventory.objects.filter(
-#                     vendor=user, date=current_date, room_category=category
-#                 ).first()
-                
-#                 if not room_inventory:
-#                     room_inventory = RoomsInventory.objects.create(
-#                         vendor=user,
-#                         room_category=category,
-#                         date=current_date,
-#                         total_availibility=total_rooms,
-#                         booked_rooms=0,
-#                         price=category.catprice,
-#                         occupancy=0
-#                     )
-#                     print(f"Created inventory record for {category} on {current_date} with {total_rooms} rooms.")
-                
-#                 if room_inventory.total_availibility > 0:
-#                     occupancy = (room_inventory.booked_rooms * 100 // total_rooms)
-#                     room_inventory.occupancy = occupancy
-#                     print(f"Occupancy for {category} on {current_date}: {occupancy}%")
-                    
-#                     if occupancy > 90:
-#                         room_inventory.price = category.catprice * Decimal('1.3')
-#                     elif occupancy > 80:
-#                         room_inventory.price = category.catprice * Decimal('1.2')
-#                     elif occupancy > 60:
-#                         room_inventory.price = category.catprice * Decimal('1.15')
-#                     elif occupancy > 50:
-#                         room_inventory.price = category.catprice * Decimal('1.1')
-#                     elif occupancy < 30:
-#                         room_inventory.price = category.catprice * Decimal('0.85')
-#                     elif occupancy < 50:
-#                         room_inventory.price = category.catprice
-                    
-#                     days_to_date = (current_date - datetime.now().date()).days
-#                     if days_to_date < 7 and occupancy < 40:
-#                         room_inventory.price = category.catprice * Decimal('0.85')
-#                     elif days_to_date > 30 and occupancy < 50:
-#                         room_inventory.price = category.catprice * Decimal('0.9')
-
-#                     room_inventory.occupancy = occupancy
-#                     room_inventory.save()
-#                     print(f"Updated price for {category} on {current_date}: {room_inventory.price}")
-#                 else:
-#                     room_inventory.occupancy = 100
-#                     room_inventory.save()
-#             current_date += timedelta(days=1)
-        
-#         # Call to send updated rates to channel manager
-#         success = update_rates_cm(user, start_date, end_date)
-#         if success:
-#             print("Rates successfully updated in the channel manager.")
-#         else:
-#             print("Failed to update rates in the channel manager.")
-        
-#     except Exception as e:
-#         print(f"Error occurred: {str(e)}")
 
 
 def rate_hit_channalmanager(user_id, start_date_str, end_date_str):
@@ -321,101 +81,103 @@ def rate_hit_channalmanager(user_id, start_date_str, end_date_str):
 
                     # Advanced dynamic pricing strategies
                     
+                    if VendorCM.objects.filter(vendor=user,dynamic_price_active=True).exists():
+                        if chooseplannumber == 1:
+                            print("Plan 7: Maximum Price with Decreasing Adjustments")
 
-                    if chooseplannumber == 1:
-                        print("Plan 7: Maximum Price with Decreasing Adjustments")
+                            # Set the maximum price based on the room category
+                            max_price = category.catprice
 
-                        # Set the maximum price based on the room category
-                        max_price = category.catprice
-
-                        # Apply decreasing adjustments to the price based on occupancy levels
-                        if occupancy > 90:
-                            room_inventory.price = max_price  # Highest price (no change)
-                        elif occupancy > 70:
-                            room_inventory.price = max_price * Decimal('0.9')  # 10% discount
-                        elif occupancy > 50:
-                            room_inventory.price = max_price * Decimal('0.8')  # 20% discount
-                        elif occupancy > 30:
-                            room_inventory.price = max_price * Decimal('0.7')  # 30% discount
-                        else:
-                            room_inventory.price = max_price * Decimal('0.6')  # 40% discount for very low occupancy
-
-                    elif chooseplannumber == 2:
-                        print("Plan 7: Maximum Price with Decreasing Adjustments")
-
-                        # Set the maximum price based on the room category
-                        max_price = category.catprice
-
-                        # Apply decreasing adjustments to the price based on occupancy levels
-                        if occupancy > 90:
-                            room_inventory.price = max_price  # Highest price (no change)
-                        elif occupancy > 70:
-                            room_inventory.price = max_price * Decimal('0.9')  # 10% discount
-                        elif occupancy > 50:
-                            room_inventory.price = max_price * Decimal('0.8')  # 20% discount
-                        elif occupancy > 30:
-                            room_inventory.price = max_price * Decimal('0.7')  # 30% discount
-                        else:
-                            room_inventory.price = max_price * Decimal('0.6')  # 40% discount for very low occupancy
-
-                        
-
-                        # Apply weekend increase
-                        if current_date.weekday() >= 5:
-                            currentprice = room_inventory.price 
-                            currentprice *= Decimal('1.2')  
-                            if  currentprice>max_price:
-                                room_inventory.price = max_price 
+                            # Apply decreasing adjustments to the price based on occupancy levels
+                            if occupancy > 90:
+                                room_inventory.price = max_price  # Highest price (no change)
+                            elif occupancy > 70:
+                                room_inventory.price = max_price * Decimal('0.9')  # 10% discount
+                            elif occupancy > 50:
+                                room_inventory.price = max_price * Decimal('0.8')  # 20% discount
+                            elif occupancy > 30:
+                                room_inventory.price = max_price * Decimal('0.7')  # 30% discount
                             else:
-                                room_inventory.price  *= Decimal('1.2') #current price pr 20% ka amount add kiya
+                                room_inventory.price = max_price * Decimal('0.6')  # 40% discount for very low occupancy
 
-                    elif chooseplannumber == 3:
-                        print("Plan 7: Maximum Price with Decreasing Adjustments")
+                        elif chooseplannumber == 2:
+                            print("Plan 7: Maximum Price with Decreasing Adjustments")
 
-                        # Set the maximum price based on the room category
-                        max_price = category.catprice
+                            # Set the maximum price based on the room category
+                            max_price = category.catprice
 
-                        # Apply decreasing adjustments to the price based on occupancy levels
-                        if occupancy > 90:
-                            room_inventory.price = max_price  # Highest price (no change)
-                        elif occupancy > 70:
-                            room_inventory.price = max_price * Decimal('0.95')  # 5% discount
-                        elif occupancy > 50:
-                            room_inventory.price = max_price * Decimal('0.9')  # 10% discount
-                        elif occupancy > 30:
-                            room_inventory.price = max_price * Decimal('0.85')  # 15% discount
-                        else:
-                            room_inventory.price = max_price * Decimal('0.8')  # 20% discount for very low occupancy
-
-
-                    elif chooseplannumber == 4:
-                        print("Plan 7: Maximum Price with Decreasing Adjustments")
-
-                        # Set the maximum price based on the room category
-                        max_price = category.catprice
-
-                        # Apply decreasing adjustments to the price based on occupancy levels
-                        if occupancy > 90:
-                            room_inventory.price = max_price  # Highest price (no change)
-                        elif occupancy > 70:
-                            room_inventory.price = max_price * Decimal('0.95')  # 5% discount
-                        elif occupancy > 50:
-                            room_inventory.price = max_price * Decimal('0.9')  # 10% discount
-                        elif occupancy > 30:
-                            room_inventory.price = max_price * Decimal('0.85')  # 15% discount
-                        else:
-                            room_inventory.price = max_price * Decimal('0.8')  # 20% discount for very low occupancy
-
-                        # Apply weekend increase
-                        if current_date.weekday() >= 5:
-                            currentprice = room_inventory.price 
-                            currentprice *= Decimal('1.1')  
-                            if  currentprice>max_price:
-                                room_inventory.price = max_price 
+                            # Apply decreasing adjustments to the price based on occupancy levels
+                            if occupancy > 90:
+                                room_inventory.price = max_price  # Highest price (no change)
+                            elif occupancy > 70:
+                                room_inventory.price = max_price * Decimal('0.9')  # 10% discount
+                            elif occupancy > 50:
+                                room_inventory.price = max_price * Decimal('0.8')  # 20% discount
+                            elif occupancy > 30:
+                                room_inventory.price = max_price * Decimal('0.7')  # 30% discount
                             else:
-                                room_inventory.price  *= Decimal('1.1') #current pr 10% amountadd kiya
+                                room_inventory.price = max_price * Decimal('0.6')  # 40% discount for very low occupancy
 
-                    room_inventory.save()
+                            
+
+                            # Apply weekend increase
+                            if current_date.weekday() >= 5:
+                                currentprice = room_inventory.price 
+                                currentprice *= Decimal('1.2')  
+                                if  currentprice>max_price:
+                                    room_inventory.price = max_price 
+                                else:
+                                    room_inventory.price  *= Decimal('1.2') #current price pr 20% ka amount add kiya
+
+                        elif chooseplannumber == 3:
+                            print("Plan 7: Maximum Price with Decreasing Adjustments")
+
+                            # Set the maximum price based on the room category
+                            max_price = category.catprice
+
+                            # Apply decreasing adjustments to the price based on occupancy levels
+                            if occupancy > 90:
+                                room_inventory.price = max_price  # Highest price (no change)
+                            elif occupancy > 70:
+                                room_inventory.price = max_price * Decimal('0.95')  # 5% discount
+                            elif occupancy > 50:
+                                room_inventory.price = max_price * Decimal('0.9')  # 10% discount
+                            elif occupancy > 30:
+                                room_inventory.price = max_price * Decimal('0.85')  # 15% discount
+                            else:
+                                room_inventory.price = max_price * Decimal('0.8')  # 20% discount for very low occupancy
+
+
+                        elif chooseplannumber == 4:
+                            print("Plan 7: Maximum Price with Decreasing Adjustments")
+
+                            # Set the maximum price based on the room category
+                            max_price = category.catprice
+
+                            # Apply decreasing adjustments to the price based on occupancy levels
+                            if occupancy > 90:
+                                room_inventory.price = max_price  # Highest price (no change)
+                            elif occupancy > 70:
+                                room_inventory.price = max_price * Decimal('0.95')  # 5% discount
+                            elif occupancy > 50:
+                                room_inventory.price = max_price * Decimal('0.9')  # 10% discount
+                            elif occupancy > 30:
+                                room_inventory.price = max_price * Decimal('0.85')  # 15% discount
+                            else:
+                                room_inventory.price = max_price * Decimal('0.8')  # 20% discount for very low occupancy
+
+                            # Apply weekend increase
+                            if current_date.weekday() >= 5:
+                                currentprice = room_inventory.price 
+                                currentprice *= Decimal('1.1')  
+                                if  currentprice>max_price:
+                                    room_inventory.price = max_price 
+                                else:
+                                    room_inventory.price  *= Decimal('1.1') #current pr 10% amountadd kiya
+
+                        room_inventory.save()
+                    else:
+                        pass
                     print(f"Updated price for {category} on {current_date}: {room_inventory.price}")
                 else:
                     room_inventory.occupancy = 100
@@ -500,6 +262,8 @@ def update_rates_cm(user, start_date, end_date):
     try:
         room_categories = RoomsCategory.objects.filter(vendor=user)
         inventory_updates = []
+
+        print(end_date,"en date")
         
         current_date = start_date
         while current_date <= end_date:
@@ -526,16 +290,12 @@ def update_rates_cm(user, start_date, end_date):
                 # Loop through each rate plan and prepare rate data
                 for rate_plan in rate_plans:
                     if inventory:
+                        
                         rate_data = {
                             "roomCode": category.category_name,
                             "rate": float(inventory.price+rate_plan.base_price),
                             "rateplanCode": rate_plan.rate_plan_code,
-                            "restrictions": {
-                                "stopSell": False,
-                                "minimumStay": 1,
-                                "closeOnArrival": False,
-                                "closeOnDeparture": False,
-                            }
+                           
                         }
                         daily_update["rates"].append(rate_data)
             
@@ -545,9 +305,11 @@ def update_rates_cm(user, start_date, end_date):
             
             current_date += timedelta(days=1)
         
+        vdrcode = VendorCM.objects.get(vendor=user)
+        hotelcode = vdrcode.hotelcode
         # API payload
         payload = {
-            "hotelCode": "SANDBOX-PMS",
+            "hotelCode": hotelcode,
             "updates": inventory_updates
         }
         
