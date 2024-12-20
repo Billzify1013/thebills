@@ -172,31 +172,7 @@
 
                 
 
-                <li class="menu-header small text-uppercase">
-                  <span class="menu-header-text">Channel Manager</span>
-                </li>
-
-                <li class="menu-item text-uppercase {% if active_page == 'gridview' %}active{% endif %} ">
-                  <a href="{% url 'gridview' %}" class="menu-link">
-                    <i class='menu-icon bx bxs-grid'></i>
-                    <div data-i18n="Analytics">Grid view</div>
-                  </a>
-                </li> 
-
-
-                <li class="menu-item text-uppercase {% if active_page == 'bulkupdate' %}active{% endif %} ">
-                  <a href="{% url 'bulkupdate'  %}" class="menu-link">
-                    <i class='bx menu-icon bxl-jquery'></i>
-                    <div data-i18n="Analytics">Bulk Update</div>
-                  </a>
-                </li>
-
-                <li class="menu-item text-uppercase {% if active_page == 'channalmanager' %}active{% endif %} ">
-                  <a href="{% url 'channalmanager'  %}" class="menu-link">
-                    <i class='bx menu-icon bxs-user-check'></i>
-                    <div data-i18n="Analytics">Channel Manager</div>
-                  </a>
-                </li>
+              
                 
                 
 
@@ -245,6 +221,32 @@
                   </a>
                 </li>
 
+
+                <li class="menu-header small text-uppercase">
+                  <span class="menu-header-text">Channel Manager</span>
+                </li>
+
+                <li class="menu-item text-uppercase {% if active_page == 'gridview' %}active{% endif %} ">
+                  <a href="{% url 'gridview' %}" class="menu-link">
+                    <i class='menu-icon bx bxs-grid'></i>
+                    <div data-i18n="Analytics">Grid view</div>
+                  </a>
+                </li> 
+
+
+                <li class="menu-item text-uppercase {% if active_page == 'bulkupdate' %}active{% endif %} ">
+                  <a href="{% url 'bulkupdate'  %}" class="menu-link">
+                    <i class='bx menu-icon bxl-jquery'></i>
+                    <div data-i18n="Analytics">Bulk Update</div>
+                  </a>
+                </li>
+
+                <li class="menu-item text-uppercase {% if active_page == 'channalmanager' %}active{% endif %} ">
+                  <a href="{% url 'channalmanager'  %}" class="menu-link">
+                    <i class='bx menu-icon bxs-user-check'></i>
+                    <div data-i18n="Analytics">Channel Manager</div>
+                  </a>
+                </li>
                 
 
                
@@ -1025,9 +1027,18 @@
                 <div class="col-3 p-1">
                   <a href="{% url 'weekviews' %}"><div class="card m-2" style="height:80px">
                    <center> <h6 class="mt-3"><br>
-                    <b>VIEWS</b></h6></center>
+                    <b>WEEK-VIEWS</b></h6></center>
                   </div></a>
                 </div>
+
+                <div class="col-3 p-1">
+                  <a href="{% url 'gridview' %}"><div class="card m-2" style="height:80px">
+                   <center> <h6 class="mt-3"><br>
+                    <b>GRID-VIEWS</b></h6></center>
+                  </div></a>
+                </div>
+
+                
 
                 <div class="col-3 p-1">
                   <a href="{% url 'aminityinvoice'  %}"><div class="card m-2" style="height:80px">
