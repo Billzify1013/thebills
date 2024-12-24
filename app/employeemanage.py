@@ -1050,7 +1050,7 @@ def finddatevisesales(request):
 
 
 def todaysales(request):
-    # try:
+    try:
         if request.user.is_superuser :
             user=request.user
 
@@ -1153,8 +1153,7 @@ def todaysales(request):
                 today
                 
                 bookingdata=SaveAdvanceBookGuestData.objects.filter(vendor=user,
-                                            bookingdate=today,
-                                                        )
+                                            bookingdate=today).all()
                 
                 print(bookingdata)
 
@@ -1166,12 +1165,15 @@ def todaysales(request):
                                                     'bookingdata':bookingdata,
                                                     'total_invoices_count': total_invoices_count,'total_cash_amount':total_cash_amount,'total_online_amount':total_online_amount,'grand_total_amount':grand_total_amount,'startdate':startdate,'enddate':enddate,'folio_total_amount':folio_total_amount,'total_gst_amount':total_gst_amount})
             else:
-                return render(request,'datewisesale.html',{'active_page':'todaysales','startdate':startdate,'enddate':enddate,
+                today = datetime.now().date()
+                bookingdata=SaveAdvanceBookGuestData.objects.filter(vendor=user,
+                                            bookingdate=today).all()
+                return render(request,'datewisesale.html',{'bookingdata':bookingdata,'active_page':'todaysales','startdate':startdate,'enddate':enddate,
                                         'erroe':"NO DATA FIND ON THIS DATES"})
         else:
             return redirect('loginpage')
-    # except Exception as e:
-    #     return render(request, '404.html', {'error_message': str(e)}, status=500)  
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)  
 
 
 
@@ -1186,23 +1188,161 @@ from django.shortcuts import render
 from datetime import datetime, timedelta
 
 def mobileview(request, user):
-    # Check if the hotel profile exists
-    if not HotelProfile.objects.filter(vendor__username=user).exists():
-        return render(request, '404.html', {'error_message': "Profile Not Created!"}, status=300)
-    checkdata = bestatus.objects.get(vendor__username=user)
-    if checkdata.is_active is True:
+    try:
+        # Check if the hotel profile exists
+        if not HotelProfile.objects.filter(vendor__username=user).exists():
+            return render(request, '404.html', {'error_message': "Profile Not Created!"}, status=300)
+        checkdata = bestatus.objects.get(vendor__username=user)
+        if checkdata.is_active is True:
+
+            profile = HotelProfile.objects.get(vendor__username=user)
+            rooms = RoomsCategory.objects.filter(vendor__username=user).prefetch_related('images')
+            today = datetime.now().date()
+            tomorrow = today + timedelta(days=1)
+
+            daysdiff = 1
+            adults = 2
+            child = 0
+
+            # Fetch inventory for today
+            inventory_today = RoomsInventory.objects.filter(vendor__username=user, date=today)
+
+            profiledata = HotelProfile.objects.filter(vendor__username=user)
+            imagedata = HoelImage.objects.filter(vendor__username=user)
+            rateplanmaxuser = RatePlan.objects.filter(vendor__username=user, max_persons__gte=1)
+            offers = OfferBE.objects.filter(vendor__username=user).last()
+
+            # Initialize cheapest room tracking
+            cheapest_room = None
+            cheapest_rate_plan = None
+            lowest_price = float('inf')
+
+            users = User.objects.get(username=user)
+
+            # Store availability data with room objects
+            for room in rooms:
+                room_inventory = inventory_today.filter(room_category=room)
+                if room_inventory.exists():
+                    inventory = room_inventory.first()
+                    room.available_rooms = inventory.total_availibility
+
+                    # Calculate prices with offers
+                    if offers:
+                        OFFERAMOUNT = inventory.price * offers.discount_percentage // 100
+                        room.uprice = inventory.price - OFFERAMOUNT
+                        room.delprice = inventory.price
+                        room.offeramount = OFFERAMOUNT
+                    else:
+                        room.uprice = inventory.price
+                        room.delprice = inventory.price + 1000
+                        room.offeramount = 0
+
+                    room.tax = room.category_tax.taxrate
+                else:
+                    room.available_rooms = Rooms.objects.filter(vendor__username=user, room_type=room).count()
+                    # room.uprice = room.catprice
+                    # room.delprice = room.catprice+1000
+                    # room.offeramount = 0
+                    # Calculate prices with offers
+                    if offers:
+                        OFFERAMOUNT = room.catprice * offers.discount_percentage // 100
+                        room.uprice = room.catprice - OFFERAMOUNT
+                        room.delprice = room.catprice
+                        room.offeramount = OFFERAMOUNT
+                    else:
+                        room.uprice = room.catprice
+                        room.delprice = room.catprice + 1000
+                        room.offeramount = 0
+                    room.tax = room.category_tax.taxrate
+
+                # Check all rate plans for the cheapest option
+                for plan in rateplanmaxuser.filter(room_category=room):
+                    total_price = room.uprice + plan.base_price
+
+                    # Update the cheapest room and rate plan if found
+                    if total_price < lowest_price and room.available_rooms > 0:
+                        cheapest_room = room
+                        cheapest_rate_plan = plan
+                        lowest_price = total_price
+
+            hoteldatas = HotelProfile.objects.get(vendor__username=user)
+            terms_lines = hoteldatas.termscondition.splitlines() if hoteldatas else []
+            aminities = beaminities.objects.filter(vendor__username=user)
+            prfmcdata = becallemail.objects.filter(vendor__username=user)
+            cpolicy = cancellationpolicy.objects.filter(vendor__username=user).last()
+            return render(request, 'website.html', {
+                'aminities':aminities,
+                'prfmcdata':prfmcdata,
+                'profile': profile,
+                'imagedata': imagedata,
+                'profiledata': profiledata,
+                'today': today,
+                'tomorrow': tomorrow,
+                'rooms': rooms,
+                'rateplanmaxuser': rateplanmaxuser,
+                'offer': offers,
+                'daysdiff': daysdiff,
+                'adults': adults,
+                'child': child,
+                'cheapest_room': cheapest_room,
+                'cheapest_rate_plan': cheapest_rate_plan,
+                'lowest_price': lowest_price,
+                'user':users.id,
+                'terms_lines':terms_lines,
+                'cpolicy':cpolicy
+            })
+        
+        else:
+            return render(request, 'website.html',{'emptydata':'Online bookings are currently unavailable. Please try booking offline instead.'} )
+        
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+
+from datetime import datetime, timedelta
+from django.shortcuts import render
+from .models import HotelProfile, RoomsCategory, RoomsInventory, RatePlan, OfferBE, HoelImage, User
+
+from django.http import HttpResponseRedirect
+
+
+def searchwebsitedata(request):
+    try:
+        # Get user data from request
+        userid = request.POST.get('userid')
+        users = User.objects.get(id=userid)
+        user = users.username
+        
+        # Check if the hotel profile exists
+        if not HotelProfile.objects.filter(vendor__username=user).exists():
+            return render(request, '404.html', {'error_message': "Profile Not Created!"}, status=300)
 
         profile = HotelProfile.objects.get(vendor__username=user)
         rooms = RoomsCategory.objects.filter(vendor__username=user).prefetch_related('images')
-        today = datetime.now().date()
-        tomorrow = today + timedelta(days=1)
 
-        daysdiff = 1
+        # Get check-in and check-out dates from the request
+        checkin_date = request.POST.get('checkin_date')  # Example: '2024-12-04'
+        checkout_date = request.POST.get('checkout_date')  # Example: '2024-12-06'
+
+        # Parse the dates
+        checkin_date = datetime.strptime(checkin_date, '%Y-%m-%d').date()
+        checkout_date = datetime.strptime(checkout_date, '%Y-%m-%d').date()
+
+        # Check if any of the dates are in the past
+        today = datetime.now().date()
+        if checkin_date < today or checkout_date < today or (checkin_date == today and  checkout_date==today) or (checkin_date == checkin_date and  checkout_date==checkin_date) or (checkin_date == checkout_date and  checkout_date==checkout_date):
+            # If the check-in or checkout date is in the past, call the URL with the username
+            # Example: make a URL call to a page with the username parameter
+            # url = f"http://127.0.0.1:8000/mobileview/{user}/"
+            url = f"https://live.billzify.com/mobileview/{user}/"
+            return HttpResponseRedirect(url)
+
+        # Initialize variables
+        daysdiff = (checkout_date - checkin_date).days
         adults = 2
         child = 0
 
-        # Fetch inventory for today
-        inventory_today = RoomsInventory.objects.filter(vendor__username=user, date=today)
+        # Fetch all inventory for the date range
+        inventory_data = RoomsInventory.objects.filter(vendor__username=user, date__range=[checkin_date, checkout_date])
 
         profiledata = HotelProfile.objects.filter(vendor__username=user)
         imagedata = HoelImage.objects.filter(vendor__username=user)
@@ -1216,12 +1356,39 @@ def mobileview(request, user):
 
         users = User.objects.get(username=user)
 
+        # Fetch the inventory for the specific date range
+        inventory_today = RoomsInventory.objects.filter(vendor__username=user, date__range=[checkin_date, checkout_date])
+
         # Store availability data with room objects
         for room in rooms:
             room_inventory = inventory_today.filter(room_category=room)
             if room_inventory.exists():
                 inventory = room_inventory.first()
-                room.available_rooms = inventory.total_availibility
+
+                # Loop through all days in the check-in and check-out date range to find minimum availability
+                available_rooms_per_day = []  # List to store availability for each day
+
+                current_date = checkin_date
+                while current_date < checkout_date:
+                    # Filter inventory for the current room and date
+                    room_inventory = inventory_data.filter(room_category=room, date=current_date).first()
+
+                    if room_inventory:
+                        # If inventory exists, use the availability for that date
+                        available_rooms_per_day.append(room_inventory.total_availibility)
+                    else:
+                        # If no inventory exists for the date, assume all rooms are available (fallback to total rooms)
+                        available_rooms_per_day.append(Rooms.objects.filter(vendor__username=user, room_type=room).count())
+
+                    current_date += timedelta(days=1)
+
+                # If available_rooms_per_day is not empty, find the minimum availability, otherwise set a default value
+                if available_rooms_per_day:
+                    min_available_rooms = min(available_rooms_per_day)
+                    room.available_rooms = min_available_rooms
+                    print(min_available_rooms, room)
+                else:
+                    room.available_rooms = 0  # Default to 0 if no availability data is found
 
                 # Calculate prices with offers
                 if offers:
@@ -1237,10 +1404,7 @@ def mobileview(request, user):
                 room.tax = room.category_tax.taxrate
             else:
                 room.available_rooms = Rooms.objects.filter(vendor__username=user, room_type=room).count()
-                # room.uprice = room.catprice
-                # room.delprice = room.catprice+1000
-                # room.offeramount = 0
-                # Calculate prices with offers
+
                 if offers:
                     OFFERAMOUNT = room.catprice * offers.discount_percentage // 100
                     room.uprice = room.catprice - OFFERAMOUNT
@@ -1251,16 +1415,6 @@ def mobileview(request, user):
                     room.delprice = room.catprice + 1000
                     room.offeramount = 0
                 room.tax = room.category_tax.taxrate
-
-            # Check all rate plans for the cheapest option
-            for plan in rateplanmaxuser.filter(room_category=room):
-                total_price = room.uprice + plan.base_price
-
-                # Update the cheapest room and rate plan if found
-                if total_price < lowest_price and room.available_rooms > 0:
-                    cheapest_room = room
-                    cheapest_rate_plan = plan
-                    lowest_price = total_price
 
         hoteldatas = HotelProfile.objects.get(vendor__username=user)
         terms_lines = hoteldatas.termscondition.splitlines() if hoteldatas else []
@@ -1273,8 +1427,8 @@ def mobileview(request, user):
             'profile': profile,
             'imagedata': imagedata,
             'profiledata': profiledata,
-            'today': today,
-            'tomorrow': tomorrow,
+            'today': checkin_date,
+            'tomorrow': checkout_date,
             'rooms': rooms,
             'rateplanmaxuser': rateplanmaxuser,
             'offer': offers,
@@ -1282,160 +1436,14 @@ def mobileview(request, user):
             'adults': adults,
             'child': child,
             'cheapest_room': cheapest_room,
-            'cheapest_rate_plan': cheapest_rate_plan,
             'lowest_price': lowest_price,
-            'user':users.id,
+            'user': users.id,
             'terms_lines':terms_lines,
             'cpolicy':cpolicy
         })
-    
-    else:
-        return render(request, 'website.html',{'emptydata':'Online bookings are currently unavailable. Please try booking offline instead.'} )
-
-
-from datetime import datetime, timedelta
-from django.shortcuts import render
-from .models import HotelProfile, RoomsCategory, RoomsInventory, RatePlan, OfferBE, HoelImage, User
-
-from django.http import HttpResponseRedirect
-
-
-def searchwebsitedata(request):
-    # Get user data from request
-    userid = request.POST.get('userid')
-    users = User.objects.get(id=userid)
-    user = users.username
-    
-    # Check if the hotel profile exists
-    if not HotelProfile.objects.filter(vendor__username=user).exists():
-        return render(request, '404.html', {'error_message': "Profile Not Created!"}, status=300)
-
-    profile = HotelProfile.objects.get(vendor__username=user)
-    rooms = RoomsCategory.objects.filter(vendor__username=user).prefetch_related('images')
-
-    # Get check-in and check-out dates from the request
-    checkin_date = request.POST.get('checkin_date')  # Example: '2024-12-04'
-    checkout_date = request.POST.get('checkout_date')  # Example: '2024-12-06'
-
-    # Parse the dates
-    checkin_date = datetime.strptime(checkin_date, '%Y-%m-%d').date()
-    checkout_date = datetime.strptime(checkout_date, '%Y-%m-%d').date()
-
-    # Check if any of the dates are in the past
-    today = datetime.now().date()
-    if checkin_date < today or checkout_date < today or (checkin_date == today and  checkout_date==today) or (checkin_date == checkin_date and  checkout_date==checkin_date) or (checkin_date == checkout_date and  checkout_date==checkout_date):
-        # If the check-in or checkout date is in the past, call the URL with the username
-        # Example: make a URL call to a page with the username parameter
-        url = f"http://127.0.0.1:8000/mobileview/{user}/"
-        # url = f"https://live.billzify.com/mobileview/{user}/"
-        return HttpResponseRedirect(url)
-
-    # Initialize variables
-    daysdiff = (checkout_date - checkin_date).days
-    adults = 2
-    child = 0
-
-    # Fetch all inventory for the date range
-    inventory_data = RoomsInventory.objects.filter(vendor__username=user, date__range=[checkin_date, checkout_date])
-
-    profiledata = HotelProfile.objects.filter(vendor__username=user)
-    imagedata = HoelImage.objects.filter(vendor__username=user)
-    rateplanmaxuser = RatePlan.objects.filter(vendor__username=user, max_persons__gte=1)
-    offers = OfferBE.objects.filter(vendor__username=user).last()
-
-    # Initialize cheapest room tracking
-    cheapest_room = None
-    cheapest_rate_plan = None
-    lowest_price = float('inf')
-
-    users = User.objects.get(username=user)
-
-    # Fetch the inventory for the specific date range
-    inventory_today = RoomsInventory.objects.filter(vendor__username=user, date__range=[checkin_date, checkout_date])
-
-    # Store availability data with room objects
-    for room in rooms:
-        room_inventory = inventory_today.filter(room_category=room)
-        if room_inventory.exists():
-            inventory = room_inventory.first()
-
-            # Loop through all days in the check-in and check-out date range to find minimum availability
-            available_rooms_per_day = []  # List to store availability for each day
-
-            current_date = checkin_date
-            while current_date < checkout_date:
-                # Filter inventory for the current room and date
-                room_inventory = inventory_data.filter(room_category=room, date=current_date).first()
-
-                if room_inventory:
-                    # If inventory exists, use the availability for that date
-                    available_rooms_per_day.append(room_inventory.total_availibility)
-                else:
-                    # If no inventory exists for the date, assume all rooms are available (fallback to total rooms)
-                    available_rooms_per_day.append(Rooms.objects.filter(vendor__username=user, room_type=room).count())
-
-                current_date += timedelta(days=1)
-
-            # If available_rooms_per_day is not empty, find the minimum availability, otherwise set a default value
-            if available_rooms_per_day:
-                min_available_rooms = min(available_rooms_per_day)
-                room.available_rooms = min_available_rooms
-                print(min_available_rooms, room)
-            else:
-                room.available_rooms = 0  # Default to 0 if no availability data is found
-
-            # Calculate prices with offers
-            if offers:
-                OFFERAMOUNT = inventory.price * offers.discount_percentage // 100
-                room.uprice = inventory.price - OFFERAMOUNT
-                room.delprice = inventory.price
-                room.offeramount = OFFERAMOUNT
-            else:
-                room.uprice = inventory.price
-                room.delprice = inventory.price + 1000
-                room.offeramount = 0
-
-            room.tax = room.category_tax.taxrate
-        else:
-            room.available_rooms = Rooms.objects.filter(vendor__username=user, room_type=room).count()
-
-            if offers:
-                OFFERAMOUNT = room.catprice * offers.discount_percentage // 100
-                room.uprice = room.catprice - OFFERAMOUNT
-                room.delprice = room.catprice
-                room.offeramount = OFFERAMOUNT
-            else:
-                room.uprice = room.catprice
-                room.delprice = room.catprice + 1000
-                room.offeramount = 0
-            room.tax = room.category_tax.taxrate
-
-    hoteldatas = HotelProfile.objects.get(vendor__username=user)
-    terms_lines = hoteldatas.termscondition.splitlines() if hoteldatas else []
-    aminities = beaminities.objects.filter(vendor__username=user)
-    prfmcdata = becallemail.objects.filter(vendor__username=user)
-    cpolicy = cancellationpolicy.objects.filter(vendor__username=user).last()
-    return render(request, 'website.html', {
-        'aminities':aminities,
-        'prfmcdata':prfmcdata,
-        'profile': profile,
-        'imagedata': imagedata,
-        'profiledata': profiledata,
-        'today': checkin_date,
-        'tomorrow': checkout_date,
-        'rooms': rooms,
-        'rateplanmaxuser': rateplanmaxuser,
-        'offer': offers,
-        'daysdiff': daysdiff,
-        'adults': adults,
-        'child': child,
-        'cheapest_room': cheapest_room,
-        'lowest_price': lowest_price,
-        'user': users.id,
-        'terms_lines':terms_lines,
-        'cpolicy':cpolicy
-    })
-
+        
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
 
 
 
@@ -1455,7 +1463,7 @@ def handleuser(request):
 
 
 def createsubplan(request):
-    # try:
+    try:
         if request.user.is_superuser and request.method=="POST":
             user = request.POST.get('user')
             plans = request.POST.get('plans')
@@ -1488,13 +1496,13 @@ def createsubplan(request):
 
         else:
             return redirect('handleuser')
-    # except Exception as e:
-    #     return render(request, '404.html', {'error_message': str(e)}, status=500)    
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)    
     
 
 
 def addmsgtouser(request):
-    # try:
+    try:
         if request.user.is_superuser and request.method=="POST":
             user = request.POST.get('user')
             msglimit = int(request.POST.get('msglimit'))
@@ -1521,20 +1529,24 @@ def addmsgtouser(request):
         else:
                 messages.error(request,'user not found')
                 return redirect('handleuser')
-    # except Exception as e:
-    #     return render(request, '404.html', {'error_message': str(e)}, status=500)    
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)    
     
 
 
 def bulkupdate(request):
-    if request.user.is_authenticated:
-        user=request.user
-        roomcat = RoomsCategory.objects.filter(vendor=user)
-        today = datetime.now().date()
-        return render(request,'bulkpage.html',{'roomcat':roomcat,'active_page':'bulkupdate','today':today})
+    try:    
+        if request.user.is_authenticated:
+            user=request.user
+            roomcat = RoomsCategory.objects.filter(vendor=user)
+            today = datetime.now().date()
+            return render(request,'bulkpage.html',{'roomcat':roomcat,'active_page':'bulkupdate','today':today})
 
-    else:
-        return redirect('loginpage')
+        else:
+            return redirect('loginpage')
+        
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
 
 from django.http import HttpResponse
 from .newcode import *
@@ -1548,224 +1560,227 @@ import threading
 
 
 def bulkinventoryform(request):
-    if request.user.is_authenticated and request.method == "POST":
-        # Get the selected category IDs
-        user = request.user
-        selected_ids = request.POST.getlist('selected_categories')
-        startdate = request.POST.get('startdate')
-        enddate = request.POST.get('enddate')
-        print(enddate, startdate)
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            # Get the selected category IDs
+            user = request.user
+            selected_ids = request.POST.getlist('selected_categories')
+            startdate = request.POST.get('startdate')
+            enddate = request.POST.get('enddate')
+            print(enddate, startdate)
 
-        # Query the selected categories from the database
-        selected_categories = RoomsCategory.objects.filter(vendor=user, id__in=selected_ids)
-        print(selected_categories)
-        print(selected_ids)
+            # Query the selected categories from the database
+            selected_categories = RoomsCategory.objects.filter(vendor=user, id__in=selected_ids)
+            print(selected_categories)
+            print(selected_ids)
 
-        # Prepare category_data with availability values
-        category_data = {}
-        for category_id in selected_categories:
-            # Check if availability input exists for this category
-            availability_key = f'catavaibility_{category_id.id}'
-            availability_value = request.POST.get(availability_key, None)
+            # Prepare category_data with availability values
+            category_data = {}
+            for category_id in selected_categories:
+                # Check if availability input exists for this category
+                availability_key = f'catavaibility_{category_id.id}'
+                availability_value = request.POST.get(availability_key, None)
 
-            if availability_value:  # Ensure value is not None or empty
-                category_data[category_id.id] = int(availability_value)  # Store as integer
+                if availability_value:  # Ensure value is not None or empty
+                    category_data[category_id.id] = int(availability_value)  # Store as integer
 
-        # अब category_data में IDs और उनकी availability वैल्यू हैं
-        print(category_data)
+            # अब category_data में IDs और उनकी availability वैल्यू हैं
+            print(category_data)
 
-        # Parse the start and end dates
-        checkindate = datetime.strptime(startdate, '%Y-%m-%d').date()
-        checkoutdate = datetime.strptime(enddate, '%Y-%m-%d').date()
+            # Parse the start and end dates
+            checkindate = datetime.strptime(startdate, '%Y-%m-%d').date()
+            checkoutdate = datetime.strptime(enddate, '%Y-%m-%d').date()
 
-        # Generate the list of all dates between check-in and check-out (inclusive)
-        all_dates = [checkindate + timedelta(days=x) for x in range((checkoutdate - checkindate).days + 1)]
+            # Generate the list of all dates between check-in and check-out (inclusive)
+            all_dates = [checkindate + timedelta(days=x) for x in range((checkoutdate - checkindate).days + 1)]
 
-        for roomtype in selected_categories:  # Iterate through all selected categories
-            # Query the RoomsInventory model to check if records exist for all those dates
-            existing_inventory = RoomsInventory.objects.filter(
-                vendor=user, room_category_id=roomtype.id, date__in=all_dates
-            )
+            for roomtype in selected_categories:  # Iterate through all selected categories
+                # Query the RoomsInventory model to check if records exist for all those dates
+                existing_inventory = RoomsInventory.objects.filter(
+                    vendor=user, room_category_id=roomtype.id, date__in=all_dates
+                )
 
-            # Get the list of dates that already exist in the inventory
-            existing_dates = set(existing_inventory.values_list('date', flat=True))
-            print(existing_inventory, "exists inventory")
+                # Get the list of dates that already exist in the inventory
+                existing_dates = set(existing_inventory.values_list('date', flat=True))
+                print(existing_inventory, "exists inventory")
 
-            # Identify the missing dates by comparing all_dates with existing_dates
-            missing_dates = [date for date in all_dates if date not in existing_dates]
+                # Identify the missing dates by comparing all_dates with existing_dates
+                missing_dates = [date for date in all_dates if date not in existing_dates]
 
-            # Get the total room count for the current category
-            roomcount = Rooms.objects.filter(vendor=user, room_type_id=roomtype.id).exclude(checkin=6).count()
+                # Get the total room count for the current category
+                roomcount = Rooms.objects.filter(vendor=user, room_type_id=roomtype.id).exclude(checkin=6).count()
 
-            # Get availability value for the current category from category_data
-            availability_value = category_data.get(roomtype.id, roomcount)  # Default to roomcount if not provided
+                # Get availability value for the current category from category_data
+                availability_value = category_data.get(roomtype.id, roomcount)  # Default to roomcount if not provided
 
-            # Deduct availability and update bookings for existing inventory
-            for inventory in existing_inventory:
-                trms = inventory.booked_rooms
-                if trms==0:
-                    trms=1
+                # Deduct availability and update bookings for existing inventory
+                for inventory in existing_inventory:
+                    trms = inventory.booked_rooms
+                    if trms==0:
+                        trms=1
+                    else:
+                        pass
+                    occupncies = (trms*100//availability_value)
+                    inventory.total_availibility = availability_value  # Update with the provided value
+                    inventory.occupancy=occupncies
+                    inventory.save()
+
+                # Fetch category data
+                catdatas = RoomsCategory.objects.get(vendor=user, id=roomtype.id)
+                totalrooms = Rooms.objects.filter(vendor=user, room_type_id=roomtype.id).exclude(checkin=6).count()
+                occupancy = (1 * 100 // totalrooms) if totalrooms else 0
+
+                # Create missing inventory entries
+                if missing_dates:
+                    for missing_date in missing_dates:
+                        RoomsInventory.objects.create(
+                            vendor=user,
+                            date=missing_date,
+                            room_category_id=roomtype.id,
+                            total_availibility=availability_value,  # Use availability from category_data
+                            booked_rooms=0,  # Set according to your logic
+                            price=catdatas.catprice,
+                            occupancy=occupancy
+                        )
+                    print(f"Missing dates have been created for category {roomtype}: {missing_dates}")
                 else:
-                    pass
-                occupncies = (trms*100//availability_value)
-                inventory.total_availibility = availability_value  # Update with the provided value
-                inventory.occupancy=occupncies
-                inventory.save()
+                    print(f"All dates already exist in the inventory for category {roomtype}.")
 
-            # Fetch category data
-            catdatas = RoomsCategory.objects.get(vendor=user, id=roomtype.id)
-            totalrooms = Rooms.objects.filter(vendor=user, room_type_id=roomtype.id).exclude(checkin=6).count()
-            occupancy = (1 * 100 // totalrooms) if totalrooms else 0
-
-            # Create missing inventory entries
-            if missing_dates:
-                for missing_date in missing_dates:
-                    RoomsInventory.objects.create(
-                        vendor=user,
-                        date=missing_date,
-                        room_category_id=roomtype.id,
-                        total_availibility=availability_value,  # Use availability from category_data
-                        booked_rooms=0,  # Set according to your logic
-                        price=catdatas.catprice,
-                        occupancy=occupancy
-                    )
-                print(f"Missing dates have been created for category {roomtype}: {missing_dates}")
-            else:
-                print(f"All dates already exist in the inventory for category {roomtype}.")
-
-        # Trigger background API tasks for the user
-        start_date = str(checkindate)
-        end_date = str(checkoutdate)
-        if VendorCM.objects.filter(vendor=user):
+            # Trigger background API tasks for the user
             start_date = str(checkindate)
             end_date = str(checkoutdate)
-            thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
-            thread.start()
-            # for dynamic pricing
-            if VendorCM.objects.filter(vendor=user, dynamic_price_active=True):
-                thread = threading.Thread(target=rate_hit_channalmanager, args=(user.id, start_date, end_date))
+            if VendorCM.objects.filter(vendor=user):
+                start_date = str(checkindate)
+                end_date = str(checkoutdate)
+                thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
                 thread.start()
+                # for dynamic pricing
+                if VendorCM.objects.filter(vendor=user, dynamic_price_active=True):
+                    thread = threading.Thread(target=rate_hit_channalmanager, args=(user.id, start_date, end_date))
+                    thread.start()
+                else:
+                    pass
             else:
                 pass
-        else:
-            pass
 
-        messages.success(request, "Inventory Updated Successfully!")
+            messages.success(request, "Inventory Updated Successfully!")
+            
+            # Do whatever processing is needed, then return a response
+            return redirect('bulkupdate')
         
-        # Do whatever processing is needed, then return a response
-        return redirect('bulkupdate')
-    else:
-        # roomcat = RoomCategory.objects.all()  # Replace with your actual query
-        messages.success(request, "Something Went Wrong!")
-        return redirect('bulkupdate')
-    
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)    
 
 
 
 
 def bulkformprice(request):
-    if request.user.is_authenticated and request.method == "POST":
-        # Get the selected category IDs
-        user = request.user
-        selected_ids = request.POST.getlist('selected_categories')
-        startdate = request.POST.get('startdate')
-        enddate = request.POST.get('enddate')
-        print(enddate, startdate)
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            # Get the selected category IDs
+            user = request.user
+            selected_ids = request.POST.getlist('selected_categories')
+            startdate = request.POST.get('startdate')
+            enddate = request.POST.get('enddate')
+            print(enddate, startdate)
 
-        # Query the selected categories from the database
-        selected_categories = RoomsCategory.objects.filter(vendor=user, id__in=selected_ids)
-        print(selected_categories)
-        print(selected_ids)
+            # Query the selected categories from the database
+            selected_categories = RoomsCategory.objects.filter(vendor=user, id__in=selected_ids)
+            print(selected_categories)
+            print(selected_ids)
 
-        # Prepare category_data with availability values
-        category_data = {}
-        for category_id in selected_categories:
-            # Check if availability input exists for this category
-            availability_key = f'catavaibility_{category_id.id}'
-            availability_value = request.POST.get(availability_key, None)
+            # Prepare category_data with availability values
+            category_data = {}
+            for category_id in selected_categories:
+                # Check if availability input exists for this category
+                availability_key = f'catavaibility_{category_id.id}'
+                availability_value = request.POST.get(availability_key, None)
 
-            if availability_value:  # Ensure value is not None or empty
-                category_data[category_id.id] = int(availability_value)  # Store as integer
+                if availability_value:  # Ensure value is not None or empty
+                    category_data[category_id.id] = int(availability_value)  # Store as integer
 
-        # अब category_data में IDs और उनकी availability वैल्यू हैं
-        print(category_data)
+            # अब category_data में IDs और उनकी availability वैल्यू हैं
+            print(category_data)
 
-        # Parse the start and end dates
-        checkindate = datetime.strptime(startdate, '%Y-%m-%d').date()
-        checkoutdate = datetime.strptime(enddate, '%Y-%m-%d').date()
+            # Parse the start and end dates
+            checkindate = datetime.strptime(startdate, '%Y-%m-%d').date()
+            checkoutdate = datetime.strptime(enddate, '%Y-%m-%d').date()
 
-        # Generate the list of all dates between check-in and check-out (inclusive)
-        all_dates = [checkindate + timedelta(days=x) for x in range((checkoutdate - checkindate).days + 1)]
+            # Generate the list of all dates between check-in and check-out (inclusive)
+            all_dates = [checkindate + timedelta(days=x) for x in range((checkoutdate - checkindate).days + 1)]
 
-        for roomtype in selected_categories:  # Iterate through all selected categories
-            # Query the RoomsInventory model to check if records exist for all those dates
-            existing_inventory = RoomsInventory.objects.filter(
-                vendor=user, room_category_id=roomtype.id, date__in=all_dates
-            )
+            for roomtype in selected_categories:  # Iterate through all selected categories
+                # Query the RoomsInventory model to check if records exist for all those dates
+                existing_inventory = RoomsInventory.objects.filter(
+                    vendor=user, room_category_id=roomtype.id, date__in=all_dates
+                )
 
-            # Get the list of dates that already exist in the inventory
-            existing_dates = set(existing_inventory.values_list('date', flat=True))
-            print(existing_inventory, "exists inventory")
+                # Get the list of dates that already exist in the inventory
+                existing_dates = set(existing_inventory.values_list('date', flat=True))
+                print(existing_inventory, "exists inventory")
 
-            # Identify the missing dates by comparing all_dates with existing_dates
-            missing_dates = [date for date in all_dates if date not in existing_dates]
+                # Identify the missing dates by comparing all_dates with existing_dates
+                missing_dates = [date for date in all_dates if date not in existing_dates]
 
-            # Get the total room count for the current category
-            roomcount = Rooms.objects.filter(vendor=user, room_type_id=roomtype.id).exclude(checkin=6).count()
+                # Get the total room count for the current category
+                roomcount = Rooms.objects.filter(vendor=user, room_type_id=roomtype.id).exclude(checkin=6).count()
 
-            # Get availability value for the current category from category_data
-            availability_value = category_data.get(roomtype.id, roomcount)  # Default to roomcount if not provided
+                # Get availability value for the current category from category_data
+                availability_value = category_data.get(roomtype.id, roomcount)  # Default to roomcount if not provided
 
-            # Deduct availability and update bookings for existing inventory
-            for inventory in existing_inventory:
-                inventory.price = float(availability_value)  # Update with the provided value
-                
-                inventory.save()
+                # Deduct availability and update bookings for existing inventory
+                for inventory in existing_inventory:
+                    inventory.price = float(availability_value)  # Update with the provided value
+                    
+                    inventory.save()
 
-            # Fetch category data
-            catdatas = RoomsCategory.objects.get(vendor=user, id=roomtype.id)
-            totalrooms = Rooms.objects.filter(vendor=user, room_type_id=roomtype.id).exclude(checkin=6).count()
-            occupancy = (1 * 100 // totalrooms) if totalrooms else 0
+                # Fetch category data
+                catdatas = RoomsCategory.objects.get(vendor=user, id=roomtype.id)
+                totalrooms = Rooms.objects.filter(vendor=user, room_type_id=roomtype.id).exclude(checkin=6).count()
+                occupancy = (1 * 100 // totalrooms) if totalrooms else 0
 
-            # Create missing inventory entries
-            if missing_dates:
-                for missing_date in missing_dates:
-                    RoomsInventory.objects.create(
-                        vendor=user,
-                        date=missing_date,
-                        room_category_id=roomtype.id,
-                        total_availibility=totalrooms,  # Use availability from category_data
-                        booked_rooms=0,  # Set according to your logic
-                        price=float(availability_value),
-                        occupancy=occupancy
-                        
-                    )
-                print(f"Missing dates have been created for category {roomtype}: {missing_dates}")
-            else:
-                print(f"All dates already exist in the inventory for category {roomtype}.")
+                # Create missing inventory entries
+                if missing_dates:
+                    for missing_date in missing_dates:
+                        RoomsInventory.objects.create(
+                            vendor=user,
+                            date=missing_date,
+                            room_category_id=roomtype.id,
+                            total_availibility=totalrooms,  # Use availability from category_data
+                            booked_rooms=0,  # Set according to your logic
+                            price=float(availability_value),
+                            occupancy=occupancy
+                            
+                        )
+                    print(f"Missing dates have been created for category {roomtype}: {missing_dates}")
+                else:
+                    print(f"All dates already exist in the inventory for category {roomtype}.")
 
-        # Trigger background API tasks for the user
-        start_date = str(checkindate)
-        end_date = str(checkoutdate)
-        if VendorCM.objects.filter(vendor=user):
+            # Trigger background API tasks for the user
             start_date = str(checkindate)
             end_date = str(checkoutdate)
-            thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
-            thread.start()
-            # for dynamic pricing
-            # if VendorCM.objects.filter(vendor=user, dynamic_price_active=True):
-            thread = threading.Thread(target=rate_hit_channalmanager, args=(user.id, start_date, end_date))
-            thread.start()
-            # else:
-            #     pass
-        else:
-            pass
+            if VendorCM.objects.filter(vendor=user):
+                start_date = str(checkindate)
+                end_date = str(checkoutdate)
+                thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
+                thread.start()
+                # for dynamic pricing
+                # if VendorCM.objects.filter(vendor=user, dynamic_price_active=True):
+                thread = threading.Thread(target=rate_hit_channalmanager, args=(user.id, start_date, end_date))
+                thread.start()
+                # else:
+                #     pass
+            else:
+                pass
 
-        messages.success(request, "Price Updated Successfully!")
-        
-        # Do whatever processing is needed, then return a response
-        return redirect('bulkupdate')
-    else:
-        # roomcat = RoomCategory.objects.all()  # Replace with your actual query
-        messages.success(request, "Something Went Wrong!")
-        return redirect('bulkupdate')
+            messages.success(request, "Price Updated Successfully!")
+            
+            # Do whatever processing is needed, then return a response
+            return redirect('bulkupdate')
+   
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)

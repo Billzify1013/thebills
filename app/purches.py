@@ -32,8 +32,8 @@ def purchesinvoice(request):
                 },
             )
 
-        # else:
-        #     return redirect("loginpage")
+        else:
+            return redirect("loginpage")
     except Exception as e:
         return render(request, "404.html", {"error_message": str(e)}, status=500)
 
@@ -408,7 +408,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 def purcheshistory(request):
-    # try:
+    try:
         if request.user.is_authenticated:
             user = request.user
             advanceroomsdata = Supplier.objects.filter(vendor=user).order_by(
@@ -434,8 +434,8 @@ def purcheshistory(request):
             )
         else:
             return redirect("loginpage")
-    # except Exception as e:
-    #     return render(request, "404.html", {"error_message": str(e)}, status=500)
+    except Exception as e:
+        return render(request, "404.html", {"error_message": str(e)}, status=500)
 
 
 

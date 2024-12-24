@@ -119,8 +119,9 @@
       
         <label id="basic-icon-default-company2" class=""
               >Partner: {{agencydata}}<br>
-              Month: {{current_month}}<br>
-              Year: {{current_year}}</label><br>
+              From: {{first_day_of_month}}<br>
+              To: {{last_day_of_month}}</label><br>
+                
 
               <a href=""  data-bs-toggle="modal"  data-bs-target="#backDropModalsearchdate" class="btn btn-outline-primary mt-5" style=>Change Month/Year</a>
   
@@ -142,7 +143,7 @@
                 <thead class="table-light">
                     <tr>
                         <th>Guest</th>
-                        <th>CheckIn</th>
+                        <th>CheckIn - CheckOut</th>
                         <th>Total ₹</th>
                         <th>Tax ₹</th>
                         <th>Commission ₹</th>
@@ -157,7 +158,7 @@
                             <strong>{{ data.bookingguest }}</strong><br>
                             <small><i class="bx bxs-phone-call"></i> {{ data.bookingguestphone }}</small><br>
                         </td>
-                        <td>{{ data.bookingdate }}</td>
+                        <td>{{ data.bookingdate }} - {{data.checkoutdate}}</td>
                         <td class="subtotal">{{ data.amount_before_tax }}</td>
                         <td class="tax">{{ data.tax }}</td>
                         {% for agency in data.travelagencyhandling_set.all %}
@@ -284,13 +285,26 @@
         <div class="modal-body">
           <div class="row">
             <div class="col mb-3">
-              <label for="nameBackdrop" class="form-label">Month</label>
+              <label for="nameBackdrop" class="form-label">Start Date</label>
               <input
-                type="month"
-                name="monthname"
+                type="date"
+                name="startdate"
                 id="nameBackdrop"
                 class="form-control"
                 placeholder="Enter RoomName"
+                required
+              />
+            </div>
+
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">End Date</label>
+              <input
+                type="date"
+                name="enddate"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter RoomName"
+                required
               />
             </div>
 

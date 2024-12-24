@@ -61,15 +61,18 @@ def add_company(request):
     
 
 def deletecompany(request,id):
-    id =id
-    if Companies.objects.filter(id=id).exists():
-        Companies.objects.filter(id=id).delete()
-        messages.success(request, "Company Delete successfully!")
-    else:
-        pass
+    try:
+        id =id
+        if Companies.objects.filter(id=id).exists():
+            Companies.objects.filter(id=id).delete()
+            messages.success(request, "Company Delete successfully!")
+        else:
+            pass
 
-    return redirect('comaypage')
-
+        return redirect('comaypage')
+    
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
 
 
 def get_companies(request):
@@ -133,16 +136,20 @@ def submit_form(request):
 
 
 def gotocmpbills(request,id):
-    if request.user.is_authenticated:
-        cmpinvcdata  = companyinvoice.objects.filter(company_id=id).all()
-        a=1
-        cname = ''
-        for i in cmpinvcdata:
-            if a>1:
-                break
-            else:
-                cname = i.company.companyname
-                a=a+1
+    try:
+        if request.user.is_authenticated:
+            cmpinvcdata  = companyinvoice.objects.filter(company_id=id).all()
+            a=1
+            cname = ''
+            for i in cmpinvcdata:
+                if a>1:
+                    break
+                else:
+                    cname = i.company.companyname
+                    a=a+1
 
-        return render(request,'cmpinvc.html',{'cmpinvcdata':cmpinvcdata,'active_page':'comaypage','cname':cname})
-
+            return render(request,'cmpinvc.html',{'cmpinvcdata':cmpinvcdata,'active_page':'comaypage','cname':cname})
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)

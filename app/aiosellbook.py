@@ -23,12 +23,7 @@ def aiosell_new_reservation(request):
             # Log incoming data for verification
             logger.info("Received new reservation data: %s", data)
 
-            # Verify required fields before proceeding
-            # required_fields = ["bookingId", "hotelCode", "channel", "checkin", "checkout", "guest", "rooms"]
-            # for field in required_fields:
-            #     if field not in data:
-            #         return JsonResponse({'success': False, 'message': f'Missing required field: {field}'}, status=400)
-            # print(data,"Received new reservation data")
+           
             action = data['action']
             hotelCode = data['hotelCode']
             if VendorCM.objects.filter(hotelcode=hotelCode).exists():
@@ -252,11 +247,15 @@ def aiosell_new_reservation(request):
                                     # If there are missing dates, create new entries for those dates in the RoomsInventory model
                                     roomcount = Rooms.objects.filter(vendor=vendordata.vendor,room_type=catdatas).exclude(checkin=6).count()
                                     print(roomcount,'total room')
-                                    
+                                    occupancy = (1 * 100 // roomcount)
                                     for inventory in existing_inventory:
                                         if inventory.total_availibility > 0:  # Ensure there's at least 1 room available
                                             inventory.total_availibility -= 1
                                             inventory.booked_rooms += 1
+                                            if inventory.occupancy+occupancy==99:
+                                                inventory.occupancy=100
+                                            else:
+                                                inventory.occupancy +=occupancy
                                             inventory.save()
                                     
                                     # catdatas = RoomsCategory.objects.get(vendor_id=userids,category_name=category_name)

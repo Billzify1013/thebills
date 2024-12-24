@@ -3,226 +3,179 @@ from . models import *
 from datetime import datetime, timedelta, date
 import calendar
 
-# def gridview(request):
-#     if request.user.is_authenticated:
-#         user = request.user
-#         items = Items.objects.filter(vendor=user)
-#         return render(request,'gridviews.html',{'active_page':'gridview','items':items})
-    
-# def gridview(request):
-#     if request.user.is_authenticated:
-#         user = request.user
-        
-#         # Step 1: Get the current month and year
-#         today = datetime.today()
-#         current_year = today.year
-#         current_month = today.month
-#         room_cat = RoomsCategory.objects.filter(vendor=user).last()
-#         room_type = room_cat.id
-#         cat_name = room_cat.category_name
-        
-
-#         # Step 2: Get the number of days in the current month and first weekday
-#         num_days_in_month = calendar.monthrange(current_year, current_month)[1]  # e.g., 31 for October
-#         first_weekday_of_month = calendar.monthrange(current_year, current_month)[0]  # 0 = Monday, 6 = Sunday
-
-#         # Generate a list of all dates in the current month
-#         all_dates = [datetime(current_year, current_month, day).date() for day in range(1, num_days_in_month + 1)]
-
-#         # Step 3: Query the RateInventory model for the current month and room type
-#         room_inventory_data = RoomsInventory.objects.filter(
-#             room_category_id=room_type,
-#             date__year=current_year,
-#             date__month=current_month
-#         )
-
-#         # Create a dictionary to store the data by date
-#         room_data_by_date = {inventory.date: inventory for inventory in room_inventory_data}
-
-#         # Prepare data for the template (inventory for each date)
-#         inventory_for_template = []
-#         for date in all_dates:
-#             if date in room_data_by_date:
-#                 inventory = room_data_by_date[date]
-#                 inventory_for_template.append({
-#                     'date': date,
-#                     'available_rooms': inventory.total_availibility,
-#                     'booked_rooms': inventory.booked_rooms,
-#                     'price': inventory.price,
-#                     'occupancy': inventory.occupancy
-#                 })
-#             else:
-#                 # If no data exists for that date, just show empty availability
-#                 inventory_for_template.append({
-#                     'date': date,
-#                     'available_rooms': None,  # or 0
-#                     'booked_rooms': None,  # or 0
-#                     'price':None,
-#                     'occupancy': None
-#                 })
-
-
-
-#         # Add empty slots at the beginning based on the first day of the month
-#         empty_slots = first_weekday_of_month  # Number of empty days at the start of the month
-#         room_categorys = RoomsCategory.objects.filter(vendor=user)
-#         context = {
-#             'inventory_for_template': inventory_for_template,
-#             'empty_slots': empty_slots,  # Pass the empty slots to the template
-#             'room_type': cat_name,
-#             'current_month': today.strftime('%B'),  # e.g., 'October'
-#             'current_year': current_year,
-#             'weekdays': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],  # Weekdays
-#             'room_categorys':room_categorys
-#         }
-
-#         return render(request, 'gridviews.html', context)
     
 
 def gridview(request):
-    if request.user.is_authenticated:
-        user = request.user
+    try:
+        if request.user.is_authenticated:
+            user = request.user
+            
+            # Get the current month and year
+            today = datetime.today()
+            current_year = today.year
+            current_month = today.month
+            
+
+            print(current_year,current_month)
+            
+            room_cat = RoomsCategory.objects.filter(vendor=user).last()
+            room_type = room_cat.id
+            cat_name = room_cat.category_name
+            
         
-        # Get the current month and year
-        today = datetime.today()
-        current_year = today.year
-        current_month = today.month
-        
-        room_cat = RoomsCategory.objects.filter(vendor=user).last()
-        room_type = room_cat.id
-        cat_name = room_cat.category_name
-        
-        # Get the number of days in the current month and first weekday
-        num_days_in_month = calendar.monthrange(current_year, current_month)[1]  # e.g., 31 for October
-        first_weekday_of_month = calendar.monthrange(current_year, current_month)[0]  # 0 = Monday, 6 = Sunday
+            # Get the selected room category
+            room_cat = RoomsCategory.objects.get(vendor=user, id=room_type)
+            room_type = room_cat.id
+            cat_name = room_cat.category_name
 
-        # Generate a list of all dates in the current month
-        all_dates = [datetime(current_year, current_month, day).date() for day in range(1, num_days_in_month + 1)]
+            # Get number of days and first weekday of the selected month and year
+            num_days_in_month = calendar.monthrange(current_year, current_month)[1]
+            first_weekday_of_month = calendar.monthrange(current_year, current_month)[0]  # 0=Monday, 6=Sunday
 
-        # Query the RateInventory model for the current month and room type
-        room_inventory_data = RoomsInventory.objects.filter(
-            room_category_id=room_type,
-            date__year=current_year,
-            date__month=current_month
-        )
+            # Generate a list of dates in the selected month
+            all_dates = [datetime(current_year, current_month, day).date() for day in range(1, num_days_in_month + 1)]
 
-        # Create a dictionary to store the data by date
-        room_data_by_date = {inventory.date: inventory for inventory in room_inventory_data}
+            # Query the RoomsInventory model based on selected month and room type
+            room_inventory_data = RoomsInventory.objects.filter(
+                room_category_id=room_type,
+                date__year=current_year,
+                date__month=current_month
+            )
 
-        # Prepare data for the template (inventory for each date)
-        inventory_for_template = []
-        for date in all_dates:
-            inventory_for_template.append({
-                'date': date,
-                'available_rooms': room_data_by_date.get(date, None).total_availibility if date in room_data_by_date else None,
-                'booked_rooms': room_data_by_date.get(date, None).booked_rooms if date in room_data_by_date else None,
-                'price': room_data_by_date.get(date, None).price if date in room_data_by_date else None,
-                'occupancy': room_data_by_date.get(date, None).occupancy if date in room_data_by_date else None,
-                
-            })
+            # Create a dictionary to store inventory data by date
+            room_data_by_date = {inventory.date: inventory for inventory in room_inventory_data}
 
-        # Add empty slots at the beginning based on the first day of the month
-        # empty_slots = [''] * first_weekday_of_month  # Create empty slots based on the first weekday
-        room_categorys = RoomsCategory.objects.filter(vendor=user)
-        empty_slots = 5 
+            # Prepare data for each date, filling missing dates with default values
+            inventory_for_template = []
+            for date in all_dates:
+                if date in room_data_by_date:
+                    inventory = room_data_by_date[date]
+                    inventory_for_template.append({
+                        'date': date,
+                        'available_rooms': inventory.total_availibility,
+                        'booked_rooms': inventory.booked_rooms,
+                        'price': inventory.price,
+                        'occupancy': inventory.occupancy,
+                    
+                    })
+                else:
+                    inventory_for_template.append({
+                        'date': date,
+                        'available_rooms': None,
+                        'booked_rooms': None,
+                        'price': None,
+                        'occupancy': None,
+                        
+                    })
 
-        
-        context = {
-            'inventory_for_template': inventory_for_template,
-            'empty_slots': empty_slots,  # Pass the empty slots to the template
-            'room_type': cat_name,
-            'current_month': today.strftime('%B'),  # e.g., 'October'
-            'current_year': current_year,
-            # Adjust the order of the weekdays to start from Sunday
-            'weekdays': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'], 
-            'room_categorys': room_categorys,
-            'empty_slots_range': range(empty_slots),
-            'active_page':'gridview',
-        }
+            # Adjust the first weekday to align with a Sunday start
+            empty_slots = (first_weekday_of_month + 1) % 7  # Shift to match a Sunday start
 
-        return render(request, 'gridviews.html', context)
+            # Get room categories for the dropdown or other purposes
+            room_categorys = RoomsCategory.objects.filter(vendor=user)
 
+            # Prepare context for the template
+            context = {
+                'active_page':'gridview',
+                'inventory_for_template': inventory_for_template,
+                'empty_slots_range': range(empty_slots),  # Use range directly for empty slots
+                'room_type': cat_name,
+                'current_month': calendar.month_name[current_month],  # Display selected month name
+                'current_year': current_year,
+                'weekdays': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+                'room_categorys': room_categorys
+            }
 
+            return render(request, 'gridviews.html', context)
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
 
 def gridviewviasearch(request):
-    if request.user.is_authenticated and request.method == 'POST':
-        user = request.user
-        month_year_str = request.POST.get('monthyear')
-        categry = request.POST.get('category')
+    try:
+        if request.user.is_authenticated and request.method == 'POST':
+            user = request.user
+            month_year_str = request.POST.get('monthyear')
+            categry = request.POST.get('category')
 
-        # Extract year and month from the user's input
-        year, month = map(int, month_year_str.split('-'))
+            # Extract year and month from the user's input
+            year, month = map(int, month_year_str.split('-'))
 
-        print(f"Year: {year}, Month: {month} by form")
+            print(f"Year: {year}, Month: {month} by form")
 
-        # Use the year and month from the input
-        current_year = year
-        current_month = month
+            # Use the year and month from the input
+            current_year = year
+            current_month = month
 
-        # Get the selected room category
-        room_cat = RoomsCategory.objects.get(vendor=user, id=categry)
-        room_type = room_cat.id
-        cat_name = room_cat.category_name
+            # Get the selected room category
+            room_cat = RoomsCategory.objects.get(vendor=user, id=categry)
+            room_type = room_cat.id
+            cat_name = room_cat.category_name
 
-        # Get number of days and first weekday of the selected month and year
-        num_days_in_month = calendar.monthrange(current_year, current_month)[1]
-        first_weekday_of_month = calendar.monthrange(current_year, current_month)[0]  # 0=Monday, 6=Sunday
+            # Get number of days and first weekday of the selected month and year
+            num_days_in_month = calendar.monthrange(current_year, current_month)[1]
+            first_weekday_of_month = calendar.monthrange(current_year, current_month)[0]  # 0=Monday, 6=Sunday
 
-        # Generate a list of dates in the selected month
-        all_dates = [datetime(current_year, current_month, day).date() for day in range(1, num_days_in_month + 1)]
+            # Generate a list of dates in the selected month
+            all_dates = [datetime(current_year, current_month, day).date() for day in range(1, num_days_in_month + 1)]
 
-        # Query the RoomsInventory model based on selected month and room type
-        room_inventory_data = RoomsInventory.objects.filter(
-            room_category_id=room_type,
-            date__year=current_year,
-            date__month=current_month
-        )
+            # Query the RoomsInventory model based on selected month and room type
+            room_inventory_data = RoomsInventory.objects.filter(
+                room_category_id=room_type,
+                date__year=current_year,
+                date__month=current_month
+            )
 
-        # Create a dictionary to store inventory data by date
-        room_data_by_date = {inventory.date: inventory for inventory in room_inventory_data}
+            # Create a dictionary to store inventory data by date
+            room_data_by_date = {inventory.date: inventory for inventory in room_inventory_data}
 
-        # Prepare data for each date, filling missing dates with default values
-        inventory_for_template = []
-        for date in all_dates:
-            if date in room_data_by_date:
-                inventory = room_data_by_date[date]
-                inventory_for_template.append({
-                    'date': date,
-                    'available_rooms': inventory.total_availibility,
-                    'booked_rooms': inventory.booked_rooms,
-                    'price': inventory.price,
-                    'occupancy': inventory.occupancy,
-                   
-                })
-            else:
-                inventory_for_template.append({
-                    'date': date,
-                    'available_rooms': None,
-                    'booked_rooms': None,
-                    'price': None,
-                    'occupancy': None,
+            # Prepare data for each date, filling missing dates with default values
+            inventory_for_template = []
+            for date in all_dates:
+                if date in room_data_by_date:
+                    inventory = room_data_by_date[date]
+                    inventory_for_template.append({
+                        'date': date,
+                        'available_rooms': inventory.total_availibility,
+                        'booked_rooms': inventory.booked_rooms,
+                        'price': inventory.price,
+                        'occupancy': inventory.occupancy,
                     
-                })
+                    })
+                else:
+                    inventory_for_template.append({
+                        'date': date,
+                        'available_rooms': None,
+                        'booked_rooms': None,
+                        'price': None,
+                        'occupancy': None,
+                        
+                    })
 
-        # Adjust the first weekday to align with a Sunday start
-        empty_slots = (first_weekday_of_month + 1) % 7  # Shift to match a Sunday start
+            # Adjust the first weekday to align with a Sunday start
+            empty_slots = (first_weekday_of_month + 1) % 7  # Shift to match a Sunday start
 
-        # Get room categories for the dropdown or other purposes
-        room_categorys = RoomsCategory.objects.filter(vendor=user)
+            # Get room categories for the dropdown or other purposes
+            room_categorys = RoomsCategory.objects.filter(vendor=user)
 
-        # Prepare context for the template
-        context = {
-            'inventory_for_template': inventory_for_template,
-            'empty_slots_range': range(empty_slots),  # Use range directly for empty slots
-            'room_type': cat_name,
-            'current_month': calendar.month_name[current_month],  # Display selected month name
-            'current_year': current_year,
-            'weekdays': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-            'room_categorys': room_categorys
-        }
+            # Prepare context for the template
+            context = {
+                'active_page':'gridview',
+                'inventory_for_template': inventory_for_template,
+                'empty_slots_range': range(empty_slots),  # Use range directly for empty slots
+                'room_type': cat_name,
+                'current_month': calendar.month_name[current_month],  # Display selected month name
+                'current_year': current_year,
+                'weekdays': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+                'room_categorys': room_categorys
+            }
 
-        return render(request, 'gridviews.html', context)
-
+            return render(request, 'gridviews.html', context)
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
 
 import json
 import requests
@@ -244,30 +197,35 @@ from django.contrib.auth.models import User
 
 
 def inventory_push(request):
-    if request.method == 'POST':
-        if request.user.is_authenticated:
-            user = request.user
-            start_date = datetime.now().date()
-            end_date = start_date +  timedelta(days=10)
-            start_date=str(start_date)
-            end_date = str(end_date)
-            # start_date = request.POST.get('startDate', '2024-10-22')
-            # end_date = request.POST.get('endDate', '2024-10-30')
-            
-            # Start the long-running task in a separate thread
-            thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
-            thread.start()
-            
-            # Add a success message
-            messages.success(request, "Inventory sync has been started successfully.")
-            return redirect('homepage')  # Replace 'homepage' with your actual URL name
-        else:
-            messages.error(request, "User is not authenticated.")
-            return redirect('loginpage')
+    try:
+        if request.method == 'POST':
+            if request.user.is_authenticated:
+                user = request.user
+                start_date = datetime.now().date()
+                end_date = start_date +  timedelta(days=10)
+                start_date=str(start_date)
+                end_date = str(end_date)
+                # start_date = request.POST.get('startDate', '2024-10-22')
+                # end_date = request.POST.get('endDate', '2024-10-30')
+                
+                # Start the long-running task in a separate thread
+                thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
+                thread.start()
+                
+                # Add a success message
+                messages.success(request, "Inventory sync has been started successfully.")
+                return redirect('homepage')  # Replace 'homepage' with your actual URL name
+            else:
+                messages.error(request, "User is not authenticated.")
+                return redirect('loginpage')
 
-    messages.error(request, "Only POST requests are allowed.")
-    return redirect('homepage')
-
+        messages.error(request, "Only POST requests are allowed.")
+        return redirect('homepage')
+       
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+    
+    
 def update_inventory_task(user_id, start_date_str, end_date_str):
     max_attempts = 1
     attempt = 0

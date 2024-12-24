@@ -8,6 +8,7 @@ from django.http import JsonResponse
 from django.contrib import messages
 
 def rate_push(request):
+    try:
         if request.user.is_authenticated:
             user = request.user
             start_date = datetime.now().date()
@@ -27,6 +28,9 @@ def rate_push(request):
         else:
             messages.success(request,"User is not authenticated.")
             return redirect('loginpage')
+      
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
 
 
 
@@ -194,67 +198,7 @@ def rate_hit_channalmanager(user_id, start_date_str, end_date_str):
     except Exception as e:
         print(f"Error occurred: {str(e)}")
 
-# 1st workingcode ike bad rate planpr kam kre kelie new banaya
-# def update_rates_cm(user, start_date, end_date):
-#     try:
-#         room_categories = RoomsCategory.objects.filter(vendor=user)
-#         inventory_updates = []
-        
-#         current_date = start_date
-#         while current_date <= end_date:
-#             daily_update = {
-#                 "startDate": current_date.strftime('%Y-%m-%d'),
-#                 "endDate": current_date.strftime('%Y-%m-%d'),
-#                 "rates": []
-#             }
-            
-#             for category in room_categories:
-#                 inventory = RoomsInventory.objects.filter(
-#                     vendor=user, 
-#                     room_category=category, 
-#                     date=current_date
-#                 ).first()
-#                 RatePlan.objects.filter(vendor=user,room_category=category)
-#                 if inventory:
-#                     rate_data = {
-#                         "roomCode": category.category_name,
-#                         "rate": float(inventory.price),
-#                         "rateplanCode": f"{category.category_name}-S-101",
-#                         "restrictions": {
-#                             "stopSell": False,
-#                             "minimumStay": 1,
-#                             "closeOnArrival": False,
-#                             "closeOnDeparture": False,
-#                         }
-#                     }
-#                     daily_update["rates"].append(rate_data)
-            
-#             inventory_updates.append(daily_update)
-#             current_date += timedelta(days=1)
-        
-#         # API payload
-#         payload = {
-#             "hotelCode": "SANDBOX-PMS",
-#             "updates": inventory_updates
-#         }
-        
-#         # API request
-#         response = requests.post(
-#             "https://live.aiosell.com/api/v2/cm/update-rates/sample-pms",
-#             json=payload
-#         )
-        
-#         if response.status_code == 200:
-#             print("Successfully sent rate update to API.")
-#             return True
-#         else:
-#             print("Failed to send rate update to API:", response.status_code, response.text)
-#             return False
-        
-#     except Exception as e:
-#         print(f"Error in channel manager update: {str(e)}")
-#         return False
-    
+
 
 
 # rate plan work ke liye new code
@@ -385,219 +329,205 @@ def update_rates_cm(user, start_date, end_date):
 
 
 
-# Here's an easy-to-understand explanation of each plan (1–6) to help you choose the best strategy to increase your hotel revenue:
-
-# 1. Early Bird Advantage
-# Overview: This plan rewards early bookings by giving discounts on bookings made well in advance.
-# How It Works: Prices drop by 10-15% for bookings made over 30 days in advance. It also raises prices as occupancy rises, so if occupancy is above 80%, prices go up by 20-30%.
-# Best For: Hotels that want to fill rooms early and secure bookings in advance.
-# Benefit: Helps you secure guests early and set high rates for last-minute bookings.
-# Consideration: May reduce flexibility for last-minute bookings, as early bookings can fill up rooms faster.
-# 2. Seasonal Demand Boost
-# Overview: Adjusts rates based on seasonal demands and weekday occupancy patterns.
-# How It Works: Prices automatically increase during peak seasons or high-demand periods. Weekdays have corporate discounts, and weekends see rate increases of 10-20%.
-# Best For: Hotels in areas with clear high and low seasons, or hotels that see a lot of business travelers on weekdays.
-# Benefit: Maximizes profit during high seasons and weekends while keeping rates attractive on weekdays.
-# Consideration: Might need careful monitoring to avoid overly high rates during off-peak times.
-# 3. Family & Group Discounts
-# Overview: Encourages group bookings with flexible discounts for families or multiple rooms.
-# How It Works: Prices are discounted by 5-15% for bookings with multiple rooms or family bookings, while maintaining regular prices for single-room bookings. Occupancy adjustments increase rates as rooms fill up.
-# Best For: Hotels catering to family or group travelers who book multiple rooms at once.
-# Benefit: Attracts larger groups, boosting overall occupancy and revenue.
-# Consideration: Can lead to smaller individual margins but fills multiple rooms faster.
-# 4. Flexible Last-Minute Offers
-# Overview: Balances early-bird and last-minute offers for flexible pricing based on booking time.
-# How It Works: Prices drop by 10-15% for bookings made last minute if occupancy is low. Early-booking discounts apply for reservations over 30 days out, with price increases based on occupancy.
-# Best For: Hotels that want to maximize revenue from both early and last-minute bookings.
-# Benefit: Keeps rooms occupied by balancing early and late bookings.
-# Consideration: Requires adjustments if occupancy fluctuates, to avoid overbooking or underpricing.
-# 5. High-Occupancy Surge
-# Overview: Targets maximum revenue on high-occupancy days with strong price increases.
-# How It Works: Prices increase by 20-30% if occupancy is above 80%, while low-occupancy days have slight discounts.
-# Best For: Hotels that regularly reach high occupancy and want to maximize profits on these days.
-# Benefit: Drives high revenue on days when demand is already strong.
-# Consideration: May reduce affordability for certain guests during peak periods.
-# 6. High Occupancy and Flexible Pricing
-# Overview: Balances high-occupancy pricing with last-minute offers to attract guests even when occupancy is low.
-# How It Works: Rates increase up to 30% with high occupancy, while last-minute bookings have up to a 15% discount if occupancy is low. Early-booking discounts are also available for guests booking over 30 days ahead.
-# Best For: Hotels looking for maximum flexibility and to fill rooms last-minute.
-# Benefit: Provides flexibility for both early and late bookings, maximizing revenue based on occupancy trends.
-# Consideration: Can lead to high price swings; requires careful monitoring of booking patterns.
-# Choosing the Right Plan
-# Each of these plans offers unique ways to boost revenue:
-
-# For early bookings: Plan 1 (Early Bird Advantage).
-# For seasonal demand: Plan 2 (Seasonal Demand Boost).
-# For family/group bookings: Plan 3 (Family & Group Discounts).
-# For both early and last-minute flexibility: Plan 4 (Flexible Last-Minute Offers).
-# For high occupancy periods: Plan 5 (High-Occupancy Surge).
-# For occupancy-based flexibility: Plan 6 (High Occupancy and Flexible Pricing).
-# Choose the strategy that best fits your hotel’s needs and booking patterns to increase revenue effectively.
-
-
 
 def dynamicformpage(request):
-    if request.user.is_authenticated:
-        user=request.user
-        if VendorCM.objects.filter(vendor=user,admin_dynamic_active=True):
-            datas = VendorCM.objects.filter(vendor=user,admin_dynamic_active=True).first()
-            return render(request,'dynamicformpage.html',{'datas':datas})
-        
-def dynamicformdata(request):
-    if request.user.is_authenticated and request.method == "POST":
-        user = request.user
-        planname = int(request.POST.get('planname', 0))
-        
-        # Check if the checkbox data is present in the POST request
-        checkboxs = request.POST.get('checkboxs', None)
-
-        # If the checkbox is present (checked), update the field to True
-        if checkboxs:
-            VendorCM.objects.filter(vendor=user).update(
-                dynamic_price_active=True,
-                dynamic_price_plan=planname
-            )
-            print("Checkbox is checked and dynamic_price_active is set to True")
-            
+    try:
+        if request.user.is_authenticated:
+            user=request.user
+            if VendorCM.objects.filter(vendor=user,admin_dynamic_active=True):
+                datas = VendorCM.objects.filter(vendor=user,admin_dynamic_active=True).first()
+                return render(request,'dynamicformpage.html',{'datas':datas})
         else:
-            VendorCM.objects.filter(vendor=user).update(
-                dynamic_price_active=False,
-                dynamic_price_plan=planname
-            )
-            print("Checkbox is unchecked and dynamic_price_active is set to False")
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
 
-        return redirect('dynamicformpage')
+
+def dynamicformdata(request):
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            planname = int(request.POST.get('planname', 0))
+            
+            # Check if the checkbox data is present in the POST request
+            checkboxs = request.POST.get('checkboxs', None)
+
+            # If the checkbox is present (checked), update the field to True
+            if checkboxs:
+                VendorCM.objects.filter(vendor=user).update(
+                    dynamic_price_active=True,
+                    dynamic_price_plan=planname
+                )
+                print("Checkbox is checked and dynamic_price_active is set to True")
+                
+            else:
+                VendorCM.objects.filter(vendor=user).update(
+                    dynamic_price_active=False,
+                    dynamic_price_plan=planname
+                )
+                print("Checkbox is unchecked and dynamic_price_active is set to False")
+
+            return redirect('dynamicformpage')
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
     
 
 def rateplanpage(request):
-    if request.user.is_authenticated :
-        user = request.user 
-        bookingplan = RatePlanforbooking.objects.filter(vendor=user)
-        roomcat = RoomsCategory.objects.filter(vendor=user)
-        roomsdata = RatePlan.objects.filter(vendor=user)
-        return render(request,'rateplanpage.html',{'bookingplan':bookingplan,'roomcat':roomcat,'roomsdata':roomsdata})
-    
+    try:
+        if request.user.is_authenticated :
+            user = request.user 
+            bookingplan = RatePlanforbooking.objects.filter(vendor=user)
+            roomcat = RoomsCategory.objects.filter(vendor=user)
+            roomsdata = RatePlan.objects.filter(vendor=user)
+            return render(request,'rateplanpage.html',{'bookingplan':bookingplan,'roomcat':roomcat,'roomsdata':roomsdata})
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)    
 
 def addbookingrateplan(request):
-    if request.user.is_authenticated and request.method == "POST":
-        user = request.user
-        planname = request.POST.get('planname')
-        plancode = request.POST.get('plancode')
-        planprice = float(request.POST.get('planprice'))
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            planname = request.POST.get('planname')
+            plancode = request.POST.get('plancode')
+            planprice = float(request.POST.get('planprice'))
 
-        if RatePlanforbooking.objects.filter(vendor=user,rate_plan_name=planname).exists():
-            messages.error(request,"Rate Plan Already exists")
+            if RatePlanforbooking.objects.filter(vendor=user,rate_plan_name=planname).exists():
+                messages.error(request,"Rate Plan Already exists")
+            else:
+                RatePlanforbooking.objects.create(
+                    vendor=user,
+                    rate_plan_name=planname,
+                    rate_plan_code=plancode,
+                    base_price=planprice
+                )
+                messages.success(request,"Rate Plan Created")
+
+            return redirect('rateplanpage')
         else:
-            RatePlanforbooking.objects.create(
-                vendor=user,
-                rate_plan_name=planname,
-                rate_plan_code=plancode,
-                base_price=planprice
-            )
-            messages.success(request,"Rate Plan Created")
-
-        return redirect('rateplanpage')
-
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
 
 def deleteplanbookingcode(request,id):
-    if request.user.is_authenticated :
-        user = request.user 
-        id=id
-        if RatePlanforbooking.objects.filter(vendor=user,id=id).exists():
-            RatePlanforbooking.objects.filter(vendor=user,id=id).delete()
-            messages.success(request,"Rate Plan Deleted")
-        else:
-            pass
+    try:
+        if request.user.is_authenticated :
+            user = request.user 
+            id=id
+            if RatePlanforbooking.objects.filter(vendor=user,id=id).exists():
+                RatePlanforbooking.objects.filter(vendor=user,id=id).delete()
+                messages.success(request,"Rate Plan Deleted")
+            else:
+                pass
 
-        return redirect('rateplanpage')
-    
+            return redirect('rateplanpage')
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)    
  
    
 def addrateplan(request):
-    if request.user.is_authenticated and request.method == "POST":
-        user = request.user
-        selectcat = request.POST.get('selectcat')
-        planname = request.POST.get('planname')
-        plancode = request.POST.get('plancode')
-        planprice = float(request.POST.get('planprice'))
-        maxperson = request.POST.get('maxperson')
-        maxhild = request.POST.get('maxhild')
-        addprice = float(request.POST.get('addprice'))
-        description = request.POST.get('description')
-        roomscat=RoomsCategory.objects.get(id=selectcat)
-        if RatePlan.objects.filter(vendor=user,rate_plan_code=plancode,room_category=roomscat).exists():
-            messages.error(request,"Rate Plan Already exists")
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            selectcat = request.POST.get('selectcat')
+            planname = request.POST.get('planname')
+            plancode = request.POST.get('plancode')
+            planprice = float(request.POST.get('planprice'))
+            maxperson = request.POST.get('maxperson')
+            maxhild = request.POST.get('maxhild')
+            addprice = float(request.POST.get('addprice'))
+            description = request.POST.get('description')
+            roomscat=RoomsCategory.objects.get(id=selectcat)
+            if RatePlan.objects.filter(vendor=user,rate_plan_code=plancode,room_category=roomscat).exists():
+                messages.error(request,"Rate Plan Already exists")
+            else:
+                RatePlan.objects.create(
+                    vendor=user,
+                    room_category=roomscat,
+                    rate_plan_name=planname,
+                    rate_plan_code=plancode,
+                    base_price=planprice,
+                    additional_person_price=addprice,
+                    max_persons=maxperson,
+                    childmaxallowed=maxhild,
+                    rate_plan_description=description,
+                )
+                messages.success(request,"Main Rate Plan Created")
+
+            return redirect('rateplanpage')
         else:
-            RatePlan.objects.create(
-                vendor=user,
-                room_category=roomscat,
-                rate_plan_name=planname,
-                rate_plan_code=plancode,
-                base_price=planprice,
-                additional_person_price=addprice,
-                max_persons=maxperson,
-                childmaxallowed=maxhild,
-                rate_plan_description=description,
-            )
-            messages.success(request,"Main Rate Plan Created")
-
-        return redirect('rateplanpage')
-
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
 
 def deleteplanratecode(request,id):
-    if request.user.is_authenticated :
-        user = request.user 
-        id=id
-        if RatePlan.objects.filter(vendor=user,id=id).exists():
-            RatePlan.objects.filter(vendor=user,id=id).delete()
-            messages.success(request,"Main Rate Plan Deleted")
-        else:
-            pass
+    try:
+        if request.user.is_authenticated :
+            user = request.user 
+            id=id
+            if RatePlan.objects.filter(vendor=user,id=id).exists():
+                RatePlan.objects.filter(vendor=user,id=id).delete()
+                messages.success(request,"Main Rate Plan Deleted")
+            else:
+                pass
 
-        return redirect('rateplanpage')
-    
+            return redirect('rateplanpage')
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)    
 
 def guestplans(request):
-    if request.user.is_authenticated :
-        user = request.user 
-        today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-        today_end = datetime.now().replace(hour=23, minute=59, second=59, microsecond=999999)
-        today = datetime.now().date()
-        query1 = Gueststay.objects.filter(
-            vendor=user,
-            checkindate__lte=today_end,
-            checkoutdate__gte=today_start,
-            checkoutdone=False,
+    try:
+        if request.user.is_authenticated :
+            user = request.user 
+            today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            today_end = datetime.now().replace(hour=23, minute=59, second=59, microsecond=999999)
+            today = datetime.now().date()
+            query1 = Gueststay.objects.filter(
+                vendor=user,
+                checkindate__lte=today_end,
+                checkoutdate__gte=today_start,
+                checkoutdone=False,
 
-        )
+            )
 
-       
+        
 
-        room_advance_data = {}
-        for guest in query1:
-            if guest.saveguestid:
-                room_advance = RoomBookAdvance.objects.filter(saveguestdata__id=guest.saveguestid)
-                room_names = [room.roomno.room_name for room in room_advance]
-                room_advance_data[guest.id] = room_names
-        print(room_advance_data)
+            room_advance_data = {}
+            for guest in query1:
+                if guest.saveguestid:
+                    room_advance = RoomBookAdvance.objects.filter(saveguestdata__id=guest.saveguestid)
+                    room_names = [room.roomno.room_name for room in room_advance]
+                    room_advance_data[guest.id] = room_names
+            print(room_advance_data)
 
-        guestdata = Gueststay.objects.filter(
-            vendor=user,
-            checkindate__lte=today_end,
-            checkoutdate__gte=today_start,
-            checkoutdone=False,
-            saveguestid__isnull=True
-        )
-        print(guestdata,'filter null')
+            guestdata = Gueststay.objects.filter(
+                vendor=user,
+                checkindate__lte=today_end,
+                checkoutdate__gte=today_start,
+                checkoutdone=False,
+                saveguestid__isnull=True
+            )
+            print(guestdata,'filter null')
 
-        saveguest_ids = query1.values_list('saveguestid', flat=True)
+            saveguest_ids = query1.values_list('saveguestid', flat=True)
 
-        # Filter RoomBookAdvance based on the list of saveguest_ids
-        room_advance = RoomBookAdvance.objects.filter(saveguestdata__id__in=saveguest_ids,checkinstatus=True)
-        print(room_advance,'bokroms data')
+            # Filter RoomBookAdvance based on the list of saveguest_ids
+            room_advance = RoomBookAdvance.objects.filter(saveguestdata__id__in=saveguest_ids,checkinstatus=True)
+            print(room_advance,'bokroms data')
 
-        return render(request,'rateplancheckin.html',{'query1':query1,'active_page': 'guestplans',
-                'room_advance_data':room_advance_data,'today':today,'room_advance':room_advance,
-                'guestdata':guestdata
-                
-                })  
+            return render(request,'rateplancheckin.html',{'query1':query1,'active_page': 'guestplans',
+                    'room_advance_data':room_advance_data,'today':today,'room_advance':room_advance,
+                    'guestdata':guestdata
+                    
+                    })  
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)

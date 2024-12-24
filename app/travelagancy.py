@@ -15,13 +15,18 @@ import urllib.parse
 from django.urls import reverse
 
 def travelagancy(request):
+    try:
         if request.user.is_authenticated:
             user = request.user
             agencydata = TravelAgency.objects.filter(vendor=user)
             return render(request,'travelagancy.html',{'active_page': 'travelagancy','agencydata':agencydata})
-   
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
 
 def createtravelagancy(request):
+    try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
             agencyname = request.POST.get('agencyname')
@@ -50,116 +55,123 @@ def createtravelagancy(request):
                 messages.success(request, 'Travel Partner added successfully')
 
             return redirect('travelagancy')
-
-
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+    
 def deletetravelagency(request,id):
-    if request.user.is_authenticated:
-            user = request.user
-            
-            if TravelAgency.objects.filter(vendor=user,id=id).exists():
-                    TravelAgency.objects.filter(vendor=user,id=id).delete()
-                    messages.success(request, 'Travel Partner delete successfully')
+    try:
+        if request.user.is_authenticated:
+                user = request.user
+                
+                if TravelAgency.objects.filter(vendor=user,id=id).exists():
+                        TravelAgency.objects.filter(vendor=user,id=id).delete()
+                        messages.success(request, 'Travel Partner delete successfully')
 
-            else:
-                 messages.error(request, 'Travel Partner Not Found ') 
+                else:
+                    messages.error(request, 'Travel Partner Not Found ') 
 
 
-            return redirect('travelagancy')
+                return redirect('travelagancy')
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
 
 
 def updatetravelagancy(request):
-    if request.user.is_authenticated and request.method == "POST":
-            user = request.user
-            ids = request.POST.get('ids')
-            contactname = request.POST.get('contactname')
-            Phone = request.POST.get('Phone')
-            email = request.POST.get('email')
-            Commission = request.POST.get('Commission')
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+                user = request.user
+                ids = request.POST.get('ids')
+                contactname = request.POST.get('contactname')
+                Phone = request.POST.get('Phone')
+                email = request.POST.get('email')
+                Commission = request.POST.get('Commission')
 
-            if not TravelAgency.objects.filter(vendor=user,id=ids).exists():
-                
-                messages.error(request, 'Not Found')
-            else:
-                TravelAgency.objects.filter(
-                        vendor=user,
-                        id=ids).update(
-                        contact_person=contactname,
-                        phone_number=Phone,
-                        email=email,
-                        commission_rate=Commission
+                if not TravelAgency.objects.filter(vendor=user,id=ids).exists():
+                    
+                    messages.error(request, 'Not Found')
+                else:
+                    TravelAgency.objects.filter(
+                            vendor=user,
+                            id=ids).update(
+                            contact_person=contactname,
+                            phone_number=Phone,
+                            email=email,
+                            commission_rate=Commission
 
-                  )
-                messages.success(request, 'Travel Partner Update  successfully')
+                    )
+                    messages.success(request, 'Travel Partner Update  successfully')
 
-            return redirect('travelagancy')
+                return redirect('travelagancy')
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
 
 
 
 
-def opentravelagencydata(request,id):
-    # if request.user.is_authenticated:
-    #     user = request.user
+def opentravelagencydata(request, id):
+    try:
+        # Get agency data based on the provided ID
         agencydata = TravelAgency.objects.get(id=id)
         user = agencydata.vendor
+        
+        # Get current date and time
         now = timezone.now()
         
-        # Determine the first and last day of the current month
-        first_day_of_month = now.replace(day=1)
-        last_day_of_month = now.replace(day=1, month=now.month + 1) - timezone.timedelta(days=1)
+        # Calculate the first and last day of the current month
+        first_day_of_month = now.replace(day=1)  # First day of the current month
+        # Last day of the current month: move to the first day of the next month, then subtract one day
+        next_month = now.replace(day=28) + timezone.timedelta(days=4)  # This gives us the next month
+        last_day_of_month = next_month.replace(day=1) - timezone.timedelta(days=1)  # Last day of the current month
+        
+        # Formatting the current month and year
         current_month = now.strftime("%B")  # e.g., "October"
         current_year = now.year  # e.g., 2024
-        channelid= onlinechannls.objects.filter(vendor=user,channalname=agencydata.name).last()
-        # bookingdata = SaveAdvanceBookGuestData.objects.filter(vendor=user,channal=channelid,bookingdate__range=(first_day_of_month, last_day_of_month))
-        bookingdata = SaveAdvanceBookGuestData.objects.filter(vendor=user,channal=channelid,bookingdate__range=(first_day_of_month, last_day_of_month)).prefetch_related('travelagencyhandling_set')
-        return render(request,'agencydata.html',{'agencydata':agencydata,
-                                                 'current_month':current_month,
-                                                 'current_year':current_year,
-                                                 'bookingdata':bookingdata})
-# from datetime import datetime
-# def bookrooms(request, user_name, mids):
-#     try:
-#         user = user_name
         
-#         # Fetch profile with select_related for ForeignKey optimization
-#         if HotelProfile.objects.filter(vendor__username=user).exists():
-#             profile = HotelProfile.objects.select_related('vendor').get(vendor__username=user)
+        # Fetch the channel ID for the current vendor and agency
+        channelid = onlinechannls.objects.filter(vendor=user, channalname=agencydata.name).last()
+        
+        # Fetch the booking data within the date range of the current month
+        bookingdata = SaveAdvanceBookGuestData.objects.filter(
+            vendor=user,
+            channal=channelid,
+            bookingdate__range=(first_day_of_month, last_day_of_month)
+        ).prefetch_related('travelagencyhandling_set')
+        
+        # Render the data in the template
+        return render(request, 'agencydata.html', {
+            'agencydata': agencydata,
+            'current_month': current_month,
+            'current_year': current_year,
+            'bookingdata': bookingdata,
+            'first_day_of_month': first_day_of_month,
+            'last_day_of_month': last_day_of_month
+        })
+        
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
 
-#             # Use prefetch_related for 'images', 'offers', 'service', etc., as they are ManyToMany or reverse ForeignKey relations
-#             rooms = RoomsCategory.objects.filter(vendor__username=user).prefetch_related('images')  
-#             offers = offerwebsitevendor.objects.filter(vendor__username=user).select_related('vendor')
-#             service = amainities.objects.filter(vendor__username=user).select_related('vendor')
-#             gallary = webgallary.objects.filter(vendor__username=user).select_related('vendor')
-#             about  = webreview.objects.filter(vendor__username=user).select_related('vendor')
-            
-#             # Optimizing profile data and images
-#             profiledata = HotelProfile.objects.filter(vendor__username=user).select_related('vendor')
-#             imagedata = HoelImage.objects.filter(vendor__username=user).select_related('vendor')
-            
-#             # Calculate today's date and tomorrow's date
-#             today = datetime.now().date()
-#             tommrow = today + timedelta(days=1)
-            
-#             return render(request, 'travelbookroom.html', {
-#                 'profile': profile,
-#                 'imagedata': imagedata,
-#                 'profiledata': profiledata,
-#                 'today': today,
-#                 'tommrow': tommrow,
-#                 'rooms': rooms,
-#                 'offers': offers,
-#                 'service': service,
-#                 'gallary': gallary,
-#                 'about': about,
-#             })
-#         else:
-#             return render(request, '404.html', {'error_message': "Profile Not Created!"}, status=300)  
 
-#     except Exception as e:
-#         return render(request, '404.html', {'error_message': str(e)}, status=500)  
-    
+
+
+
+
+
+
+
+
+
+
+
+
 
 def bookrooms(request, user_name, mids):
-    # try:  
+    try:  
             user = User.objects.get(username=user_name)
             # user = request.user
             today = datetime.now().date()
@@ -235,8 +247,8 @@ def bookrooms(request, user_name, mids):
                     'inventorydata':inventorydata
                 })
       
-    # except Exception as e:
-    #     return render(request, '404.html', {'error_message': str(e)}, status=500)
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
 
 
 
@@ -321,7 +333,7 @@ def bookingdatetravel(request):
 
 
 def addadvancebookingfromtrvel(request):
-    # try:
+    try:
         if request.method=="POST":
             travelid = request.POST.get('travelid')
             username = request.POST.get('user')
@@ -353,10 +365,7 @@ def addadvancebookingfromtrvel(request):
             # bookingdate -= timedelta(days=1)
             print(bookingdate)
             
-            # delta = timedelta(days=1)
-            # while bookingdate <= checkoutdate:
-            #         print(bookingdate,"working")
-            #         bookingdate += delta
+           
             current_date = datetime.now()
             Saveadvancebookdata = SaveAdvanceBookGuestData.objects.create(vendor=user,bookingdate=bookingdate,noofrooms=noofrooms,bookingguest=guestname,
                 bookingguestphone=phone,staydays=totalstaydays,advance_amount=advanceamount,reamaining_amount=reaminingamount,discount=discountamount,
@@ -417,11 +426,16 @@ def addadvancebookingfromtrvel(request):
                     # If there are missing dates, create new entries for those dates in the RoomsInventory model
                     roomcount = Rooms.objects.filter(vendor=user,room_type_id=roomtype).exclude(checkin=6).count()
                     print(roomcount,'total room')
+                    occupancy = (1 * 100 // roomcount)
                     
                     for inventory in existing_inventory:
                         if inventory.total_availibility > 0:  # Ensure there's at least 1 room available
                             inventory.total_availibility -= 1
                             inventory.booked_rooms += 1
+                            if inventory.occupancy+occupancy==99:
+                                inventory.occupancy=100
+                            else:
+                                inventory.occupancy +=occupancy
                             inventory.save()
                     
                     catdatas = RoomsCategory.objects.get(vendor=user,id=roomtype)
@@ -478,39 +492,32 @@ def addadvancebookingfromtrvel(request):
             return redirect(url)
         else:
             return redirect('loginpage')
-    # except Exception as e:
-    #     return render(request, '404.html', {'error_message': str(e)}, status=500)
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
     
 
 from django.utils import timezone
 from calendar import monthrange,month_name
 def searchmonthbookingagent(request):
-    if request.method=="POST":
-        agentid = request.POST.get('agentid')
-        month_input = request.POST.get('monthname')
-        agencydata = TravelAgency.objects.get(id=agentid)
-        user = agencydata.vendor
-        # now = timezone.now()
-        # Parse the year and month from the input (YYYY-MM)
-        year, month = map(int, month_input.split('-'))
-
-        current_month = month_name[month]  
-        current_year = year
-
-        # Determine the first and last day of the chosen month
-        first_day_of_month = timezone.datetime(year, month, 1)
-        last_day_of_month = timezone.datetime(year, month, monthrange(year, month)[1])
+    try:
+        if request.method=="POST":
+            agentid = request.POST.get('agentid')
+            # month_input = request.POST.get('monthname')
+            startdate = request.POST.get('startdate')
+            enddate = request.POST.get('enddate')
+            agencydata = TravelAgency.objects.get(id=agentid)
+            user = agencydata.vendor
+            
+            channelid= onlinechannls.objects.filter(vendor=user,channalname=agencydata.name).last()
+            # bookingdata = SaveAdvanceBookGuestData.objects.filter(vendor=user,channal=channelid,bookingdate__range=(first_day_of_month, last_day_of_month))
+            bookingdata = SaveAdvanceBookGuestData.objects.filter(vendor=user,channal=channelid,bookingdate__range=(startdate, enddate)).prefetch_related('travelagencyhandling_set')
+            return render(request,'agencydata.html',{'agencydata':agencydata,
+                                                    'current_month':startdate,
+                                                    'current_year':startdate,
+                                                    'bookingdata':bookingdata,
+                                                    'first_day_of_month':startdate,
+                                                    'last_day_of_month':enddate,
+                                                    })
         
-        
-        # Determine the first and last day of the current month
-        # first_day_of_month = now.replace(day=1)
-        # last_day_of_month = now.replace(day=1, month=now.month + 1) - timezone.timedelta(days=1)
-        # current_month = now.strftime("%B")  # e.g., "October"
-        # current_year = now.year  # e.g., 2024
-        channelid= onlinechannls.objects.filter(vendor=user,channalname=agencydata.name).last()
-        # bookingdata = SaveAdvanceBookGuestData.objects.filter(vendor=user,channal=channelid,bookingdate__range=(first_day_of_month, last_day_of_month))
-        bookingdata = SaveAdvanceBookGuestData.objects.filter(vendor=user,channal=channelid,bookingdate__range=(first_day_of_month, last_day_of_month)).prefetch_related('travelagencyhandling_set')
-        return render(request,'agencydata.html',{'agencydata':agencydata,
-                                                 'current_month':current_month,
-                                                 'current_year':current_year,
-                                                 'bookingdata':bookingdata})
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
