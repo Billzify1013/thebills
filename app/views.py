@@ -2175,7 +2175,7 @@ def todaybookingpage(request):
                         Rooms.objects.filter(vendor=user,id=i.roomno.id).update(checkin=0) 
                 else:
                     pass
-            allbookdata = RoomBookAdvance.objects.filter(vendor=user,bookingdate__lte=today, checkoutdate__gt=today,checkinstatus=False).exclude(vendor=user,saveguestdata__action='cancel')
+            allbookdata = RoomBookAdvance.objects.filter(vendor=user,bookingdate__lte=today, checkoutdate__gte=today,checkinstatus=False).exclude(vendor=user,saveguestdata__action='cancel')
             print(allbookdata)
             return render(request,'todayarrivalsrom.html',{'active_page':'todaybookingpage','roomdata':roomdata,'advancebookdata':allbookdata})
         else:
