@@ -163,8 +163,11 @@ def aiosell_new_reservation(request):
                                     rateplanCode=None
                                 else:
                                     if RatePlan.objects.filter(vendor=vendordata.vendor,rate_plan_code=rateplanCode).exists():
-                                        plandatas = RatePlan.objects.get(vendor=vendordata.vendor,rate_plan_code=rateplanCode)
-                                        rateplanCode = plandatas.rate_plan_name +", "+rateplanCode
+                                        plandatas = RatePlan.objects.filter(vendor=vendordata.vendor,rate_plan_code=rateplanCode)
+                                        planname = ''
+                                        for i in plandatas:
+                                             planname=i.rate_plan_name
+                                        rateplanCode = planname +", "+rateplanCode
                                     else:
                                         pass
                                 
