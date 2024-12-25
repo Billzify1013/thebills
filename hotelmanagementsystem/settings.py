@@ -25,8 +25,8 @@ SECRET_KEY = 'django-insecure-ale$nh!1)-^(ni^hlrlrq$+=xuwm*8!ffb^cn907j&r+ul_=bk
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = False
-DEBUG = True
+DEBUG = False
+# DEBUG = True
 
 
 ALLOWED_HOSTS = ['live.billzify.com','www.live.billzify.com','127.0.0.1']
@@ -85,27 +85,27 @@ WSGI_APPLICATION = 'hotelmanagementsystem.wsgi.application'
 
 
 # # main database aws free tier
-# DATABASES = {
-#      'default': {
-#          'ENGINE': 'django.db.backends.postgresql',
-#          'NAME': 'databasepms',
-#          'USER':'superuser',
-#          'PASSWORD':'superpassword',
-#          'HOST':'databasepms.cpy6g6quw55m.ap-south-1.rds.amazonaws.com',
-#          'PORT':'5432'
-#      }
-# }
+DATABASES = {
+     'default': {
+         'ENGINE': 'django.db.backends.postgresql',
+         'NAME': 'databasepms',
+         'USER':'superuser',
+         'PASSWORD':'superpassword',
+         'HOST':'databasepms.cpy6g6quw55m.ap-south-1.rds.amazonaws.com',
+         'PORT':'5432'
+     }
+}
 
 
 
 
 # # testng database
-DATABASES = {
-  'default': {
-       'ENGINE': 'django.db.backends.sqlite3',
-       'NAME': BASE_DIR / 'db.sqlite3',
-   }
-}
+# DATABASES = {
+#   'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': BASE_DIR / 'db.sqlite3',
+#    }
+# }
 
 
 
