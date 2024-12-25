@@ -41,7 +41,7 @@
 <div class="row ">
     <div class="col-12 mb-4">
         <div class="card">
-            <form action="{% url 'addaminitiesinvoice' %}" method="post">
+            <form action="{% url 'addaminitiesinvoice' %}" method="post" autocomplete="off">
                 {% csrf_token %}
             <div class="bg-light m-5 mb-0">
                 <div class="row">
@@ -95,7 +95,7 @@
                 <p>Customer Details</p>
             <div class="col-4 ">
                 <span class="text"><i class='bx bx-user'></i>Customer Name</span>
-                <input  type="text" class="form-control mt-2 " name="cname" placeholder="customer name" required>
+                <input autocomplete="off"  type="text" class="form-control mt-2 " name="cname" placeholder="customer name" required>
             </div>
             <div class="col-4 ">
                 <span class="text"><i class='bx bx-phone'></i>Customer Contact</span>
@@ -168,11 +168,11 @@
 
             <div class="col-4 mt-3">
                 <span class="text">Customer Gstin</span>
-                <input  type="text" maxlength="15" class="form-control mt-2 " name="customergstno"  placeholder="customer Gst number">
+                <input autocomplete="off"  type="text" maxlength="15" class="form-control mt-2 " name="customergstno"  placeholder="customer Gst number">
             </div>
             <div class="col-4 mt-3">
                 <span class="text">Customer Company</span>
-                <input  type="text" maxlength="48" class="form-control mt-2 " name="companyname" placeholder="company name" >
+                <input autocomplete="off"  type="text" maxlength="48" class="form-control mt-2 " name="companyname" placeholder="company name" >
             </div>
         </div>
         <!--customer data end-->
@@ -194,11 +194,11 @@
 </div>
         <div class="col-4 ">
             <span class="text"><i class='bx bx-unite'></i>Product description</span>
-            <input  type="text" class="form-control mt-2 " id="product_name" name="productname" required>
+            <input  type="text" class="form-control mt-2 " id="product_name" autocomplete="off" name="productname" required>
         </div>
         <div class="col-4 ">
             <span class="text"><i class='bx bx-money'></i>Selling  Price</span>
-            <input  type="number" class="form-control mt-2 " name="productprice" required>
+            <input  type="number" class="form-control mt-2 "  name="productprice" required>
         </div>
         <div class="col-4 ">
             <span class="text">Quantity</span>
@@ -537,7 +537,7 @@
                         <div class="collapse multi-collapse w-100" id="multiCollapseExample1">
              
 
-    <form action="{% url 'addmoreaminitiesproductininvoice' %}" method="post">
+    <form action="{% url 'addmoreaminitiesproductininvoice' %}" method="post" autocomplete="off">
         {% csrf_token %}
         <input type="hidden" name="invcid" value="{{invcdata.id}}">
         

@@ -162,7 +162,11 @@ def aiosell_new_reservation(request):
                                 if rateplanCode == 'null':
                                     rateplanCode=None
                                 else:
-                                    pass
+                                    if RatePlan.objects.filter(vendor=vendordata.vendor,rate_plan_code=rateplanCode).exists():
+                                        plandatas = RatePlan.objects.get(vendor=vendordata.vendor,rate_plan_code=rateplanCode)
+                                        rateplanCode = plandatas.rate_plan_name +", "+rateplanCode
+                                    else:
+                                        pass
                                 
                                 # print("  Prices:")
                                 totalsell = 0.0

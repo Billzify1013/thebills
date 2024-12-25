@@ -2004,7 +2004,8 @@ def addadvancebooking(request):
                         print(changedguestct,"else")
                         satteldcount = changedguestct
 
-
+                  
+                
                     RoomBookAdvance.objects.create(vendor=user,saveguestdata=Saveadvancebookdata,bookingdate=bookingdate,roomno=roomid,
                                                     bookingguest=guestname,bookingguestphone=phone
                                                 ,checkoutdate=bookenddate,bookingstatus=True,channal=channal,totalguest=satteldcount,
