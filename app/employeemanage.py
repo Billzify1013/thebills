@@ -1153,11 +1153,11 @@ def todaysales(request):
                 today
                 
                 bookingdata=SaveAdvanceBookGuestData.objects.filter(vendor=user,
-                                            bookingdate=today,
-                                            checkoutdate__gte=today,
-                                             checkinstatus=False ).all()
+                                            bookingdate__lte=today,
+                                            checkoutdate__gt=today,
+                                            checkinstatus=False ).all()
                 
-              
+                print(bookingdata)
 
                 return render(request,'datewisesale.html',{'active_page':'todaysales','sattle_total_amount':sattle_total_amount,
                                                     'channel_data': channel_data,
