@@ -2848,7 +2848,7 @@ def weekviews(request):
             dates = [(start_date + timedelta(days=i)).strftime("%Y-%m-%d") for i in range(7)]
 
             rooms = Rooms.objects.filter(vendor=user)
-            categories = RoomsCategory.objects.filter(vendor=user).all()
+            categories = RoomsCategory.objects.filter(vendor=user).order_by('id')
             bookings = Booking.objects.filter(vendor=user)
 
             # Prepare a list of booking data with calculated widths
