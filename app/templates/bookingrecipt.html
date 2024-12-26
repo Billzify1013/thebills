@@ -119,7 +119,7 @@
         <div class="col-6">Status:</div>
         <div class="col-6 text-end highlight">{{data.action}}</div>
         <div class="col-6">Booking Source:</div>
-        <div class="col-6 text-end">BILLZIFY BE</div>
+        <div class="col-6 text-end">{{data.segment}}</div>
         <div class="col-6">Number of Rooms:</div>
         <div class="col-6 text-end">{{data.noofrooms}}</div>
         <div class="col-6">Number of Guests:</div>
@@ -178,14 +178,18 @@
         <div class="col-6 text-end">{{book.children}}</div>
         <div class="col-6">Room Type:</div>
         <div class="col-6 text-end">{{book.roomno.room_name}} {{book.roomno.room_type.category_name}}</div>
-        <div class="col-6">Rate Plan:</div>
+        <div class="col-6">Meal Plan:</div>
         <div class="col-6 text-end">{{book.rateplan_code}}</div>
+        <div class="col-6">Rate Plan:</div>
+        <div class="col-6 text-end">{{book.rateplan_code_main}}</div>
       </div>
       {%endfor%}
 
     </div>
 
+    {%for data in advancebookdata%}
     <!-- Footer -->
+     {%if data.segment == 'BOOKING-ENGINE' %}
     <div class="divider"></div>
     <p class="footer">Thank you for staying with us! We look forward to welcoming you again.</p>
     
@@ -193,6 +197,8 @@
       <i class="bx bx-trash me-1"></i> Cancel
   </a>
 </div>
+{%endif%}
+{%endfor%}
 {%endfor%}
 
 <!-- Modal -->

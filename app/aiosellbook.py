@@ -52,7 +52,7 @@ def aiosell_new_reservation(request):
                     specialRequests = data['specialRequests']
                     pah = str(data['pah'])
                     checkpah = pah.lower()
-                    print(data)
+                
 
                     # Convert string dates to datetime objects
                     checkin_date = datetime.strptime(data['checkin'], '%Y-%m-%d')
@@ -158,14 +158,13 @@ def aiosell_new_reservation(request):
                                 GuestName = room['guestName']
                                 adults =  int(room['occupancy']['adults']) 
                                 children = int(room['occupancy']['children'])
-
+                                rateplanname=''
                                 if rateplanCode == 'null':
                                     rateplanCode=None
                                 else:
                                     if RatePlan.objects.filter(vendor=vendordata.vendor,rate_plan_code=rateplanCode).exists():
                                         plandatas = RatePlan.objects.get(vendor=vendordata.vendor,rate_plan_code=rateplanCode)
-                                        
-                                        rateplanCode = plandatas.rate_plan_name +", "+rateplanCode
+                                        rateplanname = plandatas.rate_plan_name
                                     else:
                                         pass
                                 
@@ -201,7 +200,8 @@ def aiosell_new_reservation(request):
                                                 bookingstatus=True,
                                                 channal=cnalledata,
                                                 totalguest=adults + children,
-                                                rateplan_code=rateplanCode,
+                                                rateplan_code=rateplanname,
+                                                rateplan_code_main=rateplanCode,
                                                 guest_name=GuestName,
                                                 adults=adults,
                                                 children=children,
@@ -251,7 +251,7 @@ def aiosell_new_reservation(request):
 
                                     # If there are missing dates, create new entries for those dates in the RoomsInventory model
                                     roomcount = Rooms.objects.filter(vendor=vendordata.vendor,room_type=catdatas).exclude(checkin=6).count()
-                                    print(roomcount,'total room')
+                                   
                                     occupancy = (1 * 100 // roomcount)
                                     for inventory in existing_inventory:
                                         if inventory.total_availibility > 0:  # Ensure there's at least 1 room available
@@ -328,7 +328,7 @@ def aiosell_new_reservation(request):
                                         while checkindate < checkoutdate:
                                             roomscat = Rooms.objects.get(vendor=user,id=data.roomno.id)
                                             invtdata = RoomsInventory.objects.get(vendor=user,date=checkindate,room_category=roomscat.room_type)
-                                            print(checkindate)
+                                            
                                             invtavaible = invtdata.total_availibility + 1
                                             invtabook = invtdata.booked_rooms - 1
                                             total_rooms = Rooms.objects.filter(vendor=user, room_type=roomscat.room_type).exclude(checkin=6).count()

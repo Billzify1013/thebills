@@ -33,7 +33,7 @@ def stayinvoice(request):
             current_year = now.year  # e.g., 2024
 
             # Print statements to confirm the range
-            print(f"Filtering data from: {first_day_of_month} to {last_day_of_month}")
+            
 
             # Fetch invoices for the current month (Nov 1 to Nov 30)
             guesthistory = Invoice.objects.filter(vendor=user, invoice_status=True, invoice_date__range=(first_day_of_month, last_day_of_month))
@@ -90,7 +90,7 @@ def searchmonthinvoice(request):
             # Get start_date and end_date from the form (make sure the form provides these as 'YYYY-MM-DD')
             start_date_input = request.POST.get('start_date')  # e.g., "2024-10-01"
             end_date_input = request.POST.get('end_date')  # e.g., "2024-10-31"
-            print(end_date_input,'end date')
+         
             if start_date_input and end_date_input:
                 try:
                     # Parse the start_date and end_date to Python datetime objects

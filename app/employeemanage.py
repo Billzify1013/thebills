@@ -806,7 +806,7 @@ def additemstofolio(request):
                 else:
                     pass
                 iteams = Items.objects.get(vendor=user,id=itemid)
-                print(iteams)
+            
                 taxes = iteams.category_tax
                 price = iteams.price
                 total = price * int(qty)
@@ -817,7 +817,7 @@ def additemstofolio(request):
                     hsccode = iteams.hsncode
                     individualtax = taxrate / 2
                     inditaxamt = taxamt/2
-                    print(totalamt)
+               
                     current_date = datetime.now().date()
                     current_date = str(current_date)
                     InvoiceItem.objects.create(vendor=user,invoice_id=foliocustomer,description=iteams.description +" "+ current_date,price=iteams.price,
@@ -881,8 +881,7 @@ def addlaundryitems(request):
                 current_date = str(current_date)
                 name = laundry.gencategory + " " + laundry.name +" "+ laundry.sercategory+" "+current_date
                 total = price * int(qty)
-                print(name)
-                print(total)
+                
                 
                 InvoiceItem.objects.create(vendor=user,invoice_id=foliocustomer,description=name,price=price,
                                         quantity_likedays=qty,total_amount=total,cgst_rate=0.0,sgst_rate=0.0)
@@ -953,7 +952,7 @@ def finddatevisesales(request):
                 try:
                     # `total_grand_total_amount` is a dictionary with the sum under the key 'total_amount'
                     sattle_total_amount = float(total_grand_total_amount['total_amount'])
-                    print(sattle_total_amount,"total amount searched")
+                
                 except (TypeError, ValueError):
                     sattle_total_amount = 0.00
 
@@ -966,7 +965,7 @@ def finddatevisesales(request):
                 try:
                     # `total_grand_total_amount` is a dictionary with the sum under the key 'total_amount'
                     folio_total_amount = folio_total_grand_total_amount['total_amount']
-                    print(folio_total_amount,"folio total amount searched")
+                
                 except (TypeError, ValueError):
                     folio_total_amount = 0.00
                             
@@ -981,7 +980,7 @@ def finddatevisesales(request):
                     pass
                 else:
                     total_gst_amount = total_gst_amount * 2
-                print(total_gst_amount,"total gst amount")
+                
 
                 grand_total_grand_total_amount = Invoice.objects.filter(
                     vendor=user,
@@ -990,7 +989,7 @@ def finddatevisesales(request):
 
                 # `total_grand_total_amount` is a dictionary with the sum under the key 'total_amount'
                 grand_total_amount = float(grand_total_grand_total_amount['total_amount'])
-                print(grand_total_amount," total amount searched")
+               
 
                 # Aggregate the sum of `cash_amount`
                 cash_amount_sum = Invoice.objects.filter(
@@ -1000,7 +999,7 @@ def finddatevisesales(request):
 
                 # # Access the correct key 'total_cash_amount'
                 total_cash_amount =float( cash_amount_sum['total_cash_amount'])
-                print(total_cash_amount,"total cash")
+               
 
                 online_amount_sum = Invoice.objects.filter(
                     vendor=user,
@@ -1009,7 +1008,7 @@ def finddatevisesales(request):
 
                 # Access the correct key 'total_online_amount'
                 total_online_amount = float(online_amount_sum['total_online_amount'])
-                print(total_online_amount,"online amount")
+                
                 
             # Query to get the data with totals for each channel
                 # Query to get the data with totals for each channel
@@ -1157,7 +1156,7 @@ def todaysales(request):
                                             checkoutdate__gt=today,
                                             checkinstatus=False ).all()
                 
-                print(bookingdata)
+              
 
                 return render(request,'datewisesale.html',{'active_page':'todaysales','sattle_total_amount':sattle_total_amount,
                                                     'channel_data': channel_data,
@@ -1388,7 +1387,7 @@ def searchwebsitedata(request):
                 if available_rooms_per_day:
                     min_available_rooms = min(available_rooms_per_day)
                     room.available_rooms = min_available_rooms
-                    print(min_available_rooms, room)
+                    
                 else:
                     room.available_rooms = 0  # Default to 0 if no availability data is found
 
@@ -1569,12 +1568,12 @@ def bulkinventoryform(request):
             selected_ids = request.POST.getlist('selected_categories')
             startdate = request.POST.get('startdate')
             enddate = request.POST.get('enddate')
-            print(enddate, startdate)
+           
 
             # Query the selected categories from the database
             selected_categories = RoomsCategory.objects.filter(vendor=user, id__in=selected_ids)
-            print(selected_categories)
-            print(selected_ids)
+        
+          
 
             # Prepare category_data with availability values
             category_data = {}
@@ -1587,7 +1586,7 @@ def bulkinventoryform(request):
                     category_data[category_id.id] = int(availability_value)  # Store as integer
 
             # अब category_data में IDs और उनकी availability वैल्यू हैं
-            print(category_data)
+      
 
             # Parse the start and end dates
             checkindate = datetime.strptime(startdate, '%Y-%m-%d').date()
@@ -1604,7 +1603,7 @@ def bulkinventoryform(request):
 
                 # Get the list of dates that already exist in the inventory
                 existing_dates = set(existing_inventory.values_list('date', flat=True))
-                print(existing_inventory, "exists inventory")
+                
 
                 # Identify the missing dates by comparing all_dates with existing_dates
                 missing_dates = [date for date in all_dates if date not in existing_dates]
@@ -1686,12 +1685,11 @@ def bulkformprice(request):
             selected_ids = request.POST.getlist('selected_categories')
             startdate = request.POST.get('startdate')
             enddate = request.POST.get('enddate')
-            print(enddate, startdate)
+          
 
             # Query the selected categories from the database
             selected_categories = RoomsCategory.objects.filter(vendor=user, id__in=selected_ids)
-            print(selected_categories)
-            print(selected_ids)
+           
 
             # Prepare category_data with availability values
             category_data = {}
@@ -1704,7 +1702,7 @@ def bulkformprice(request):
                     category_data[category_id.id] = int(availability_value)  # Store as integer
 
             # अब category_data में IDs और उनकी availability वैल्यू हैं
-            print(category_data)
+           
 
             # Parse the start and end dates
             checkindate = datetime.strptime(startdate, '%Y-%m-%d').date()
@@ -1721,7 +1719,7 @@ def bulkformprice(request):
 
                 # Get the list of dates that already exist in the inventory
                 existing_dates = set(existing_inventory.values_list('date', flat=True))
-                print(existing_inventory, "exists inventory")
+               
 
                 # Identify the missing dates by comparing all_dates with existing_dates
                 missing_dates = [date for date in all_dates if date not in existing_dates]

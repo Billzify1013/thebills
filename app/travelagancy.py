@@ -363,7 +363,7 @@ def addadvancebookingfromtrvel(request):
             checkoutdate = datetime.strptime(bookenddate, '%Y-%m-%d').date()
             checkoutdate -= timedelta(days=1)
             # bookingdate -= timedelta(days=1)
-            print(bookingdate)
+  
             
            
             current_date = datetime.now()
@@ -392,7 +392,7 @@ def addadvancebookingfromtrvel(request):
                     totalsellprice = (roomsellprice * roomselltax //100) + roomsellprice
                     sellingprices = sellingprices + roomsellprice
                     totaltax = totaltax + (roomsellprice * roomselltax //100)
-                    print(roomsellprice)
+                   
                     roomid = Rooms.objects.get(id=roomid)
                     roomtype = roomid.room_type.id
                     RoomBookAdvance.objects.create(vendor=user,saveguestdata=Saveadvancebookdata,bookingdate=bookingdate,roomno=roomid,
@@ -425,7 +425,7 @@ def addadvancebookingfromtrvel(request):
 
                     # If there are missing dates, create new entries for those dates in the RoomsInventory model
                     roomcount = Rooms.objects.filter(vendor=user,room_type_id=roomtype).exclude(checkin=6).count()
-                    print(roomcount,'total room')
+               
                     occupancy = (1 * 100 // roomcount)
                     
                     for inventory in existing_inventory:
@@ -454,9 +454,9 @@ def addadvancebookingfromtrvel(request):
                                     price=catdatas.catprice
                                                             # Set according to your logic
                                 )
-                        print(f"Missing dates have been created for: {missing_dates}")
+                        
                     else:
-                        print("All dates already exist in the inventory.")
+                        pass
 
                     # api calling backend automatically
                                 # Start the long-running task in a separate thread

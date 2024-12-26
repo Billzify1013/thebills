@@ -550,6 +550,7 @@ class RoomBookAdvance(models.Model):
 
     totalguest = models.CharField(max_length=10,null=True,blank=True,default="")
     rateplan_code = models.CharField(max_length=50,null=True,blank=True)
+    rateplan_code_main = models.CharField(max_length=50,null=True,blank=True)
     guest_name = models.CharField(max_length=100,null=True,blank=True)
     adults = models.PositiveIntegerField(null=True,blank=True)
     children = models.PositiveIntegerField(null=True,blank=True)

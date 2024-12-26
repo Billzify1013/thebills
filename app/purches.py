@@ -244,18 +244,7 @@ def addmorepurchesproductininvoice(request):
                 grand_total = subtotal_amount
 
             invoicedata = Supplier.objects.get(vendor=user, id=invcid)
-            print(
-                "total",
-                total_amount,
-                "subt",
-                subtotal_amount,
-                "tax",
-                tax_amount,
-                "grandt",
-                grand_total,
-                "disc",
-                productdiscount,
-            )
+            
 
             invctotalamt = float(invoicedata.total_item_amount) + total_amount
             invcsubtotalamt = float(invoicedata.subtotal_amount) + subtotal_amount
@@ -414,7 +403,7 @@ def purcheshistory(request):
             advanceroomsdata = Supplier.objects.filter(vendor=user).order_by(
                 "-id"
             )
-            print(advanceroomsdata)
+          
             page = request.GET.get("page", 1)
             paginator = Paginator(advanceroomsdata, 25)
             try:
@@ -577,7 +566,7 @@ def purchessales(request):
             total_cash = totals["total_cash"] or 0
             online_amount = totals["online_amount"] or 0
 
-            print(total_gst, total_sgst)
+    
             return render(
                 request,
                 "purchessales.html",

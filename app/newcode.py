@@ -16,7 +16,7 @@ def gridview(request):
             current_month = today.month
             
 
-            print(current_year,current_month)
+
             
             room_cat = RoomsCategory.objects.filter(vendor=user).last()
             room_type = room_cat.id
@@ -102,7 +102,7 @@ def gridviewviasearch(request):
             # Extract year and month from the user's input
             year, month = map(int, month_year_str.split('-'))
 
-            print(f"Year: {year}, Month: {month} by form")
+       
 
             # Use the year and month from the input
             current_year = year

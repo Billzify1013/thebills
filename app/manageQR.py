@@ -109,7 +109,7 @@ def change_rooms(request):
 
         if len(current_rooms) != len(available_rooms):
             return JsonResponse({'success': False, 'message': 'Room count mismatch'})
-        print(current_rooms,available_rooms,"js data")
+       
         # Process the room changes
         try:
             for current_room, available_room in zip(current_rooms, available_rooms):
@@ -117,14 +117,14 @@ def change_rooms(request):
                 available_room_id = available_room['id']
                 current_description = current_room['description']
                 available_room_name = available_room['room_name']
-                print(current_room_id,"current roomid")
+         
 
                
                 orginvc = Invoice.objects.get(id=invoice_id)
                 gustfirstroom = Gueststay.objects.get(id=orginvc.customer.id)
                 checks = False
                 if int(gustfirstroom.roomno) == int(current_description):
-                        print("haan main room liya hai ")
+                        
                         changeroomno = int(available_room_name)
                         
                         if Rooms.objects.filter(vendor_id=gustfirstroom.vendor.id,room_name=current_description):
@@ -141,7 +141,7 @@ def change_rooms(request):
                             
                 else:
                         changeroomno = int(available_room_name)
-                        print("current room alag hai ")
+                        
                         roomcolourdata = Rooms.objects.filter(vendor_id=gustfirstroom.vendor.id,room_name=current_description)
                         for i in roomcolourdata:
                             colourcode = i.checkin
@@ -213,12 +213,12 @@ def change_rooms(request):
                                 start_date = str(checkindate.date())
                                 end_date = str(checkoutdate.date())
                                 thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
-                                print("vendorcm run")
+                                
                                 thread.start()
                                 # for dynamic pricing
                                 if  VendorCM.objects.filter(vendor=user,dynamic_price_active=True):
                                     thread = threading.Thread(target=rate_hit_channalmanager, args=(user.id, start_date, end_date))
-                                    print("vendorcm rate run")
+                                    
                                     thread.start()
                                 else:
                                     pass
@@ -344,12 +344,12 @@ def change_rooms_book_url(request):
                                 start_date = str(checkindate)
                                 end_date = str(checkoutdate)
                                 thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
-                                print("vendorcm run")
+                              
                                 thread.start()
                                 # for dynamic pricing
                                 if  VendorCM.objects.filter(vendor=user,dynamic_price_active=True):
                                     thread = threading.Thread(target=rate_hit_channalmanager, args=(user.id, start_date, end_date))
-                                    print("vendorcm rate run")
+                               
                                     thread.start()
                                 else:
                                     pass

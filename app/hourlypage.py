@@ -284,7 +284,7 @@ def loylty(request):
         if request.user.is_authenticated:
             user=request.user
             loyltyguestsdatas = loylty_Guests_Data.objects.filter(vendor=user, loylty_point__gt=0)
-            print(loyltyguestsdatas)
+            
             return render(request,'loyltypage.html',{'active_page':'loylty','loyltyguestsdatas':loyltyguestsdatas})
         else:
             return redirect('loginpage')
