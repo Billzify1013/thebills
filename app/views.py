@@ -239,17 +239,46 @@ def guestdetails(request, id):
         return render(request, '404.html', {'error_message': str(e)}, status=500)
 
 
+# def advanceroombookpage(request):
+#     try:
+#         if request.user.is_authenticated:
+#             user = request.user
+#             today = datetime.now().date()
+#             tomorrow = today + timedelta(days=1)
+#             booking_success = bookingdate(request, startdate=today, enddate=tomorrow)
+
+#             br = Rooms.objects.filter(vendor=user)
+#             channal = onlinechannls.objects.all()
+#             return render(request, 'roombookpage.html', {
+#                 'br': br,
+#                 'channal': channal,
+#                 'active_page': 'advanceroombookpage'
+#             })
+#         else:
+#             return render(request, 'login.html')
+#     except Exception as e:
+#         return render(request, '404.html', {'error_message': str(e)}, status=500)
+
+from django.http import QueryDict
+# advance room book page function
 def advanceroombookpage(request):
     try:
         if request.user.is_authenticated:
-            user = request.user
-            br = Rooms.objects.filter(vendor=user)
-            channal = onlinechannls.objects.all()
-            return render(request, 'roombookpage.html', {
-                'br': br,
-                'channal': channal,
-                'active_page': 'advanceroombookpage'
+            # Simulate POST data for startdate and enddate
+            today = datetime.now().date()
+            tomorrow = today + timedelta(days=1)
+
+            # Create a mutable copy of the request
+            new_request = request
+            new_request.method = "POST"  # Simulate a POST request
+            new_request.POST = QueryDict(mutable=True)
+            new_request.POST.update({
+                'startdate': str(today),
+                'enddate': str(tomorrow)
             })
+
+            # Call the bookingdate function with the modified request
+            return bookingdate(new_request)
         else:
             return render(request, 'login.html')
     except Exception as e:

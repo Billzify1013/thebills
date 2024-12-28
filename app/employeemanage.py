@@ -89,9 +89,8 @@ def dailyattendance(request):
         if request.user.is_authenticated:
             user=request.user
             current_date = datetime.now().date()
-            current_time = datetime.now().time()  # Get current time
-            # subtracted_time = (datetime.combine(datetime.now(), current_time) - timedelta(hours=24)).time()
-            oneminuscurrent_date = current_date - timedelta(days=1)
+           
+            
             current_datetime = datetime.now()
             subtracted_time = current_datetime - timedelta(hours=24)
             # Find the most recent date that has data
@@ -102,8 +101,7 @@ def dailyattendance(request):
             )['max_date']
             
             
-            current_time = datetime.now().time()
-            twenty_four_hours_ago = (datetime.combine(datetime.today(), current_time) - timedelta(hours=24)).time()
+            
             
             # new chat gpt code jo chal raha hai
             current_datetime = datetime.now()
