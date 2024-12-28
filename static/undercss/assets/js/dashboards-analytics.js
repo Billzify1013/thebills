@@ -525,10 +525,9 @@ profileReportChart.render();
 const Totalsale = JSON.parse(document.getElementById('totalsale').value);
 const Totalexpanse = JSON.parse(document.getElementById('totalexpanse').value);
 const Totalprofit = JSON.parse(document.getElementById('totalprofit').value);
-const Totalonline = JSON.parse(document.getElementById('totalonlineamount').value);
-const Totalcash = JSON.parse(document.getElementById('totalcash').value);
 
-const dataValues = [Totalsale, Totalexpanse, Totalprofit, Totalcash, Totalonline];
+
+const dataValues = [0,Totalsale, Totalexpanse, Totalprofit,0];
 const maxDataValue = Math.max(...dataValues);
 const minDataValue = Math.min(...dataValues);
 
@@ -600,7 +599,7 @@ const incomeChartConfig = {
     }
   },
   xaxis: {
-    categories: ['Income', 'Expense', 'Profit', 'Cash', 'Online'],
+    categories: ['','Income', 'Expense', 'Profit',''],
     axisBorder: {
       show: false
     },
