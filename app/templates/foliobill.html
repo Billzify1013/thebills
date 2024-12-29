@@ -227,6 +227,7 @@
                   <button class="dropdown-item btn" type="submit" href=""><i class='bx bx-sitemap'></i> Add Service</button>
                   
                   </form>
+                  
                   <a class="btn dropdown-item " href="{% url 'guestregform' id=data.customer.id %}"><i class='bx bx-id-card mb-1'></i> Regstratrion Form</a>
                   
                   <a class="btn dropdown-item " href="{% url 'changeroompage' id=data.id %}"><i class='bx bx-exclude'></i> Change Room</a>
@@ -261,6 +262,9 @@
                   <h6>Guest Information</h6>
                   <div class="row">
                     <div class="col-6">
+                      <input type="hidden" value="{{data.customer.guestname}}" id="guestsnames">
+                      <input type="hidden" value="{{data.customer.guestphome}}" id="guestsphon">
+                      <input type="hidden" value="{{data.customer.roomno}}" id="guestroom">
                       <p>Name: {{data.customer.guestname}}  </p>
                 <p>Phone: {{data.customer.guestphome}}</p>
                 <p>Room NO: {{data.customer.roomno}}</p>
@@ -337,9 +341,9 @@
                                 <td style="font-size:18px">{{iteams.price}}</td>
                                 <td style="font-size:18px">{{iteams.quantity_likedays}}</td>
                                 <td style="font-size:18px">{{iteams.total_amount}}</td>
-                                <td>
+                                <td >
                                     {% comment %} <a href="{% url 'updateemployee' id=data.id %}"><span class="badge bg-label-info  "><i class='bx bxs-edit-alt'></i></span></a> {% endcomment %}
-                                    <form action="{% url 'deleteitemstofolio' %}" method="post">
+                                    <form action="{% url 'deleteitemstofolio' %}" method="post" style="float:left">
                                         {% csrf_token %}
                                         {%for data in invoice_data%}
                                         <input type="hidden" name="invoiceid" value="{{data.id}}" />
@@ -347,8 +351,21 @@
                                         <input type="hidden" name="invoiceitemsid" value="{{iteams.id}}" />
                                     <button class="btn" type="submit"><span class="badge bg-label-danger  "><i class='bx bxs-trash'></i></span></button>
                                     </form>
+                                
+                                
+                                  <!-- KOT Button -->
+                           <!-- KOT Button -->
+                <button class="btn kot-btn" type="button" data-bs-toggle="modal" 
+                data-bs-target="#kotModal" 
+                data-description="{{ iteams.description }}" 
+                data-mdescription="{{ iteams.mdescription }}"
+                data-hsncode="{{ iteams.hsncode }}"
+                data-price="{{ iteams.price }}"
+                data-quantity="{{ iteams.quantity_likedays }}"
+                data-total="{{ iteams.total_amount }}">
+            <span class="badge bg-label-info"><i class='bx bx-printer'></i> KOT</span>
+        </button>
                                 </td>
-
                                
                             </tr>
                             {%endfor%}
@@ -495,7 +512,205 @@
 
     </html>
 
-    
+    <div class="modal fade" id="kotModal" tabindex="-1" aria-labelledby="kotModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h5 class="modal-title" id="kotModalLabel">Hotel Order Token (HOT)</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                  <!-- Guest Details Section -->
+                  <div>
+                      <p><strong>Guest Name:</strong> <span id="guestName"></span></p>
+                      <p><strong>Guest Phone:</strong> <span id="guestPhone"></span></p>
+                      <p><strong>Room:</strong> <span id="guestRoom"></span> (Primary Room)</p>
+                  </div>
+                  <!-- HOT Header -->
+                  <div style="text-align: center;">
+                      <h6>Hotel Name</h6>
+                      <p>Hotel Order Token (HOT)</p>
+                      <p>Order Date & Time: <span id="orderDate"></span></p>
+                  </div>
+                  <!-- HOT Table -->
+                  <table class="table table-bordered">
+                      <thead>
+                          <tr>
+                              <th>Item</th>
+                              <th>Qty</th>
+                              <th>Price</th>
+                              <th>Total</th>
+                          </tr>
+                      </thead>
+                      <tbody id="kotTableBody"></tbody>
+                  </table>
+                  <!-- Total Amount -->
+                  <div style="text-align: right; margin-top: 10px;">
+                      <strong>Grand Total: ₹<span id="grandTotal"></span></strong>
+                  </div>
+                  <!-- Guest Signature Section -->
+                  <div style="margin-top: 20px; text-align: left;">
+                      <p><strong>Guest Signature:</strong></p>
+                      <div style="border: 1px solid #ccc; width: 100%; height: 50px;"></div>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-primary" id="toggleDataBtn">Show Full Data</button>
+                  <button type="button" class="btn btn-primary" onclick="printOrDownload('print')">Print</button>
+              </div>
+          </div>
+      </div>
+  </div>
+  
+  <script>
+      let showFullData = false; // Toggle state for full data
+  
+      document.addEventListener("DOMContentLoaded", function () {
+          const kotTableBody = document.getElementById("kotTableBody");
+          const toggleDataBtn = document.getElementById("toggleDataBtn");
+  
+          // Attach event listener to all HOT buttons
+          document.querySelectorAll(".kot-btn").forEach(button => {
+              button.addEventListener("click", function () {
+                  // Extract single item's data
+                  const description = this.getAttribute("data-description");
+                  const quantity = parseInt(this.getAttribute("data-quantity"));
+                  const price = parseFloat(this.getAttribute("data-price")).toFixed(2);
+                  const total = parseFloat(this.getAttribute("data-total")).toFixed(2);
+  
+                  const guestName = document.getElementById("guestsnames").value;
+                  const guestPhone = document.getElementById("guestsphon").value;
+                  const guestRoom = document.getElementById("guestroom").value;
+  
+                  // Set current date and time
+                  const currentDate = new Date();
+                  const formattedDate = currentDate.toLocaleDateString();
+                  const formattedTime = currentDate.toLocaleTimeString();
+  
+                  // Populate guest details
+                  document.getElementById("guestName").textContent = guestName;
+                  document.getElementById("guestPhone").textContent = guestPhone;
+                  document.getElementById("guestRoom").textContent = guestRoom;
+  
+                  document.getElementById("orderDate").textContent = `${formattedDate}, ${formattedTime}`;
+  
+                  // Populate table with single item
+                  kotTableBody.innerHTML = `
+                      <tr>
+                          <td>${description}</td>
+                          <td>${quantity}</td>
+                          <td>₹${price}</td>
+                          <td>₹${total}</td>
+                      </tr>
+                  `;
+                  document.getElementById("grandTotal").textContent = total;
+  
+                  showFullData = false; // Reset toggle
+                  toggleDataBtn.textContent = "Show Full Data";
+              });
+          });
+  
+          // Toggle between single item and full data
+          toggleDataBtn.addEventListener("click", function () {
+              if (showFullData) {
+                  // Revert to single item
+                  document.querySelector(".kot-btn").click(); // Simulate click to load single item data
+              } else {
+                  // Populate table with full invoice data
+                  const invoiceItems = document.querySelectorAll(".kot-btn");
+                  kotTableBody.innerHTML = ""; // Clear table
+                  let grandTotal = 0;
+  
+                  invoiceItems.forEach(button => {
+                      const description = button.getAttribute("data-description");
+                      const quantity = parseInt(button.getAttribute("data-quantity"));
+                      const price = parseFloat(button.getAttribute("data-price")).toFixed(2);
+                      const total = parseFloat(button.getAttribute("data-total")).toFixed(2);
+                      grandTotal += parseFloat(total);
+  
+                      kotTableBody.innerHTML += `
+                          <tr>
+                              <td>${description}</td>
+                              <td>${quantity}</td>
+                              <td>₹${price}</td>
+                              <td>₹${total}</td>
+                          </tr>
+                      `;
+                  });
+  
+                  document.getElementById("grandTotal").textContent = grandTotal.toFixed(2);
+              }
+  
+              showFullData = !showFullData; // Toggle state
+              toggleDataBtn.textContent = showFullData ? "Show Less Data" : "Show Full Data";
+          });
+      });
+  
+      function printOrDownload(action) {
+          const guestName = document.getElementById("guestName").textContent;
+          const guestPhone = document.getElementById("guestPhone").textContent;
+          const guestRoom = document.getElementById("guestRoom").textContent;
+          const orderDate = document.getElementById("orderDate").textContent;
+          const kotTableContent = document.getElementById("kotTableBody").innerHTML;
+          const grandTotal = document.getElementById("grandTotal").textContent;
+  
+          const content = `
+              <div style="font-family: Arial, sans-serif; padding: 20px;">
+                  <div style="text-align: center; margin-bottom: 20px;">
+                      <h5>Hotel Order Token (HOT)</h5>
+                      <p><strong>Guest Name:</strong> ${guestName}</p>
+                      <p><strong>Guest Phone:</strong> ${guestPhone}</p>
+                      <p><strong>Room:</strong> ${guestRoom} (Primary Room)</p>
+                      <hr />
+                      
+                      <p>Hotel Order Token (HOT)</p>
+                      <p>Order Date & Time: ${orderDate}</p>
+                      <hr />
+                      <table style="width: 100%; border-collapse: collapse; margin-top: 20px; border: 1px solid #ccc;">
+                          <thead>
+                              <tr>
+                                  <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Item</th>
+                                  <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Qty</th>
+                                  <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Price</th>
+                                  <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Total</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              ${kotTableContent}
+                          </tbody>
+                      </table>
+                      <div style="text-align: right; margin-top: 20px;">
+                          <strong>Grand Total: ₹${grandTotal}</strong>
+                      </div>
+                      <div style="margin-top: 20px; text-align: left;">
+                          <p><strong>Guest Signature:</strong></p>
+                          <div style="border: 1px solid #ccc; width: 100%; height: 50px;"></div>
+                      </div>
+                  </div>
+              </div>
+          `;
+  
+          if (action === 'print') {
+              const newWindow = window.open("", "_blank");
+              newWindow.document.write(content);
+              newWindow.document.close();
+              newWindow.print();
+          } else if (action === 'download') {
+              const pdf = new jsPDF();
+              pdf.html(content, {
+                  callback: function (pdf) {
+                      pdf.save("HOT.pdf");
+                  },
+                  x: 10,
+                  y: 10,
+              });
+          }
+      }
+  </script>
+  
+  
+
+
 
 
 <!-- Modal add Payments -->
