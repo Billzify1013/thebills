@@ -903,7 +903,7 @@ def addlaundryitems(request):
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)    
     
-     
+    
 
 def userdatacheckbychandanbillsteam(request):
     try:
@@ -934,7 +934,7 @@ def searchuserdata(request):
 from django.db.models import Sum
 def finddatevisesales(request):
     try:
-        if request.user.is_superuser and request.method=="POST":
+        if request.user.is_authenticated  and request.method=="POST":
             user=request.user
             startdate = request.POST.get('startdate')
             enddate = request.POST.get('enddate')
@@ -1048,7 +1048,7 @@ def finddatevisesales(request):
 
 def todaysales(request):
     try:
-        if request.user.is_superuser :
+        if request.user.is_authenticated  :
             user=request.user
 
             today = datetime.now().date()
