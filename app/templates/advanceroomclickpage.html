@@ -807,8 +807,8 @@
                   <div class="col-6 mt-3 float-start">
 
                  <button type="submit" class="btn btn-primary mt-4 mb-4 ms-3  w-100" id="submitButton" > Booking Done</button>
-                 <span class="text text-danger ms-3 text-left" style="font-size:15px"><b>Note</b>LOylty points are not work with OTA and BOOKING_ENGINE BOOKINS</span>
-                  
+                 {% comment %} <span class="text text-danger ms-3 text-left" style="font-size:15px"><b>Note</b>LOylty points are not work with OTA and BOOKING_ENGINE BOOKINS</span>
+                   {% endcomment %}
                 </div>
 
                 <script>
@@ -995,7 +995,7 @@
 
 {%if loyltydata%}
 <!--loylty data here-->
-<div class="row    mt-4" style="height:450px">
+<div class="row    mt-4" style="height:450px;display: none;">
   <div class="col-4 m-4 card">
     
     <label for="nameBackdrop" class="form-label ms-5 mt-5 ">Guest Phone Number To Check Loyalty Data</label>
