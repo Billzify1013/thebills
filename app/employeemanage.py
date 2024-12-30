@@ -1442,7 +1442,7 @@ def searchwebsitedata(request):
                 'cpolicy':cpolicy
             })
         else:
-            return redirect('mobileview')
+            return render(request, '404.html', {'error_message': 'Opps Session Expired Please Go Back And Check!'}, status=500)
         
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)
