@@ -725,12 +725,46 @@ def Product(request):
             folio = Invoice.objects.filter(vendor=user,foliostatus=False)
             iteams = Items.objects.filter(vendor=user)
             laundry = LaundryServices.objects.filter(vendor=user)
-            return render(request,'product.html',{'active_page': 'Product','tax':tax,'folio':folio,'iteams':iteams,'laundry':laundry})
+            permission = invPermit.objects.filter(vendor=user)
+            return render(request,'product.html',{'active_page': 'Product','tax':tax,'folio':folio,'iteams':iteams,'laundry':laundry
+                                    ,'permission':permission})
         else:
             return redirect('loginpage')
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)    
     
+def setivcpermission(request):
+    try:
+        if request.user.is_authenticated and request.method=="POST":
+            user=request.user
+            Permission = request.POST.get('pos_billing_permission')
+            if Permission == 'true':
+                if invPermit.objects.filter(vendor=user).exists():
+                    invPermit.objects.filter(vendor=user).update(
+                        pos_billing_active=True
+                    )
+                else:
+                    invPermit.objects.create(vendor=user,
+                        pos_billing_active=True
+                    )
+                messages.success(request,"Permission Grant!")
+            else:
+                if invPermit.objects.filter(vendor=user).exists():
+                    invPermit.objects.filter(vendor=user).update(
+                        pos_billing_active=False
+                    )
+                else:
+                    invPermit.objects.create(vendor=user,
+                        pos_billing_active=False
+                    )
+                messages.success(request,"Permission Denied!")
+            
+            return redirect('Product')
+            
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)  
          
 def deleteproduct(request,id):
     try:
@@ -755,17 +789,101 @@ def additems(request):
             category_tax = request.POST.get('category_tax')
             hsncode = request.POST.get('hsncode')
             price = request.POST.get('price')
+            available_qty = request.POST.get('available_qty')
+            total_qty = request.POST.get('total_qty')
             if Items.objects.filter(vendor=user,description=description).exists():
                 messages.error(request,'ITEMS already exists.')
                 return redirect('Product')
             else:
-                Items.objects.create(vendor=user,description=description,category_tax_id=category_tax,hsncode=hsncode,price=price)
+                Items.objects.create(vendor=user,description=description,category_tax_id=category_tax,
+                                     hsncode=hsncode,price=price,
+                                     available_qty=available_qty,total_qty=total_qty)
                 messages.success(request,'ITEMS added succesfully')
                 return redirect('Product')
         else:
             return redirect('loginpage')
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)    
+    
+         
+def invtransection(request,id):
+    try:
+        if request.user.is_authenticated:
+            user=request.user
+            id=id
+            if Items.objects.filter(vendor=user,id=id).exists():
+                itemdata = Items.objects.get(vendor=user,id=id)
+                today = datetime.now().date()
+                lastday = today - timedelta(10)
+                maindata = SupplierInvoiceItem.objects.filter(vendor=user,description=itemdata.description,
+                                date__range = [lastday,today]).all()
+
+                invcselldata = InvoiceItem.objects.filter(
+                    vendor=user,
+                    description=itemdata.description,
+                    date__range=[lastday, today]  # Replace with the correct field name
+                )
+                
+                amtdata = AminitiesInvoiceItem.objects.filter(
+                    vendor=user,
+                    description=itemdata.description,
+                    date__range=[lastday, today] 
+                )
+                print(amtdata,"amt data")
+                combined_data = list(invcselldata) + list(amtdata)
+                print(invcselldata)
+                
+                return render(request,'invtran.html',{'itemdata':itemdata,'today':today,
+                                'active_page':'Product','lastday':lastday,'maindata':maindata,'invcselldata':combined_data })
+            else:
+                messages.error(request,'Somthing Went Wrong!')
+                return redirect('Product')
+            
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)    
+    
+def fininvtransectiondata(request):
+    try:
+        if request.user.is_authenticated and request.method=="POST":
+            user=request.user
+            startdate = request.POST.get('startdate')
+            enddate = request.POST.get('enddate')
+            id =request.POST.get('id')
+            if Items.objects.filter(vendor=user,id=id).exists():
+                itemdata = Items.objects.get(vendor=user,id=id)
+                today = enddate
+                lastday = startdate
+                maindata = SupplierInvoiceItem.objects.filter(vendor=user,description=itemdata.description,
+                                date__range = [lastday,today]).all()
+
+                invcselldata = InvoiceItem.objects.filter(
+                    vendor=user,
+                    description=itemdata.description,
+                    date__range=[lastday, today]  # Replace with the correct field name
+                )
+                
+                amtdata = AminitiesInvoiceItem.objects.filter(
+                    vendor=user,
+                    description=itemdata.description,
+                    date__range=[lastday, today] 
+                )
+                print(amtdata,"amt data")
+                combined_data = list(invcselldata) + list(amtdata)
+                print(invcselldata)
+                
+                return render(request,'invtran.html',{'itemdata':itemdata,'today':today,
+                                'active_page':'Product','lastday':lastday,'maindata':maindata,'invcselldata':combined_data })
+            
+            else:
+                messages.error(request,'Somthing Went Wrong!')
+                return redirect('Product')
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)    
+    
     
          
 def updateitems(request):
@@ -777,8 +895,11 @@ def updateitems(request):
             category_tax = request.POST.get('category_tax')
             hsncode = request.POST.get('hsncode')
             price = request.POST.get('price')
+            available_qty = request.POST.get('available_qty')
+            total_qty = request.POST.get('total_qty')
             if Items.objects.filter(vendor=user,id=itemid).exists():
-                Items.objects.filter(vendor=user,id=itemid).update(description=description,category_tax_id=category_tax,hsncode=hsncode,price=price)
+                Items.objects.filter(vendor=user,id=itemid).update(description=description,category_tax_id=category_tax,
+                                hsncode=hsncode,price=price,available_qty=available_qty,total_qty=total_qty)
                 messages.success(request,'ITEMS Update succesfuly')
                 return redirect('Product')
             else:
@@ -808,6 +929,9 @@ def additemstofolio(request):
                 taxes = iteams.category_tax
                 price = iteams.price
                 total = price * int(qty)
+                Items.objects.filter(vendor=user,id=itemid).update(
+                    available_qty=F('available_qty')-qty,
+                )
                 if taxes is not None:
                     taxrate = iteams.category_tax.taxrate
                     taxamt = total * taxrate /100
@@ -818,7 +942,7 @@ def additemstofolio(request):
                
                     current_date = datetime.now().date()
                     current_date = str(current_date)
-                    InvoiceItem.objects.create(vendor=user,invoice_id=foliocustomer,description=iteams.description +" "+ current_date,price=iteams.price,
+                    InvoiceItem.objects.create(vendor=user,invoice_id=foliocustomer,description=iteams.description,mdescription=current_date,price=iteams.price,
                                         quantity_likedays=qty,cgst_rate=individualtax,sgst_rate=individualtax,
                                         hsncode=hsccode,total_amount=totalamt)
                     invc = Invoice.objects.get(vendor=user,id=foliocustomer)
@@ -831,6 +955,7 @@ def additemstofolio(request):
                     Invoice.objects.filter(vendor=user,id=foliocustomer).update(total_item_amount=totalamtinvc,subtotal_amount=subtotalinvc,
                                                                                 grand_total_amount =grandtotal,sgst_amount=sgsttotal,gst_amount=gsttotal,
                                                                                 Due_amount=dueamount)
+                    
                     messages.success(request,'Invoice Item added succesfully')
                     # return redirect('pos')
                     userid = invc.customer.id
@@ -839,7 +964,7 @@ def additemstofolio(request):
                 else:
                     current_date = datetime.now().date()
                     current_date = str(current_date)
-                    InvoiceItem.objects.create(vendor=user,invoice_id=foliocustomer,description=iteams.description+" "+ current_date,price=iteams.price,
+                    InvoiceItem.objects.create(vendor=user,invoice_id=foliocustomer,description=iteams.description,mdescription=current_date,price=iteams.price,
                                         quantity_likedays=qty,total_amount=total,cgst_rate=0.0,sgst_rate=0.0)
                     invc = Invoice.objects.get(vendor=user,id=foliocustomer)
                     totalamtinvc = invc.total_item_amount + total
@@ -1485,6 +1610,11 @@ def createsubplan(request):
                         pass
                     else:
                         onlinechannls.objects.create(vendor=userid,channalname="self")
+                        
+                    if invoiceDesign.objects.filter(vendor=userid).exists():
+                        pass
+                    else:
+                        invoiceDesign.objects.create(vendor=userid,invcdesign=1)
 
                     messages.success(request,'Plan created!')
 
@@ -1508,7 +1638,7 @@ def addmsgtouser(request):
         if request.user.is_superuser and request.method=="POST":
             user = request.POST.get('user')
             msglimit = int(request.POST.get('msglimit'))
-            Messgesinfo
+            
             if User.objects.filter(id=user).exists():
                 userid = User.objects.get(id=user)
                 if Messgesinfo.objects.filter(vendor=userid).exists():

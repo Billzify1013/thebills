@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Printable Invoice</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: url('Pratikalpa-Letterhead.jpg') no-repeat center top;
+            background-size: cover;
+            width: 210mm;
+            height: 297mm;
+            box-sizing: border-box;
+        }
+
+        .container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 210mm; /* A4 width */
+            height: 297mm; /* A4 height */
+            padding: 60mm 20mm 20mm; /* Adjust padding to align content */
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 10mm;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            padding: 10px;
+            border-bottom: 2px solid #000;
+        }
+
+        .invoice-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .invoice-details div {
+            width: 48%;
+        }
+
+        .invoice-items {
+            margin-top: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid #000;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+
+        td p {
+            font-size: 12px;
+            margin: 0;
+        }
+
+        .payment-summary {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        /* Adjust the width ratio of payment and subtotal divs */
+        .payment-summary .payments-table {
+            width: 55%; /* 55% width for payments table */
+        }
+
+        .payment-summary .breakdown {
+            width: 40%; /* 40% width for subtotal and grand total */
+            padding: 15px;
+            border: 1px solid #000; /* Regular border thickness */
+            border-radius: 5px;
+            font-size: 14px; /* Normal font size */
+            line-height: 1.5;
+        }
+
+        .breakdown ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .breakdown ul li {
+            margin-bottom: 10px; /* Normal spacing between items */
+        }
+
+        .breakdown ul li:last-child {
+            font-weight: normal; /* Keep the font weight normal */
+            font-size: 14px; /* Keep the font size normal for last item (Grand Total) */
+        }
+
+        .dashed-line {
+            border-top: 2px dashed #000;
+            margin: 10px 0; /* Add margin around the dashed line */
+        }
+
+        /* Align values of Subtotal, SGST, CGST, and Grand Total to the right */
+        .breakdown ul li span {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .breakdown ul li span strong {
+            text-align: left;
+            width: 80%; /* Left side label (e.g., Subtotal) */
+        }
+
+        .breakdown ul li span span {
+            text-align: right;
+            width: 20%; /* Right side value (e.g., ₹value) */
+        }
+
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+                background: url('Pratikalpa-Letterhead.jpg') no-repeat center top;
+                background-size: cover;
+            }
+            .container {
+                padding: 60mm 20mm 20mm;
+                margin: 0;
+            }
+
+            /* Ensure only pages with content are printed */
+            .container {
+                page-break-before: auto;
+                page-break-inside: avoid;
+            }
+
+            /* Prevent blank pages when no content is present */
+            .breakdown {
+                page-break-inside: avoid; /* Prevent page breaks inside the breakdown section */
+            }
+
+            /* To ensure page break occurs only when needed */
+            table, .payment-summary {
+                page-break-inside: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <!-- Removed the "Invoice" heading and HR -->
+        <div class="invoice-details">
+            <div class="left">{%for data in invoice_data%}
+                <p><strong>Invoice #: </strong>{{data.invoice_number}}</p>
+                <p><strong>Date: </strong>{{data.invoice_date}}</p>
+                <p><strong>Check-In: </strong>{{data.customer.checkindate}}</p>
+                <p><strong>Check-Out: </strong>{{data.customer.checkoutdate}}</p>
+            </div>
+            <div class="right">
+                <p><strong>Name: </strong>{{data.customer.guestname}}</p>
+                <p><strong>Phone: </strong>{{data.customer.guestphome}}</p>
+                <p><strong>City: </strong>{{data.customer.guestcity}}</p>
+                <p><strong>Guests: </strong>{{data.customer.noofguest}}</p>
+                {%if data.customer_gst_number%}
+                <p><strong>GST : </strong>{{data.customer_gst_number}}</p>
+                {%endif%}
+            </div>{%endfor%}
+        </div>
+
+        <!-- Invoice Items Section -->
+        <div class="invoice-items">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Service</th>
+                        {%for data in invoice_data%}
+                                {%if data.taxtype == 'GST'%}
+                                <th>Cgst</th>
+                                <th>Sgst</th>
+                                {%else%}
+                                <th>Igst</th>
+                                {%endif%}
+                                {%endfor%}
+                        <th>HSN/SAC</th>
+                        <th>Price</th>
+                        <th>Qty/Day</th>
+                        <th>Total (Incl. Tax & Discount)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {%for iteams in invoiceitemdata%}
+                    <tr>
+                        <td>{{iteams.description}}<br>
+                            <p>{{iteams.mdescription}}</p>
+                        </td>
+                        {%for data in invoice_data%}
+                                {%if data.taxtype == 'GST'%}
+                                <td style="font-size:13px">{{iteams.sgst_rate}} %  </td>
+                                <td style="font-size:13px">{{iteams.sgst_rate}} %  </td>
+                                {%else%}
+                                    {% if iteams.sgst_rate == 2.50 %}
+                                    <td style="font-size:13px"> 5% </td>
+                                    {%else%}
+                                    <td style="font-size:13px">{{iteams.sgst_rate|add:iteams.sgst_rate}}% </td>
+                                    {%endif%}  
+                                {%endif%}
+                                {%endfor%}
+                        <td>{{iteams.hsncode}}</td>
+                        <td>{{iteams.price}}</td>
+                        <td>{{iteams.quantity_likedays}}</td>
+                        <td>{{iteams.total_amount}}</td>
+                    </tr>
+                    {%endfor%}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Payment Summary Section -->
+        <div class="payment-summary">
+            <div class="payments-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>Mode</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {%for payment in invcpayments%}
+                        <tr>
+                            <td>{{payment.payment_date}}</td>
+                            <td>{{payment.payment_amount}}</td>
+                            <td>{{payment.payment_mode}}
+                                {%if payment.transaction_id%}
+                                    <span class="text w-25" style="font-size:12px">T-ID:{{payment.transaction_id}}<br>
+                                        CMT:{{payment.descriptions}}</span>
+                                    {%endif%}
+                            </td>
+                        </tr>
+                        {%endfor%}
+                    </tbody>
+                </table>
+            </div>
+            <div class="breakdown">
+                {%for data in invoice_data%}
+                {%if data.Due_amount == 0 %}
+                {%else%}
+                    <span>Payment Status</span>
+                    <span class="badge bg-label-success me-1 col-2">Paid</span>
+                    <span>Total Paid Amount:₹ <b>{{data.accepted_amount}}</b> </span>
+                    <hr>
+                    <span class="badge bg-label-warning me-1 float-end col-2">Due</span>
+                        <span>Overall Due Amount:₹ <b>{{data.Due_amount}}</b> </span>
+                    <hr>
+                    {%endif%}
+                {%endfor%}
+                {%for data in invoice_data%}
+                <ul>
+                    <li><span><strong>Total:</strong><span>₹{{data.total_item_amount}}</span></span></li>
+                    <li><span><strong>Discount:</strong><span>₹{{data.discount_amount}}</span></span></li>
+                    <li><span><strong>Subtotal:</strong><span>₹{{data.subtotal_amount}}</span></span></li>
+                    
+                    
+
+                    {%for data in invoice_data%}
+                            {%if data.taxtype == 'GST'%}
+                            <li><span><strong>SGST Total:</strong><span>₹{{gstamounts}}</span></span></li>
+                            <li><span><strong>CGST Total:</strong><span>₹{{sstamounts}}</span></span></li>
+                            {%else%}
+                      
+                            <li><span><strong>Igst Total:</strong><span>₹{{istamts}}</span></span></li>
+                        
+                            
+                            {%endif%}
+                    {%endfor%}
+                </ul>
+                <!-- Dashed line before Grand Total -->
+                <div class="dashed-line"></div>
+                <ul>
+                    <li><span><strong>Grand Total:</strong><span><b>₹{{data.grand_total_amount}}</b></span></span></li>
+                </ul>
+                {%endfor%}
+            </div>
+        </div>
+
+        
+    </div>
+</body>
+</html>
+

@@ -595,6 +595,7 @@ def aminityinvoice(request):
             user = request.user
             profiledata = HotelProfile.objects.filter(vendor=user)
             invcdata = AminitiesInvoice.objects.filter(vendor=user, sattle=False).last()
+            invpermit = invPermit.objects.filter(vendor=user)
             invoiceitemsdata = AminitiesInvoiceItem.objects.filter(
                 vendor=user, invoice=invcdata
             )
@@ -606,6 +607,7 @@ def aminityinvoice(request):
                     "profiledata": profiledata,
                     "invcdata": invcdata,
                     "invoiceitemsdata": invoiceitemsdata,
+                    'invpermit':invpermit
                 },
             )
 
@@ -743,6 +745,16 @@ def addaminitiesinvoice(request):
                 tax_amt=tax_amount,
                 grand_total=grand_total,
             )
+            
+            if invPermit.objects.filter(vendor=user,pos_billing_active=True).exists():
+                if  Items.objects.filter(vendor=user,description=productname).exists():
+                    Items.objects.filter(vendor=user,description=productname).update(
+                      available_qty=F('available_qty')-productqty  
+                    )
+                else:
+                    pass
+            else:
+                pass
 
             messages.success(request, "Invoice created successfully!")
             return redirect("aminityinvoice")
@@ -850,7 +862,15 @@ def addmoreaminitiesproductininvoice(request):
                 tax_amt=tax_amount,
                 grand_total=grand_total,
             )
-
+            if invPermit.objects.filter(vendor=user,pos_billing_active=True).exists():
+                if  Items.objects.filter(vendor=user,description=productname).exists():
+                    Items.objects.filter(vendor=user,description=productname).update(
+                      available_qty=F('available_qty')-productqty  
+                    )
+                else:
+                    pass
+            else:
+                pass
             messages.success(request, "Items added successfully!")
             return redirect("aminityinvoice")
         else:
@@ -892,6 +912,15 @@ def aminitiesitemdelete(request, id):
                         sgst_amount=invoicesgstamt,
                         grand_total_amount=invoicegrandtotalamt,
                     )
+                    if invPermit.objects.filter(vendor=user,pos_billing_active=True).exists():
+                        if  Items.objects.filter(vendor=user,description=itemsdata.description).exists():
+                            Items.objects.filter(vendor=user,description=itemsdata.description).update(
+                            available_qty=F('available_qty')+itemsdata.quantity  
+                            )
+                        else:
+                            pass
+                    else:
+                        pass
                     AminitiesInvoiceItem.objects.filter(vendor=user, id=itemid).delete()
                     messages.success(request, "items delete succesfully!")
                 else:
@@ -984,6 +1013,18 @@ def deleteaminitesinvc(request, id):
             user = request.user
             invcid = id
             if AminitiesInvoice.objects.filter(vendor=user, id=invcid).exists():
+                if invPermit.objects.filter(vendor=user,pos_billing_active=True).exists():
+                    invcdata = AminitiesInvoice.objects.get(vendor=user, id=invcid)
+                    loopdata = AminitiesInvoiceItem.objects.filter(vendor=user,invoice=invcdata)
+                    for i in loopdata:
+                        if  Items.objects.filter(vendor=user,description=i.description).exists():
+                            Items.objects.filter(vendor=user,description=i.description).update(
+                            available_qty=F('available_qty')+i.quantity  
+                            )
+                        else:
+                            pass
+                    else:
+                        pass
                 AminitiesInvoice.objects.filter(vendor=user, id=invcid).delete()
                 messages.success(request, "Invoice delete succesfully!")
                 return redirect("aminityinvoice")
@@ -1271,7 +1312,7 @@ def cleanroombtnweek(request, id):
 
 import json
 
-
+from django.db.models import F
 def sendbulksmsloylty(request, id):
     try:
         if request.user.is_authenticated:
@@ -1292,7 +1333,7 @@ def sendbulksmsloylty(request, id):
 
                 base_url = "http://control.yourbulksms.com/api/sendhttp.php"
                 params = {
-                    "authkey": settings.YOURBULKSMS_API_KEY,
+                    "authkey": '34384c5a49465937363974',
                     "mobiles": mobile_number,
                     "sender": "BILZFY",
                     "route": "2",
@@ -1302,7 +1343,7 @@ def sendbulksmsloylty(request, id):
                 encoded_message = urllib.parse.urlencode({"message": message_content})
                 url = f"{base_url}?authkey={params['authkey']}&mobiles={params['mobiles']}&sender={params['sender']}&route={params['route']}&country={params['country']}&DLT_TE_ID={params['DLT_TE_ID']}&{encoded_message}"
 
-                loylty_Guests_Data.objects.filter(vendor=user, id=id).update(smscount="1")
+                loylty_Guests_Data.objects.filter(vendor=user, id=id).update(smscount=F('smscount')+1)
                 try:
                     response = requests.get(url)
                     if response.status_code == 200:

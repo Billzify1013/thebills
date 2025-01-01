@@ -186,7 +186,19 @@
         
     </div>
    
-            <p>Product Details</p>
+            <p>Product Details 
+                {%if invpermit%}
+                {%for i in invpermit%}
+                    {%if i.pos_billing_active%}
+                    <span class="float-end text-success">Inventory  Permited</span>
+                    {%else%}
+                    <span class="float-end text-danger">Inventory Not Permited</span>
+                    {%endif%}
+                {%endfor%}
+                {%else%}
+                <span class="float-end text-danger">Inventory Not Permited</span>
+                {%endif%}
+            </p>
          <!-- Checkbox Container for autofill -->
 <div id="checkboxes_container" style="margin-top: 10px; display: none;">
     <input type="checkbox" id="auto_fill_product" /> 
@@ -514,26 +526,26 @@
 
         <!--existing products data end-->
 
+        <div class="col-11 ">
+            <button
+            type="button"
+              class="btn btn-primary mb-4 float-end"
+              data-bs-toggle="collapse"
+              href="#multiCollapseExample1"
+              role="button"
+              aria-expanded="false"
+              aria-controls="multiCollapseExample1"
 
+              ><i class='bx bxs-plus-circle mb-1'></i> Add More Products </button>
+            
+        </div>
         <div class="tab-content">
             <!--loylty div start-->
             <div class="tab-pane fade show active" id="navs-pills-justified-Amenities" role="tabpanel">
                 
-                <div class="col-12 mb-5 w-100">
-                    <button
-                    type="button"
-                      class="btn btn-primary mb-4 float-end"
-                      data-bs-toggle="collapse"
-                      href="#multiCollapseExample1"
-                      role="button"
-                      aria-expanded="false"
-                      aria-controls="multiCollapseExample1"
-
-                      ><i class='bx bxs-plus-circle mb-1'></i> Add More Products </button>
-                    
-                </div>
-                <br>
-                <div class="col-xxl mt-3 w-100  mb-md-0">
+                
+                
+                <div class="col-xxl  w-100  mb-md-0">
                         <div class="collapse multi-collapse w-100" id="multiCollapseExample1">
              
 
@@ -543,7 +555,19 @@
         
         <!-- Product data -->
         <div class="row m-4 mt-0 p-3">
-            <p>Product Details</p>
+            <p>Product Details
+                {%if invpermit%}
+                {%for i in invpermit%}
+                    {%if i.pos_billing_active%}
+                    <span class="float-end text-success">Inventory  Permited</span>
+                    {%else%}
+                    <span class="float-end text-danger">Inventory Not Permited</span>
+                    {%endif%}
+                {%endfor%}
+                {%else%}
+                <span class="float-end text-danger">Inventory Not Permited</span>
+                {%endif%}
+            </p>
             <div id="product_suggestions_invoice" class="w-100 bg-light"></div> <!-- Product suggestions with checkboxes -->
     
             <div class="col-4">

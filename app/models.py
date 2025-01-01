@@ -136,7 +136,7 @@ class loylty_Guests_Data(models.Model):
         validators=[MaxValueValidator(9999999999)]
     )
     loylty_point = models.IntegerField(default=0)
-    smscount = models.CharField(max_length=10,default=0,null=True,blank=True)
+    smscount = models.IntegerField(default=0)
     
 
 # invoice work here
@@ -178,6 +178,7 @@ class InvoiceItem(models.Model):
     cgst_rate = models.DecimalField(max_digits=5, decimal_places=2, validators=[MinValueValidator(0)])
     sgst_rate = models.DecimalField(max_digits=5, decimal_places=2, validators=[MinValueValidator(0)])
     paidstatus = models.BooleanField(default=False)
+    date = models.DateField(auto_now=True)
 
    
 class Items(models.Model):
@@ -186,7 +187,10 @@ class Items(models.Model):
     category_tax = models.ForeignKey(Taxes,on_delete=models.CASCADE,null=True,blank=True)
     hsncode = models.CharField(null=True,max_length=10)
     price = models.IntegerField()
+    available_qty = models.BigIntegerField(default=0)
+    total_qty = models.BigIntegerField(default=0)
     
+
 
 class LaundryServices(models.Model):
     vendor = models.ForeignKey(User,on_delete=models.CASCADE)
@@ -414,6 +418,7 @@ class AminitiesInvoiceItem(models.Model):
     subtotal_amt = models.DecimalField(max_digits=10, decimal_places=2)
     tax_amt = models.DecimalField(max_digits=10, decimal_places=2,blank=True)
     grand_total = models.DecimalField(max_digits=10, decimal_places=2)
+    date =models.DateField(auto_now=True)
 
 
 
@@ -653,12 +658,15 @@ class SupplierInvoiceItem(models.Model):
     quantity = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    tax_rate = models.DecimalField(max_digits=5, decimal_places=2, validators=[MinValueValidator(0)],blank=True)
+    tax_rate = models.PositiveIntegerField(default=0)
     hsncode = models.CharField(max_length=8,blank=True)
     discount_amount = models.DecimalField(max_digits=10, decimal_places=2,blank=True)
     subtotal_amt = models.DecimalField(max_digits=10, decimal_places=2)
     tax_amt = models.DecimalField(max_digits=10, decimal_places=2,blank=True)
     grand_total = models.DecimalField(max_digits=10, decimal_places=2)
+    is_intvntory = models.BooleanField(default=False)
+    salerate = models.PositiveIntegerField()
+    date=models.DateField(auto_now=True)
 
 
 
@@ -717,4 +725,12 @@ class bestatus(models.Model):
 class Roomcleancheck(models.Model):
     vendor = models.ForeignKey(User, on_delete=models.CASCADE)
     current_date = models.DateField(null=True)
+    
+class invPermit(models.Model):
+    vendor = models.ForeignKey(User, on_delete=models.CASCADE)
+    pos_billing_active = models.BooleanField()
+    
+class invoiceDesign(models.Model):
+    vendor = models.ForeignKey(User, on_delete=models.CASCADE)
+    invcdesign = models.IntegerField(default=0)
     

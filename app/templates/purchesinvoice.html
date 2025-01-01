@@ -36,7 +36,7 @@
 
 {%if invcdata%}
 {%else%}
-<h6 class="text">Purches Invoice</h6>
+<h6 class="text">Purchase Invoice</h6>
 <div class="row ">
     <div class="col-12 mb-4">
         <div class="card">
@@ -76,8 +76,8 @@
                     </script>
                     <div class="col-3">
                         <p class="text mt-3">
-                            PURCHES  INVOICE <br>
-                            Purches Invoice Date:<input type="date" id="dateInput" class="form-control" name="invcdate"> <br>
+                            Purchase  INVOICE <br>
+                            Purchase Invoice Date:<input type="date" id="dateInput" class="form-control" name="invcdate"> <br>
 
                         </p>
                     </div>
@@ -198,7 +198,7 @@
             <input  type="text" class="form-control mt-2 " id="productDescription" name="productname" required>
         </div>
         <div class="col-4 ">
-            <span class="text"><i class='bx bx-money'></i>Selling  Price</span>
+            <span class="text"><i class='bx bx-money'></i>Purchase  Price</span>
             <input  type="number" class="form-control mt-2 " id="productPrice" name="productprice" required>
         </div>
         <div class="col-4 ">
@@ -210,7 +210,8 @@
     
         <div class="col-4 mt-3">
             <span class="text">Tax %</span>
-            <input  type="number" class="form-control mt-2 " id="productTax" name="producttax" >
+            <input  type="text" class="form-control mt-2 " pattern="^(-0\.0|0|0\0|5|12|18|24|35)$" 
+            title="Only the values -0.0, 0.0,0,5, 12, 18, 24, 35 are allowed" id="productTax" name="producttax" >
         </div>
         <div class="col-4 mt-3">
             <span class="text">HSN/SAC</span>
@@ -221,8 +222,47 @@
             <input  type="number" class="form-control mt-2 " id="productDiscount" name="productdiscount" >
         </div>
 
-        <div class="col-4 mt-3 end-0">
-            <input  type="submit" class="btn btn-primary" value="Save Customer & Add More Item">
+        <div class="col-4 mt-3">
+            <span class="text"><i class='bx bx-info-circle me-2'></i>Use For Inventory Uses</span>
+            <select class="form-control mt-2" name="isinvtry" id="isinvtry">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+            </select>
+        </div>
+        
+        <div class="col-4 mt-3" id="selling-price-container" style="display: none;">
+            <span class="text"><i class='bx bxs-discount'></i>Selling Price</span>
+            <input type="number" class="form-control mt-2" id="sellingprc" name="sellrate">
+        </div>
+        
+        <script>
+            // Get the dropdown and the selling price container
+            const invDropdown = document.getElementById('isinvtry');
+            const sellingPriceContainer = document.getElementById('selling-price-container');
+        
+            // Function to toggle the selling price visibility
+            function toggleSellingPrice() {
+                if (invDropdown.value === 'Yes') {
+                    sellingPriceContainer.style.display = 'block'; // Show the selling price field
+                    document.getElementById('sellingprc').setAttribute('required', 'required');
+
+                } else {
+                    sellingPriceContainer.style.display = 'none'; // Hide the selling price field
+                    document.getElementById('sellingprc').value = ''; // Clear the selling price input
+                    document.getElementById('sellingprc').removeAttribute('required');;
+                }
+            }
+        
+            // Listen for changes on the dropdown
+            invDropdown.addEventListener('change', toggleSellingPrice);
+        
+            // Initial call to set the correct state based on the current value
+            toggleSellingPrice();
+        </script>
+        
+
+        <div class="col-4 mt-5 ">
+            <input  type="submit" class="btn btn-primary w-100" value="Save Customer & Add More Item">
         </div>
     </div>
     <!--product data end-->
@@ -239,6 +279,8 @@
 </div>
 
 {%endif%}
+
+
 
 
 <script>
@@ -276,12 +318,15 @@
                             <div class="col-1">
                                 <input type="checkbox" class="selectItem" data-id="${item.id}" />
                             </div>
-                            <div class="col-3">${item.description}</div>
-                            <div class="col-2">${item.price}</div>
-                            <div class="col-2">${item.tax_rate || 'N/A'}</div>
-                            <div class="col-2">${item.hsncode || 'N/A'}</div>
-                            <div class="col-2">${item.discount_amount || 'N/A'}</div>
-                        `;
+                            <div class="col-3">Product name: ${item.description}</div>
+                            <div class="col-2">Purchase Price: ${item.price}</div>
+                            <div class="col-2">Tax : ${item.tax_rate || 'N/A'}</div>
+                            <div class="col-2">Hsn Code: ${item.hsncode || 'N/A'}</div>
+                            <div class="col-2">Discount: ${item.discount_amount || 'N/A'}</div>
+                            <div class="col-2"> inventory use: ${item.is_intvntory}</div> <!-- Corrected the key name -->
+                            <div class="col-2"> Selling price: ${item.salerate}</div> <!-- Corrected the key name -->
+                       
+                            `;
 
                         searchResultsDiv.appendChild(resultRow);
                     });
@@ -292,6 +337,8 @@
                             if (this.checked) {
                                 const itemId = this.getAttribute('data-id');
                                 const selectedItem = data.items.find(item => item.id == itemId);
+                                console.log(selectedItem);  // This will show the entire object
+                                console.log(selectedItem.is_intvntory);  // This will show the corrected key `is_intvntory`
 
                                 if (selectedItem) {
                                     // Populate form fields
@@ -300,6 +347,19 @@
                                     document.getElementById('productTax').value = selectedItem.tax_rate || '';
                                     document.getElementById('productHsn').value = selectedItem.hsncode || '';
                                     document.getElementById('productDiscount').value = selectedItem.discount_amount || '';
+                                   
+                                    
+                                    // Check for is_intvntory instead of is_inventory
+                                    if (selectedItem.is_intvntory === true) {
+                                        document.getElementById('isinvtry').value = 'Yes';
+                                        document.getElementById('sellingprc').value = selectedItem.salerate;
+                                        document.getElementById('selling-price-container').style.display = 'block';
+                                        document.getElementById('sellingprc').setAttribute('required', 'required');
+                                    } else {
+                                        document.getElementById('isinvtry').value = 'No';
+                                        document.getElementById('selling-price-container').style.display = 'none';
+                                        document.getElementById('sellingprc').removeAttribute('required');;
+                                    }
                                 }
 
                                 // Hide search results after selection
@@ -312,6 +372,10 @@
                                 document.getElementById('productTax').value = '';
                                 document.getElementById('productHsn').value = '';
                                 document.getElementById('productDiscount').value =  '';
+                                document.getElementById('selling-price-container').style.display = 'none';
+                                document.getElementById('isinvtry').value = 'No';
+                                document.getElementById('sellingprc').value =0;
+                                document.getElementById('sellingprc').removeAttribute('required');;
                             }
                         });
                     });
@@ -434,7 +498,7 @@
 {%if invcdata%}
 
 <div class="row ">
-    <p class="text-danger">Purches Invoice Already Exists! Please Sattle/Delete This Invoice.</p>
+    <p class="text-danger">Purchase Invoice Already Exists! Please Sattle/Delete This Invoice.</p>
     <div class="col-9 mb-4">
         <div class="card">
             <div class="bg-light m-5 mb-0">
@@ -454,8 +518,8 @@
                     </div> {% endcomment %}
                     <div class="col-3">
                         <p class="text mt-3">
-                            Purches INVOICE: {{invcdata.invoicenumber}} <br>
-                            Purches  Date Issued: {{invcdata.invoicedate}} <br>
+                            Purchase INVOICE: {{invcdata.invoicenumber}} <br>
+                            Purchase  Date Issued: {{invcdata.invoicedate}} <br>
                             
 
                         </p>
@@ -595,26 +659,25 @@
 
         <!--existing products data end-->
 
+        <div class=" me-3 mt-2">
+            <button
+            type="button"
+              class="btn btn-primary mb-4 float-end"
+              data-bs-toggle="collapse"
+              href="#multiCollapseExample1"
+              role="button"
+              aria-expanded="false"
+              aria-controls="multiCollapseExample1"
 
+              ><i class='bx bxs-plus-circle mb-1'></i> Add More Products </button>
+            
+        </div>
         <div class="tab-content">
             <!--loylty div start-->
             <div class="tab-pane fade show active" id="navs-pills-justified-Amenities" role="tabpanel">
                 
-                <div class="col-12 mb-2">
-                    <button
-                    type="button"
-                      class="btn btn-primary mb-4 float-end"
-                      data-bs-toggle="collapse"
-                      href="#multiCollapseExample1"
-                      role="button"
-                      aria-expanded="false"
-                      aria-controls="multiCollapseExample1"
-
-                      ><i class='bx bxs-plus-circle mb-1'></i> Add More Products </button>
-                    
-                </div>
-                <br>
-                <div class="col-xxl mt-3  mb-md-0">
+             
+                <div class="col-xxl   mb-md-0">
                         <div class="collapse multi-collapse" id="multiCollapseExample1">
                           
     <form action="{% url 'addmorepurchesproductininvoice' %}" method="post" autocomplete="off">
@@ -623,10 +686,10 @@
         <input type="hidden" name="invcid" value="{{invcdata.id}}" >
                   <!--Product data-->
 
-        <div class="row m-4 mt-0 p-3">
+        <div class="row mt-0 p-3">
                               <!-- Second Form -->
 <div id="secondFormWrapper" class="row">
-    <div id="ajaxDataContainer2" class="col-12 mt-3">
+    <div id="ajaxDataContainer2" class="col-12 mt-0">
         <!-- AJAX fetched data will appear here -->
     </div>
 </div>
@@ -637,19 +700,20 @@
             <input  type="text" id="productName1" class="form-control mt-2 " name="productname" required>
         </div>
         <div class="col-4 ">
-            <span class="text"><i class='bx bx-money'></i>Selling  Price</span>
+            <span class="text"><i class='bx bx-money'></i>Purchase  Price</span>
             <input  type="number" id="productPrice1" class="form-control mt-2 " name="productprice" required>
         </div>
         <div class="col-4 ">
             <span class="text">Quantity</span>
-            <input  type="number" id="productQty1" class="form-control mt-2 " name="productqty" required>
+            <input  type="number" id="productQty1" class="form-control mt-2 " value=1 name="productqty" required>
         </div>
   
 
     
         <div class="col-4 mt-3">
             <span class="text">Tax %</span>
-            <input  type="number" id="productTax1" class="form-control mt-2 "  name="producttax" >
+            <input  type="text" id="productTax1" class="form-control mt-2 "  name="producttax" pattern="^(-0\.0|0|0\0|5|12|18|24|35)$" 
+            title="Only the values -0.0, 0,0.0,5, 12, 18, 24, 35 are allowed">
         </div>
         <div class="col-4 mt-3">
             <span class="text">HSN/SAC</span>
@@ -660,8 +724,47 @@
             <input  type="number" id="productDiscount1" class="form-control mt-2 " name="productdiscount" >
         </div>
 
-        <div class="col-4 mt-3 end-0">
-            <input  type="submit" class="btn btn-primary" value="Save Customer & Add More Item">
+        <div class="col-4 mt-3">
+            <span class="text"><i class='bx bx-info-circle me-2'></i>Use For Inventory Uses</span>
+            <select class="form-control mt-2" name="isinvtry1" id="isinvtry1">
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+            </select>
+        </div>
+        
+        <div class="col-4 mt-3" id="selling-price-container1" style="display: none;">
+            <span class="text"><i class='bx bxs-discount'></i>Selling Price</span>
+            <input type="number" class="form-control mt-2" id="sellingprc1" name="sellrate1">
+        </div>
+        
+        <script>
+            // Get the dropdown and the selling price container
+            const invDropdown = document.getElementById('isinvtry1');
+            const sellingPriceContainer = document.getElementById('selling-price-container1');
+        
+            // Function to toggle the selling price visibility
+            function toggleSellingPrice() {
+                if (invDropdown.value === 'Yes') {
+                    sellingPriceContainer.style.display = 'block'; // Show the selling price field
+                    document.getElementById('sellingprc1').setAttribute('required', 'required');
+
+                } else {
+                    sellingPriceContainer.style.display = 'none'; // Hide the selling price field
+                    document.getElementById('sellingprc1').value = ''; // Clear the selling price input
+                    document.getElementById('sellingprc1').removeAttribute('required');;
+                }
+            }
+        
+            // Listen for changes on the dropdown
+            invDropdown.addEventListener('change', toggleSellingPrice);
+        
+            // Initial call to set the correct state based on the current value
+            toggleSellingPrice();
+        </script>
+        
+
+        <div class="col-4 mt-5 end-0">
+            <input  type="submit" class="btn btn-primary" value="add product & Add More Item">
         </div>
     </div>
     <!--product data end-->
@@ -703,11 +806,15 @@
                                 <div class="col-1">
                                     <input type="checkbox" class="selectItem" data-id="${item.id}" />
                                 </div>
-                                <div class="col-3">${item.description}</div>
-                                <div class="col-2">${item.price}</div>
-                                <div class="col-2">${item.tax_rate || 'N/A'}</div>
-                                <div class="col-2">${item.hsncode || 'N/A'}</div>
-                                <div class="col-2">${item.discount_amount || 'N/A'}</div>
+                              
+                                <div class="col-3">Product name: ${item.description}</div>
+                                <div class="col-2">Purchase Price: ${item.price}</div>
+                                <div class="col-2">Tax : ${item.tax_rate || 'N/A'}</div>
+                                <div class="col-2">Hsn Code: ${item.hsncode || 'N/A'}</div>
+                                <div class="col-2">Discount: ${item.discount_amount || 'N/A'}</div>
+                                <div class="col-2"> inventory use: ${item.is_intvntory}</div> <!-- Corrected the key name -->
+                                <div class="col-2"> Selling price: ${item.salerate}</div> <!-- Corrected the key name -->
+                       
                             `;
     
                             searchResultsDiv2.appendChild(resultRow);
@@ -732,6 +839,17 @@
     
                                     // Hide search results after selection
                                     //searchResultsDiv2.style.display = 'none';
+                                      // Check for is_intvntory instead of is_inventory
+                                      if (selectedItem.is_intvntory === true) {
+                                        document.getElementById('isinvtry1').value = 'Yes';
+                                        document.getElementById('sellingprc1').value = selectedItem.salerate;
+                                        document.getElementById('selling-price-container1').style.display = 'block';
+                                        document.getElementById('sellingprc1').setAttribute('required', 'required');
+                                    } else {
+                                        document.getElementById('isinvtry').value = 'No';
+                                        document.getElementById('selling-price-container1').style.display = 'none';
+                                        document.getElementById('sellingprc1').removeAttribute('required');;
+                                    }
 
                                     
                                 }
@@ -742,6 +860,10 @@
                                     document.getElementById('productTax1').value = '';
                                     document.getElementById('productHSN1').value = '';
                                     document.getElementById('productDiscount1').value = '';
+                                    document.getElementById('selling-price-container1').style.display = 'none';
+                                    document.getElementById('isinvtry1').value = 'No';
+                                    document.getElementById('sellingprc1').value =0;
+                                    document.getElementById('sellingprc1').removeAttribute('required');;
 
                                 }
                             });

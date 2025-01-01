@@ -34,13 +34,22 @@
 <!--product Create button-->
         
 <div class="row mt-5"> 
-    <div class="col-10">
+    <div class="col-8">
         <h5 class="card-title  ms-2 mt-2">Add New Product</h5>
     </div> 
+    <div class="col-2">
+          <!-- Button to Open Permission Modal -->
+<button class="btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#permissionModal">
+  Set Permissions
+</button>
+    </div>
     <div class="col-2">
         <button class="btn btn-primary  w-100 "   data-bs-toggle="modal"
         data-bs-target="#backDropModal"> Add Product</button>
     </div> 
+
+
+
 
 </div>  
 <!--product Create button end-->
@@ -49,7 +58,10 @@
 
  <!-- Bootstrap Table with Header - Light -->
  <div class="card mt-5">
-    <h5 class="card-header">Product Details</h5>
+    <h5 class="card-header">Product Details
+
+      <span class="float-end">All Product Work In Inventory management</span>
+    </h5>
     <div class="table-responsive text-nowrap">
       <table class="table">
         <thead class="table-light">
@@ -58,13 +70,16 @@
             <th>Price</th>
             <th>HSN/SAC</th>
             <th>Tax</th>
+            <th>Available{QTY}</th>
+            <th>Total{QTY}</th>
+            <th>Transection</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody class="table-border-bottom-0">
             {%for data in iteams%}
           <tr>
-            <td><i class="fab fa-angular fa-lg text-danger me-3"></i> <strong>{{data.description}}</strong></td>
+            <td> <strong>{{data.description}}</strong></td>
             
             <td>₹ {{data.price}}</td>
             <td>{{data.hsncode}}</td>
@@ -72,6 +87,20 @@
                 {%if data.category_tax.taxrate%}
               {{data.category_tax.taxrate}} %
               {%endif%}
+            </td>
+            <td>
+              {%if data.available_qty > 10 %}
+              <span class="text-success">{{data.available_qty}}</span>
+              {% elif data.available_qty < 10 and  data.available_qty > 0 %}
+              <span class="text-warning">{{data.available_qty}}</span>
+              {%else%}
+              <span class="text-danger">{{data.available_qty}}</span>
+              {%endif%}
+            </td>
+            <td>{{data.total_qty}}
+            </td>
+            <td>
+              <a href="{% url 'invtransection' id=data.id %}" class="btn btn-info ms-2"><i class='bx text-white bx-transfer-alt'></i></a>
             </td>
             <td>
                 
@@ -87,7 +116,13 @@
                       </button>
                       <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
-                          data-bs-target="#backDropModalupdate" onclick="getroomnumberpopup({{data.id}})"><i class="bx bx-edit-alt me-1"></i> Details</a></li>
+                          data-bs-target="#backDropModalupdate"
+                          onclick="getroomnumberpopup({{ data.id }}, '{{ data.description }}', {{ data.price }}, '{{ data.hsncode }}', {{ data.category_tax.id }}, {{ data.available_qty }}, {{ data.total_qty }})">
+                         <i class="bx bx-edit-alt me-1"></i> Edit Product
+                       </a>
+                       
+                       
+                        </li>
                         <li><a class="dropdown-item" href="{% url 'deleteproduct' id=data.id %}" ><i class="bx bx-trash me-1"></i> Delete</a></li>
                         
                       </ul>
@@ -153,7 +188,7 @@
           <div class="row">
 
             <div class="col mb-3">
-                <label for="nameBackdrop" class="form-label">Category</label>
+                <label for="nameBackdrop" class="form-label">Tax Category</label>
                 <select class="form-control" name="category_tax" placeholder="Select tax" >
                     <option  value="">Select tax</option>
                     {%for t in tax%}
@@ -175,6 +210,34 @@
 
            
           </div>
+
+          <div class="row">
+            <div class="col mb-3">
+              <label for="availableQtyInput" class="form-label">Available Quantity</label>
+              <input
+                type="number"
+                name="available_qty"
+                value=0
+                class="form-control"
+                placeholder="Enter available quantity"
+                required
+              />
+            </div>
+  
+            <div class="col mb-3">
+              <label for="totalQtyInput" class="form-label">Total Quantity</label>
+              <input
+                type="number"
+                name="total_qty"
+                value=0
+                class="form-control"
+                placeholder="Enter total quantity"
+                required
+              />
+            </div>
+          </div>
+
+          
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
@@ -200,7 +263,7 @@
     document.getElementById('roomnoidinput').value = e;
   }
 </script>
-
+{% comment %} 
 <!-- Modal edit produts -->
 <div class="modal fade" id="backDropModalupdate" data-bs-backdrop="static" tabindex="-1">
   <div class="modal-dialog">
@@ -281,6 +344,177 @@
 </div>
 </div>
 </div>
-<!--/ Bootstrap modals -->
+<!--/ Bootstrap modals --> {% endcomment %}
+
+
+<!-- Modal edit products -->
+<!-- Modal edit products -->
+<div class="modal fade" id="backDropModalupdate" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog">
+    <form action="{% url 'updateitems' %}" method="POST" class="modal-content">
+      {% csrf_token %}
+      <input type="hidden" id="roomnoidinput" name="itemid" />
+      <div class="modal-header">
+        <h5 class="modal-title" id="backDropModalTitle">Update Product</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col mb-3">
+            <label for="descriptionInput" class="form-label">Product Name</label>
+            <input
+              type="text"
+              name="description"
+              id="descriptionInput"
+              class="form-control"
+              placeholder="Enter product name"
+            />
+          </div>
+
+          <div class="col mb-3">
+            <label for="priceInput" class="form-label">Price</label>
+            <input
+              type="number"
+              name="price"
+              id="priceInput"
+              class="form-control"
+              placeholder="Enter price"
+            />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col mb-3">
+            <label for="categoryTaxInput" class="form-label">Tax Category</label>
+            <select class="form-control" name="category_tax" id="categoryTaxInput">
+              <option value="">Select tax</option>
+              {% for t in tax %}
+                <option value="{{ t.id }}">{{ t }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col mb-3">
+            <label for="hsncodeInput" class="form-label">HSN Code</label>
+            <input
+              type="number"
+              name="hsncode"
+              id="hsncodeInput"
+              class="form-control"
+              placeholder="Enter HSN Code"
+            />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col mb-3">
+            <label for="availableQtyInput" class="form-label">Available Quantity</label>
+            <input
+              type="number"
+              name="available_qty"
+              id="availableQtyInput"
+              class="form-control"
+              placeholder="Enter available quantity"
+            />
+          </div>
+
+          <div class="col mb-3">
+            <label for="totalQtyInput" class="form-label">Total Quantity</label>
+            <input
+              type="number"
+              name="total_qty"
+              id="totalQtyInput"
+              class="form-control"
+              placeholder="Enter total quantity"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button class="btn btn-warning">Update</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<script>
+  // Function to populate the modal with data
+// Function to populate the modal with data
+function getroomnumberpopup(id, description, price, hsncode, category_tax_id, available_qty, total_qty) {
+  // Set the values in the modal inputs
+  document.getElementById('roomnoidinput').value = id;
+  document.getElementById('descriptionInput').value = description;
+  document.getElementById('priceInput').value = price;
+  document.getElementById('hsncodeInput').value = hsncode;
+  
+  // Set the category dropdown
+  var categorySelect = document.getElementById('categoryTaxInput');
+  for (var i = 0; i < categorySelect.options.length; i++) {
+    if (categorySelect.options[i].value == category_tax_id) {
+      categorySelect.selectedIndex = i;
+      break;
+    }
+  }
+
+  // Populate Available Quantity and Total Quantity
+  document.getElementById('availableQtyInput').value = available_qty;
+  document.getElementById('totalQtyInput').value = total_qty;
+}
+
+
+</script>
+
+
+
+<!-- Permission Modal -->
+<div class="modal fade" id="permissionModal" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog">
+      <form action="{%url 'setivcpermission' %}" method="POST" class="modal-content">
+          {% csrf_token %}
+          <div class="modal-header">
+              <h5 class="modal-title" id="permissionModalTitle">Set Permissions</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              
+
+              <!-- POS Billing Permission -->
+              <div class="form-group mb-3">
+                  <label for="pos_billing_permission" class="form-label">Inventory Uses POS Billing 
+                    <span class="text-end">
+                    </span>
+                  </label>
+                  <select class="form-control" name="pos_billing_permission" >
+                    {%if permission%}
+                        {% for i in permission %}
+                        <!-- Show True option if pos_billing_active is True -->
+                        <option value="true" {% if i.pos_billing_active %}selected{% endif %}>True</option>
+                
+                        <!-- Show False option if pos_billing_active is False -->
+                        <option value="false" {% if not i.pos_billing_active %}selected{% endif %}>False</option>
+                        {% endfor %}
+                    {%else%}
+                    <option value="true">Start</option>
+                    <option value="false">Not Start</option> 
+
+                    {%endif%}
+                  </select>
+              </div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary">Update Permissions</button>
+          </div>
+      </form>
+  </div>
+</div>
+<!--/ Permission Modal -->
+
+
+
 
 {%endblock%}

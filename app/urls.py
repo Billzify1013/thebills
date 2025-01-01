@@ -71,6 +71,10 @@ urlpatterns = [
     path('pos/',employeemanage.pos,name="pos"),
     path('additems/',employeemanage.additems,name="additems"),
     path('updateitems/',employeemanage.updateitems,name="updateitems"),
+    path('setivcpermission/',employeemanage.setivcpermission,name="setivcpermission"),
+    path('invtransection/<int:id>/',employeemanage.invtransection,name="invtransection"),
+    
+    path('fininvtransectiondata/',employeemanage.fininvtransectiondata,name="fininvtransectiondata"),
     path('additemstofolio/',employeemanage.additemstofolio,name="additemstofolio"),
     path('addlaundryitems/',employeemanage.addlaundryitems,name="addlaundryitems"),
     path('Product/',employeemanage.Product,name="Product"),

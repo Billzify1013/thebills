@@ -11,6 +11,7 @@ import requests
 from django.conf import settings
 import urllib.parse
 from django.db.models import Sum
+from django.db.models import F
 
 def purchesinvoice(request):
     try:
@@ -64,6 +65,16 @@ def purchesinvoiceform(request):
             producttax_str = request.POST.get("producttax", "0")
             producthsn = request.POST.get("producthsn", "")
             productdiscount_str = request.POST.get("productdiscount", "0")
+            
+            isinvtry = request.POST.get("isinvtry")
+            
+            if isinvtry=="Yes":
+                sellrate = request.POST.get("sellrate")
+                isivdata = True
+            else:
+                isivdata = False
+                sellrate=0
+                pass
 
             # Handle product quantity
             try:
@@ -167,8 +178,50 @@ def purchesinvoiceform(request):
                 subtotal_amt=subtotal_amount,
                 tax_amt=tax_amount,
                 grand_total=grand_total,
+                is_intvntory=isivdata,
+                salerate=sellrate
             )
 
+            if isivdata==True:
+                if producttax>0:
+                        if Taxes.objects.filter(vendor=user,taxrate=producttax).exists():
+                            taxdata = Taxes.objects.get(vendor=user,taxrate=producttax)
+                        else:
+                            if producttax==5 or producttax==12 or producttax==18 or producttax==24 or producttax==35:
+                                taxdata = Taxes.objects.create(vendor=user,
+                                                               taxrate=producttax,
+                                                               taxcode=producttax,
+                                                               taxname=producttax)
+                            else:
+                                taxdata=None
+                else:
+                        taxdata=None
+                if Items.objects.filter(vendor=user,description=productname).exists():
+                    Items.objects.filter(
+                        vendor=user,
+                        description=productname).update(
+                        available_qty=F('available_qty')+productqty,
+                        total_qty=F('total_qty') + productqty,
+                        price=sellrate,
+                        category_tax=taxdata,
+                        hsncode=producthsn,
+                        
+                    )
+                    itemdata = Items.objects.get(vendor=user,description=productname)
+                else:
+                    
+                    itemdata = Items.objects.create(
+                        vendor=user,
+                        description=productname,
+                        category_tax=taxdata,
+                        hsncode=producthsn,
+                        price=sellrate,
+                        available_qty=productqty,
+                        total_qty=productqty 
+                    )
+                
+            else:
+                pass            
             messages.success(request, "Purches Invoice created successfully!")
             return redirect("purchesinvoice")
         else:
@@ -180,7 +233,7 @@ def purchesinvoiceform(request):
 
 
 def addmorepurchesproductininvoice(request):
-    try:
+    # try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
 
@@ -196,6 +249,15 @@ def addmorepurchesproductininvoice(request):
             producttax_str = request.POST.get("producttax", "0")
             producthsn = request.POST.get("producthsn", "")
             productdiscount_str = request.POST.get("productdiscount", "0")
+            
+            isinvtry = request.POST.get("isinvtry1")
+            if isinvtry=="Yes":
+                sellrate = request.POST.get("sellrate1")
+                isivdata = True
+            else:
+                isivdata = False
+                sellrate=0
+                pass
 
             # Handle product quantity
             try:
@@ -261,7 +323,7 @@ def addmorepurchesproductininvoice(request):
                 sgst_amount=invcsgstamt,
                 grand_total_amount=invcgrandamt,
             )
-
+            print(grand_total,"printed code")
             # Create invoice item
             SupplierInvoiceItem.objects.create(
                 vendor=user,
@@ -276,14 +338,57 @@ def addmorepurchesproductininvoice(request):
                 subtotal_amt=subtotal_amount,
                 tax_amt=tax_amount,
                 grand_total=grand_total,
+                is_intvntory=isivdata,
+                salerate=sellrate
+                
             )
-
+            
+            if isivdata==True:
+                if producttax>0:
+                        if Taxes.objects.filter(vendor=user,taxrate=producttax).exists():
+                            taxdata = Taxes.objects.get(vendor=user,taxrate=producttax)
+                        else:
+                            if producttax==5 or producttax==12 or producttax==18 or producttax==24 or producttax==35:
+                                taxdata = Taxes.objects.create(vendor=user,
+                                                               taxrate=producttax,
+                                                               taxcode=producttax,
+                                                               taxname=producttax)
+                            else:
+                                taxdata=None
+                else:
+                        taxdata=None
+                if Items.objects.filter(vendor=user,description=productname).exists():
+                    Items.objects.filter(
+                        vendor=user,
+                        description=productname).update(
+                        available_qty=F('available_qty')+productqty,
+                        total_qty=F('total_qty') + productqty,
+                        price=sellrate,
+                        category_tax=taxdata,
+                        hsncode=producthsn,
+                        
+                    )
+                    itemdata = Items.objects.get(vendor=user,description=productname)
+                else:
+                    
+                    itemdata = Items.objects.create(
+                        vendor=user,
+                        description=productname,
+                        category_tax=taxdata,
+                        hsncode=producthsn,
+                        price=sellrate,
+                        available_qty=productqty,
+                        total_qty=productqty 
+                    )
+               
+            else:
+                pass
             messages.success(request, "Items added successfully!")
             return redirect("purchesinvoice")
         else:
             return redirect("loginpage")
-    except Exception as e:
-        return render(request, "404.html", {"error_message": str(e)}, status=500)
+    # except Exception as e:
+    #     return render(request, "404.html", {"error_message": str(e)}, status=500)
 
 
 
@@ -300,6 +405,20 @@ def purchesitemdelete(request, id):
                 itemtaxamt = itemsdata.tax_amt / 2
                 itemgrandtotal = itemsdata.grand_total
                 invoiceid = itemsdata.invoice.id
+                quantity = itemsdata.quantity
+                if itemsdata.is_intvntory:
+                    
+                    if Items.objects.filter(vendor=user,description=itemsdata.description).exists():
+                        Items.objects.filter(vendor=user,description=itemsdata.description).update(
+                           available_qty=F('available_qty')-quantity,
+                           total_qty=F('total_qty')-quantity,
+                        )
+                        
+                    else:
+                        pass
+                else:
+                    pass
+                
                 if Supplier.objects.filter(vendor=user, id=invoiceid).exists():
                     invoicedata = Supplier.objects.get(
                         vendor=user, id=invoiceid
@@ -320,6 +439,7 @@ def purchesitemdelete(request, id):
                         sgst_amount=invoicesgstamt,
                         grand_total_amount=invoicegrandtotalamt,
                     )
+                    
                     SupplierInvoiceItem.objects.filter(vendor=user, id=itemid).delete()
                     messages.success(request, "items delete succesfully!")
                 else:
@@ -337,11 +457,27 @@ def purchesitemdelete(request, id):
 
 
 def deletepurchesinvc(request, id):
-    try:
+    # try:
         if request.user.is_authenticated:
             user = request.user
             invcid = id
             if Supplier.objects.filter(vendor=user, id=invcid).exists():
+                spdata = Supplier.objects.get(vendor=user, id=invcid)
+                spitemdata = SupplierInvoiceItem.objects.filter(vendor=user,invoice=spdata)
+                for i in spitemdata:
+                    check = i.is_intvntory
+                    if check:
+                        pname = i.description
+                        quantity=i.quantity
+                        if Items.objects.filter(vendor=user,description=pname).exists():
+                            Items.objects.filter(vendor=user,description=pname).update(
+                            available_qty=F('available_qty')-quantity,
+                            total_qty=F('total_qty')-quantity,
+                            )
+                           
+                        else:
+                            pass
+                    
                 Supplier.objects.filter(vendor=user, id=invcid).delete()
                 messages.success(request, "Invoice delete succesfully!")
                 return redirect("purchesinvoice")
@@ -350,8 +486,8 @@ def deletepurchesinvc(request, id):
                 return redirect("purchesinvoice")
         else:
             return redirect("loginpage")
-    except Exception as e:
-        return render(request, "404.html", {"error_message": str(e)}, status=500)
+    # except Exception as e:
+    #     return render(request, "404.html", {"error_message": str(e)}, status=500)
 
 
 
@@ -752,15 +888,20 @@ def fetch_supplier_items(request):
                 vendor=request.user,
                 description__icontains=description
             ).values(
-                'id', 'description', 'price', 'tax_rate', 'hsncode', 'discount_amount'
+                'id', 'description', 'price', 'tax_rate', 'hsncode', 'discount_amount' , 'is_intvntory',
+                'salerate'
             )
 
             # Remove duplicates using a dictionary to retain the first occurrence
             unique_items = {item['description']: item for item in items}.values()
-
+        
             # Convert to a list for further processing
             items = list(unique_items)
-            return JsonResponse({'success': True, 'items': list(items)}, status=200)
+            
+            last_item = items[-1] if items else None
+
+            # Return the last item in the response
+            return JsonResponse({'success': True, 'items': [last_item]}, status=200)
         
         return JsonResponse({'success': False, 'error': 'No description provided.'}, status=400)
 

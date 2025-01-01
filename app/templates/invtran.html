@@ -1,0 +1,342 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="col-2 float-end">
+    <button class="btn btn-primary  w-100 "   data-bs-toggle="modal"
+    data-bs-target="#backDropModal"><i class='bx bx-search-alt-2'></i> Search By Dates</button>
+</div> 
+
+<div class="col-2 ">
+    <a class="btn btn-warning text-white w-100" onClick="javascript:history.go(-1);">Back</a>
+</div>
+<div class="row">
+ <!-- Bootstrap Table with Header - Light -->
+ <div class=" col-5 mt-5 ">
+    <!-- Display total sum below the second table -->
+    <p><strong>Total Sell Amount: ₹<span id="grandTotal">0</span></strong></p>
+
+    <!-- Add a print button for the second table -->
+    <button onclick="printSecondTable()" class="btn btn-primary mb-3">Print Purchase Table</button>
+
+  <div class="card">
+    <h5 class="card-header">Product Purches Details<br>
+    <SPAN class="">From:{{lastday}} TO {{today}}</SPAN>
+    </h5>
+    <div class="table-responsive text-nowrap">
+      <table class="table" id="secondInvoiceTable">
+        <thead class="table-light">
+          <tr>
+            <th>Date</th>
+            <th>Item</th>
+            <th>Added Quantity</th>
+            <th>Total Amount</th>
+           
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+            {%for data in maindata%}
+          <tr>
+            <td> <strong>{{data.date}}</strong></td>
+            
+            <td>{{data.description}}</td>
+            <td>{{data.quantity}}</td>
+            <td class="total-amount">
+              ₹{{ data.total_amount|floatformat:2 }}
+          </td>
+            
+          </tr>
+          {%endfor%}
+   
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+  <!-- Bootstrap Table with Header - Light -->
+
+
+
+  <!-- Bootstrap Table with Header - Light -->
+ <div class=" col-7 mt-5 ">
+
+  <!-- Display total sum below the table -->
+<p><strong>Total Sell Amount: ₹<span id="totalAmount">0</span></strong></p>
+
+    <!-- Add a print button -->
+    <button onclick="printTable()" class="btn btn-primary mb-3">Print Table</button>
+
+  <div class="card">
+  <h5 class="card-header">Product Selling Details
+  <SPAN class="float-end">From:{{lastday}} TO {{today}}</SPAN>
+  </h5>
+  <div class="table-responsive text-nowrap">
+    <table class="table" id="invoiceTable">
+      <thead class="table-light">
+        <tr>
+          <th>Date</th>
+          <th>Item</th>
+          <th>Selling Quantity</th>
+          <th>Total ₹</th>
+         
+        </tr>
+      </thead>
+      <tbody class="table-border-bottom-0">
+          {%for data in invcselldata%}
+        <tr>
+          <td> <strong>{{data.date}}</strong></td>
+          
+          <td>{{data.description}}</td>
+          <td>{% if data.quantity_likedays %}
+            <!-- If quantity_likedays is available, display it -->
+            {{ data.quantity_likedays }}
+        {% elif data.quantity %}
+            <!-- Else, if quantity is available, display it -->
+            {{ data.quantity }}
+        {% else %}
+            <!-- Optionally display a default message if both are unavailable -->
+            No quantity data available.
+        {% endif %}
+        
+            </td>
+            <td class="total-amount">
+              ₹{{ data.total_amount|floatformat:2 }}  <!-- Ensure it's formatted to 2 decimal places -->
+          </td>
+          
+        </tr>
+        {%endfor%}
+ 
+      
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
+<!-- Bootstrap Table with Header - Light -->
+
+</div>
+
+
+<script type="text/javascript">
+  // Function to print the table with proper layout
+  function printTable() {
+      var printContent = document.getElementById('invoiceTable'); // Get the table element
+      var totalAmount = document.getElementById("totalAmount").innerText; // Get the total amount
+
+      // Open a new window for printing
+      var printWindow = window.open('', '', 'height=600,width=800'); 
+
+      // Write the content for printing, including the total amount
+      printWindow.document.write('<html><head><title>Product Selling Details</title><style>');
+      printWindow.document.write('body { font-family: Arial, sans-serif; }');
+      printWindow.document.write('table { width: 100%; border-collapse: collapse; margin-top: 20px; }');
+      printWindow.document.write('th, td { padding: 8px; text-align: left; border: 1px solid #dee2e6; }');
+      printWindow.document.write('h3 { text-align: center; }');
+      printWindow.document.write('</style></head><body>');
+      printWindow.document.write('<h3>Product Selling Report</h3>'); // Report title
+      printWindow.document.write('<p><strong>Total Sell Amount: ₹' + totalAmount + '</strong></p>'); // Total amount
+      printWindow.document.write(printContent.outerHTML); // Write the table content
+      printWindow.document.write('</body></html>');
+      printWindow.document.close(); // Close the document to prepare for printing
+      printWindow.print(); // Trigger the print dialog
+  }
+</script>
+
+<style>
+  /* CSS for print-friendly layout */
+  @media print {
+      body {
+          font-family: Arial, sans-serif;
+          margin: 0;
+          padding: 0;
+      }
+      .col-7 {
+          width: 100%;
+      }
+      .btn {
+          display: none; /* Hide the print button when printing */
+      }
+      table {
+          width: 100%;
+          border-collapse: collapse;
+      }
+      th, td {
+          padding: 8px;
+          text-align: left;
+          border: 1px solid #dee2e6;
+      }
+      h3 {
+          text-align: center;
+      }
+      .table-light {
+          background-color: #f8f9fa;
+      }
+  }
+</style>
+
+
+<script type="text/javascript">
+  document.addEventListener("DOMContentLoaded", function() {
+      var totalAmount = 0;
+      var rows = document.querySelectorAll("#invoiceTable tbody tr"); // Select all rows in the table body
+
+      // Loop over each row to fetch total amount
+      rows.forEach(function(row) {
+          var amountCell = row.querySelector(".total-amount"); // Get the 'total_amount' column (last column)
+          var amountText = amountCell.innerText.trim(); // Get the text content of the cell
+
+          // Check if there's a valid amount value
+          var amount = parseFloat(amountText.replace('₹', '').trim()); // Remove the ₹ symbol and parse the number
+          if (!isNaN(amount)) {
+              totalAmount += amount; // Sum the valid amounts
+          }
+      });
+
+      // Update the total amount in the span
+      document.getElementById("totalAmount").innerText = totalAmount.toFixed(2); // Show total amount with 2 decimals
+  });
+</script>
+
+
+<script type="text/javascript">
+  // Function to calculate total for the second table on page load
+  document.addEventListener("DOMContentLoaded", function() {
+      var totalAmount = 0;
+      var totalQuantity = 0;
+      var rows = document.querySelectorAll("#secondInvoiceTable tbody tr");
+
+      // Loop through each row of the second table to calculate total
+      rows.forEach(function(row) {
+          var amountCell = row.querySelector(".total-amount");
+          var quantityCell = row.querySelector("td:nth-child(2)");
+
+          var amountText = amountCell.innerText.trim();
+          var quantityText = quantityCell.innerText.trim();
+
+          var amount = parseFloat(amountText.replace('₹', '').trim());
+          var quantity = parseInt(quantityText) || 0;
+
+          if (!isNaN(amount)) {
+              totalAmount += amount;
+          }
+
+          totalQuantity += quantity;
+      });
+
+      // Update the total amount and quantity for the second table
+      document.getElementById("grandTotal").innerText = totalAmount.toFixed(2);
+  });
+
+  // Function to print the second table
+  function printSecondTable() {
+      var printWindow = window.open('', '', 'height=600,width=800');
+      var grandTotal = document.getElementById("grandTotal").innerText;
+
+      // Write the content for printing
+      printWindow.document.write('<html><head><title>Product Purchase Details</title><style>');
+      printWindow.document.write('body { font-family: Arial, sans-serif; }');
+      printWindow.document.write('table { width: 100%; border-collapse: collapse; margin-top: 20px; }');
+      printWindow.document.write('th, td { padding: 8px; text-align: left; border: 1px solid #dee2e6; }');
+      printWindow.document.write('h3 { text-align: center; }');
+      printWindow.document.write('</style></head><body>');
+      printWindow.document.write('<h3>Second Product Selling Report</h3>');
+      printWindow.document.write('<p><strong>Total Sell Amount: ₹' + grandTotal + '</strong></p>');
+      printWindow.document.write(document.getElementById("secondInvoiceTable").outerHTML);
+      printWindow.document.write('</body></html>');
+      printWindow.document.close();
+      printWindow.print();
+  }
+</script>
+
+<style>
+  /* CSS for print-friendly layout for second table */
+  @media print {
+      body {
+          font-family: Arial, sans-serif;
+          margin: 0;
+          padding: 0;
+      }
+      .col-7 {
+          width: 100%;
+      }
+      .btn {
+          display: none; /* Hide the print button when printing */
+      }
+      table {
+          width: 100%;
+          border-collapse: collapse;
+      }
+      th, td {
+          padding: 8px;
+          text-align: left;
+          border: 1px solid #dee2e6;
+      }
+      h3 {
+          text-align: center;
+      }
+      .table-light {
+          background-color: #f8f9fa;
+      }
+  }
+</style>
+  
+<!-- Modal add rooms -->
+<div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'fininvtransectiondata'  %}" method="POST" class="modal-content">
+            {% csrf_token %}
+        <input type="hidden" value="{{itemdata.id}}" name="id" />
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Search Data</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Start Date</label>
+              <input
+                type="date"
+                name="startdate"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter RoomName"
+                required
+              />
+            </div>
+
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">End Date</label>
+                <input
+                  type="date"
+                  name="enddate"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Enter RoomName"
+                  required
+                />
+              </div>
+
+            
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+{% endblock %}

@@ -23,6 +23,7 @@ import threading
 from .newcode import *
 # Create your views here.
 from .dynamicrates import *
+from django.db.models import F
 
 
 
@@ -353,27 +354,53 @@ def invoicepage(request, id):
                 if invoice_data.taxtype == 'GST':
                     gstamounts = invoice_data.gst_amount
                     sstamounts = invoice_data.sgst_amount
-                    return render(request, 'invoicepage.html', {
-                        'profiledata': profiledata,
-                        'guestdata': guestdata,
-                        'invoice_data': invoice_datas,
-                        'invoiceitemdata': invoiceitemdata,
-                        'invcpayments':invcpayments,
-                        'gstamounts':gstamounts,
-                        'sstamounts':sstamounts
-                    })
+                    
+                    invcheck =  invoiceDesign.objects.get(vendor=user)
+                    if invcheck.invcdesign==1:
+                        return render(request, 'invoicepage.html', {
+                            'profiledata': profiledata,
+                            'guestdata': guestdata,
+                            'invoice_data': invoice_datas,
+                            'invoiceitemdata': invoiceitemdata,
+                            'invcpayments':invcpayments,
+                            'gstamounts':gstamounts,
+                            'sstamounts':sstamounts
+                        })
+                    elif invcheck.invcdesign==2:
+                        return render(request, 'invoicepage2.html', {
+                            'profiledata': profiledata,
+                            'guestdata': guestdata,
+                            'invoice_data': invoice_datas,
+                            'invoiceitemdata': invoiceitemdata,
+                            'invcpayments':invcpayments,
+                            'gstamounts':gstamounts,
+                            'sstamounts':sstamounts
+                        })
+                        
+                        
                 else:
                     istamts = invoice_data.sgst_amount + invoice_data.gst_amount
-
-                    return render(request, 'invoicepage.html', {
-                        'profiledata': profiledata,
-                        'guestdata': guestdata,
-                        'invoice_data': invoice_datas,
-                        'invoiceitemdata': invoiceitemdata,
-                        'invcpayments':invcpayments,
-                        
-                        'istamts':istamts
-                    })
+                    invcheck =  invoiceDesign.objects.get(vendor=user)
+                    if invcheck.invcdesign==1:
+                        return render(request, 'invoicepage.html', {
+                            'profiledata': profiledata,
+                            'guestdata': guestdata,
+                            'invoice_data': invoice_datas,
+                            'invoiceitemdata': invoiceitemdata,
+                            'invcpayments':invcpayments,
+                            
+                            'istamts':istamts
+                        })
+                    elif invcheck.invcdesign==2:
+                        return render(request, 'invoicepage2.html', {
+                            'profiledata': profiledata,
+                            'guestdata': guestdata,
+                            'invoice_data': invoice_datas,
+                            'invoiceitemdata': invoiceitemdata,
+                            'invcpayments':invcpayments,
+                            
+                            'istamts':istamts
+                        })
              
         else:
             return render(request, 'login.html')
@@ -1475,9 +1502,24 @@ def cancelroom(request):
             user=request.user
             roomno = request.POST.get('roomno')
             invoice_id = request.POST.get('invoice_id')
+            
             guest_id = request.POST.get('guest_id')
             guestdatas = Gueststay.objects.get(vendor=user,id=guest_id)
             if Gueststay.objects.filter(vendor=user,id=guest_id).exists():
+                if Invoice.objects.filter(vendor=user,id=invoice_id).exists():
+                    invcsadata = Invoice.objects.get(vendor=user,id=invoice_id)
+                    mftdata = InvoiceItem.objects.filter(vendor=user,invoice=invcsadata)
+                    for i in mftdata:
+                        i.description
+                        if Items.objects.filter(vendor=user,description=i.description).exists():
+                            Items.objects.filter(vendor=user,description=i.description).update(
+                                available_qty=F('available_qty')+i.quantity_likedays
+                            )
+                            
+                        else:
+                            pass
+                else:
+                    pass
                 if RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id=guestdatas.saveguestid).exists():
                   
                     # saveguestid = RoomBookAdvance.objects.filter(vendor=user,roomno__room_name = roomno,bookingguestphone = guestdatas.guestphome,bookingdate__range = [guestdatas.checkindate , guestdatas.checkoutdate])
@@ -2517,9 +2559,17 @@ def deleteitemstofolio(request):
                             subtotalamt = invoicedata.subtotal_amount - invoiceamt
                             grandtotalamt = invoicedata.grand_total_amount - invoiceamt
                             dueamount = invoicedata.Due_amount - invoiceamt
+                            if Items.objects.filter(vendor=user,description=invoiceitemdata.description).exists():
+                                Items.objects.filter(vendor=user,description=invoiceitemdata.description).update(
+                                    available_qty=F('available_qty')+invoiceitemdata.quantity_likedays,
+                                )
+                            else:
+                                pass
                             Invoice.objects.filter(vendor=user,id=invoiceid).update(total_item_amount=totalamt,subtotal_amount=subtotalamt,
                                                             grand_total_amount=grandtotalamt,Due_amount=dueamount)
                             InvoiceItem.objects.filter(vendor=user,id=invoiceitemsid,invoice_id=invoiceid).delete()
+                            
+                            
                             
                         else:
                             invoiceamt = invoiceitemdata.total_amount
@@ -2532,6 +2582,13 @@ def deleteitemstofolio(request):
                             gstamt = invoicedata.gst_amount - (invoiceamt-priceproduct*qtys)/2
                             grandtotalamt = invoicedata.grand_total_amount - invoiceamt
                             dueamount = invoicedata.Due_amount - invoiceamt
+                            if Items.objects.filter(vendor=user,description=invoiceitemdata.description).exists():
+                                Items.objects.filter(vendor=user,description=invoiceitemdata.description).update(
+                                    available_qty=F('available_qty')+invoiceitemdata.quantity_likedays,
+                                )
+                            else:
+                                pass
+                            
                             Invoice.objects.filter(vendor=user,id=invoiceid).update(gst_amount=gstamt,sgst_amount=cgstamt,
                                                                                     total_item_amount=totalamt,subtotal_amount=subtotalamt,
                                                                                     grand_total_amount=grandtotalamt,Due_amount=dueamount)
