@@ -312,8 +312,10 @@
                                 <span class="text float-end">₹ {{data.sgst_amount}}</span>
                             {%else%}
                             <span class="text w-50">Igst Total</span> 
-                            <span class="text float-end">₹ {{data.gst_amount|add:data.sgst_amount}}</span><br>
+                            <span class="text float-end"id="igst"> </span><br>
                             
+                            <input type="hidden" value="{{data.gst_amount}}" id="gstamt"/>
+                            <input type="hidden" value="{{data.sgst_amount}}" id="sgstamt"/>
                             {%endif%}
                     {%endfor%}
                   </li> 
@@ -330,10 +332,7 @@
               </div>
             </div>
 
-            <div class="footer" >
-                {% comment %} <img src="{% static 'undercss/assets/img/avatars/inv2.png'%}" style="padding-top:-225px" class="mb-3" width="100%" alt="Footer Image"> {% endcomment %}
-            <span class="text mb-2 float-end" >WWW.Billzify.com</span>
-            </div>
+           
         </div>
    
     
@@ -363,7 +362,28 @@
     </html>
 
 
+    <script>
+        // Function to add two float values
+        function addValues() {
+            // Parse values from the HTML data attributes
+            const value1 = new Decimal(document.getElementById("gstamt").value);
+            const value2 = new Decimal(document.getElementById("sgstamt").value);
 
+            // Perform precise addition
+            const sum = value1.plus(value2);
+
+            // Display the result
+            document.getElementById("igst").textContent = `₹ ${sum.toFixed(2)}`;
+        }
+
+       
+        window.onload = function () {
+            const script = document.createElement('script');
+            script.src = "https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.3.1/decimal.min.js";
+            script.onload = addValues;
+            document.head.appendChild(script);
+        };
+    </script>
 
 
 

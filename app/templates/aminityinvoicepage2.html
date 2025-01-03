@@ -195,17 +195,17 @@
                     {%for iteams in invoiceitemdata%}
                     <tr>
                         <td>{{iteams.description}}<br>
-                                PRICE: {{iteams.price}}<br>
+                                PRICE: ₹{{iteams.price}}<br>
                                 QTY: {{iteams.quantity}}</p>
                         </td>
                         <td>Tax: {{iteams.tax_rate}}%<br>
                             HSN:{{iteams.hsncode}}</td>
                         
-                        <td>{{iteams.total_amount}}</td>
-                        <td>Discount:{{iteams.discount_amount}}<br>
-                            Subtotal:{{iteams.subtotal_amt}}<br>
-                            Tax:{{iteams.tax_amt}}</td>
-                        <td>{{iteams.grand_total}}</td>
+                        <td>₹{{iteams.total_amount}}</td>
+                        <td>Discount:₹{{iteams.discount_amount}}<br>
+                            Subtotal:₹{{iteams.subtotal_amt}}<br>
+                            Tax:₹{{iteams.tax_amt}}</td>
+                        <td>₹{{iteams.grand_total}}</td>
                     </tr>
                     {%endfor%}
                 </tbody>
@@ -239,8 +239,9 @@
                             <li><span><strong>CGST Total:</strong><span>₹{{data.gst_amount}}</span></span></li>
                             {%else%}
                       
-                            <li><span><strong>Igst Total:</strong><span>{{data.gst_amount|add:data.sgst_amount}}</span></span></li>
-                        
+                            <li><span><strong>Igst Total:</strong><span class="text float-end"id="igst"> </span><br></span></li>
+                            <input type="hidden" value="{{data.gst_amount}}" id="gstamt"/>
+                            <input type="hidden" value="{{data.sgst_amount}}" id="sgstamt"/>
                             
                             {%endif%}
                    
@@ -258,3 +259,27 @@
     </div>
 </body>
 </html>
+
+
+<script>
+    // Function to add two float values
+    function addValues() {
+        // Parse values from the HTML data attributes
+        const value1 = new Decimal(document.getElementById("gstamt").value);
+        const value2 = new Decimal(document.getElementById("sgstamt").value);
+
+        // Perform precise addition
+        const sum = value1.plus(value2);
+
+        // Display the result
+        document.getElementById("igst").textContent = `₹ ${sum.toFixed(2)}`;
+    }
+
+   
+    window.onload = function () {
+        const script = document.createElement('script');
+        script.src = "https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.3.1/decimal.min.js";
+        script.onload = addValues;
+        document.head.appendChild(script);
+    };
+</script>
