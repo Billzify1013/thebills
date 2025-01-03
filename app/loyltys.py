@@ -1050,15 +1050,28 @@ def aminitiesinvoice(request, id):
                 invoiceitemdata = AminitiesInvoiceItem.objects.filter(
                     vendor=user, invoice_id=invcid
                 )
-                return render(
-                    request,
-                    "aminityinvoicepage.html",
-                    {
-                        "profiledata": profiledata,
-                        "invoice_data": invoice_data,
-                        "invoiceitemdata": invoiceitemdata,
-                    },
-                )
+                invcheck =  invoiceDesign.objects.get(vendor=user)
+                if invcheck.invcdesign==1:
+                    return render(
+                        request,
+                        "aminityinvoicepage.html",
+                        {
+                            "profiledata": profiledata,
+                            "invoice_data": invoice_data,
+                            "invoiceitemdata": invoiceitemdata,
+                        },
+                    )
+                elif invcheck.invcdesign==2:
+                    return render(
+                        request,
+                        "aminityinvoicepage2.html",
+                        {
+                            "profiledata": profiledata,
+                            "invoice_data": invoice_data,
+                            "invoiceitemdata": invoiceitemdata,
+                        },
+                    )
+
             else:
                 messages.error(request, "Invoice Not Saved!")
                 return redirect("aminityinvoice")
