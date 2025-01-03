@@ -362,7 +362,7 @@ html, body {
                 <div class="row">
                     <div class="col-12 pt-1">
                         <b>{{ plan.rate_plan_name }}</b> 
-
+                            
                         <button class="btn btn-light float-end" data-bs-toggle="modal" data-bs-target="#planModal{{ forloop.counter }}">
                             <i class="bi bi-info-circle"></i> 
                         </button>
@@ -437,6 +437,7 @@ html, body {
         onclick="handleAddToCartAnimation(this, '{{ forloop.counter }}', 
                           '{{ room.category_name }}', 
                           '{{ plan.rate_plan_name }}', 
+                          '{{plan.rate_plan_code}}',
                           {{ plan.max_persons }}, 
                           {{ plan.childmaxallowed }}, 
                           {{ room.uprice|add:plan.base_price }}, 
@@ -467,9 +468,9 @@ html, body {
     <!-- Header End -->
 
     <script>
-        function handleAddToCartAnimation(button, roomId, categoryName, ratePlanName, adults, children, roomPrice, taxRate, availableRooms, offerAmount) {
+        function handleAddToCartAnimation(button, roomId, categoryName, ratePlanName, ratePlanCode, adults, children, roomPrice, taxRate, availableRooms, offerAmount) {
             // Trigger the cart functionality
-            addToCart(roomId, categoryName, ratePlanName, adults, children, roomPrice, taxRate, availableRooms, offerAmount);
+            addToCart(roomId, categoryName, ratePlanName, ratePlanCode, adults, children, roomPrice, taxRate, availableRooms, offerAmount);
     
             // Create hearts and add animation above the button
             const buttonRect = button.getBoundingClientRect(); // Get button position
@@ -721,6 +722,7 @@ html, body {
         const cheapestRoomId = "{{ cheapest_room.id|default:'' }}";
         const cheapestRoomCategory = "{{ cheapest_room.category_name|escapejs }}";
         const cheapestRatePlanName = "{{ cheapest_rate_plan.rate_plan_name|escapejs }}";
+        const cheapestRatePlanCode = "{{cheapest_rate_plan.rate_plan_code|escapejs}}";
         const cheapestRoomAdults = parseInt("{{ cheapest_rate_plan.max_persons|default:0 }}");
         const cheapestRoomChildren = parseInt("{{ cheapest_rate_plan.childmaxallowed|default:0 }}");
         const cheapestRoomPrice = parseFloat("{{ lowest_price|default:0 }}");
@@ -733,6 +735,7 @@ html, body {
                 cheapestRoomId,
                 cheapestRoomCategory,
                 cheapestRatePlanName,
+                cheapestRatePlanCode,
                 cheapestRoomAdults,
                 cheapestRoomChildren,
                 cheapestRoomPrice,
@@ -756,12 +759,13 @@ html, body {
     }
 
     // Add room to the cart
-    function addToCart(roomId, categoryName, ratePlanName, adults, children, roomPrice, taxRate, availableRooms, offerAmount) {
+    function addToCart(roomId, categoryName, ratePlanName,ratePlanCode ,adults, children, roomPrice, taxRate, availableRooms, offerAmount) {
         if (!cart[roomId]) {
             cart[roomId] = {
                 count: 0,
                 category: categoryName,
                 ratePlan: ratePlanName,
+                ratePlancode:ratePlanCode,
                 adultsPerRoom: adults,
                 childrenPerRoom: children,
                 price: roomPrice,
@@ -842,7 +846,7 @@ html, body {
                         <p>Price: ₹${room.price} | Tax Rate: ${room.taxRate}%</p>
                     </div>
                     <div class="d-flex align-items-center">
-                        <button class="btn btn-success me-2" onclick="addToCart('${roomId}', '${room.category}', '${room.ratePlan}', ${room.adultsPerRoom}, ${room.childrenPerRoom}, ${room.price}, ${room.taxRate}, ${room.max}, ${room.offerAmount})" ${
+                        <button class="btn btn-success me-2" onclick="addToCart('${roomId}', '${room.category}', '${room.ratePlan}', ${room.ratePlancode},${room.adultsPerRoom}, ${room.childrenPerRoom}, ${room.price}, ${room.taxRate}, ${room.max}, ${room.offerAmount})" ${
                             cart[roomId].count >= room.max ? "disabled" : ""
                         }>+</button>
                         <span>${room.count}</span>
@@ -917,6 +921,7 @@ html, body {
                         count: cart[roomId].count,
                         category: cart[roomId].category,
                         ratePlan: cart[roomId].ratePlan,
+                        ratePlancode:cart[roomId].ratePlancode,
                         price: cart[roomId].price,
                         taxRate: cart[roomId].taxRate,
                         offerAmount: cart[roomId].offerAmount,

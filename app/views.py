@@ -3167,6 +3167,7 @@ def cart_processing(request):
             for item in cart_items:
                 category_name = item['category']
                 rate_plan = item['ratePlan']
+                rate_plan_code = item['ratePlancode']
                 ads = item['adults'] // item['count']
                 cds = item['children'] // item['count']
                 available_rooms = Rooms.objects.filter(
@@ -3178,10 +3179,11 @@ def cart_processing(request):
                         Q(check_out_date__gt=check_in_date)
                     ).values_list('room_id', flat=True)
                 )
-              
-                if RatePlan.objects.filter(vendor_id=userids,rate_plan_name=rate_plan,max_persons=ads,childmaxallowed=cds).exists():
-                    rdatas = RatePlan.objects.get(vendor_id=userids,rate_plan_name=rate_plan,max_persons=ads,childmaxallowed=cds)
+                
+                if RatePlan.objects.filter(vendor_id=userids,rate_plan_name=rate_plan,rate_plan_code=rate_plan_code).exists():
+                    rdatas = RatePlan.objects.get(vendor_id=userids,rate_plan_name=rate_plan,rate_plan_code=rate_plan_code)
                     ratecodes = rdatas.rate_plan_code
+                    
                 else:
                     ratecodes=''
                 for loop in range(item['count']):
