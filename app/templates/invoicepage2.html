@@ -9,10 +9,10 @@
             margin: 0;
             padding: 0;
             font-family: Arial, sans-serif;
-            background: url('Pratikalpa-Letterhead.jpg') no-repeat center top;
+           
             background-size: cover;
             width: 210mm;
-            height: 297mm;
+            height: auto;
             box-sizing: border-box;
         }
 
@@ -21,8 +21,9 @@
             top: 0;
             left: 0;
             width: 210mm; /* A4 width */
-            height: 297mm; /* A4 height */
-            padding: 60mm 20mm 20mm; /* Adjust padding to align content */
+            height: auto; /* Dynamic height for content */
+            padding: 60mm 20mm 20mm; /* Adjust padding */
+            box-sizing: border-box;
         }
 
         .header {
@@ -75,17 +76,16 @@
             gap: 10px;
         }
 
-        /* Adjust the width ratio of payment and subtotal divs */
         .payment-summary .payments-table {
-            width: 55%; /* 55% width for payments table */
+            width: 55%;
         }
 
         .payment-summary .breakdown {
-            width: 40%; /* 40% width for subtotal and grand total */
+            width: 40%;
             padding: 15px;
-            border: 1px solid #000; /* Regular border thickness */
+            border: 1px solid #000;
             border-radius: 5px;
-            font-size: 14px; /* Normal font size */
+            font-size: 14px;
             line-height: 1.5;
         }
 
@@ -96,20 +96,19 @@
         }
 
         .breakdown ul li {
-            margin-bottom: 10px; /* Normal spacing between items */
+            margin-bottom: 10px;
         }
 
         .breakdown ul li:last-child {
-            font-weight: normal; /* Keep the font weight normal */
-            font-size: 14px; /* Keep the font size normal for last item (Grand Total) */
+            font-weight: normal;
+            font-size: 14px;
         }
 
         .dashed-line {
             border-top: 2px dashed #000;
-            margin: 10px 0; /* Add margin around the dashed line */
+            margin: 10px 0;
         }
 
-        /* Align values of Subtotal, SGST, CGST, and Grand Total to the right */
         .breakdown ul li span {
             display: flex;
             justify-content: space-between;
@@ -117,40 +116,64 @@
 
         .breakdown ul li span strong {
             text-align: left;
-            width: 80%; /* Left side label (e.g., Subtotal) */
+            width: 80%;
         }
 
         .breakdown ul li span span {
             text-align: right;
-            width: 20%; /* Right side value (e.g., ₹value) */
+            width: 20%;
+        }
+
+        #download-btn, #print-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+
+        #download-btn {
+            bottom: 80px; /* Position Download above Print */
+        }
+
+        #download-btn:focus, #print-btn:focus {
+            outline: none;
         }
 
         @media print {
+            #download-btn, #print-btn {
+                display: none; /* Hide both buttons during printing */
+            }
+
+            /* Hide background image during print */
             body {
+                background: none !important;
+            }
+
+            /* Remove all headers/footers for clean print (applies to Chrome/Edge) */
+            @page {
+                margin: 0;
+                size: A4;
+            }
+
+            html, body {
                 margin: 0;
                 padding: 0;
-                background: url('Pratikalpa-Letterhead.jpg') no-repeat center top;
-                background-size: cover;
             }
+
+            /* Hide browser URL, page number, etc. */
+            body {
+                -webkit-print-color-adjust: exact;
+            }
+
+            /* Hide extra unwanted elements */
             .container {
-                padding: 60mm 20mm 20mm;
-                margin: 0;
-            }
-
-            /* Ensure only pages with content are printed */
-            .container {
-                page-break-before: auto;
-                page-break-inside: avoid;
-            }
-
-            /* Prevent blank pages when no content is present */
-            .breakdown {
-                page-break-inside: avoid; /* Prevent page breaks inside the breakdown section */
-            }
-
-            /* To ensure page break occurs only when needed */
-            table, .payment-summary {
-                page-break-inside: auto;
+                page-break-before: always;
             }
         }
     </style>
@@ -296,6 +319,75 @@
 
         
     </div>
+
+
+
+
+      <!-- Buttons for Print and PDF Download -->
+    <button id="download-btn" onclick="generatePDF()">Download as PDF</button>
+    <button id="print-btn" onclick="printInvoice()">Print Invoice</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        // Generate PDF functionality
+        async function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const content = document.querySelector('.container');
+            const button = document.getElementById('download-btn');
+            button.style.display = 'none';  // Hide the button before generating the PDF
+
+            const canvas = await html2canvas(content, {
+                scale: 3, // Increase scale for better resolution
+                useCORS: true,
+                allowTaint: false,
+            });
+
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4',
+            });
+
+            const imgWidth = 210; // A4 width
+            const pageHeight = 297; // A4 height
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+            let position = 0;
+            if (imgHeight > pageHeight) {
+                let heightLeft = imgHeight;
+                while (heightLeft > 0) {
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                    position -= pageHeight;
+                    if (heightLeft > 0) {
+                        pdf.addPage();
+                        position = 0;
+                    }
+                }
+            } else {
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            }
+
+            pdf.save('invoice.pdf');
+            button.style.display = 'block';  // Show the button again after the download
+        }
+
+        // Print functionality
+        function printInvoice() {
+            const button = document.getElementById('print-btn');
+            const dbutton = document.getElementById('download-btn');
+            
+            button.style.display = 'none';  // Hide print button before printing
+            window.print();  // Trigger print dialog
+            button.style.display = 'block';  // Show the button again after printing
+
+            dbutton.style.display = 'none';  // Hide print button before printing
+             // Trigger print dialog
+            dbutton.style.display = 'block';  // Show the button again after printing
+        }
+    </script>
 </body>
 </html>
 

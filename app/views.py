@@ -2052,8 +2052,10 @@ def addadvancebooking(request):
                         profilename = HotelProfile.objects.get(vendor=user)
                         mobile_number = phone
                         
-                        message_content = f"Dear guest, Your booking at {profilename.name} is confirmed. Advance payment of Rs.{advanceamount} received. Check-in date: {bookingdate}. We're thrilled to host you and make your stay unforgettable. For assistance, contact us at {profilename.contact}. -BILLZIFY"
-                            
+                        # message_content = f"Dear guest, Your booking at {profilename.name} is confirmed. Advance payment of Rs.{advanceamount} received. Check-in date: {bookingdate}. We're thrilled to host you and make your stay unforgettable. For assistance, contact us at {profilename.contact}. -BILLZIFY"
+                        oururl = 'https://live.billzify.com/receipt/88/'
+                        message_content = f"Hello {guestname}, Your reservation is confirmed. View your booking details here: {oururl}-BILLZIFY"
+                        
                         base_url = "http://control.yourbulksms.com/api/sendhttp.php"
                         params = {
                             'authkey': settings.YOURBULKSMS_API_KEY,
@@ -2061,7 +2063,7 @@ def addadvancebooking(request):
                             'sender':  'BILZFY',
                             'route': '2',
                             'country': '0',
-                            'DLT_TE_ID': '1707171861809414803'
+                            'DLT_TE_ID': '1707173591598264389'
                         }
                         encoded_message = urllib.parse.urlencode({'message': message_content})
                         url = f"{base_url}?authkey={params['authkey']}&mobiles={params['mobiles']}&sender={params['sender']}&route={params['route']}&country={params['country']}&DLT_TE_ID={params['DLT_TE_ID']}&{encoded_message}"
@@ -3326,11 +3328,13 @@ def receipt_view(request, booking_id):
             vid = i.vendor.id
         advancebookingdatas = RoomBookAdvance.objects.filter(saveguestdata_id=booking_id)
         hoteldata = HotelProfile.objects.filter(vendor_id=vid)
-
+        hoteldatas = HotelProfile.objects.get(vendor_id=vid)
+        terms_lines = hoteldatas.termscondition.splitlines() if hoteldatas else []
         return render(request, 'bookingrecipt.html', {
             'advancebookdata': advancebookdata,
             'advancebookingdatas': advancebookingdatas,
-            'hoteldata': hoteldata
+            'hoteldata': hoteldata,
+            'terms_lines':terms_lines
         })
        
     except Exception as e:

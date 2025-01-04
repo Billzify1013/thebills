@@ -192,8 +192,16 @@
      {%if data.segment == 'BOOKING-ENGINE' %}
     <div class="divider"></div>
     <p class="footer">Thank you for staying with us! We look forward to welcoming you again.</p>
-    
-    <a class="btn btn-danger" href="#" onclick="openModal({{ data.id }})">
+
+    <div class="form-group mb-5  ">
+      <label for="full-name"><b>Terms & Conditions</b><br><br>
+      {% for line in terms_lines %}
+          <span>{{ line }}</span><br>
+      {% endfor %}
+
+      <div>
+  </div>
+    <a class="btn btn-danger mt-5" href="#" onclick="openModal({{ data.id }})">
       <i class="bx bx-trash me-1"></i> Cancel
   </a>
 </div>
