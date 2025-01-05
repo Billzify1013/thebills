@@ -442,12 +442,21 @@ def addadvancebookingfromtrvel(request):
                     
                     for inventory in existing_inventory:
                         if inventory.total_availibility > 0:  # Ensure there's at least 1 room available
+                            # Update room availability and booked rooms
                             inventory.total_availibility -= 1
                             inventory.booked_rooms += 1
-                            if inventory.occupancy+occupancy==99:
-                                inventory.occupancy=100
+
+                            # Calculate total rooms
+                            total_rooms = inventory.total_availibility + inventory.booked_rooms
+
+                            # Recalculate the occupancy rate
+                            if total_rooms > 0:
+                                # Directly calculate occupancy as the percentage of booked rooms
+                                inventory.occupancy = (inventory.booked_rooms / total_rooms) * 100
                             else:
-                                inventory.occupancy +=occupancy
+                                inventory.occupancy = 0  # Avoid division by zero if no rooms exist
+
+                            # Save the updated inventory
                             inventory.save()
                     
                     catdatas = RoomsCategory.objects.get(vendor=user,id=roomtype)

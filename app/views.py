@@ -1051,10 +1051,39 @@ def addguestdata(request):
                 roomcount = Rooms.objects.filter(vendor=user,room_type_id=roomtype).exclude(checkin=6).count()
              
                 
+                # for inventory in existing_inventory:
+                #     if inventory.total_availibility > 0:  # Ensure there's at least 1 room available
+                #         inventory.total_availibility -= 1
+                #         inventory.booked_rooms += 1
+
+                #         # Calculate the new occupancy rate
+                #         total_rooms = inventory.total_availibility + inventory.booked_rooms
+                #         if total_rooms > 0:
+                #             occupancy = (inventory.booked_rooms / total_rooms) * 100
+                #             if inventory.occupancy+occupancy==99:
+                #                     inventory.occupancy=100
+                #             else:
+                #                     inventory.occupancy +=occupancy
+                #         else:
+                #             inventory.occupancy = 0  # Avoid division by zero if no rooms exist
+
+                #         inventory.save()
                 for inventory in existing_inventory:
                     if inventory.total_availibility > 0:  # Ensure there's at least 1 room available
+                        # Update room availability and booked rooms
                         inventory.total_availibility -= 1
                         inventory.booked_rooms += 1
+
+                        # Calculate total rooms
+                        total_rooms = inventory.total_availibility + inventory.booked_rooms
+
+                        # Recalculate the occupancy based on the updated values
+                        if total_rooms > 0:
+                            inventory.occupancy = (inventory.booked_rooms / total_rooms) * 100
+                        else:
+                            inventory.occupancy = 0  # Avoid division by zero if no rooms exist
+
+                        # Save the updated inventory
                         inventory.save()
                 
                 catdatas = RoomsCategory.objects.get(vendor=user,id=roomtype)
@@ -1651,8 +1680,27 @@ def cancelroom(request):
                         avalblty = RoomsInventory.objects.get(id=date.id)
                         avlcount = avalblty.total_availibility
                         bookcounts = avalblty.booked_rooms
-                        RoomsInventory.objects.filter(id=date.id).update(total_availibility=avlcount+1
-                                                                         ,booked_rooms=bookcounts-1)
+                         # Safeguard against invalid operations
+                        if bookcounts > 0:  # Ensure there are booked rooms to cancel
+                            total_rooms = avlcount + bookcounts
+                            
+                            # Update availability and bookings
+                            new_availability = avlcount + 1
+                            new_booked_rooms = bookcounts - 1
+
+                            # Calculate the new occupancy rate
+                            if total_rooms > 0:
+                                new_occupancy_rate = (new_booked_rooms / total_rooms) * 100
+                            else:
+                                new_occupancy_rate = 0
+
+                            # Update the database
+                            RoomsInventory.objects.filter(id=date.id).update(
+                                total_availibility=new_availability,
+                                booked_rooms=new_booked_rooms,
+                                occupancy=new_occupancy_rate
+                            )
+                     
                         
                     # not minus1 to add new var with s
                     checkoutdatedlts = guestdatas.checkoutdate
@@ -2136,18 +2184,29 @@ def addadvancebooking(request):
                     # If there are missing dates, create new entries for those dates in the RoomsInventory model
                     roomcount = Rooms.objects.filter(vendor=user,room_type_id=roomtype).exclude(checkin=6).count()
               
-                    occupancy = (1 * 100 // roomcount)
+                    # occupancy = (1 * 100 // roomcount)
                     
                     for inventory in existing_inventory:
                         
+                       
                         if inventory.total_availibility > 0:  # Ensure there's at least 1 room available
+                            # Update room availability and booked rooms
                             inventory.total_availibility -= 1
                             inventory.booked_rooms += 1
-                            if inventory.occupancy+occupancy==99:
-                                inventory.occupancy=100
+
+                            # Calculate total rooms
+                            total_rooms = inventory.total_availibility + inventory.booked_rooms
+
+                            # Recalculate the occupancy rate
+                            if total_rooms > 0:
+                                # Directly calculate occupancy as the percentage of booked rooms
+                                inventory.occupancy = (inventory.booked_rooms / total_rooms) * 100
                             else:
-                                inventory.occupancy +=occupancy
+                                inventory.occupancy = 0  # Avoid division by zero if no rooms exist
+
+                            # Save the updated inventory
                             inventory.save()
+
                     
                     catdatas = RoomsCategory.objects.get(vendor=user,id=roomtype)
                     totalrooms = Rooms.objects.filter(vendor=user,room_type_id=roomtype).exclude(checkin=6).count()

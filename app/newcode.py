@@ -214,6 +214,7 @@ def inventory_push(request):
                 end_date = start_date +  timedelta(days=10)
                 start_date=str(start_date)
                 end_date = str(end_date)
+                print(end_date,start_date,"dates")
                 # start_date = request.POST.get('startDate', '2024-10-22')
                 # end_date = request.POST.get('endDate', '2024-10-30')
                 
@@ -312,28 +313,31 @@ def update_inventory(user, start_date_str, end_date_str):
                 })
 
         # Prepare the data to send to the external API
-        vndorcms = VendorCM.objects.get(vendor=user)
-        hotelscodecm = vndorcms.hotelcode
-        data = {
-            "hotelCode": hotelscodecm,  # Update this with your actual hotel code
-            "updates": inventory_updates
-        }
-        
-        # Send the request to the external API
-        url = "https://live.aiosell.com/api/v2/cm/update/sample-pms"  # Update with the actual API endpoint
-        headers = {
-            "Content-Type": "application/json"
-        }
+        if VendorCM.objects.filter(vendor=user).exists():
+            vndorcms = VendorCM.objects.get(vendor=user)
+            hotelscodecm = vndorcms.hotelcode
+            data = {
+                "hotelCode": hotelscodecm,  # Update this with your actual hotel code
+                "updates": inventory_updates
+            }
+            
+            # Send the request to the external API
+            url = "https://live.aiosell.com/api/v2/cm/update/sample-pms"  # Update with the actual API endpoint
+            headers = {
+                "Content-Type": "application/json"
+            }
 
-        response = requests.post(url, headers=headers, data=json.dumps(data))
-        response_data = response.json()
+            response = requests.post(url, headers=headers, data=json.dumps(data))
+            response_data = response.json()
 
-        if response.status_code == 200 and response_data.get("success"):
-            print("Inventory updated successfully.last function")
-            return True  # Indicate that the update was successful
+            if response.status_code == 200 and response_data.get("success"):
+                print("Inventory updated successfully.last function")
+                return True  # Indicate that the update was successful
+            else:
+                print(f"Failed to update inventory: {response_data.get('message', 'Unknown error')}")
+                return False  # Indicate that the update failed
         else:
-            print(f"Failed to update inventory: {response_data.get('message', 'Unknown error')}")
-            return False  # Indicate that the update failed
+            return False
 
     except Exception as e:
         print(f"Error occurred while updating inventory: {str(e)}")
