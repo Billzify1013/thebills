@@ -1845,18 +1845,18 @@ def login_view(request):
                 login(request, user)
                 
                 # Set session expiry to midnight
-                tomorrow = timezone.now() + timedelta(days=1)
-                midnight = datetime.combine(tomorrow, datetime.min.time())  # Create naive datetime for midnight
+                # tomorrow = timezone.now() + timedelta(days=1)
+                # midnight = datetime.combine(tomorrow, datetime.min.time())  # Create naive datetime for midnight
                 
-                # Convert midnight to timezone-aware datetime (assuming the timezone is UTC)
-                midnight = timezone.make_aware(midnight, timezone.utc)
+                # # Convert midnight to timezone-aware datetime (assuming the timezone is UTC)
+                # midnight = timezone.make_aware(midnight, timezone.utc)
                 
-                # Calculate seconds until midnight
-                seconds_until_midnight = (midnight - timezone.now()).seconds
-                request.session.set_expiry(seconds_until_midnight)  # Set session expiry to midnight
+                # # Calculate seconds until midnight
+                # seconds_until_midnight = (midnight - timezone.now()).seconds
+                # request.session.set_expiry(seconds_until_midnight)  # Set session expiry to midnight
 
-                # Save session
-                request.session.save()  # Make sure session data is saved
+                # # Save session
+                # request.session.save()  # Make sure session data is saved
 
                 # Check subscription status
                 subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
