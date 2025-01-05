@@ -73,7 +73,9 @@ urlpatterns = [
     path('updateitems/',employeemanage.updateitems,name="updateitems"),
     path('setivcpermission/',employeemanage.setivcpermission,name="setivcpermission"),
     path('invtransection/<int:id>/',employeemanage.invtransection,name="invtransection"),
-    
+    path('cleanpermission/<int:id>/',employeemanage.cleanpermission,name="cleanpermission"),
+    path('deletesubuser/<int:id>/',employeemanage.deletesubuser,name="deletesubuser"),
+
     path('fininvtransectiondata/',employeemanage.fininvtransectiondata,name="fininvtransectiondata"),
     path('additemstofolio/',employeemanage.additemstofolio,name="additemstofolio"),
     path('addlaundryitems/',employeemanage.addlaundryitems,name="addlaundryitems"),

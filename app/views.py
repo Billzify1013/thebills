@@ -1832,6 +1832,13 @@ def login_view(request):
                     subuser = Subuser.objects.get(user=user)
                     request.session['is_subuser'] = True
                     request.session['permissions'] = subuser.permissions  # Store permissions in session
+                    if subuser.is_cleaner==True:
+                        login(request, user)
+                        messages.success(request, 'Successfully logged in!')
+                        url = reverse('roomclean', args=[user.id])
+                        return redirect(url)
+                    else:
+                        pass
                 else:
                     # Main user - full access
                     request.session['is_subuser'] = False

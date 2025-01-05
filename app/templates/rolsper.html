@@ -308,16 +308,20 @@
                             <th>user</th>
                             <th>email</th>
                             <th>Set Password</th>
+                            <th>Cleaner Permission</th>
+                            <th>Delete User</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for sub in subuser %}
                         <tr>
-                            <td>{{sub.user.username}}</td>
+                            <td>{{sub.user.username}}<br>{%if sub.is_cleaner%}<span class="text-primary">Cleaner Staff</span>{%endif%}</td>
                             <td>
                                 {{sub.user.email}}
                             </td>
                             <td><a href="{% url 'password_reset' %}">Set Password</a></td>
+                            <td><a href="{% url 'cleanpermission' id=sub.id %}">Change Clean Permission</a></td>
+                            <td><a href="{% url 'deletesubuser' id=sub.id %}">Delete</a></td>
                         </tr>
                         {%endfor%}
                         

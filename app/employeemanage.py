@@ -724,8 +724,13 @@ def roomclean(request,user):
     try:
             user = user 
             subuser = Subuser.objects.select_related('vendor').filter(user_id=user).first()
+            permission = False
             if subuser:
                 user = subuser.vendor  
+                if subuser.is_cleaner:
+                    permission=True
+            elif user:
+                permission=True
             today = datetime.now().date()
             lastday = datetime.now().date()
             lastday -= timedelta(days=1)
@@ -734,14 +739,45 @@ def roomclean(request,user):
             cleanrooms = RoomCleaning.objects.filter(vendor=user, current_date=today, status=True)
             hotelnames = HotelProfile.objects.get(vendor=user)
             hotelname = hotelnames.name
+
             return render(request, 'roomclean.html', {
                 'active_page': 'roomclean',
                 'rooms': roomdata,
-                'hotelname':hotelnames
+                'hotelname':hotelnames,
+                'permission':permission
             })
        
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)    
+    
+def cleanpermission(request,id):
+    try:
+        if Subuser.objects.filter(id=id).exists():
+            messages.success(request,"Permission Granted User See ONly Cleaning!")
+            sbdata = Subuser.objects.get(id=id)
+            if sbdata.is_cleaner:
+                Subuser.objects.filter(id=id).update(is_cleaner=False)
+            else:
+                Subuser.objects.filter(id=id).update(is_cleaner=True)
+        else:
+            messages.error(request,"Invalid sub user")
+        
+        return redirect('rollspermission') 
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)   
+    
+def deletesubuser(request,id):
+    try:
+        if Subuser.objects.filter(id=id).exists():
+            messages.success(request,"Permission Granted User See ONly Cleaning!")
+            Subuser.objects.filter(id=id).delete()
+        else:
+                    
+            messages.error(request,"Invalid sub user")
+        
+        return redirect('rollspermission') 
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)   
     
 
          

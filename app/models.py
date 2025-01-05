@@ -738,6 +738,7 @@ class Subuser(models.Model):
     vendor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subusers')
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='subuser_profile')
     permissions = models.JSONField(default=dict)  # JSONField to store permissions
+    is_cleaner = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.user.username} (Subuser of {self.vendor.username})"
