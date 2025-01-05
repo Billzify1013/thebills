@@ -11,6 +11,9 @@ def comaypage(request):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor 
             companydata= Companies.objects.filter(vendor=user)
             return render(request,'companypage.html',{'active_page':'comaypage','companydata':companydata})
         else:
@@ -24,6 +27,9 @@ def comaypage(request):
 def add_company(request):
     if request.user.is_authenticated:
         user = request.user
+        subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+        if subuser:
+            user = subuser.vendor 
         if request.method == "POST":
             # Get form data from the POST request
             companyname = request.POST.get("companyname")
@@ -77,7 +83,11 @@ def deletecompany(request,id):
 
 def get_companies(request):
     if request.user.is_authenticated:
-        companies = Companies.objects.filter(vendor=request.user).values('id', 'companyname', 'contact')
+        user=request.user
+        subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+        if subuser:
+            user = subuser.vendor 
+        companies = Companies.objects.filter(vendor=user).values('id', 'companyname', 'contact')
         return JsonResponse(list(companies), safe=False)
     return JsonResponse({'error': 'Unauthorized'}, status=401)
 
@@ -95,7 +105,11 @@ def submit_form(request):
             return JsonResponse({'status': 'error', 'message': 'Company and Invoice are required fields.'})
 
         try:
-            company = Companies.objects.get(id=company_id, vendor=request.user)
+            user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor 
+            company = Companies.objects.get(id=company_id, vendor=user)
             invoice = Invoice.objects.get(id=invoice_id)
             
             val = invoice.grand_total_amount
@@ -106,7 +120,7 @@ def submit_form(request):
             else:
                 # Create a new companyinvoice record
                 company_invoice = companyinvoice.objects.create(
-                    vendor=request.user,
+                    vendor=user,
                     company=company,
                     Invoicedata=invoice,
                     Value=val,

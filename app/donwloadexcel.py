@@ -19,6 +19,7 @@ def exceldatapage(request):
         if request.user.is_authenticated:
             # Validate the month
             user=request.user
+            
             return render(request,'showexceldata.html',{'active_page': 'exceldatapages ',})
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)    
@@ -29,6 +30,9 @@ def generate_invoice_excel(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor 
             month = int(request.POST.get('monthnumber'))
             if not 1 <= month <= 12:
                 messages.error(request, "Select Correct month")
@@ -38,7 +42,7 @@ def generate_invoice_excel(request):
             invoices = Invoice.objects.filter(
                 invoice_date__month=month,
                 invoice_status=True,
-                vendor=request.user
+                vendor=user
             ).order_by('invoice_number')
 
             # Create a new Workbook
@@ -105,6 +109,9 @@ def generate_eventinvoice_excel(request):
     try:
         if request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor 
             month = int(request.POST.get('monthnumber'))
             if not 1 <= month <= 12:
                 messages.error(request, "Please select a valid month.")
@@ -178,6 +185,9 @@ def generate_aminitiesinvoice_excel(request):
     try:
         if request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor 
             month = int(request.POST.get('monthnumber'))
             if not 1 <= month <= 12:
                 messages.error(request, "Please select a valid month.")
@@ -255,6 +265,9 @@ def generate_purchesinvoice_excel(request):
     try:
         if request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor 
             month = int(request.POST.get('monthnumber'))
             if not 1 <= month <= 12:
                 messages.error(request, "Please select a valid month.")

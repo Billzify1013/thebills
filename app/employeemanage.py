@@ -20,6 +20,9 @@ def employee(request):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             empdata = Employee.objects.filter(vendor=user).all()
             return render(request,'employeepage.html',{'active_page': 'employee','empdata':empdata})
         else:
@@ -32,6 +35,9 @@ def addemployee(request):
     try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             firstname = request.POST.get('firstname')
             lastname = request.POST.get('lastname')
             dob = request.POST.get('dob')
@@ -56,6 +62,9 @@ def deleteemployee(request,id):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             if Employee.objects.filter(vendor=user,id=id).exists():
                 Employee.objects.filter(vendor=user,id=id).delete()
                 empdata = Employee.objects.filter(vendor=user).all()
@@ -73,6 +82,9 @@ def updateemployee(request,id):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             # Employee.objects.filter(vendor=user,id=id).update()
             empdata = Employee.objects.filter(vendor=user).all()
             return render(request,'employeepage.html',{'active_page': 'employee','empdata':empdata})
@@ -88,6 +100,9 @@ def dailyattendance(request):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             current_date = datetime.now().date()
            
             
@@ -145,6 +160,9 @@ def employeecheckin(request,dsd):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             current_date = datetime.now().date()
             current_time = datetime.now().time()
             if DailyManagement.objects.filter(vendor=user,employee_id=dsd,date=current_date).exists():
@@ -164,6 +182,9 @@ def employeecheckout(request,dsd):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             current_date = datetime.now().date()
             current_time = datetime.now().time()
             lastday = current_date - timedelta(days=1)
@@ -188,6 +209,9 @@ def employeehalfday(request,dsd):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             current_date = datetime.now().date()
             current_time = datetime.now().time()
             if DailyManagement.objects.filter(vendor=user,employee_id=dsd,date=current_date).exists():
@@ -207,6 +231,9 @@ def attendancepage(request):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             current_date = datetime.now().date()
             empsdata = DailyManagement.objects.filter(vendor=user).all()
             datas = Employee.objects.annotate(attendance_count=Count('dailymanagement')).filter(vendor=user,dailymanagement__date__lt=current_date).values()
@@ -221,6 +248,9 @@ def employeereport(request,eid):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             empattendancedata = DailyManagement.objects.filter(vendor=user,employee_id=eid).order_by('date')
             start_date = DailyManagement.objects.filter(vendor=user,employee_id=eid).earliest('date').date
             last_date = DailyManagement.objects.filter(vendor=user,employee_id=eid).latest('date').date
@@ -294,6 +324,9 @@ def addsalary(request):
     try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             employeeid = request.POST.get('employeeid')
             startdate = request.POST.get('startdate')
             enddate = request.POST.get('enddate')
@@ -368,6 +401,9 @@ def payslippage(request):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             empdata = SalaryManagement.objects.filter(vendor=user)
             return render(request,'payslippage.html',{'empdata':empdata,'active_page': 'payslippage',})
         else:
@@ -380,6 +416,9 @@ def showpayslip(request,eid):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             empdata = SalaryManagement.objects.filter(vendor=user)
             employeedata = SalaryManagement.objects.filter(vendor=user,id=eid)
             return render(request,'payslippage.html',{'empdata':empdata,'employeedata':employeedata,'active_page': 'payslippage',})
@@ -393,6 +432,9 @@ def eventpackage(request):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             eventdata = Events.objects.filter(vendor=user)
             tax = Taxes.objects.filter(vendor=user).all()
             return render(request,'eventpackagepage.html',{'active_page': 'eventpackage','tax':tax,'eventdata':eventdata})
@@ -406,6 +448,9 @@ def createevent(request):
     try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             eventname = request.POST.get('eventname')
             price = request.POST.get('price')
             taxcategory = request.POST.get('taxcategory')
@@ -426,6 +471,9 @@ def searchdateevent(request):
     try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             startdate = request.POST.get('startdate')
             enddate = request.POST.get('enddate')
             dataid = request.POST.get('dataid')
@@ -453,7 +501,9 @@ def billingplanpage(request):
     try:
         if request.user.is_authenticated:
             user = request.user
-
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             # Get the latest subscription for the user
             subscription = Subscription.objects.filter(user=user).order_by('-id').first()
         
@@ -515,6 +565,9 @@ def createeventbooking(request):
     try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             customername = request.POST.get('customername')
             customeremail = request.POST.get('customeremail')
             customerphone = request.POST.get('customerphone')
@@ -552,6 +605,9 @@ def upcomingevent(request):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             eventdata = EventBookGuest.objects.filter(vendor=user)
             return render(request,'upcomingevents.html',{'active_page': 'upcomingevent','eventdata':eventdata})
         else:
@@ -564,6 +620,9 @@ def deleteupcomingevent(request,id):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             eventdata = EventBookGuest.objects.filter(vendor=user)
             if EventBookGuest.objects.filter(vendor=user,id=id).exists():
                 EventBookGuest.objects.filter(vendor=user,id=id).delete()
@@ -580,6 +639,12 @@ def showeventinvoice(request,id):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             if EventBookGuest.objects.filter(vendor=user,id=id).exists():
                 eventdata = EventBookGuest.objects.filter(vendor=user,id=id).all()
                 events = Events.objects.filter(vendor=user)
@@ -599,6 +664,9 @@ def createeventinvoice(request,id):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             if EventBookGuest.objects.filter(vendor=user,id=id,status=False):
                 current_date = datetime.now().date()
                 # Get the current date
@@ -655,6 +723,9 @@ def createeventinvoice(request,id):
 def roomclean(request,user):
     try:
             user = user 
+            subuser = Subuser.objects.select_related('vendor').filter(user_id=user).first()
+            if subuser:
+                user = subuser.vendor  
             today = datetime.now().date()
             lastday = datetime.now().date()
             lastday -= timedelta(days=1)
@@ -678,6 +749,9 @@ def cleanroom(request):
     try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             roomid = request.POST.get('roomno')
             today = datetime.now().date()
             # today += timedelta(days=1)
@@ -703,6 +777,9 @@ def pos(request):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             # room = Rooms.objects.filter(vendor=user)
             # for i in room:
             #     Rooms.objects.filter(vendor=user,id=i.id).update(checkin=0)
@@ -721,6 +798,9 @@ def Product(request):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             tax = Taxes.objects.filter(vendor=user)
             folio = Invoice.objects.filter(vendor=user,foliostatus=False)
             iteams = Items.objects.filter(vendor=user)
@@ -737,6 +817,9 @@ def setivcpermission(request):
     try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             Permission = request.POST.get('pos_billing_permission')
             if Permission == 'true':
                 if invPermit.objects.filter(vendor=user).exists():
@@ -770,6 +853,9 @@ def deleteproduct(request,id):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             if Items.objects.filter(vendor=user,id=id).exists():
                 Items.objects.filter(vendor=user,id=id).delete()
             else:
@@ -785,6 +871,9 @@ def additems(request):
     try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             description = request.POST.get('description')
             category_tax = request.POST.get('category_tax')
             hsncode = request.POST.get('hsncode')
@@ -810,6 +899,9 @@ def invtransection(request,id):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             id=id
             if Items.objects.filter(vendor=user,id=id).exists():
                 itemdata = Items.objects.get(vendor=user,id=id)
@@ -848,6 +940,9 @@ def fininvtransectiondata(request):
     try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             startdate = request.POST.get('startdate')
             enddate = request.POST.get('enddate')
             id =request.POST.get('id')
@@ -890,6 +985,9 @@ def updateitems(request):
     try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             itemid = request.POST.get('itemid')
             description = request.POST.get('description')
             category_tax = request.POST.get('category_tax')
@@ -916,6 +1014,9 @@ def additemstofolio(request):
     try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             foliocustomer = request.POST.get('invoiceid')
             qty = request.POST.get('qty')
             itemid = request.POST.get('iteamid')
@@ -990,6 +1091,9 @@ def addlaundryitems(request):
     try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             foliocustomer = request.POST.get('foliocustomer')
             qty = request.POST.get('qty')
             itemid = request.POST.get('iteamid')
@@ -1061,6 +1165,9 @@ def finddatevisesales(request):
     try:
         if request.user.is_authenticated  and request.method=="POST":
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             startdate = request.POST.get('startdate')
             enddate = request.POST.get('enddate')
 
@@ -1175,6 +1282,13 @@ def todaysales(request):
     try:
         if request.user.is_authenticated  :
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+
 
             today = datetime.now().date()
             yestarday = today - timedelta(days=1)
@@ -1670,6 +1784,9 @@ def bulkupdate(request):
     try:    
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             roomcat = RoomsCategory.objects.filter(vendor=user)
             today = datetime.now().date()
             return render(request,'bulkpage.html',{'roomcat':roomcat,'active_page':'bulkupdate','today':today})
@@ -1696,6 +1813,9 @@ def bulkinventoryform(request):
         if request.user.is_authenticated and request.method == "POST":
             # Get the selected category IDs
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             selected_ids = request.POST.getlist('selected_categories')
             startdate = request.POST.get('startdate')
             enddate = request.POST.get('enddate')
@@ -1813,6 +1933,9 @@ def bulkformprice(request):
         if request.user.is_authenticated and request.method == "POST":
             # Get the selected category IDs
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             selected_ids = request.POST.getlist('selected_categories')
             startdate = request.POST.get('startdate')
             enddate = request.POST.get('enddate')

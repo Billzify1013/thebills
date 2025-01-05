@@ -136,6 +136,19 @@
                 <i class='bx bx-registered'></i> Rates Plan
                 </a>
               </li>
+              
+              {% if request.session.permissions.ups %}
+              <li class="nav-item w-100 m-1">
+                <a
+                  type="button"
+                  class="nav-link"
+                  style="text-align:left"
+                 href="{%url 'rollspermission' %}"
+                >
+                <i class='bx bx-registered'></i> Rols & Permission
+                </a>
+              </li>
+              {%endif%}
 
             </ul>
             
@@ -641,3 +654,8 @@ Consider using concise language and abbreviations if appropriate.
 
 
 {%endblock%}
+
+
+
+
+

@@ -17,6 +17,9 @@ def purchesinvoice(request):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                    user = subuser.vendor  
             profiledata = HotelProfile.objects.filter(vendor=user)
             invcdata = Supplier.objects.filter(vendor=user, sattle=False).last()
             invoiceitemsdata = SupplierInvoiceItem.objects.filter(
@@ -45,7 +48,9 @@ def purchesinvoiceform(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
-
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                    user = subuser.vendor  
             # Retrieve POST data with default empty string or '0'
             invcdate = request.POST.get("invcdate", "")
             cname = request.POST.get("cname", "")
@@ -236,7 +241,9 @@ def addmorepurchesproductininvoice(request):
     # try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
-
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                    user = subuser.vendor  
             # Retrieve POST data with default empty string or '0'
             invcid = request.POST.get("invcid")
             productname = request.POST.get("productname", "")
@@ -396,6 +403,9 @@ def purchesitemdelete(request, id):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                    user = subuser.vendor  
             itemid = id
             if SupplierInvoiceItem.objects.filter(vendor=user, id=itemid).exists():
                 itemsdata = SupplierInvoiceItem.objects.get(vendor=user, id=itemid)
@@ -460,6 +470,9 @@ def deletepurchesinvc(request, id):
     # try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                    user = subuser.vendor  
             invcid = id
             if Supplier.objects.filter(vendor=user, id=invcid).exists():
                 spdata = Supplier.objects.get(vendor=user, id=invcid)
@@ -495,7 +508,9 @@ def savepurchesinvoice(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
-
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                    user = subuser.vendor  
             # Retrieve POST data with default empty string or '0'
             invoiceid = request.POST.get("invoiceid")
             paymentmode = request.POST.get("paymentmode")
@@ -536,6 +551,9 @@ def purcheshistory(request):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                    user = subuser.vendor  
             advanceroomsdata = Supplier.objects.filter(vendor=user).order_by(
                 "-id"
             )
@@ -568,7 +586,9 @@ def searchpurchesdata(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
-
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                    user = subuser.vendor  
             # Retrieve POST data with default empty string or '0'
             guestname = request.POST.get("guestname", "").strip()
             guestphone = request.POST.get("guestphone", "").strip()
@@ -637,6 +657,9 @@ def purchesinvoices(request, id):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                    user = subuser.vendor  
             invcid = id
             if Supplier.objects.filter(
                 vendor=user, id=invcid, sattle=True
@@ -667,6 +690,9 @@ def purchessales(request):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                    user = subuser.vendor  
             # Calculate the start and end dates of the current month
             today = datetime.now()
             start_of_month = today.replace(day=1)
@@ -727,7 +753,9 @@ def searpurchesinvoicedata(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
-
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                    user = subuser.vendor  
             # Retrieve POST data with default empty string or '0'
             startdate = request.POST.get("startdate", "").strip()
             enddate = request.POST.get("enddate", "").strip()
@@ -790,6 +818,9 @@ def channalmanager(request):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                    user = subuser.vendor  
             if VendorCM.objects.filter(vendor=user).exists():
                 data =  VendorCM.objects.get(vendor=user)
                 url = data.channal_manager_link
@@ -838,9 +869,13 @@ def get_supplier_details(request):
             return JsonResponse({'status': 'error', 'message': 'User is not authenticated'})
 
         if supplier_name:
+            user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                    user = subuser.vendor  
             # Filter suppliers based on the logged-in user and supplier name
             suppliers = Supplier.objects.filter(
-                vendor=request.user,  # Only show suppliers linked to the current logged-in user
+                vendor=user,  # Only show suppliers linked to the current logged-in user 
                 customercontact__icontains=supplier_name  # Partial match for the supplier name
             )
 
@@ -884,8 +919,12 @@ def fetch_supplier_items(request):
         if description:
             # Filter SupplierInvoiceItem based on the description
             # Fetch all matching items
+            user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                    user = subuser.vendor  
             items = SupplierInvoiceItem.objects.filter(
-                vendor=request.user,
+                vendor=user,
                 description__icontains=description
             ).values(
                 'id', 'description', 'price', 'tax_rate', 'hsncode', 'discount_amount' , 'is_intvntory',

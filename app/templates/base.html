@@ -114,13 +114,14 @@
                 
 
                 
-
+                
                 <li class="menu-item text-uppercase {% if active_page == 'homepage' %}active{% endif %} ">
                   <a href="{% url 'homepage'  %}" class="menu-link">
                     <i class='menu-icon bx bx-home'></i>
                     <div data-i18n="Analytics">Home</div>
                   </a>
                 </li>
+                
 
                 <li class="menu-item text-uppercase {% if active_page == 'todaybookingpage' %}active{% endif %} ">
                   <a href="{% url 'todaybookingpage'  %}" class="menu-link">
@@ -129,12 +130,14 @@
                   </a>
                 </li> 
 
+                {% if request.session.permissions.TSel %}
                 <li class="menu-item text-uppercase {% if active_page == 'todaysales' %}active{% endif %} ">
                   <a href="{% url 'todaysales'  %}" class="menu-link">
                     <i class='menu-icon bx bxs-bar-chart-alt-2'></i>
                     <div data-i18n="Analytics">Today Sales</div>
                   </a>
                 </li> 
+                {%endif%}
 
                 
                 <li class="menu-header small text-uppercase">
@@ -162,7 +165,9 @@
                     <div data-i18n="Analytics">Folio & Billing</div>
                   </a>
                 </li> 
-
+                
+                
+            
                 {% comment %} <li class="menu-item text-uppercase {% if active_page == 'pos' %}active{% endif %} ">
                   <a href="{% url 'pos'  %}" class="menu-link">
                     <i class='menu-icon bx bx-laptop'></i>
@@ -180,10 +185,12 @@
                   <span class="menu-header-text">Daily Management</span>
                 </li>
 
+                
+                {% if request.session.permissions.cln %}
                 <li class="menu-item text-uppercase {% if active_page == 'roomclean' %}active{% endif %} ">
                   <a  id="open-roomclean" class="menu-link">
                     <i class='menu-icon bx bxs-paint'></i>
-                    <div data-i18n="Analytics">Rooms Cleaning</div>
+                    <div data-i18n="Analytics">Rooms Cleaning </div>
                   </a>
                 </li>
 
@@ -193,15 +200,19 @@
                       window.open("{% url 'roomclean' user.id %}", '_blank');
                   });
               </script>
+              {%endif%}
 
+              
+              {% if request.session.permissions.Attd %}
                 <li class="menu-item text-uppercase {% if active_page == 'dailyattendance' %}active{% endif %} ">
                   <a href="{% url 'dailyattendance'  %}" class="menu-link">
                     <i class='bx menu-icon bxs-user-check'></i>
                     <div data-i18n="Analytics">Daily Attendance</div>
                   </a>
                 </li>
+                {%endif%}
 
-               
+                
 
                 <li class="menu-header small text-uppercase">
                   <span class="menu-header-text">Booking Management</span>
@@ -281,12 +292,14 @@
                   </a>
                 </li>
 
+                {% if request.session.permissions.psle %}
                 <li class="menu-item text-uppercase {% if active_page == 'aminitysales' %}active{% endif %} ">
                   <a href="{% url 'aminitysales'  %}" class="menu-link">
                     <i class='menu-icon bx bx-analyse'></i>
                     <div data-i18n="Analytics">POS Sales</div>
                   </a>
                 </li>
+                {%endif%}
 
 
                 <li class="menu-header small text-uppercase">
@@ -303,12 +316,14 @@
                   <span class="menu-header-text">Payments Management</span>
                 </li>
 
+                {% if request.session.permissions.si %}
                 <li class="menu-item text-uppercase {% if active_page == 'stayinvoice' %}active{% endif %} ">
                   <a href="{% url 'stayinvoice' %}" class="menu-link">
                     <i class='menu-icon bx bxl-invision'></i>
                     <div data-i18n="Analytics">Stay Invoices</div>
                   </a>
                 </li> 
+                {%endif%}
 
                 <li class="menu-item text-uppercase {% if active_page == 'creditmanage' %}active{% endif %} ">
                   <a href="{% url 'creditmanage'  %}" class="menu-link">
@@ -447,7 +462,7 @@
             
 
 
-
+            {% if request.session.permissions.saa %}
             <li class="menu-header small text-uppercase">
               <span class="menu-header-text">Sales Analytics</span>
             </li>
@@ -457,7 +472,7 @@
                 <div data-i18n="Analytics">Sales & Analytics</div>
               </a>
             </li>
-
+            {%endif%}
             {% comment %} <li class="menu-header small text-uppercase">
               <span class="menu-header-text">Block Room Management</span>
             </li>
@@ -496,6 +511,7 @@
               </a>
             </li>  {% endcomment %}
 
+            {% if request.session.permissions.ext %}
             <li class="menu-header small text-uppercase">
               <span class="menu-header-text">Excel Data Management</span>
             </li>
@@ -506,6 +522,7 @@
                 <div data-i18n="Analytics">Excel Datas</div>
               </a>
             </li> 
+            {%endif%}
             
             <li class="menu-header small text-uppercase">
               <span class="menu-header-text">Purches Management</span>
@@ -533,7 +550,7 @@
             </li>
 
 
-            
+            {% if request.session.permissions.emp %}
             <li class="menu-header small text-uppercase">
               <span class="menu-header-text">Employees Management</span>
             </li>
@@ -563,6 +580,7 @@
             
           </ul>
         </li>
+        {%endif%}
 
             
             <li class="menu-header small text-uppercase">
@@ -576,13 +594,16 @@
               </a>
             </li>
 
+            
+            {% if request.session.permissions.pdt %}
             <li class="menu-item text-uppercase {% if active_page == 'Product' %}active{% endif %} ">
               <a href="{% url 'Product'  %}" class="menu-link">
                 <i class='menu-icon bx bx-unite'></i>
                 <div data-i18n="Analytics">Product</div>
               </a>
             </li>
-
+            {%endif%}
+            
             <li class="menu-item text-uppercase {% if active_page == 'addlaundrypage' %}active{% endif %} ">
               <a href="{% url 'addlaundrypage'  %}" class="menu-link">
                 <i class='menu-icon bx bxs-t-shirt'></i>
@@ -691,12 +712,14 @@
                           <span class="align-middle">My Profile</span>
                         </a>
                       </li>
+                      {% if request.session.permissions.set %}
                       <li>
                         <a class="dropdown-item" href="{% url 'setting' %}">
                           <i class="bx bx-cog me-2"></i>
                           <span class="align-middle">Settings</span>
                         </a>
                       </li>
+                      {%endif%}
                       <li>
                         <a class="dropdown-item" href="{% url 'billingplanpage' %}">
                           <span class="d-flex align-items-center align-middle">
@@ -1061,22 +1084,24 @@
                     <b>HISTORY</b></h6></center>
                   </div></a>
                 </div>
-
+                {% if request.session.permissions.si %}
                 <div class="col-3 p-1">
                   <a href="{% url 'stayinvoice' %}"><div class="card m-2" style="height:80px">
                    <center> <h6 class="mt-3"><br>
                     <b>PAYMENTS</b></h6></center>
                   </div></a>
                 </div>
+                {%endif%}
                 
                 
-
+                {% if request.session.permissions.ext %}
                 <div class="col-3 p-1">
                   <a href="{% url 'exceldatapage' %}"><div class="card m-2" style="height:80px">
                    <center> <h6 class="mt-3"><br>
                     <b>EXCEL-REPORT</b></h6></center>
                   </div></a>
                 </div>
+                {%endif%}
 
                 <div class="col-3 p-1">
                   <a href="{% url 'mobileview' user=request.user %}"><div class="card m-2" style="height:80px">
@@ -1100,20 +1125,23 @@
                   </div></a>
                 </div>
 
+                {% if request.session.permissions.pdt %}
                 <div class="col-3 p-1">
                   <a href="{% url 'Product'  %}"><div class="card m-2" style="height:80px">
                    <center> <h6 class="mt-3"><br>
                     <b>PRODUCT</b></h6></center>
                   </div></a>
                 </div>
+                {%endif%}
                 
-
+                {% if request.session.permissions.saa %}
                 <div class="col-3 p-1">
                   <a href="{% url 'index'  %}"><div class="card m-2" style="height:80px">
                    <center> <h6 class="mt-3"><br>
                     <b>SALES</b></h6></center>
                   </div></a>
                 </div>
+                {%endif%}
 
                 <div class="col-3 p-1">
                   <a href="{% url 'eventpackage'  %}"><div class="card m-2" style="height:80px">
@@ -1121,13 +1149,14 @@
                     <b>EVENTS</b></h6></center>
                   </div></a>
                 </div>
-
+                {% if request.session.permissions.emp %}
                 <div class="col-3 p-1">
                   <a href="{% url 'employee'  %}"><div class="card m-2" style="height:80px">
                    <center> <h6 class="mt-3"><br>
                     <b>EMPLOYEE</b></h6></center>
                   </div></a>
                 </div>
+                {%endif%}
 
                 <div class="col-3 p-1">
                   <a href="{% url 'comaypage' %}"><div class="card m-2" style="height:80px">

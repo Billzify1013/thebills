@@ -41,6 +41,9 @@ def index(request):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             
             # Get the current year
             now = timezone.now()
@@ -173,6 +176,9 @@ def guestregform(request,id):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             if Gueststay.objects.filter(vendor=user,id=id).exists():
                 guestdata = Gueststay.objects.filter(vendor=user,id=id)
                 hoteldata = HotelProfile.objects.filter(vendor=user)
@@ -190,8 +196,11 @@ def guestregform(request,id):
 def myprofile(request):
     if not request.user.is_authenticated:
         return render(request, 'login.html')
-        
-    profiledata = HotelProfile.objects.filter(vendor=request.user)
+    user=request.user
+    subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+    if subuser:
+        user = subuser.vendor  
+    profiledata = HotelProfile.objects.filter(vendor=user)
     return render(request, 'profile.html', {'profiledata': profiledata})
 
 
@@ -200,6 +209,9 @@ def guesthistory(request):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             guestshistory = Gueststay.objects.filter(vendor=user).values(
                 'checkoutdate', 'checkindate', 'roomno', 'guestname', 'id', 'guestphome', 'guestcity', 'noofrooms'
             ).order_by('-id')
@@ -226,6 +238,9 @@ def guestdetails(request, id):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             guestdetails = Gueststay.objects.filter(vendor=user, id=id).all()
             moredata = MoreGuestData.objects.filter(vendor=user, mainguest_id=id).all()
             
@@ -289,6 +304,9 @@ def foliobillingpage(request):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             invoice_data = Invoice.objects.filter(vendor=user, foliostatus=False).order_by('room_no')
             return render(request, 'foliopage.html', {
                 'invoice_data': invoice_data,
@@ -304,6 +322,9 @@ def invoicepage(request, id):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             userid = id
             guestdata = Gueststay.objects.filter(vendor=user, id=userid)
             invoice_data = Invoice.objects.get(vendor=user, customer=userid)
@@ -412,6 +433,9 @@ def editcustomergstnumber(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             invcid = request.POST.get('invcid')
             gstnumber = request.POST.get('gstnumber')
             customerphone = request.POST.get('customerphone')
@@ -438,6 +462,9 @@ def rooms(request):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             roomdata = Rooms.objects.filter(vendor=user).order_by('room_name')
             category = RoomsCategory.objects.filter(vendor=user)
             tax = Taxes.objects.filter(vendor=user)
@@ -461,8 +488,10 @@ def homepage(request):
     try:
         if request.user.is_authenticated:
             user = request.user
-            showtimeb = strftime("%Y-%m-%d %H:%M:%S", gmtime())
-
+             
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             # Filter data
             category = RoomsCategory.objects.filter(vendor=user).order_by('id')
             rooms = Rooms.objects.filter(vendor=user).order_by('id')
@@ -584,6 +613,9 @@ def addtax(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             taxname = request.POST.get('taxname')
             taxcode = request.POST.get('taxcode')
             taxrate = request.POST.get('taxrate')
@@ -605,6 +637,9 @@ def addcategory(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             roomcategory = request.POST.get('catname')
             if RoomsCategory.objects.filter(vendor=user, category_name=roomcategory).exists():
                 messages.error(request, 'Category already exists')
@@ -633,6 +668,9 @@ def updatecategory(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             roomcategory = request.POST.get('catname')
             categoryid = request.POST.get('categoryid')
             price = request.POST.get('price')
@@ -680,6 +718,9 @@ def addroom(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             roomname = request.POST.get('roomname')
             category = request.POST.get('category')
             maxperson = request.POST.get('maxperson')
@@ -733,6 +774,9 @@ def updaterooms(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             roomname = request.POST.get('roomname')
             category = request.POST.get('category')
             roomid = request.POST.get('roomid')
@@ -783,6 +827,9 @@ def deleteroom(request, id):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             try:
                 room = Rooms.objects.get(vendor=user, id=id)
                 room.delete()
@@ -802,6 +849,9 @@ def openroomclickformpage(request, id):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             room_data = Rooms.objects.filter(vendor=user, room_name=id)
             roomno = id
             cat_data = Rooms.objects.get(vendor=user, room_name=id)
@@ -835,6 +885,9 @@ def roomcheckin(request,id):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             roomno=id
             
             realroomnuo=Rooms.objects.get(vendor=user,room_name=roomno)
@@ -869,6 +922,9 @@ def addguestdata(request):
     try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             guestname = request.POST.get('guestname')
             guestphome = request.POST.get('guestphone')
             guestemail = request.POST.get('guestemail')
@@ -1055,6 +1111,9 @@ def addguestdatafromadvanceroombook(request):
     try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             guestname = request.POST.get('guestname')
             guestphome = request.POST.get('guestphone')
             guestemail = request.POST.get('guestemail')
@@ -1256,6 +1315,9 @@ def checkoutroom(request):
     try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             roomno = request.POST.get('roomno')
             invoice_id = request.POST.get('invoice_id')
             loyltycheck = request.POST.get('loyltycheck')
@@ -1500,6 +1562,9 @@ def cancelroom(request):
     try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             roomno = request.POST.get('roomno')
             invoice_id = request.POST.get('invoice_id')
             
@@ -1624,6 +1689,9 @@ def gotofoliobyhome(request,id):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             roomno = id
             if Gueststay.objects.filter(vendor=user,roomno=roomno,checkoutdone=False).exists():
                 custid = Gueststay.objects.filter(vendor=user,roomno=roomno,checkoutdone=False).last()
@@ -1708,29 +1776,92 @@ def signup(request):
 from django.contrib.sessions.models import Session
 from django.utils import timezone
 
+# @csrf_exempt
+# def login_view(request):
+#     try:
+#         if request.method == 'POST':
+#             username = request.POST['username']
+#             password = request.POST['password']
+#             user = authenticate(request, username=username, password=password)
+#             if user is not None:
+#                 # # Invalidate any existing sessions for this user
+#                 # current_session_key = request.session.session_key
+#                 # user_sessions = Session.objects.filter(expire_date__gte=timezone.now())
+#                 # for session in user_sessions:
+#                 #     session_data = session.get_decoded()
+#                 #     if session_data.get('_auth_user_id') == str(user.id) and session.session_key != current_session_key:
+#                 #         session.delete()
+
+#                 # Log the user in
+#                 login(request, user)
+
+#                 # Ensure the session is correctly set
+#                 request.session.save()
+
+#                 # Check subscription status
+#                 user_subscription = Subscription.objects.filter(user=user).last()
+#                 if user_subscription and user_subscription.end_date >= date.today():
+#                     messages.success(request, 'Successfully logged in!')
+#                     return redirect('homepage')
+#                 else:
+#                     messages.error(request, 'Your plan is over. Please recharge to enjoy Billzify services.')
+#                     return render(request, 'subscriptionplanpage.html', {'username': username})
+#             else:
+#                 messages.error(request, 'Invalid username and password!')
+#                 return render(request, 'login.html')
+#         return render(request, 'login.html')
+#     except Exception as e:
+#         messages.error(request, f'An error occurred: {str(e)}')
+#         return redirect('login')
+
+
 @csrf_exempt
 def login_view(request):
     try:
         if request.method == 'POST':
             username = request.POST['username']
             password = request.POST['password']
+            
+            # Authenticate the user
             user = authenticate(request, username=username, password=password)
+            
             if user is not None:
-                # # Invalidate any existing sessions for this user
-                # current_session_key = request.session.session_key
-                # user_sessions = Session.objects.filter(expire_date__gte=timezone.now())
-                # for session in user_sessions:
-                #     session_data = session.get_decoded()
-                #     if session_data.get('_auth_user_id') == str(user.id) and session.session_key != current_session_key:
-                #         session.delete()
-
+                # Check if it's a subuser and handle login for both main and subuser
+                if Subuser.objects.filter(user=user).exists():
+                    # If subuser exists, log them in as a subuser
+                    subuser = Subuser.objects.get(user=user)
+                    request.session['is_subuser'] = True
+                    request.session['permissions'] = subuser.permissions  # Store permissions in session
+                else:
+                    # Main user - full access
+                    request.session['is_subuser'] = False
+                    request.session['permissions'] =  {
+                        'TSel': True, 'Attd': True, 'cln': True, 'psle': True,
+                        'si': True, 'saa': True, 'ext': True, 'emp': True,
+                        'pdt': True, 'set': True, 'ups': True
+                    }  # Full access for main user
+                
                 # Log the user in
                 login(request, user)
+                
+                # Set session expiry to midnight
+                tomorrow = timezone.now() + timedelta(days=1)
+                midnight = datetime.combine(tomorrow, datetime.min.time())  # Create naive datetime for midnight
+                
+                # Convert midnight to timezone-aware datetime (assuming the timezone is UTC)
+                midnight = timezone.make_aware(midnight, timezone.utc)
+                
+                # Calculate seconds until midnight
+                seconds_until_midnight = (midnight - timezone.now()).seconds
+                request.session.set_expiry(seconds_until_midnight)  # Set session expiry to midnight
 
-                # Ensure the session is correctly set
-                request.session.save()
+                # Save session
+                request.session.save()  # Make sure session data is saved
 
                 # Check subscription status
+                subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+                if subuser:
+                    user = subuser.vendor 
                 user_subscription = Subscription.objects.filter(user=user).last()
                 if user_subscription and user_subscription.end_date >= date.today():
                     messages.success(request, 'Successfully logged in!')
@@ -1738,13 +1869,17 @@ def login_view(request):
                 else:
                     messages.error(request, 'Your plan is over. Please recharge to enjoy Billzify services.')
                     return render(request, 'subscriptionplanpage.html', {'username': username})
+                
+                # Redirect user to homepage
+                return redirect('homepage')
             else:
-                messages.error(request, 'Invalid username and password!')
+                messages.error(request, 'Invalid username or password!')
                 return render(request, 'login.html')
         return render(request, 'login.html')
     except Exception as e:
         messages.error(request, f'An error occurred: {str(e)}')
-        return redirect('login')
+        return render(request, 'login.html')
+
     
 
 def subscribe(request):
@@ -1764,6 +1899,9 @@ def subscriptionplanpage(request):
 def createsubscription(request,id):
     username = id
     user=User.objects.get(username=username)
+    subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+    if subuser:
+        user = subuser.vendor  
     sid=SubscriptionPlan.objects.get(id=1)
     b=datetime.now().date()
     enddate=datetime.now().date()
@@ -1786,6 +1924,9 @@ def createsubscription(request,id):
 def addbrnahc(request):
     if request.user.is_authenticated and request.method=="POST":
         user=request.user
+        subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+        if subuser:
+            user = subuser.vendor  
         bokingdate=request.POST['date']
         data=Rooms.objects.filter(Q(vendor=user,checkin=0) | Q(vendor=user,checkin=2)).all()
        
@@ -1799,6 +1940,9 @@ def bookingdate(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             startdate = request.POST.get('startdate')
             enddate = request.POST.get('enddate')
 
@@ -1875,6 +2019,9 @@ def addadvancebooking(request):
     try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             bookingdate = request.POST.get('bookingdate')
             guestname = request.POST.get('guestname')
             totalstaydays = request.POST.get('totalstaydays')
@@ -2103,6 +2250,12 @@ def todaybookingpage(request):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor
             # today=datetime.date.today() 
             today = datetime.now().date()
             checkoutdate = datetime.now().date()
@@ -2136,6 +2289,9 @@ def openroomclickformtodayarriwalspage(request,id):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             room_data = Rooms.objects.filter(vendor=user,room_name=id)
             roomno=id
             roomguestdata = RoomBookAdvance.objects.filter(vendor=user,id=id).all()
@@ -2163,6 +2319,9 @@ def chekinonebyoneguestdata(request):
     try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             roombookadvanceiddata = request.POST.get('roombookadvanceiddata')
             roomnodata = request.POST.get('roomnodata')
             name = request.POST.get('name')
@@ -2192,6 +2351,9 @@ def opencheckinforadvanebooking(request,pk):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             return render(request,'index.html')
         else:
             return redirect('loginpage')
@@ -2206,6 +2368,9 @@ def advanceroomhistory(request):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
 
             # Get today's date
             today = timezone.now().date()
@@ -2264,6 +2429,9 @@ def advancebookingdetails(request,id):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             guestdata = SaveAdvanceBookGuestData.objects.filter(vendor=user,id=id)
             roomdata = RoomBookAdvance.objects.filter(vendor=user,saveguestdata=id).all()
             return render(request,'advancebookingdetailspage.html',{'roomdata':roomdata,'guestdata':guestdata,'active_page': 'advancebookhistory'})
@@ -2278,6 +2446,9 @@ def advancebookingdelete(request,id):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             saveguestid=id
             checkdatas = SaveAdvanceBookGuestData.objects.get(vendor=user,id=saveguestid)
             if not  checkdatas.booking_id :
@@ -2332,6 +2503,9 @@ def addprofile(request):
     try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             if HotelProfile.objects.filter(vendor=user).exists():
                 profiledata =  HotelProfile.objects.filter(vendor=user)
                 return render(request,'profile.html',{'profiledata':profiledata})
@@ -2364,6 +2538,9 @@ def updateprofile(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             hotelame = request.POST.get('hotelame')
             email = request.POST.get('email')
             phoneNumber = request.POST.get('phoneNumber', 0)
@@ -2468,6 +2645,9 @@ def generate_qr(request, url):
             return HttpResponse("Error opening/logo image.", status=500)
 
         user=request.user
+        subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+        if subuser:
+                user = subuser.vendor  
         # Create an HTTP response with the QR code image
         # Save the QR code image to an in-memory file
         buffer = BytesIO()
@@ -2514,11 +2694,17 @@ def password_reset_request(request):
             username = request.POST['username']
             new_password = request.POST['new_password']
             try:
+                
                 user = User.objects.get(username=username)
-                user.set_password(new_password)
-                user.save()
-                messages.success(request, 'Password reset successfully!')
-                return render(request, 'password_reset_form.html')
+                if Subuser.objects.filter(user=user).exists():
+                    user.set_password(new_password)
+                    user.save()
+                    messages.success(request, 'Password reset successfully!')
+                    return redirect('rollspermission')
+
+                else:
+                    messages.error(request,"Only Subuser Password chaned their!")
+                    return render(request, 'password_reset_form.html')
             except User.DoesNotExist:
                 messages.error(request, 'Invalid username')
         return render(request, 'password_reset_form.html')
@@ -2528,12 +2714,34 @@ def password_reset_request(request):
 
 from django.contrib.auth import logout as auth_logout
 
+# def logout_view(request):
+#     if 'permissions' in request.session:
+#         del request.session['permissions']
+#     if 'is_subuser' in request.session:
+#         del request.session['is_subuser']
+#     auth_logout(request)  # Log out the user
+#     response = redirect('loginpage')  # Redirect to the login page or any other page
+#     # Clear all cookies
+#     for cookie in request.COOKIES:
+#         response.delete_cookie(cookie)
+
+    
+#     return response
+
 def logout_view(request):
-    auth_logout(request)  # Log out the user
-    response = redirect('loginpage')  # Redirect to the login page or any other page
-    # Clear all cookies
+    # Clear session data manually (or use request.session.flush() for clearing all)
+    request.session.flush()
+
+    # Log out the user using Django's authentication system
+    auth_logout(request)
+
+    # Redirect to login page
+    response = redirect('loginpage')  # Update 'login' with your actual login view name
+
+    # Optionally clear cookies (if needed)
     for cookie in request.COOKIES:
         response.delete_cookie(cookie)
+
     return response
 
 
@@ -2543,6 +2751,9 @@ def deleteitemstofolio(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             invoiceid = request.POST.get('invoiceid')
             invoiceitemsid = request.POST.get('invoiceitemsid')
             if Invoice.objects.filter(vendor=user,id=invoiceid).exists():
@@ -2615,6 +2826,9 @@ def deleteitemstofolio(request):
 def addpaymentfolio(request):
      if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             invoiceid = request.POST.get('invcids')
             amount = int(float(request.POST.get('amount')))
             paymentmode = request.POST.get('paymentmode')
@@ -2652,6 +2866,9 @@ def addpaymentfoliocredit(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
                 user = request.user
+                subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+                if subuser:
+                    user = subuser.vendor  
                 invoiceid = request.POST.get('invcid')
                 amount = int(float(request.POST.get('amount')))
                 paymentmode = request.POST.get('paymentmode')
@@ -2767,6 +2984,9 @@ def openposforroom(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
                 user = request.user
+                subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+                if subuser:
+                    user = subuser.vendor  
                 invoiceid = request.POST.get('invcid')
                 roomno = request.POST.get('roomno')
            
@@ -2796,6 +3016,9 @@ def weekviews(request):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             today = datetime.today()
 
             # Get the current index for the center 7 days from GET parameter, default to 0
@@ -2889,6 +3112,9 @@ def changeindexyear(request):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
 
             # Get the selected year from the request
             selected_year = request.GET.get('year')
@@ -3024,6 +3250,9 @@ def guestaddfromfolio(request):
     try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             roombookadvanceiddata = request.POST.get('roombookadvanceiddata')
             roomnodata = request.POST.get('roomnodata')
             name = request.POST.get('name')
@@ -3343,6 +3572,9 @@ def receipt_view(request, booking_id):
 def advncereciptbiew(request, booking_id):
     try:
         user=request.user
+        subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+        if subuser:
+                user = subuser.vendor  
         advancebookingdatas = RoomBookAdvance.objects.filter(id=booking_id)
         for i in advancebookingdatas:
             vid = i.vendor.id
@@ -3428,6 +3660,9 @@ def addpaymenttobooking(request,booking_id):
     try:
         if request.user.is_authenticated:
             user=request.user 
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             bookingdata = SaveAdvanceBookGuestData.objects.filter(vendor=user,id=booking_id)
             return render(request,'advanceamt.html',{'bookingdata':bookingdata})
         else:
@@ -3442,6 +3677,9 @@ def addpymenttoboking(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
                 user = request.user
+                subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+                if subuser:
+                    user = subuser.vendor  
                 bokkingid = request.POST.get('bokkingid')
                 amount = int(float(request.POST.get('amount')))
                 paymentmode = request.POST.get('paymentmode')
@@ -3509,6 +3747,9 @@ def websettings(request):
     try:
         if request.user.is_authenticated:
                 user = request.user
+                subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+                if subuser:
+                    user = subuser.vendor  
                 amenities=beaminities.objects.filter(vendor=user)
                 offers = OfferBE.objects.filter(vendor=user)
                 cpdata = cancellationpolicy.objects.filter(vendor=user)

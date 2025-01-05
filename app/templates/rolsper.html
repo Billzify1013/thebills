@@ -1,0 +1,350 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <a href="{% url 'billingplanpage' %}" style="text-decoration:none;">
+    <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div></a>
+    {%endif%}
+</div>
+{%endfor%}
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 1000);
+  });
+</script>
+{%endif%}
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+    }
+    .table-container {
+        margin-top: 20px;
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+        box-sizing: border-box;
+        padding: 0 15px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        border: 1px solid #ccc;
+        padding: 7px;
+        text-align: center;
+    }
+    th {
+        background-color: #f9f9f9;
+        font-weight: bold;
+    }
+    tbody tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+</style>
+
+
+<div class="row">
+
+    <div class="col-3 p-3">
+        <button class="btn btn-primary" onclick="inventoryform()">Give Permission</button>
+    </div>
+
+    <div class="col-3 p-3">
+        <button class="btn btn-primary" onclick="ratebulkupdate()">Create & Show User</button>
+    </div>
+{% comment %} 
+    <div class="col-3 p-3">
+        <button class="btn btn-primary" onclick="showsellform()">Sell Stop Bulk Update</button>
+    </div>
+
+    
+    <div class="col-3 p-3">
+        <button class="btn btn-primary" onclick="sellonbulk()">Sell On Bulk Update</button>
+    </div> {% endcomment %}
+</div>
+
+<script>
+   
+
+    function inventoryform() {
+        document.getElementById('inventorybulkupdate').style.display="block";
+        document.getElementById('ratebulid').style.display="none";
+    }
+
+    function ratebulkupdate() {
+        document.getElementById('inventorybulkupdate').style.display="none";
+        document.getElementById('ratebulid').style.display="block";
+    }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="inventorybulkupdate" style="display:">
+    <div class="card " >
+        <h3 class="text m-2 mt-3 ms-4">Users Rolls & Permissions</h3>
+        <form action="{% url 'createsubuserpermission' %}" method="post">
+            {% csrf_token %}
+            <div class="row m-2">
+                <div class="col-4">
+                <label for="guestname" class="form-label">Select SubUser</label>
+                <select class="form-control" id="subuser-select" name="subuserid">
+                    <option value="">Select Subuser</option>
+                    {% for sub in subuser %}
+                        <option value="{{ sub.id }}">{{ sub.user.username }}</option>
+                    {% endfor %}
+                </select>
+                <label id="ere" style="display:none" class="form-label mt-4 text-success">Searchin data....</label>
+            </div>
+                
+    
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Page</th>
+                            <th>Permissions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Today Sales</td>
+                            <td>
+                                <input type="checkbox" name="selected_categories" value="TSel" data-key="TSel">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Attendance</td>
+                            <td>
+                                <input type="checkbox" name="selected_categories" value="Attd" data-key="Attd">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Room-Cleaning</td>
+                            <td>
+                                <input type="checkbox" name="selected_categories" value="cln" data-key="cln">
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td>Pos-Sales</td>
+                            <td>
+                                <input type="checkbox" name="selected_categories" value="psle" data-key="psle">
+                            </td>
+                        </tr>
+                      
+                        <tr>
+                            <td>Stay-Invoice</td>
+                            <td>
+                                <input type="checkbox" name="selected_categories" value="si" data-key="si">
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <td>Sales & Analytics</td>
+                            <td>
+                                <input type="checkbox" name="selected_categories" value="saa" data-key="saa">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Excel Datas</td>
+                            <td>
+                                <input type="checkbox" name="selected_categories" value="ext" data-key="ext">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Employee</td>
+                            <td>
+                                <input type="checkbox" name="selected_categories" value="emp" data-key="emp">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Product & Inventory</td>
+                            <td>
+                                <input type="checkbox" name="selected_categories" value="pdt" data-key="pdt">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Settings</td>
+                            <td>
+                                <input type="checkbox" name="selected_categories" value="set" data-key="set">
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>User Roles And Permission</td>
+                            <td>
+                                <input type="checkbox" name="selected_categories" value="ups" data-key="ups">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+                
+                <button class="btn btn-primary w-25 m-3">Give Permission</button>
+    
+    
+      </div>
+    
+    </div>
+    </form>
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#subuser-select').on('change', function () {
+            const subuserId = $(this).val();
+            if (!subuserId) {
+                // Clear all checkboxes if no subuser is selected
+                $('input[name="selected_categories"]').prop('checked', false);
+                return;
+            }
+            
+            document.getElementById('ere').style.display="block";
+            // Make AJAX request to fetch permissions
+            $.ajax({
+                url: `/get-permissions/${subuserId}/`, // Adjust URL if needed
+                method: 'GET',
+                success: function (response) {
+                    const permissions = response.permissions;
+
+                    // Clear all checkboxes before updating
+                    $('input[name="selected_categories"]').prop('checked', false);
+
+                    // Loop through checkboxes and set their state based on permissions
+                    $('input[name="selected_categories"]').each(function () {
+                        const key = $(this).data('key'); // Fetch the data-key
+                        if (permissions[key]) {
+                            $(this).prop('checked', true);
+                        }
+                    });
+                    document.getElementById('ere').style.display="none";
+
+                },
+                error: function () {
+                   
+                    alert('Error fetching permissions. Please try again.');
+                }
+            });
+        });
+    });
+</script>
+
+
+
+
+    
+
+<div id="ratebulid" style="display:none">
+    <div class="card " >
+        <h3 class="text m-2 mt-3 ms-4">Create Subuser</h3>
+
+    
+        <form method="POST" action="{% url 'create_subuser' %}">
+            {% csrf_token %}
+            <div class="row m-2">
+                <div class="mb-1  col-md-3">
+                    <label for="guestname" class="form-label">Username</label>
+                    <input class="form-control" type="text"  id="guestname" name="username" placeholder="John" />
+                </div>
+                
+                <div class="mb-1  col-md-3">
+                    <label for="guestname" class="form-label">Email</label>
+                    <input class="form-control" type="email"  id="guestname" name="email" placeholder="" />
+                </div>
+
+                <div class="mb-1  col-md-3" style="display:none">
+                    <label for="guestname" class="form-label">Password</label>
+                    <input class="form-control" type="password"  id="guestname" name="pwd" placeholder="enter password" pattern="(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]+"  />
+                </div>
+    
+                <div class="mb-1  col-md-3">
+             <button class="btn btn-primary mt-4">
+                Create Subuser
+             </button></div>
+               
+
+
+             <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>user</th>
+                            <th>email</th>
+                            <th>Set Password</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sub in subuser %}
+                        <tr>
+                            <td>{{sub.user.username}}</td>
+                            <td>
+                                {{sub.user.email}}
+                            </td>
+                            <td><a href="{% url 'password_reset' %}">Set Password</a></td>
+                        </tr>
+                        {%endfor%}
+                        
+                       
+                    </tbody>
+                </table>
+            </div>
+    
+                
+    
+            
+                          
+                     
+                
+    
+    
+      </div>
+    
+    </div>
+    </form>
+    </div>
+
+
+
+
+</div>
+
+
+
+{%endblock%}

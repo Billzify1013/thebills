@@ -15,6 +15,9 @@ def stayinvoice(request):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                    user = subuser.vendor  
 
             # Get the current time
             now = timezone.now()
@@ -86,6 +89,9 @@ def searchmonthinvoice(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                    user = subuser.vendor  
 
             # Get start_date and end_date from the form (make sure the form provides these as 'YYYY-MM-DD')
             start_date_input = request.POST.get('start_date')  # e.g., "2024-10-01"

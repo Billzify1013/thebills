@@ -47,7 +47,7 @@
 
 
 
-
+{% if request.session.permissions.Attd %}
     <h6 class="text p-4">
       An employee can check in only once per day, and any subsequent check-in would be allowed after 24 hours from the previous check-in time.
     </h6>
@@ -140,6 +140,8 @@
     </div>
   </div>
   <!-- Bootstrap Table with Header - Light -->
-
+{%else%}
+<h6 class="text-danger">Permission Denied!</h6>
+{%endif%}
 
 {%endblock%}

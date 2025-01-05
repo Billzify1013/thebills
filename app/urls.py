@@ -288,6 +288,11 @@ urlpatterns = [
     path('deletehotelimg/<int:id>/', hourlypage.deletehotelimg, name='deletehotelimg'),
     path('addcontactbe/', hourlypage.addcontactbe, name='addcontactbe'),
     path('updatebookeg/', hourlypage.updatebookeg, name='updatebookeg'),
+    path('rollspermission/', hourlypage.rollspermission, name='rollspermission'),
+    path('create_subuser/', hourlypage.create_subuser, name='create_subuser'),
+    path('get-permissions/<int:subuser_id>/', hourlypage.get_permissions, name='get_permissions'),
+    path('createsubuserpermission/', hourlypage.createsubuserpermission, name='createsubuserpermission'),
+
 
 
     path('createsubplan/',employeemanage.createsubplan,name="createsubplan"),
@@ -296,6 +301,8 @@ urlpatterns = [
     path('bulkinventoryform/',employeemanage.bulkinventoryform,name="bulkinventoryform"),
     path('bulkformprice/',employeemanage.bulkformprice,name="bulkformprice"),
 
+    
+    
     
 
 

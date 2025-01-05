@@ -18,6 +18,9 @@ def setting(request):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             loyltydata = loylty_data.objects.filter(vendor=user)
             taxdata = Taxes.objects.filter(vendor=user)
             category = RoomsCategory.objects.filter(vendor=user)
@@ -45,6 +48,9 @@ def activeloylty(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             loyltypersantage = request.POST.get("loyltypersantage")
             loylty_data.objects.create(
                 vendor=user, loylty_rate_prsantage=loyltypersantage, Is_active=True
@@ -61,6 +67,9 @@ def updateloylty(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             loyltypersantage = request.POST.get("loyltypersantage")
             checkbox = request.POST.get("checkbox")
      
@@ -85,6 +94,9 @@ def deletetaxitem(request, id):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             if Taxes.objects.filter(vendor=user, id=id).exists():
                 Taxes.objects.filter(vendor=user, id=id).delete()
                 messages.success(request, "Item Delete Succesfully")
@@ -101,6 +113,9 @@ def deletecategory(request, id):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             if RoomsCategory.objects.filter(vendor=user, id=id).exists():
                 RoomsCategory.objects.filter(vendor=user, id=id).delete()
                 messages.success(request, "Category Delete Succesfully")
@@ -121,6 +136,9 @@ def getloyltydataajax(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             Mobile = request.POST["Mobile"]
             data = loylty_Guests_Data.objects.filter(
                 Q(vendor=user, guest_contact=Mobile)
@@ -151,6 +169,9 @@ def deleteloyltyajaxdata(request):
         if request.method == "POST":
             if request.user.is_authenticated:
                 user = request.user
+                subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+                if subuser:
+                    user = subuser.vendor  
                 Mobile = request.POST.get("Mobile")
                 try:
                     # Update loyalty points to 0 for the given vendor and guest contact
@@ -194,6 +215,9 @@ def getguestdatabyajaxinform(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             Mobile = request.POST["Mobile"]
             data = Gueststay.objects.filter(Q(vendor=user, guestphome=Mobile))
             if data.exists():
@@ -229,6 +253,9 @@ def getrateplandata(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             Rateplanid = request.POST["Rateplanid"]
 
             data = RatePlan.objects.filter(Q(vendor=user, id=Rateplanid))
@@ -263,6 +290,9 @@ def creditmanage(request):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             customerdata = CustomerCredit.objects.filter(vendor=user)
             total_amount = CustomerCredit.objects.filter(vendor=user).aggregate(
                 total=Sum("amount")
@@ -286,6 +316,9 @@ def addpaymentininvoice(request, id):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             invcid = id
             if Invoice.objects.filter(vendor=user, id=invcid).exists():
                 invcdata = Invoice.objects.get(vendor=user, id=invcid)
@@ -311,6 +344,9 @@ def addcreditcustomer(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             name = request.POST.get("name")
             phone = request.POST.get("phone")
             amount = request.POST.get("amount")
@@ -344,6 +380,9 @@ def saveinvoicetocredit(request, id):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             dataid = id
             if CustomerCredit.objects.filter(vendor=user, id=dataid).exists():
                 # Get the current date
@@ -410,6 +449,9 @@ def searchcredit(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             name = request.POST.get("name", "").strip()
             phone = request.POST.get("phone", "").strip()
             date = request.POST.get("date", "").strip()
@@ -450,6 +492,9 @@ def Messages(request):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             profiledata = HotelProfile.objects.get(vendor=user)
             return render(
                 request,
@@ -466,6 +511,9 @@ def sendwelcomemsg(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             name = request.POST.get("name")
             phone = request.POST.get("phone")
             usermsglimit = Messgesinfo.objects.get(vendor=user)
@@ -531,6 +579,9 @@ def sendloyaltymsg(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             points = request.POST.get("points")
             phone = request.POST.get("phone")
             usermsglimit = Messgesinfo.objects.get(vendor=user)
@@ -593,6 +644,9 @@ def aminityinvoice(request):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             profiledata = HotelProfile.objects.filter(vendor=user)
             invcdata = AminitiesInvoice.objects.filter(vendor=user, sattle=False).last()
             invpermit = invPermit.objects.filter(vendor=user)
@@ -621,7 +675,9 @@ def addaminitiesinvoice(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
-
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             # Retrieve POST data with default empty string or '0'
             invcdate = request.POST.get("invcdate", "")
             cname = request.POST.get("cname", "")
@@ -768,7 +824,9 @@ def addmoreaminitiesproductininvoice(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
-
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             # Retrieve POST data with default empty string or '0'
             invcid = request.POST.get("invcid")
             productname = request.POST.get("productname", "")
@@ -883,6 +941,9 @@ def aminitiesitemdelete(request, id):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             itemid = id
             if AminitiesInvoiceItem.objects.filter(vendor=user, id=itemid).exists():
                 itemsdata = AminitiesInvoiceItem.objects.get(vendor=user, id=itemid)
@@ -939,7 +1000,9 @@ def saveaminitiesinvoice(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
-
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             # Retrieve POST data with default empty string or '0'
             invoiceid = request.POST.get("invoiceid")
             paymentmode = request.POST.get("paymentmode")
@@ -980,6 +1043,9 @@ def aminityhistory(request):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             advanceroomsdata = AminitiesInvoice.objects.filter(vendor=user).order_by(
                 "-id"
             )
@@ -1011,6 +1077,9 @@ def deleteaminitesinvc(request, id):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             invcid = id
             if AminitiesInvoice.objects.filter(vendor=user, id=invcid).exists():
                 if invPermit.objects.filter(vendor=user,pos_billing_active=True).exists():
@@ -1041,6 +1110,9 @@ def aminitiesinvoice(request, id):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             invcid = id
             if AminitiesInvoice.objects.filter(
                 vendor=user, id=invcid, sattle=True
@@ -1085,7 +1157,9 @@ def searchaminitiesdata(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
-
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             # Retrieve POST data with default empty string or '0'
             guestname = request.POST.get("guestname", "").strip()
             guestphone = request.POST.get("guestphone", "").strip()
@@ -1152,6 +1226,9 @@ def aminitysales(request):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             # Calculate the start and end dates of the current month
             today = datetime.now()
             start_of_month = today.replace(day=1)
@@ -1212,7 +1289,9 @@ def searchaminitiesinvoicedata(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
-
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             # Retrieve POST data with default empty string or '0'
             startdate = request.POST.get("startdate", "").strip()
             enddate = request.POST.get("enddate", "").strip()
@@ -1272,7 +1351,9 @@ def searchguestexportdta(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
-
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             # Retrieve POST data with default empty string or '0'
             startdate = request.POST.get("startdate", "")
             enddate = request.POST.get("enddate", "")
@@ -1300,6 +1381,9 @@ def searchguestexportdta(request):
 def cleanroombtn(request, id):
     if request.user.is_authenticated:
         user = request.user
+        subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+        if subuser:
+            user = subuser.vendor  
         data = Rooms.objects.get(vendor=user, room_name=id)
         status = data.is_clean
         if status == True:
@@ -1313,6 +1397,9 @@ def cleanroombtn(request, id):
 def cleanroombtnweek(request, id):
     if request.user.is_authenticated:
         user = request.user
+        subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+        if subuser:
+                user = subuser.vendor  
         data = Rooms.objects.get(vendor=user, room_name=id)
         status = data.is_clean
         if status == True:
@@ -1330,7 +1417,9 @@ def sendbulksmsloylty(request, id):
     try:
         if request.user.is_authenticated:
             user = request.user
-           
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             userdata = loylty_Guests_Data.objects.get(vendor=user, id=id)
             usermsglimit = Messgesinfo.objects.get(vendor=user)
             if usermsglimit.defaultlimit > usermsglimit.changedlimit:
@@ -1396,6 +1485,9 @@ def deleteloylty(request,id):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             loylty_Guests_Data.objects.get(vendor=user, id=id).delete()
             messages.success(request, "Deleted Succesfully")
             return redirect('loylty')
@@ -1411,6 +1503,9 @@ def deleteloylty(request,id):
 def search_user(request):
     if request.user.is_authenticated:
         user = request.user
+        subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+        if subuser:
+            user = subuser.vendor  
         # Get the mobile number from the GET request
         mobile_number = request.GET.get('mobile_number', '').strip()
 
@@ -1466,6 +1561,9 @@ import re
 def check_product(request):
     if request.user.is_authenticated:
         user = request.user
+        subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+        if subuser:
+            user = subuser.vendor  
         product_name = request.GET.get('product_name', '').strip()
 
         if product_name:

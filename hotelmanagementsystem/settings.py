@@ -29,7 +29,7 @@ DEBUG = False
 # DEBUG = True
 
 
-ALLOWED_HOSTS = ['live.billzify.com','www.live.billzify.com','127.0.0.1']
+ALLOWED_HOSTS = ['live.billzify.com','www.live.billzify.com','127.0.0.1','172.20.10.2']
 
 
 # Application definition
@@ -55,7 +55,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'app.middleware.DailySessionExpiryMiddleware',
+    # 'app.middleware.DailySessionExpiryMiddleware',
+    'app.middleware.UserSessionMiddleware',
     'django.middleware.gzip.GZipMiddleware', # Add this line for Gzip compression
 ]
 
@@ -172,6 +173,7 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 # Other session settings
 SESSION_COOKIE_AGE = 86400  # 24 hours in seconds
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
 
 
 # CSRF_TRUSTED_ORIGINS = ['https://www.billzify.com','https://live.billzify.com']

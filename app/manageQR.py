@@ -23,6 +23,9 @@ def addlaundrypage(request):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             laundrydata =  LaundryServices.objects.filter(vendor=user).all()
             return render(request,'laundrypage.html',{'active_page': 'addlaundrypage','laundrydata':laundrydata})
         else:
@@ -34,6 +37,9 @@ def addlaundryitem(request):
     try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             itemname = request.POST.get('itemname')
             servicecategory = request.POST.get('servicecategory')
             itemprice = request.POST.get('itemprice')
@@ -51,6 +57,9 @@ def deletelaundryitem(request,id):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             LaundryServices.objects.filter(vendor=user,id=id).delete()
             laundrydata =  LaundryServices.objects.filter(vendor=user).all()
             return render(request,'laundrypage.html',{'laundrydata':laundrydata})
@@ -65,6 +74,9 @@ def changeroompage(request, id):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             invoice_id = id
 
             # Get the valid room names (room_number) as integers from Rooms model
@@ -239,6 +251,9 @@ def changeroombooking(request,id):
     try:
         if request.user.is_authenticated:
                 user=request.user
+                subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+                if subuser:
+                    user = subuser.vendor  
                 roombook_id = id
                 # invcitemdata = InvoiceItem.objects.filter(vendor=user,invoice_id=invoice_id)
                 # for i in invcitemdata:

@@ -18,6 +18,9 @@ def travelagancy(request):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                    user = subuser.vendor  
             agencydata = TravelAgency.objects.filter(vendor=user)
             return render(request,'travelagancy.html',{'active_page': 'travelagancy','agencydata':agencydata})
         else:
@@ -29,6 +32,9 @@ def createtravelagancy(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                    user = subuser.vendor  
             agencyname = request.POST.get('agencyname')
             contactname = request.POST.get('contactname')
             Phone = request.POST.get('Phone')
@@ -64,6 +70,9 @@ def deletetravelagency(request,id):
     try:
         if request.user.is_authenticated:
                 user = request.user
+                subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+                if subuser:
+                        user = subuser.vendor  
                 
                 if TravelAgency.objects.filter(vendor=user,id=id).exists():
                         TravelAgency.objects.filter(vendor=user,id=id).delete()
@@ -84,6 +93,9 @@ def updatetravelagancy(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
                 user = request.user
+                subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+                if subuser:
+                        user = subuser.vendor  
                 ids = request.POST.get('ids')
                 contactname = request.POST.get('contactname')
                 Phone = request.POST.get('Phone')

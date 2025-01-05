@@ -11,6 +11,9 @@ def rate_push(request):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor 
             start_date = datetime.now().date()
             end_date = start_date +  timedelta(days=10)
             start_date=str(start_date)

@@ -9,6 +9,9 @@ def gridview(request):
     try:
         if request.user.is_authenticated:
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                    user = subuser.vendor  
             
             # Get the current month and year
             today = datetime.today()
@@ -96,6 +99,9 @@ def gridviewviasearch(request):
     try:
         if request.user.is_authenticated and request.method == 'POST':
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             month_year_str = request.POST.get('monthyear')
             categry = request.POST.get('category')
 
@@ -201,6 +207,9 @@ def inventory_push(request):
         if request.method == 'POST':
             if request.user.is_authenticated:
                 user = request.user
+                subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+                if subuser:
+                    user = subuser.vendor  
                 start_date = datetime.now().date()
                 end_date = start_date +  timedelta(days=10)
                 start_date=str(start_date)

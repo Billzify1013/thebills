@@ -12,6 +12,9 @@ def hourlyhomepage(request):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             roomdata = Rooms.objects.filter(vendor=user,checkin=0)
             hourlydata = HourlyRoomsdata.objects.filter(vendor=user,checkinstatus=False)
             checkinhourlydata = HourlyRoomsdata.objects.filter(vendor=user,checkinstatus=True)
@@ -28,6 +31,9 @@ def addroomtohourlyrooms(request):
     try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             roomno = request.POST.get('roomno')
 
             if HourlyRoomsdata.objects.filter(vendor=user,rooms=roomno).exists():
@@ -48,6 +54,9 @@ def removeroomfromhourly(request):
     try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             roomno = request.POST.get('roomno')
             if HourlyRoomsdata.objects.filter(vendor=user,id=roomno).exists():
                 roomid = HourlyRoomsdata.objects.get(vendor=user,id=roomno)
@@ -67,6 +76,9 @@ def searchguestdata(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             guests = Gueststay.objects.filter(vendor=user).order_by('checkindate')
 
             guestname = request.POST.get('guestname', '').strip()
@@ -122,6 +134,9 @@ def searchguestdataadvance(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             guests = SaveAdvanceBookGuestData.objects.filter(vendor=user).order_by('bookingdate')
 
             guestname = request.POST.get('guestname', '').strip()
@@ -180,6 +195,9 @@ def searchguestdatabyfolio(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             guests = Invoice.objects.filter(vendor=user, foliostatus=False).order_by('invoice_date')
 
             guestname = request.POST.get('guestname', '').strip()
@@ -228,6 +246,9 @@ def searchdateevents(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             events = EventBookGuest.objects.filter(vendor=user).order_by('start_date')
 
             guestname = request.POST.get('guestname', '').strip()
@@ -283,6 +304,9 @@ def loylty(request):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             loyltyguestsdatas = loylty_Guests_Data.objects.filter(vendor=user, loylty_point__gt=0)
             
             return render(request,'loyltypage.html',{'active_page':'loylty','loyltyguestsdatas':loyltyguestsdatas})
@@ -299,6 +323,9 @@ def eventsalse(request):
     try:
         if request.user.is_authenticated:
             user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             EventBookGuest.objects.filter(vendor=user)
             total_grand_amount = EventBookGuest.objects.filter(vendor=user,status=True).aggregate(total=Sum('Grand_total_amount'))['total']
             total_tax_amount = EventBookGuest.objects.filter(vendor=user,status=True).aggregate(total=Sum('taxamount'))['total']
@@ -329,6 +356,9 @@ def addaminities(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             servicename = request.POST.get('servicename', '')
             if beaminities.objects.filter(vendor=user,description=servicename).exists():
                 messages.error(request, "Name already exists!")
@@ -347,6 +377,9 @@ def deleteaminity(request,id):
     try:
         if request.user.is_authenticated :
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             if beaminities.objects.filter(vendor=user,id=id).exists():
                 beaminities.objects.filter(vendor=user,id=id).delete()
                 messages.success(request, "Name deleted!")
@@ -365,6 +398,9 @@ def addoffers(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             discription = request.POST.get('discription', '')
             discountpersantage = request.POST.get('discountpersantage', '')
             offerminprice = request.POST.get('offerminprice', '')
@@ -392,6 +428,9 @@ def addcp(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             cp = request.POST.get('cp', '')
             if cancellationpolicy.objects.filter(vendor=user).exists():
                 cancellationpolicy.objects.filter(vendor=user).delete()
@@ -416,6 +455,9 @@ def addcatimg(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             roomcat = request.POST.get('roomcat', '')
             galaryimg = request.FILES.get('galaryimg')
             roomcategory = RoomsCategory.objects.get(id=roomcat)
@@ -434,6 +476,9 @@ def deleteimg(request,id):
     try:
         if request.user.is_authenticated :
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             if RoomImage.objects.filter(vendor=user,id=id).exists():
                 RoomImage.objects.filter(vendor=user,id=id).delete()
                 messages.success(request, "image deleted!")
@@ -452,6 +497,9 @@ def deletehotelimg(request,id):
     try:
         if request.user.is_authenticated :
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             if HoelImage.objects.filter(vendor=user,id=id).exists():
                 HoelImage.objects.filter(vendor=user,id=id).delete()
                 messages.success(request, "image deleted!")
@@ -469,6 +517,9 @@ def addhotelimg(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             addhotelimg = request.FILES.get('addhotelimg')
             HoelImage.objects.create(vendor=user,image=addhotelimg)
             messages.success(request, "Image  Added!")
@@ -486,6 +537,9 @@ def addcontactbe(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             emails = request.POST.get('emails')
             contact = request.POST.get('contact')
             url = request.POST.get('url')
@@ -506,6 +560,9 @@ def updatebookeg(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             checkinpt = request.FILES.get('checkinpt')
             if bestatus.objects.filter(vendor=user).exists():
                 pass
@@ -527,3 +584,131 @@ def updatebookeg(request):
             return redirect('loginpage')
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)  
+    
+
+
+def rollspermission(request):
+    try:
+        if request.user.is_authenticated :
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            if Subuser.objects.filter(user=user).exists():
+                return redirect('loginpage')
+            else:
+                subuser = Subuser.objects.filter(vendor=user).all()
+                return render(request,'rolsper.html',{'subuser':subuser})
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)  
+    
+
+
+def create_subuser(request):
+    try:
+        if request.user.is_authenticated:
+            # Get the form data
+            username = request.POST.get('username')
+            email = request.POST.get('email')
+            password = request.POST.get('password')
+
+            # Ensure the logged-in user is the vendor
+            vendor = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=request.user).first()
+
+            if subuser:
+                vendor = subuser.vendor  # Get the vendor for the subuser
+
+            # Validate inputs: Check for existing username and email
+            if User.objects.filter(username=username).exists():
+                messages.error(request, 'Username already exists!')
+                return redirect('rollspermission')
+
+            if User.objects.filter(email=email).exists():
+                messages.error(request, 'Email already exists!')
+                return redirect('rollspermission')
+
+            # Create the User (password will be hashed automatically)
+            user = User.objects.create_user(username=username, email=email, password=password)
+
+            
+
+            # You can also send the fallback password to the user via email or display it
+           
+
+            # Create the Subuser linked to the vendor
+            Subuser.objects.create(vendor=vendor, user=user, permissions={})
+
+            # Success message
+            messages.success(request, 'Subuser Created Successfully! PLease Set the password')
+
+            return redirect('rollspermission')  # Redirect to the appropriate page
+        else:
+            return redirect('loginpage')  # If the user is not authenticated, redirect to login page
+    except Exception as e:
+        messages.error(request, f"An error occurred: {str(e)}")
+        return render(request, '404.html', {'error_message': str(e)}, status=500)  # Show the error message
+
+
+def get_permissions(request, subuser_id):
+    try:
+        subuser = Subuser.objects.get(id=subuser_id)
+        return JsonResponse({"permissions": subuser.permissions})
+    except Subuser.DoesNotExist:
+        return JsonResponse({"permissions": {}})
+    
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.sessions.models import Session
+
+@login_required
+def createsubuserpermission(request):
+    if request.method == "POST":
+        # Get the subuser ID from the form
+        subuser_id = request.POST.get('subuserid')
+        selected_permissions = request.POST.getlist('selected_categories')
+
+        # Ensure a subuser is selected
+        if not subuser_id:
+            messages.error(request,"SubUser Not Found ")
+            return redirect('rollspermission')
+
+        user = request.user
+        subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+        if subuser:
+                user = subuser.vendor  
+        # Get the subuser instance
+        subuser = get_object_or_404(Subuser, id=subuser_id, vendor=user)
+
+        # Update permissions in the database
+        subuser.permissions = {perm: True for perm in selected_permissions}
+        subuser.save()
+
+        # Get the user associated with this subuser
+        subuser_user = subuser.user  # The user associated with this subuser
+        
+        # Find the session for the specific user using the user ID
+        sessions = Session.objects.all()  # Fetch all sessions
+        
+        for session in sessions:
+            session_data = session.get_decoded()  # Decode the session data
+            
+            # Check if the session belongs to the user we want to log out by comparing the user ID
+            if session_data.get('_auth_user_id') == str(subuser_user.id):
+                session_key = session.session_key  # Get the session key
+                session.delete()  # Delete the session to log out this specific user
+                break  # Stop after finding the correct session
+        else:
+                    messages.success(request,"Permission Accepted!")
+                    return redirect('rollspermission')  # Replace with your success URL
+        messages.success(request,"Permission Accepted!")
+        return redirect('rollspermission')
+        # Redirect or render success message
+
+
+    # For GET request, render the form
+    messages.error(request,"Somthing Went Wrong")
+    return redirect('rollspermission')
+
