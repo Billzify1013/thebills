@@ -114,7 +114,7 @@ urlpatterns = [
     path('deleteloyltyajaxdata',loyltys.deleteloyltyajaxdata,name="deleteloyltyajaxdata"),
     path('getguestdatabyajaxinform',loyltys.getguestdatabyajaxinform,name="getguestdatabyajaxinform"),
     path('getrateplandata',loyltys.getrateplandata,name="getrateplandata"),
-    path('receipt/<int:booking_id>/', views.receipt_view, name='receipt_view'),
+    path('receipt?/<int:booking_id>/', views.receipt_view, name='receipt_view'),
     path('advncereciptbiew/<int:booking_id>/', views.advncereciptbiew, name='advncereciptbiew'),
     path('advancebookingdeletebe/<int:id>/',views.advancebookingdeletebe,name="advancebookingdeletebe"),
 
