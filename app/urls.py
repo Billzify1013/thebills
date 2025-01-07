@@ -8,6 +8,7 @@ from django.contrib.auth import views as auth_view
 from .newcode import *
 from . import dynamicrates
 from . import aiosellbook ,travelagancy,stayinvoices,purches,companyies
+from django.urls import re_path
 
 urlpatterns = [
     path('',views.loginpage,name="loginpage"),
@@ -114,7 +115,10 @@ urlpatterns = [
     path('deleteloyltyajaxdata',loyltys.deleteloyltyajaxdata,name="deleteloyltyajaxdata"),
     path('getguestdatabyajaxinform',loyltys.getguestdatabyajaxinform,name="getguestdatabyajaxinform"),
     path('getrateplandata',loyltys.getrateplandata,name="getrateplandata"),
-    path('receipt?/<int:booking_id>/', views.receipt_view, name='receipt_view'),
+    # path('receipt/<int:booking_id>/', views.receipt_view, name='receipt_view'),
+    # In your urls.py file
+    # path('receipt/<int:booking_id>/', views.receipt_view, name='receipt_view'),
+    path('receipt/', views.receipt_view, name='receipt_view'),
     path('advncereciptbiew/<int:booking_id>/', views.advncereciptbiew, name='advncereciptbiew'),
     path('advancebookingdeletebe/<int:id>/',views.advancebookingdeletebe,name="advancebookingdeletebe"),
 

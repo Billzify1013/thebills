@@ -488,7 +488,9 @@
           </button>
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="{% url 'advancebookingdetails' id=data.id %}"><i class="bx bx-edit-alt me-1"></i>Details</a></li>
-            <li><a class="dropdown-item" href="{% url 'receipt_view' booking_id=data.id %}"><i class='bx bx-conversation'></i>Voucher</a></li>
+            {% comment %} <li><a class="dropdown-item" href="{% url 'receipt_view' booking_id=data.id %}"><i class='bx bx-conversation'></i>Voucher</a></li> {% endcomment %}
+            <li><a class="dropdown-item" href="{% url 'receipt_view' %}?cd={{ data.id }}"><i class='bx bx-conversation'></i>Voucher</a></li>
+
             <li><a class="dropdown-item" href="{% url 'addpaymenttobooking' booking_id=data.id %}"><i class='bx bxl-paypal'></i>Add-Payment</a></li>
             <li><a class="dropdown-item" href="{% url 'advancebookingdelete' id=data.id %}"><i class="bx bx-trash me-1"></i> Cancel</a></li>
             
