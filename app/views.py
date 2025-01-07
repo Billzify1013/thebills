@@ -3660,34 +3660,61 @@ from django.shortcuts import render, get_object_or_404
 #     except Exception as e:
 #         return HttpResponse(f"Error occurred: {e}")
 
+# def receipt_view(request):
+#     try:
+#         # Get the booking_id from the query parameter 'extra_param'
+#         booking_id = request.GET.get('cd')
+
+#         # If the booking_id is not provided, return an error message
+#         if not booking_id:
+#             return HttpResponse("Error: Missing booking_id.")
+
+#         # Fetch the booking data using `booking_id`
+#         advancebookdata = SaveAdvanceBookGuestData.objects.filter(id=booking_id)
+#         for i in advancebookdata:
+#             vid = i.vendor.id
+#         advancebookingdatas = RoomBookAdvance.objects.filter(saveguestdata_id=booking_id)
+#         hoteldata = HotelProfile.objects.filter(vendor_id=vid)
+#         hoteldatas = HotelProfile.objects.get(vendor_id=vid)
+#         terms_lines = hoteldatas.termscondition.splitlines() if hoteldatas else []
+
+#         # Return the template with the booking data and query parameter
+#         return render(request, 'bookingrecipt.html', {
+#             'advancebookdata': advancebookdata,
+#             'advancebookingdatas': advancebookingdatas,
+#             'hoteldata': hoteldata,
+#             'terms_lines': terms_lines,
+#             'booking_id': booking_id,  # Send the booking_id to the template
+#         })
+#     except Exception as e:
+#         return HttpResponse(f"Error occurred: {e}")
+
 def receipt_view(request):
-    try:
-        # Get the booking_id from the query parameter 'extra_param'
-        booking_id = request.GET.get('cd')
+    # Get the booking_id from the query parameter 'extra_param'
+    booking_id = request.GET.get('cd')
 
-        # If the booking_id is not provided, return an error message
-        if not booking_id:
-            return HttpResponse("Error: Missing booking_id.")
+    # If booking_id is not provided, return an error message
+    if not booking_id:
+        return HttpResponse("Error: Missing booking_id.")
 
-        # Fetch the booking data using `booking_id`
-        advancebookdata = SaveAdvanceBookGuestData.objects.filter(id=booking_id)
-        for i in advancebookdata:
-            vid = i.vendor.id
-        advancebookingdatas = RoomBookAdvance.objects.filter(saveguestdata_id=booking_id)
-        hoteldata = HotelProfile.objects.filter(vendor_id=vid)
-        hoteldatas = HotelProfile.objects.get(vendor_id=vid)
-        terms_lines = hoteldatas.termscondition.splitlines() if hoteldatas else []
+    # Fetch the booking data using the booking_id
+    advancebookdata = SaveAdvanceBookGuestData.objects.filter(id=booking_id)
+    for i in advancebookdata:
+        vid = i.vendor.id
+    advancebookingdatas = RoomBookAdvance.objects.filter(saveguestdata_id=booking_id)
+    hoteldata = HotelProfile.objects.filter(vendor_id=vid)
+    hoteldatas = HotelProfile.objects.get(vendor_id=vid)
+    terms_lines = hoteldatas.termscondition.splitlines() if hoteldatas else []
 
-        # Return the template with the booking data and query parameter
-        return render(request, 'bookingrecipt.html', {
-            'advancebookdata': advancebookdata,
-            'advancebookingdatas': advancebookingdatas,
-            'hoteldata': hoteldata,
-            'terms_lines': terms_lines,
-            'booking_id': booking_id,  # Send the booking_id to the template
-        })
-    except Exception as e:
-        return HttpResponse(f"Error occurred: {e}")
+    # Return the template with the booking data and query parameter
+    return render(request, 'bookingrecipt.html', {
+        'advancebookdata': advancebookdata,
+        'advancebookingdatas': advancebookingdatas,
+        'hoteldata': hoteldata,
+        'terms_lines': terms_lines,
+        'booking_id': booking_id,  # Pass booking_id to the template if needed
+    })
+
 
 
 def advncereciptbiew(request, booking_id):
