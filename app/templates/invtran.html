@@ -1,14 +1,19 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="col-2 float-end">
-    <button class="btn btn-primary  w-100 "   data-bs-toggle="modal"
-    data-bs-target="#backDropModal"><i class='bx bx-search-alt-2'></i> Search By Dates</button>
+<div class="row">
+
+<div class="col-9 ">
+    <a class="btn btn-warning text-white " onClick="javascript:history.go(-1);">Back</a>
+</div>
+
+<div class="col-3 float-end">
+  <button class="btn btn-primary  w-100 "   data-bs-toggle="modal"
+  data-bs-target="#backDropModal"><i class='bx bx-search-alt-2'></i> Search By Dates</button>
 </div> 
 
-<div class="col-2 ">
-    <a class="btn btn-warning text-white w-100" onClick="javascript:history.go(-1);">Back</a>
 </div>
+
 <div class="row">
  <!-- Bootstrap Table with Header - Light -->
  <div class=" col-5 mt-5 ">
