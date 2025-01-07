@@ -158,12 +158,14 @@
 
                           
                           <div class="col-6 mb-6">
+                            <p id="message" style="color: red;"></p>
                             <label for="nameBackdrop" class="form-label">Choose Image</label>
                             <input
                               type="file"
                               name="addhotelimg"
                               maxlength="60"
-                              id="nameBackdrop"
+                           
+                              id="fileInput"
                               class="form-control"
                               placeholder="Like Free Wifi,Swiming Pool!"
                               required
@@ -177,6 +179,35 @@
                       
                   </form></div>
   
+                  <script>
+                    const MAX_FILE_SIZE = 700 * 1024; // 700 KB in bytes
+                    const fileInput = document.getElementById('fileInput');
+                    const messageElement = document.getElementById('message');
+            
+                    fileInput.addEventListener('change', function(event) {
+                        const file = event.target.files[0]; // Get the selected file
+            
+                        if (file) {
+                            if (file.size > MAX_FILE_SIZE) {
+                                messageElement.textContent = `File size is too large (${(file.size / 1024).toFixed(2)} KB). Please upload a file smaller than 700 KB.`;
+                                event.target.value = ''; // Clear the file input
+                            } else {
+                                messageElement.textContent = 'File size is valid.';
+                            }
+                        }
+                    });
+            
+                    // Prevent form submission if the file size is too large
+                    document.getElementById('uploadForm').addEventListener('submit', function(event) {
+                        const file = fileInput.files[0];
+                        if (file && file.size > MAX_FILE_SIZE) {
+                            event.preventDefault(); // Prevent form submission
+                            messageElement.textContent = 'Please upload a file smaller than 700 KB.';
+                        }
+                    });
+                </script>
+
+
                   <table class="table mt-5">
                       <thead class="table">
                         <tr>
@@ -487,12 +518,13 @@
                                 </select>
                               </div>
                             <div class="col-6 mb-6">
+                              <p id="message1" style="color: red;"></p>
                               <label for="nameBackdrop" class="form-label">Choose Image</label>
                               <input
                                 type="file"
                                 name="galaryimg"
                                 maxlength="60"
-                                id="nameBackdrop"
+                                id="fileInput1"
                                 class="form-control"
                                 placeholder="Like Free Wifi,Swiming Pool!"
                                 required
@@ -505,6 +537,34 @@
                         </button>
                         
                     </form></div>
+
+                    <script>
+                      const MAX_FILE_SIZE = 700 * 1024; // 700 KB in bytes
+                      const fileInput = document.getElementById('fileInput1');
+                      const messageElement = document.getElementById('message1');
+              
+                      fileInput.addEventListener('change', function(event) {
+                          const file = event.target.files[0]; // Get the selected file
+              
+                          if (file) {
+                              if (file.size > MAX_FILE_SIZE) {
+                                  messageElement.textContent = `File size is too large (${(file.size / 1024).toFixed(2)} KB). Please upload a file smaller than 700 KB.`;
+                                  event.target.value = ''; // Clear the file input
+                              } else {
+                                  messageElement.textContent = 'File size is valid.';
+                              }
+                          }
+                      });
+              
+                      // Prevent form submission if the file size is too large
+                      document.getElementById('uploadForm').addEventListener('submit', function(event) {
+                          const file = fileInput.files[0];
+                          if (file && file.size > MAX_FILE_SIZE) {
+                              event.preventDefault(); // Prevent form submission
+                              messageElement.textContent = 'Please upload a file smaller than 700 KB.';
+                          }
+                      });
+                  </script>
     
                     <table class="table mt-5">
                         <thead class="table">

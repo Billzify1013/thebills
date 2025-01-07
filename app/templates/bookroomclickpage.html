@@ -148,7 +148,7 @@
                       aria-label="ACME Inc."
                       aria-describedby="basic-icon-default-company2"
                     />
-                  </div>
+                  </div><span class="text-danger">*</span>
                 </div>
                 <div class="text-success" id="customerinfos"></div>
           </div>  
@@ -168,7 +168,7 @@
                           aria-label="John Doe"
                           aria-describedby="basic-icon-default-fullname2"
                         />
-                      </div>
+                      </div><span class="text-danger">*</span>
                     </div>
               </div>
               
@@ -241,7 +241,7 @@
               <optgroup label="Other Locations">
                   <option value="foreign">Foreign</option>
               </optgroup>
-            </select>
+            </select><span class="text-danger">*</span>
   
               </div>
 
@@ -435,7 +435,7 @@
                       aria-label="ACME Inc."
                       aria-describedby="basic-icon-default-company2"
                     />
-                  </div>
+                  </div><span class="text-danger">*</span>
                 </div>
           </div>
           <div class="col-2">
@@ -453,7 +453,7 @@
                       aria-label="ACME Inc."
                       aria-describedby="basic-icon-default-company2"
                     />
-                  </div>
+                  </div><span class="text-danger">*</span>
                 </div>
           </div>
 
@@ -473,6 +473,7 @@
                       aria-describedby="basic-icon-default-company2"
                     />
                   </div>
+                  <span class="text-danger">*</span>
                 </div>
           </div>
       
@@ -482,13 +483,14 @@
           <div class="col-6">
               <div class="mb-3">
                   <div class="input-group input-group-merge">
+                    <p id="message1" style="color: red;"></p>
                     <span id="basic-icon-default-company2" class="input-group-text"
-                      >Id-Front</span>
+                      >Id-Document</span>
                       <input
                     type="file"
                     name = "guestid"
                     class="form-control"
-                    id="inputGroupFile04"
+                    id="fileInput1"
                     aria-describedby="inputGroupFileAddon04"
                     aria-label="Upload"
                   />
@@ -496,6 +498,38 @@
                   </div>
                 </div>
           </div>
+
+          <script>
+            const MAX_FILE_SIZE = 700 * 1024; // 700 KB in bytes
+            const fileInput = document.getElementById('fileInput1');
+            const messageElement = document.getElementById('message1');
+    
+            fileInput.addEventListener('change', function(event) {
+                const file = event.target.files[0]; // Get the selected file
+    
+                if (file) {
+                    if (file.size > MAX_FILE_SIZE) {
+                        messageElement.textContent = `File size is too large (${(file.size / 1024).toFixed(2)} KB). Please upload a file smaller than 700 KB.`;
+                        event.target.value = ''; // Clear the file input
+                        messageElement.style.color = 'red';
+                    } else {
+                        messageElement.textContent = 'File size is valid.';
+                        messageElement.style.color = 'green';
+                    }
+                }
+            });
+    
+            // Prevent form submission if the file size is too large
+            document.getElementById('uploadForm').addEventListener('submit', function(event) {
+                const file = fileInput.files[0];
+                if (file && file.size > MAX_FILE_SIZE) {
+                    event.preventDefault(); // Prevent form submission
+                    messageElement.textContent = 'Please upload a file smaller than 700 KB.';
+                }
+            });
+        </script>
+
+
           <div class="col-6">
               <div class="mb-3">
                 <div class="input-group input-group-merge">
