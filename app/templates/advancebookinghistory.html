@@ -469,7 +469,9 @@
           <td>
             {% if data.action == 'book' %}
             <span class="badge bg-label-success">Booked</span>
-            {% else %}
+            {% elif data.action == 'modify' %}
+            <span class="badge bg-label-info">modify</span>
+            {%else%}
             <span class="badge bg-label-danger">Cancelled</span>
             {% endif %}
           </td>

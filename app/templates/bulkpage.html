@@ -176,7 +176,9 @@
 <div id="ratebulid" style="display:none">
     <div class="card " >
         <h3 class="text m-2 mt-3 ms-4">Rate Edits</h3>
+        {%if check%}
         <span class="text-danger ms-4">If You Want To Update Bulk Rates Please Of Dynamic Pricing !</span>
+        {%else%}
         <form action="{% url 'bulkformprice' %}" method="post">
             {% csrf_token %}
             <div class="row m-2">
@@ -229,6 +231,7 @@
     
     </div>
     </form>
+    {%endif%}
     </div>
 
 

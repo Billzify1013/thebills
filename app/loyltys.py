@@ -1546,9 +1546,7 @@ def search_user(request):
                 }
                 return JsonResponse({'success': True, 'user': guest_details})
 
-            # If no guest is found in either model, return an error message
-            return JsonResponse({'success': False, 'message': 'No user found with this mobile number for the current user.'})
-
+           
         except Exception as e:
             # Return a generic error message in case of unexpected issues
             return JsonResponse({'success': False, 'message': str(e)})
@@ -1639,4 +1637,30 @@ def check_product(request):
 
 
 
+
+def saveloyltydata(request):
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            # Retrieve POST data with default empty string or '0'
+            gname = request.POST.get("gname")
+            contact = request.POST.get("contact")
+            loyltypts = request.POST.get("loyltypts")
+
+            loylty_Guests_Data.objects.create(vendor=user,
+                                guest_name=gname,
+                                guest_contact=contact,
+                                loylty_point= loyltypts , 
+                                smscount=0  )
+            messages.success(request,"Guest Added !")
+            return redirect('loylty')
+   
+
+        else:
+            return redirect("loginpage")
+    except Exception as e:
+        return render(request, "404.html", {"error_message": str(e)}, status=500)
 

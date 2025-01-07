@@ -1825,7 +1825,8 @@ def bulkupdate(request):
                 user = subuser.vendor  
             roomcat = RoomsCategory.objects.filter(vendor=user)
             today = datetime.now().date()
-            return render(request,'bulkpage.html',{'roomcat':roomcat,'active_page':'bulkupdate','today':today})
+            check = VendorCM.objects.filter(vendor=user,dynamic_price_active=True).last()
+            return render(request,'bulkpage.html',{'roomcat':roomcat,'active_page':'bulkupdate','today':today,'check':check})
 
         else:
             return redirect('loginpage')

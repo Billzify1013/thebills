@@ -98,8 +98,12 @@
   <!-- Bootstrap Table with Header - Light -->
   <div class="card mt-3 mb-5">
     <div class="row">
-      <div class="col-6">
+      <div class="col-10">
         <h5 class="card-header">Loyalty Points Data</h5>
+      </div>
+        <div class="col-2">
+        <button class="btn btn-primary mt-3" href="#" data-bs-toggle="modal"
+        data-bs-target="#backDropModalupdate">Add Guest</button>
       </div>
      
     </div>
@@ -235,6 +239,8 @@
   });
   </script>
 
+  
+
 
 
 
@@ -243,6 +249,81 @@
 </div>
 </div>
 </div>
+
+
+<!-- Modal update rooms -->
+<div class="modal fade" id="backDropModalupdate" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog">
+      <form action="{% url 'saveloyltydata' %}" method="POST" class="modal-content">
+          {% csrf_token %}
+      <input type="hidden" id="roomnoidinput" name="roomid" />
+      <div class="modal-header">
+        <h5 class="modal-title" id="backDropModalTitle">Add Guest Data</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">Guest Name</label>
+            <input
+              type="Text"
+              name="gname"
+              id="nameBackdrop"
+              class="form-control"
+              placeholder="Enter Guest Name"
+              required
+            />
+          </div>
+
+        
+
+            <div class="col-4 mb-3">
+              <label for="nameBackdrop" class="form-label">Guest Contact</label>
+              <input
+                type="tel"
+                    pattern="[6-9][0-9]{9}"
+                name="contact"
+                id="nameBackdrop"
+               
+                class="form-control"
+                placeholder="Enter Contact"
+                required
+              />
+            </div>
+
+            <div class="col-4 mb-3">
+              <label for="nameBackdrop" class="form-label">Loylty Points</label>
+              <input
+                type="number"
+                name="loyltypts"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter LOylty Points"
+                required
+              />
+            </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button  class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
 
 
 {% endblock %}

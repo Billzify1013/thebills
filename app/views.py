@@ -2218,7 +2218,7 @@ def addadvancebooking(request):
                                     vendor=user,
                                     date=missing_date,
                                     room_category_id=roomtype,  # Use the appropriate `roomtype` or other identifier here
-                                    total_availibility=roomcount-1,       # Set according to your logic
+                                    total_availibility=totalrooms-1,       # Set according to your logic
                                     booked_rooms=1,    
                                     occupancy=occupancccy,
                                     price=catdatas.catprice

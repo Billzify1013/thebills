@@ -295,7 +295,8 @@ urlpatterns = [
     path('get-permissions/<int:subuser_id>/', hourlypage.get_permissions, name='get_permissions'),
     path('createsubuserpermission/', hourlypage.createsubuserpermission, name='createsubuserpermission'),
 
-
+    
+    path('saveloyltydata/',loyltys.saveloyltydata,name="saveloyltydata"),
 
     path('createsubplan/',employeemanage.createsubplan,name="createsubplan"),
     path('addmsgtouser/',employeemanage.addmsgtouser,name="addmsgtouser"),
