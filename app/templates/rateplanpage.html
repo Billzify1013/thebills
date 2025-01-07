@@ -38,6 +38,7 @@
 <div class="row ">
 
 <div class=" col-6 ">
+  <p>Make one plan here for a single person only, as bulk bookings will be split later.</p>
     <form action="{% url 'addbookingrateplan' %}" method="post">
         {% csrf_token %}
     <div class="row">
@@ -84,6 +85,7 @@
 
 
 <div class=" col-6">
+  <p>Create each plan here for MakeMyTrip OTA, as it is directly connected to them.</p>
     <form action="{% url 'addrateplan' %}" method="post">
         {% csrf_token %}
     <div class="row">

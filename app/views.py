@@ -945,6 +945,7 @@ def addguestdata(request):
             rateplanname = request.POST.get('rateplanname')
             rateplanprice = int(request.POST.get('rateplanprice'))
             subtotalbyform = int(request.POST.get('subtotal'))
+            rateplan = request.POST.get('rateplan')
             idtype = request.POST.get('idtype')
             iddetails = request.POST.get('iddetails')
             staydays = float(request.POST.get('staydays'))
@@ -1013,7 +1014,8 @@ def addguestdata(request):
                                                     grand_total_amount=grandtotal_amount,modeofpayment='',room_no=roomname,
                                                     taxtype=taxtypes,accepted_amount=0.00 ,Due_amount=grandtotal_amount,)
                 
-                msecs = cat.category_name + " : " + rateplanname + " " + " for "+ str(adults) + " adults " + " " +   " and " + str(children) + " " + "Child"
+                rateplandata=RatePlan.objects.filter(vendor=user,id=rateplan).first()
+                msecs = cat.category_name + " : " + rateplanname + " " + rateplandata.rate_plan_code  + " " + " for "+ str(adults) + " adults " + " " +   " and " + str(children) + " " + "Child"
                 invoiceitem = InvoiceItem.objects.create(vendor=user,invoice=Invoiceid,description=room_details,quantity_likedays=staydays,
                                         mdescription=msecs,paidstatus=False,price=roomprice,cgst_rate=tax_rate,sgst_rate=tax_rate,hsncode=hsnno,total_amount=grandtotal_amount)  
                 Rooms.objects.filter(vendor=user,room_name=roomno).update(checkin=1)
@@ -1217,7 +1219,7 @@ def addguestdatafromadvanceroombook(request):
                                 ipbs = RatePlan.objects.get(vendor=user,room_category_id=roomdata.room_type.id,rate_plan_name=i.rateplan_code,
                                             max_persons=i.adults,childmaxallowed=i.children)
                                 base_price = ipbs.base_price + roomdata.price
-                                msecs = roomdata.room_type.category_name + " : " + i.rateplan_code + " " + " for "+ str(i.adults) + " adults " + " " +   " and " + str(i.children) + " " + "Child"
+                                msecs = roomdata.room_type.category_name + " "+ ipbs.rate_plan_code + " : " + i.rateplan_code + " " + " for "+ str(i.adults) + " adults " + " " +   " and " + str(i.children) + " " + "Child"
                                 InvoiceItem.objects.create(vendor=user,invoice=Invoiceid,description=roomdata.room_name,
                                                         mdescription=msecs,hsncode=hsn,quantity_likedays=staydays,price=base_price,
                                                         total_amount=toalamtitem,cgst_rate=gstrate,sgst_rate=gstrate,
@@ -1226,7 +1228,7 @@ def addguestdatafromadvanceroombook(request):
                                 if RatePlanforbooking.objects.filter(vendor=user,rate_plan_name=i.rateplan_code):
                                     pdatas= RatePlanforbooking.objects.get(vendor=user,rate_plan_name=i.rateplan_code)
                                     base_price = i.adults * (pdatas.base_price) + roomdata.price
-                                    msecs = roomdata.room_type.category_name + " : " + i.rateplan_code + " " + " for "+ str(i.adults) + " adults " + " " +   " and " + str(i.children) + " " + "Child"
+                                    msecs = roomdata.room_type.category_name + " " + pdatas.rate_plan_code +" : " + i.rateplan_code + " " + " for "+ str(i.adults) + " adults " + " " +   " and " + str(i.children) + " " + "Child"
                                     InvoiceItem.objects.create(vendor=user,invoice=Invoiceid,description=roomdata.room_name,
                                                         mdescription=msecs,hsncode=hsn,quantity_likedays=staydays,price=base_price,
                                                         total_amount=toalamtitem,cgst_rate=gstrate,sgst_rate=gstrate,

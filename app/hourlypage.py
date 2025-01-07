@@ -130,6 +130,65 @@ def searchguestdata(request):
 
 
 # advance history search
+# def searchguestdataadvance(request):
+#     try:
+#         if request.user.is_authenticated and request.method == "POST":
+#             user = request.user
+#             subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+#             if subuser:
+#                 user = subuser.vendor  
+#             guests = SaveAdvanceBookGuestData.objects.filter(vendor=user).order_by('bookingdate')
+
+#             guestname = request.POST.get('guestname', '').strip()
+#             guestphone = request.POST.get('guestphone', '').strip()
+#             checkindate_str = request.POST.get('checkindate', '').strip()
+#             checkoutdate_str = request.POST.get('checkoutdate', '').strip()
+
+            
+#             filters = Q()
+
+#             if guestname:
+#                 filters &= Q(bookingguest__icontains=guestname)
+#             if guestphone:
+#                 filters &= Q(bookingguestphone__icontains=guestphone)
+            
+#             if checkindate_str and checkoutdate_str:
+#                 # Convert string dates to date objects
+#                 checkindate = datetime.strptime(checkindate_str, '%Y-%m-%d')
+#                 checkoutdate = datetime.strptime(checkoutdate_str, '%Y-%m-%d') + timedelta(days=1)  # Include the entire checkout date
+#                 checkoutdatss =  datetime.strptime(checkoutdate_str, '%Y-%m-%d')
+#                 # Apply date range filter
+#                 filters &= Q(bookingdate__gte=checkindate) & Q(checkoutdate__lte=checkoutdate)
+            
+#             elif checkindate_str:
+#                 # Convert checkindate string to date object
+#                 checkindate = datetime.strptime(checkindate_str, '%Y-%m-%d')
+#                 checkoutdatss =  datetime.strptime(checkoutdate_str, '%Y-%m-%d')
+                
+#                 # Filter guests with checkindate
+#                 filters &= Q(bookingdate__gte=checkindate) & Q(bookingdate__lt=checkindate + timedelta(days=1))
+            
+#             elif checkoutdate_str:
+#                 # Convert checkoutdate string to date object
+#                 checkoutdate = datetime.strptime(checkoutdate_str, '%Y-%m-%d')
+#                 checkoutdatss =  datetime.strptime(checkoutdate_str, '%Y-%m-%d')
+                
+#                 # Filter guests with checkoutdate
+#                 filters &= Q(checkoutdate__gte=checkoutdate) & Q(checkoutdate__lt=checkoutdate + timedelta(days=1))
+
+#             advancersoomdata = guests.filter(filters)
+
+#             if not advancersoomdata.exists():
+#                 messages.error(request, "No matching guests found.")
+
+#             return render(request, 'advancebookinghistory.html', {'monthbookdata': advancersoomdata, 
+#                                          'first_day_of_month':checkindate,'last_day_of_month':checkoutdatss ,'active_page': 'advancebookhistory'})
+#         else:
+#             return redirect('loginpage')
+        
+#     except Exception as e:
+#         return render(request, '404.html', {'error_message': str(e)}, status=500)    
+    
 def searchguestdataadvance(request):
     try:
         if request.user.is_authenticated and request.method == "POST":
@@ -139,56 +198,79 @@ def searchguestdataadvance(request):
                 user = subuser.vendor  
             guests = SaveAdvanceBookGuestData.objects.filter(vendor=user).order_by('bookingdate')
 
+            # Get input values
             guestname = request.POST.get('guestname', '').strip()
             guestphone = request.POST.get('guestphone', '').strip()
             checkindate_str = request.POST.get('checkindate', '').strip()
             checkoutdate_str = request.POST.get('checkoutdate', '').strip()
 
-            
+            bookid = request.POST.get('bookid', '').strip()
+
+            # Initialize filters
             filters = Q()
 
+            # Add filters for guest name and phone
             if guestname:
                 filters &= Q(bookingguest__icontains=guestname)
             if guestphone:
                 filters &= Q(bookingguestphone__icontains=guestphone)
-            
-            if checkindate_str and checkoutdate_str:
-                # Convert string dates to date objects
-                checkindate = datetime.strptime(checkindate_str, '%Y-%m-%d')
-                checkoutdate = datetime.strptime(checkoutdate_str, '%Y-%m-%d') + timedelta(days=1)  # Include the entire checkout date
-                checkoutdatss =  datetime.strptime(checkoutdate_str, '%Y-%m-%d')
-                # Apply date range filter
-                filters &= Q(bookingdate__gte=checkindate) & Q(checkoutdate__lte=checkoutdate)
-            
-            elif checkindate_str:
-                # Convert checkindate string to date object
-                checkindate = datetime.strptime(checkindate_str, '%Y-%m-%d')
-                checkoutdatss =  datetime.strptime(checkoutdate_str, '%Y-%m-%d')
-                
-                # Filter guests with checkindate
+
+            if bookid:
+                filters &= Q(booking_id__icontains=bookid)
+
+            # Handle date range filters
+            checkindate = None
+            checkoutdate = None
+            if checkindate_str:
+                try:
+                    checkindate = datetime.strptime(checkindate_str, '%Y-%m-%d')
+                except ValueError:
+                    messages.error(request, "Invalid check-in date format.")
+                    return redirect('advancebookhistory')  # Redirect to a safe page
+
+            if checkoutdate_str:
+                try:
+                    checkoutdate = datetime.strptime(checkoutdate_str, '%Y-%m-%d')
+                except ValueError:
+                    messages.error(request, "Invalid check-out date format.")
+                    return redirect('advancebookhistory')
+
+            # Apply date filters
+            if checkindate and checkoutdate:
+                # If both dates are present
+                filters &= Q(bookingdate__gte=checkindate) & Q(checkoutdate__lte=checkoutdate + timedelta(days=1))
+            elif checkindate:
+                # If only check-in date is provided
                 filters &= Q(bookingdate__gte=checkindate) & Q(bookingdate__lt=checkindate + timedelta(days=1))
-            
-            elif checkoutdate_str:
-                # Convert checkoutdate string to date object
-                checkoutdate = datetime.strptime(checkoutdate_str, '%Y-%m-%d')
-                checkoutdatss =  datetime.strptime(checkoutdate_str, '%Y-%m-%d')
-                
-                # Filter guests with checkoutdate
+            elif checkoutdate:
+                # If only check-out date is provided
                 filters &= Q(checkoutdate__gte=checkoutdate) & Q(checkoutdate__lt=checkoutdate + timedelta(days=1))
 
+            # Apply filters and fetch data
             advancersoomdata = guests.filter(filters)
 
+            # If no results found
             if not advancersoomdata.exists():
                 messages.error(request, "No matching guests found.")
 
-            return render(request, 'advancebookinghistory.html', {'monthbookdata': advancersoomdata, 
-                                         'first_day_of_month':checkindate,'last_day_of_month':checkoutdatss ,'active_page': 'advancebookhistory'})
+            # Return results
+            return render(request, 'advancebookinghistory.html', {
+                'monthbookdata': advancersoomdata,
+                'first_day_of_month': checkindate,
+                'last_day_of_month': checkoutdate,
+                'active_page': 'advancebookhistory',
+            })
         else:
             return redirect('loginpage')
-        
+
     except Exception as e:
-        return render(request, '404.html', {'error_message': str(e)}, status=500)    
-    
+        # Handle unexpected errors
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+
+
+
+
+
      
 
 def searchguestdatabyfolio(request):
