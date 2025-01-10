@@ -1763,6 +1763,7 @@ def gotoaddservice(request,id):
               
                 if Invoice.objects.filter(vendor=user,customer_id=customerid).exists():
                     invcid = Invoice.objects.get(vendor=user,customer_id=customerid)
+                    invcid=invcid.id
                     urlid = custid.id
             else:
                 invcitemid = InvoiceItem.objects.filter(vendor=user,description=roomno,invoice__foliostatus=False)
