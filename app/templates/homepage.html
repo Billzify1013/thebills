@@ -8,7 +8,7 @@
       
                 <div class="row">
                   
-                  <div class="col-3 mb-4 ">
+                  <div class="col-2 mb-4 ">
                     <div class="card" style="height:126px;">
                         <div class="d-flex align-items-end row">
                           <div class="col-sm-12">
@@ -37,7 +37,7 @@
                       </div>
                 </div>
 
-                <div class="col-3 mb-4 ">
+                <div class="col-2 mb-4 ">
                   <div class="card" style="height:126px;">
                         <div class="col-sm-12">
                           <div class="card-body">
@@ -60,7 +60,7 @@
                     </div>
               </div>
 
-                    <div class="col-3 mb-4 ">
+                    <div class="col-2 mb-4 ">
                         <div class="card" style="height:126px;">
                             <div class="d-flex align-items-end row">
                               <div class="col-sm-12">
@@ -86,20 +86,20 @@
                     </div>
 
 
-                    <div class="col-3 mb-4 ">
+                    <div class="col-2 mb-4 ">
                       <a href="{% url 'todaybookingpage' %}" class="">
                       <div class="card" style="height:126px;">
                           <div class="d-flex align-items-end row">
                             <div class="col-sm-12">
                               <div class="card-body">
-                                  <h6 class="card-title  "> Today Arrivals <span class="badge bg-label-primary ms-4 ">Click</span></h6>
+                                  <h6 class="card-title  "> Today Arrivals </h6>
                                   
                                   
                                   <div class="row">
-                                      <div class="col-6 mb-0">
+                                      <div class="col-6 mb-0 mt-3 ">
                                           <i class='bx bxs-plane-land bx-md mt-0 mb-0 me-0 text-gray' ></i>
                                       </div>
-                                      <div class="col-6">
+                                      <div class="col-6 mt-3">
                                           <h6 class="card-title mt-2 text-center fs-xlarge ">{{arriwalcount}}</h6>
                                       </div>
 
@@ -110,6 +110,62 @@
                           </div>
                         </div></a>
                   </div>
+
+
+                  <div class="col-2 mb-4 ">
+                    <a id="filter-clean" style="cursor: pointer;">
+                    <div class="card" style="height:126px;">
+                        <div class="d-flex align-items-end row">
+                          <div class="col-sm-12">
+                            <div class="card-body">
+                                <h6 class="card-title  ">Total Clean Rooms</h6>
+
+                                <div class="row">
+                                    <div class="col-6 mt-3">
+                                      <i class="bi bi-stars fs-4  text-info"></i>
+                                    </div>
+                                    <div class="col-6 mt-1">
+                                        <h6 class="card-title mt-2 text-center fs-xlarge ">{{cleanrooms}}</h6>
+                                    </div>
+
+                                </div>
+
+                                
+                            </div>
+                          </div>
+                         
+                        </div>
+                      </div></a>
+                </div>
+
+
+                <div class="col-2 mb-4 ">
+                  <a id="filter-unclean" style="cursor: pointer;">
+                  <div class="card" style="height:126px;">
+                      <div class="d-flex align-items-end row">
+                        <div class="col-sm-12">
+                          <div class="card-body">
+                              <h6 class="card-title  ">Total Unclean Rooms</h6>
+
+                              <div class="row">
+                                  <div class="col-6 mt-2">
+                                    
+                                   <i class="fa fa-broom text-danger fs-4 m-2 float-end"></i>
+                                    
+                                  </div>
+                                  <div class="col-6 mt-1">
+                                      <h6 class="card-title mt-2 text-center fs-xlarge ">{{uncleanrooms}}</h6>
+                                  </div>
+
+                              </div>
+
+                              
+                          </div>
+                        </div>
+                       
+                      </div>
+                    </div></a>
+              </div>
 
                     
                 </div>
@@ -170,7 +226,7 @@
 
 <!-- Room Cards Display -->
 <!-- Room Cards Display -->
-{% for i, j in roomsdict.items %}
+{% comment %} {% for i, j in roomsdict.items %}
   <!-- Category Header Row -->
   <div class="row mt-3 mb-3">
     <div class="col-9">
@@ -251,12 +307,121 @@
       </div>
     {% endfor %}
   </div>
-{% endfor %}
+{% endfor %} {% endcomment %}
+
+<!-- The existing room layout -->
+ {% for i, j in roomsdict.items %}
+  <!-- Category Header Row -->
+  <div class="row mt-3 mb-1">
+    <div class="col-9">
+      <h5 class="card-title ms-2">
+        <span class="ms-2">{{ i }}</span> <i class='bx bxs-down-arrow'></i>
+      </h5>
+    </div>
+ 
+  </div>
+
+  <!-- Room Cards for Each Category -->
+  <div class="d-flex flex-wrap mt-1">
+    {% for room in j %}
+      <div class="col-2 room-card p-2 mb-0" data-room-name="{{ room.0 }}" data-clean-status="{{ room.2 }}">
+        <div class="card">
+          <div class="row">
+            <div class="col-3">
+              {% if room.1 == 1 or  room.1 == 2 %}
+              <div class="dropdown">
+                <button
+                  class="btn p-1 "
+                  type="button"
+                  id="cardOpt3"
+                  data-bs-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                  <i class="bx bx-dots-vertical-rounded"></i>
+                </button>
+                <div class="dropdown-menu  dropdown-menu-start" aria-labelledby="cardOpt3">
+                  <a class="dropdown-item" href="{% url 'gotoaddservice' id=room.0 %}">Add Service</a>
+                  
+                </div>
+              </div>
+              {%endif%}
+            </div>
+          
+            <div class="col-9">
+          <!-- Clean Room Button with Condition -->
+          {% if room.2 == True %}
+            <a href="{% url 'cleanroombtn' id=room.0 %}"><i class="bi bi-stars fs-5 m-2 text-info float-end"></i></a>
+          {% else %}
+            <a href="{% url 'cleanroombtn' id=room.0 %}"><i class="fa fa-broom text-danger fs-5 m-2 float-end"></i></a>
+          {% endif %}
+        </div></div>
+
+          <!-- Card Body with Conditional URLs and Icons -->
+          {% if room.1 == 1 %}
+            <a href="{% url 'gotofoliobyhome' id=room.0 %}" style="text-decoration:none">
+              <div class="card-body">
+                <center>
+                  <i class='bx bxs-store mb-2 text-danger' style="font-size:21px"></i>
+                  <h4 class="card-title text-center">{{ room.0 }}</h4>
+                </center>
+              </div>
+            </a>
+          {% elif room.1 == 2 %}
+            <a href="{% url 'gotofoliobyhome' id=room.0 %}" style="text-decoration:none">
+              <div class="card-body">
+                <center>
+                  <i class='bx bxs-store mb-2 text-warning' style="font-size:21px"></i>
+                  <h4 class="card-title text-center">{{ room.0 }}</h4>
+                </center>
+              </div>
+            </a>
+          {% elif room.1 == 6 %}
+            <a href="" style="text-decoration:none">
+              <div class="card-body">
+                <center>
+                  <i class='bx bxs-store mb-2 text-muted' style="font-size:21px"></i>
+                  <h6 class="card-title mb-1 text-center">{{ room.0 }}</h6>
+                  <span class="badge bg-label-primary text-secondary mb-0" style="font-size:10px">Blocked</span>
+                </center>
+              </div>
+            </a>
+          {% elif room.1 == 4 or room.1 == 5 %}
+            <a href="{% url 'todaybookingpage' %}" style="text-decoration:none">
+              <div class="card-body">
+                <center>
+                  <i class='bx bxs-store mb-2 text-muted' style="font-size:21px"></i>
+                  <h6 class="card-title mb-1 text-center">{{ room.0 }}</h6>
+                  <span class="badge bg-label-primary text-secondary mb-0" style="font-size:10px">Reserved</span>
+                </center>
+              </div>
+            </a>
+          {% else %}
+            <a href="{% url 'openroomclickformpage' id=room.0 %}" style="text-decoration:none">
+              <div class="card-body">
+                <center>
+                  <i class='bx bxs-store mb-2 text-success' style="font-size:21px"></i>
+                  <h4 class="card-title text-center">{{ room.0 }}</h4>
+                </center>
+              </div>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endfor %}  
+
+
+
+
+
+
 
 
 
 <!-- JavaScript for live search -->
-<script>
+{% comment %} <script>
   // JavaScript for live search
   document.getElementById("search-input").addEventListener("input", function() {
       const searchQuery = this.value.toLowerCase();
@@ -272,9 +437,69 @@
           }
       });
   });
+</script> {% endcomment %}
+
+  <!-- JavaScript for live search and filters -->
+<!-- JavaScript for live search and toggle filters -->
+<script>
+  // Variable to track the current filter status
+  let currentFilter = null; // null = no filter, "clean" = clean filter, "unclean" = unclean filter
+
+  // Search input functionality
+  document.getElementById("search-input").addEventListener("input", function () {
+    const searchQuery = this.value.toLowerCase();
+    const roomCards = document.querySelectorAll(".room-card");
+
+    roomCards.forEach(card => {
+      const roomName = card.getAttribute("data-room-name").toLowerCase();
+      if (roomName.includes(searchQuery)) {
+        card.style.display = "block";
+      } else {
+        card.style.display = "none";
+      }
+    });
+  });
+
+  // Filter Clean Rooms
+  document.getElementById("filter-clean").addEventListener("click", function (e) {
+    e.preventDefault(); // Prevent default link behavior
+    const roomCards = document.querySelectorAll(".room-card");
+
+    if (currentFilter === "clean") {
+      // If the clean filter is already active, reset to show all rooms
+      currentFilter = null;
+      roomCards.forEach(card => (card.style.display = "block"));
+    } else {
+      // Apply clean filter
+      currentFilter = "clean";
+      roomCards.forEach(card => {
+        const isClean = card.getAttribute("data-clean-status") === "True";
+        card.style.display = isClean ? "block" : "none";
+      });
+    }
+  });
+
+  // Filter Unclean Rooms
+  document.getElementById("filter-unclean").addEventListener("click", function (e) {
+    e.preventDefault(); // Prevent default link behavior
+    const roomCards = document.querySelectorAll(".room-card");
+
+    if (currentFilter === "unclean") {
+      // If the unclean filter is already active, reset to show all rooms
+      currentFilter = null;
+      roomCards.forEach(card => (card.style.display = "block"));
+    } else {
+      // Apply unclean filter
+      currentFilter = "unclean";
+      roomCards.forEach(card => {
+        const isClean = card.getAttribute("data-clean-status") === "True";
+        card.style.display = !isClean ? "block" : "none";
+      });
+    }
+  });
 </script>
 
-  
+
 
 
 

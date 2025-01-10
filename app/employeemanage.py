@@ -719,9 +719,10 @@ def createeventinvoice(request,id):
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)    
     
-         
+
 def roomclean(request,user):
     try:
+        if request.user.is_authenticated:
             user = user 
             subuser = Subuser.objects.select_related('vendor').filter(user_id=user).first()
             permission = False
@@ -746,6 +747,8 @@ def roomclean(request,user):
                 'hotelname':hotelnames,
                 'permission':permission
             })
+        else:
+            return redirect('loginpage')
        
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)    
@@ -1513,7 +1516,7 @@ def mobileview(request, user):
 
                     room.tax = room.category_tax.taxrate
                 else:
-                    room.available_rooms = Rooms.objects.filter(vendor__username=user, room_type=room).count()
+                    room.available_rooms = Rooms.objects.filter(vendor__username=user, room_type=room).exclude(checkin=6).count()
                     # room.uprice = room.catprice
                     # room.delprice = room.catprice+1000
                     # room.offeramount = 0
@@ -1678,7 +1681,7 @@ def searchwebsitedata(request):
 
                     room.tax = room.category_tax.taxrate
                 else:
-                    room.available_rooms = Rooms.objects.filter(vendor__username=user, room_type=room).count()
+                    room.available_rooms = Rooms.objects.filter(vendor__username=user, room_type=room).exclude(checkin=6).count()
 
                     if offers:
                         OFFERAMOUNT = room.catprice * offers.discount_percentage // 100

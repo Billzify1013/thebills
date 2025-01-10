@@ -172,10 +172,10 @@
     
     <div class=" row">
         <div class="col-2">
-        {% comment %} <input type=button value="Back" class="btn btn-outline-warning" onClick="javascript:history.go(-1);"> {% endcomment %}
+        <input type=button value="Back" class="btn btn-outline-warning" onClick="javascript:history.go(-1);">
         </div>
         <div class="col-6">
-
+          {% if request.session.permissions.fce %}
      <form  action="{% url 'cancelroom' %}" method="post">
         {% csrf_token %}
             {%for data in invoice_data%}
@@ -185,6 +185,7 @@
             {%endfor%} 
     <button class="btn btn-danger float-end  me-3" type="submit">Cancel Booking & Delete Folio</button>
      </form>
+     {%endif%}
     </div>
     <div class="col-4">
 
@@ -416,7 +417,9 @@
                                             
                                                 {%if payment.transaction_id%}
                                                 <span class="text w-25" style="font-size:12px">D:{{payment.transaction_id}}<br>
-                                                    C:{{payment.descriptions}}</span>
+                                                    
+                                                  {%elif payment.descriptions%}
+                                                  C:{{payment.descriptions}}</span>
                                                 {%endif%}</td>
                                         </tr>
                                         {%endfor%}
@@ -514,6 +517,8 @@
 
 
     </html>
+
+    
 
     <div class="modal fade" id="kotModal" tabindex="-1" aria-labelledby="kotModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
@@ -655,67 +660,132 @@
     });
     
     // Function to handle Print and Download actions
-    function printOrDownload(action) {
-        const guestName = document.getElementById("guestName").textContent;
-        const guestPhone = document.getElementById("guestPhone").textContent;
-        const guestRoom = document.getElementById("guestRoom").textContent;
-        const orderDate = document.getElementById("orderDate").textContent;
-        const kotTableContent = document.getElementById("kotTableBody").innerHTML;
-        const grandTotal = document.getElementById("grandTotal").textContent;
-    
-        const content = `
-            <div style="font-family: Arial, sans-serif; padding: 20px;">
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <h5>Hotel Order Token (HOT)</h5>
-                    <p><strong>Guest Name:</strong> ${guestName}</p>
-                    <p><strong>Guest Phone:</strong> ${guestPhone}</p>
-                    <p><strong>Room:</strong> ${guestRoom} (Primary Room)</p>
-                    <hr />
-                    
-                    <p>Hotel Order Token (HOT)</p>
-                    <p>Order Date & Time: ${orderDate}</p>
-                    <hr />
-                    <table style="width: 100%; border-collapse: collapse; margin-top: 20px; border: 1px solid #ccc;">
-                        <thead>
-                            <tr>
-                                <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Item</th>
-                                <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Qty</th>
-                                <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Price</th>
-                                <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Tax</th> <!-- Add Tax column -->
-                                <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${kotTableContent}
-                        </tbody>
-                    </table>
-                    <div style="text-align: right; margin-top: 20px;">
-                        <strong>Grand Total: ₹${grandTotal}</strong>
-                    </div>
-                    <div style="margin-top: 20px; text-align: left;">
-                        <p><strong>Guest Signature:</strong></p>
-                        <div style="border: 1px solid #ccc; width: 100%; height: 50px;"></div>
-                    </div>
-                </div>
-            </div>
-        `;
-    
-        if (action === 'print') {
-            const newWindow = window.open("", "_blank");
-            newWindow.document.write(content);
-            newWindow.document.close();
-            newWindow.print();
-        } else if (action === 'download') {
-            const pdf = new jsPDF();
-            pdf.html(content, {
-                callback: function (pdf) {
-                    pdf.save("HOT.pdf");
-                },
-                x: 10,
-                y: 10,
-            });
-        }
-    }
+    // Function to handle Print and Download actions
+// Function to handle Print and Download actions
+function printOrDownload(action) {
+  const guestName = document.getElementById("guestName").textContent;
+  const guestPhone = document.getElementById("guestPhone").textContent;
+  const guestRoom = document.getElementById("guestRoom").textContent;
+  const orderDate = document.getElementById("orderDate").textContent;
+  const kotTableContent = document.getElementById("kotTableBody").innerHTML;
+  const grandTotal = document.getElementById("grandTotal").textContent;
+
+  const content = `
+      <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 20px;">
+              <h5>Hotel Order Token (HOT)</h5>
+              <p><strong>Guest Name:</strong> ${guestName}</p>
+              <p><strong>Guest Phone:</strong> ${guestPhone}</p>
+              <p><strong>Room:</strong> ${guestRoom} (Primary Room)</p>
+              <hr />
+              
+              <p>Hotel Order Token (HOT)</p>
+              <p>Order Date & Time: ${orderDate}</p>
+              <hr />
+              <table style="width: 100%; border-collapse: collapse; margin-top: 20px; border: 1px solid #ccc;">
+                  <thead>
+                      <tr>
+                          <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Item</th>
+                          <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Qty</th>
+                          <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Price</th>
+                          <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Tax</th> <!-- Add Tax column -->
+                          <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Total</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      ${kotTableContent}
+                  </tbody>
+              </table>
+              <div style="text-align: right; margin-top: 20px;">
+                  <strong>Grand Total: ₹${grandTotal}</strong>
+              </div>
+              <div style="margin-top: 20px; text-align: left;">
+                  <p><strong>Guest Signature:</strong></p>
+                  <div style="border: 1px solid #ccc; width: 100%; height: 50px;"></div>
+              </div>
+          </div>
+      </div>
+  `;
+
+  if (action === 'print') {
+      const newWindow = window.open("", "_blank");
+
+      // Write content to new window
+      newWindow.document.write(`
+          <html>
+          <head>
+              <style>
+                  @media print {
+                      @page {
+                          size: 4in auto; /* 4-inch width */
+                          margin-top: 50px; /* 50px top margin */
+                      }
+
+                      body {
+                          margin: 0;
+                          padding: 0;
+                          font-family: Arial, sans-serif;
+                      }
+
+                      .modal-content {
+                          width: 4in;
+                          margin: 0;
+                          padding: 20px;
+                          box-shadow: none;
+                      }
+
+                      table {
+                          width: 100%;
+                          border-collapse: collapse;
+                      }
+
+                      th, td {
+                          padding: 8px;
+                          border: 1px solid #ccc;
+                          text-align: left;
+                      }
+
+                      .modal-header h5 {
+                          font-size: 12px;
+                      }
+
+                      .modal-body {
+                          padding: 0;
+                      }
+
+                      /* Prevent full-screen size and keep content in 4-inch width */
+                      .print-content {
+                          width: 4in;
+                          margin: 0 auto; /* Center the content */
+                          padding: 10px;
+                          box-sizing: border-box;
+                      }
+                  }
+              </style>
+          </head>
+          <body>
+              <div class="print-content">
+                  ${content}
+              </div>
+          </body>
+          </html>
+      `);
+
+      newWindow.document.close();
+      newWindow.print();
+  } else if (action === 'download') {
+      const pdf = new jsPDF();
+      pdf.html(content, {
+          callback: function (pdf) {
+              pdf.save("HOT.pdf");
+          },
+          x: 10,
+          y: 10,
+      });
+  }
+}
+
+
     
   </script>
   

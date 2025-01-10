@@ -151,6 +151,15 @@ def aiosell_new_reservation(request):
                                 totalguest=totalguest,
                                 noofrooms=roomcount,
                             )
+
+                            if pahr==False:
+                                InvoicesPayment.objects.create(vendor=vendordata.vendor,
+                                                advancebook= Saveadvancebookdata,
+                                                payment_amount= amountaftertax,
+                                                payment_date=bookingdates,
+                                                payment_mode='BankTransfer', 
+                                                transaction_id='',
+                                                descriptions='This Amount From OTA'  )
                             
                             for room in data['rooms']:
                                 roomcatname = room['roomCode']
@@ -169,11 +178,15 @@ def aiosell_new_reservation(request):
                                         pass
                                 
                                 # print("  Prices:")
+                                # totalsell = 0.0
+                                # for price in room['prices']:
+                                #     totalsell = totalsell + price['sellRate']
+
                                 totalsell = 0.0
                                 for price in room['prices']:
-                                    totalsell = totalsell + price['sellRate']
+                                    totalsell =  price['sellRate']
 
-                                if  Rooms.objects.filter(vendor=vendordata.vendor,room_type__category_name=roomcatname).exists():
+                                if  Rooms.objects.filter(vendor=vendordata.vendor,room_type__category_name=roomcatname).exclude(checkin=6).exists():
                                     available_rooms = Rooms.objects.filter(
                                                 vendor=vendordata.vendor,
                                                 room_type__category_name=roomcatname
@@ -185,10 +198,9 @@ def aiosell_new_reservation(request):
                                             )
                                     room = available_rooms.first()
                                     if not room:
-                                        room = Rooms.objects.filter(vendor=vendordata.vendor,room_type__category_name=roomcatname,checkin=0).first()
+                                        room = Rooms.objects.filter(vendor=vendordata.vendor,room_type__category_name=roomcatname,checkin=0).exclude(checkin=6).first()
                                     else:
                                         pass
-
                                     RoomBookAdvance.objects.create(
                                                 vendor=vendordata.vendor,
                                                 saveguestdata=Saveadvancebookdata,
@@ -229,16 +241,18 @@ def aiosell_new_reservation(request):
                                         status="BOOKING"
                                     )
 
+                                    
+
                                     catdatas = RoomsCategory.objects.get(vendor=vendordata.vendor,category_name=roomcatname)
                                     # inventory code
                                     # Convert date strings to date objects
                                     checkindate = str(checkindate)
                                     checkoutdate = str(checkoutdate)
                                     checkindate = datetime.strptime(checkindate, '%Y-%m-%d').date()
-                                    checkoutdate = (datetime.strptime(checkoutdate, '%Y-%m-%d').date() - timedelta(days=1))
+                                    checkoutdates = (datetime.strptime(checkoutdate, '%Y-%m-%d').date() - timedelta(days=1))
 
                                     # Generate the list of all dates between check-in and check-out (inclusive)
-                                    all_dates = [checkindate + timedelta(days=x) for x in range((checkoutdate - checkindate).days + 1)]
+                                    all_dates = [checkindate + timedelta(days=x) for x in range((checkoutdates - checkindate).days + 1)]
 
                                     # Query the RoomsInventory model to check if records exist for all those dates
                                     existing_inventory = RoomsInventory.objects.filter(vendor=vendordata.vendor,room_category=catdatas, date__in=all_dates)
@@ -287,7 +301,7 @@ def aiosell_new_reservation(request):
                             userids = vendordata.vendor.id
                             if VendorCM.objects.filter(vendor=vendordata.vendor,):
                                         start_date = str(checkindate)
-                                        end_date = str(checkoutdate)
+                                        end_date = str(checkoutdates)
                                         thread = threading.Thread(target=update_inventory_task, args=(userids, start_date, end_date))
                                         thread.start()
                                         # for dynamic pricing
@@ -341,7 +355,27 @@ def aiosell_new_reservation(request):
                                 totalguest=totalguest,
                                 noofrooms=roomcount,
                             )
+
+                            if pahr==False:
+                                if InvoicesPayment.objects.filter(vendor=vendordata.vendor,advancebook= Saveadvancebookdata).exists():
+                                    pass
+                                else:
+                                    InvoicesPayment.objects.create(vendor=vendordata.vendor,
+                                                advancebook= Saveadvancebookdata,
+                                                payment_amount= amountaftertax,
+                                                payment_date=bookingdates,
+                                                payment_mode='BankTransfer', 
+                                                transaction_id='',
+                                                descriptions='This Amount From OTA'  )
                             
+                            roombookadvance_data = list(RoomBookAdvance.objects.filter(
+                                vendor=vendordata.vendor,
+                                saveguestdata=Saveadvancebookdata
+                            ))
+
+                            # Create an iterator from the queryset
+                            roombookadvance_iterator = iter(roombookadvance_data)
+                            count=0
                             for room in data['rooms']:
                                 roomcatname = room['roomCode']
                                 rateplanCode = room['rateplanCode']
@@ -349,6 +383,8 @@ def aiosell_new_reservation(request):
                                 adults =  int(room['occupancy']['adults']) 
                                 children = int(room['occupancy']['children'])
                                 rateplanname=''
+                                roombookadvance = next(roombookadvance_iterator)
+                                print(roombookadvance.id,"next data id ")
                                 if rateplanCode == 'null':
                                     rateplanCode=None
                                 else:
@@ -361,9 +397,9 @@ def aiosell_new_reservation(request):
                                 # print("  Prices:")
                                 totalsell = 0.0
                                 for price in room['prices']:
-                                    totalsell = totalsell + price['sellRate']
-
-                                if  Rooms.objects.filter(vendor=vendordata.vendor,room_type__category_name=roomcatname).exists():
+                                    totalsell =  price['sellRate']
+                                
+                                if  Rooms.objects.filter(vendor=vendordata.vendor,room_type__category_name=roomcatname).exclude(checkin=6).exists():
                                     available_rooms = Rooms.objects.filter(
                                                 vendor=vendordata.vendor,
                                                 room_type__category_name=roomcatname
@@ -374,15 +410,23 @@ def aiosell_new_reservation(request):
                                                 ).values_list('room_id', flat=True)
                                             )
                                     room = available_rooms.first()
+                                    
                                     if not room:
-                                        room = Rooms.objects.filter(vendor=vendordata.vendor,room_type__category_name=roomcatname,checkin=0).first()
+                                        room = Rooms.objects.filter(vendor=vendordata.vendor,room_type__category_name=roomcatname,checkin=0).exclude(checkin=6).first()
                                     else:
                                         pass
-                                    roombookadvance = RoomBookAdvance.objects.get(vendor=vendordata.vendor,saveguestdata=Saveadvancebookdata)
-                                    RoomBookAdvance.objects.filter(vendor=vendordata.vendor,saveguestdata=Saveadvancebookdata).update(
+                                    
+                                    if roombookadvance.roomno.room_type.category_name==roomcatname:
+                                        
+                                        roomid = roombookadvance.roomno.id
+                                    else:
+                                     
+                                        roomid = room.id
+                                    
+                                    RoomBookAdvance.objects.filter(id=roombookadvance.id).update(
                                                 saveguestdata=Saveadvancebookdata,
                                                 bookingdate=checkindate,
-                                                roomno_id=room.id,
+                                                roomno_id=roomid,
                                                 bookingguest=guestname,
                                                 bookingguestphone=guestphone,
                                                 checkoutdate=checkoutdate,
@@ -403,9 +447,14 @@ def aiosell_new_reservation(request):
 
                                     # Create the Booking entry for the room
                                     
-                                    Booking.objects.filter(vendor=vendordata.vendor,advancebook=Saveadvancebookdata).update(
+                                    bdata = Booking.objects.filter(vendor=vendordata.vendor,advancebook=Saveadvancebookdata)
+                                    idsb = []
+                                    for i in bdata:
+                                         idsb.append(i.id)
+                                    bids = idsb[count]
+                                    Booking.objects.filter(vendor=vendordata.vendor,id=bids).update(
                                         vendor=vendordata.vendor,
-                                        room=room,
+                                        room_id=roomid,
                                         guest_name=guestname,
                                         check_in_date=checkindate,
                                         check_out_date=checkoutdate,
@@ -418,6 +467,7 @@ def aiosell_new_reservation(request):
                                         advancebook=Saveadvancebookdata,
                                         status="BOOKING"
                                     )
+                                    count+=1
 
                                     
 
@@ -427,12 +477,12 @@ def aiosell_new_reservation(request):
                                         checkindate = datetime.strptime(str(checkindate), '%Y-%m-%d').date()
                                         checkoutdate = datetime.strptime(str(checkoutdate), '%Y-%m-%d').date()
                                         mcheckoutdate = datetime.strptime(str(mcheckoutdate), '%Y-%m-%d').date()
-                                        checkoutdate = checkoutdate - timedelta(days=1)  # Exclude the last day for range
+                                        checkoutdates = checkoutdate - timedelta(days=1)  # Exclude the last day for range
 
                                         print(Saveadvancebookdata.bookingdate , checkindate , Saveadvancebookdata.checkoutdate , mcheckoutdate , roombookadvance.roomno.room_type.id,catdatas.id)
                                         if Saveadvancebookdata.bookingdate == checkindate and Saveadvancebookdata.checkoutdate == mcheckoutdate and roombookadvance.roomno.room_type.id==catdatas.id:
                                             pass
-                                            print("sam dates")
+                                            
                                         else:
                                             oldcheckoutdate = Saveadvancebookdata.checkoutdate - timedelta(days=1) 
                                             olds_inventory = RoomsInventory.objects.filter(
@@ -456,10 +506,10 @@ def aiosell_new_reservation(request):
 
                                                     inventory.save()
 
-                                            all_dates = [checkindate + timedelta(days=x) for x in range((checkoutdate - checkindate).days + 1)]
+                                            all_dates = [checkindate + timedelta(days=x) for x in range((checkoutdates - checkindate).days + 1)]
 
                                             # Query the RoomsInventory model to check if records exist for all those dates
-                                            existing_inventory = RoomsInventory.objects.filter(vendor=vendordata.vendor,room_category=catdatas, date__range=[checkindate,checkoutdate])
+                                            existing_inventory = RoomsInventory.objects.filter(vendor=vendordata.vendor,room_category=catdatas, date__range=[checkindate,checkoutdates])
                                             print(existing_inventory,"check here chandan")
                                             # Get the list of dates that already exist in the inventory
                                             existing_dates = set(existing_inventory.values_list('date', flat=True))
@@ -522,7 +572,7 @@ def aiosell_new_reservation(request):
                             userids = vendordata.vendor.id
                             if VendorCM.objects.filter(vendor=vendordata.vendor):
                                         start_date = str(checkindate)
-                                        end_date = str(checkoutdate)
+                                        end_date = str(checkoutdates)
                                         thread = threading.Thread(target=update_inventory_task, args=(userids, start_date, end_date))
                                         thread.start()
                                         # for dynamic pricing

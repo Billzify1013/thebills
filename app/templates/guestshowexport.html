@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% comment %} <!DOCTYPE html>
 <html>
 <head>
     <style>
@@ -128,6 +128,148 @@
                 }
 
                 pdf.save('guest_information.pdf');
+            });
+        });
+    </script>
+</body>
+</html> {% endcomment %}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            color: #333;
+        }
+    </style>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                margin: 0;
+                padding: 20px;
+            }
+            .table-responsive {
+                display: block;
+                overflow: visible !important;
+            }
+            thead {
+                display: table-header-group;
+            }
+            img {
+                max-width: 100px;
+                height: auto;
+            }
+            table {
+                width: 100%;
+                table-layout: auto;
+            }
+            th, td {
+                word-wrap: break-word;
+                white-space: normal;
+            }
+            .filter-options, /* Hide filter options in print view */
+            .mb-4 { /* Hide Back and Print buttons */
+                display: none !important;
+            }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.min.js"></script>
+</head>
+<body>
+    
+    <div class="container-fluid">
+        <div class="mb-4 mt-4">
+            
+            <button class="btn btn-primary ms-3" onclick="window.print()">Print Page</button>
+            <input type="button" value="Back" class="btn btn-outline-warning ms-3" onClick="javascript:history.go(-1);">
+        </div>
+        <hr>
+        <span class="mt-2">Start Date: <b>{{ startdate }}</b></span>
+            <span>End Date: <b>{{ enddate }}</b></span>
+        <!-- Filter Options -->
+        <div class="filter-options mb-3">
+            <label><input type="checkbox" class="filter-checkbox" data-column="1" checked> Guest Phone, Email</label>
+            <label><input type="checkbox" class="filter-checkbox" data-column="2" checked> Check-in Date</label>
+            <label><input type="checkbox" class="filter-checkbox" data-column="3" checked> Check-out Date</label>
+            <label><input type="checkbox" class="filter-checkbox" data-column="4" checked> Address, City, Country</label>
+            <label><input type="checkbox" class="filter-checkbox" data-column="5" checked> ID Type</label>
+            <label><input type="checkbox" class="filter-checkbox" data-column="6" checked> ID Details</label>
+            <label><input type="checkbox" class="filter-checkbox" data-column="7" checked> Total Guests</label>
+            <label><input type="checkbox" class="filter-checkbox" data-column="8" checked> Adults</label>
+            <label><input type="checkbox" class="filter-checkbox" data-column="9" checked> Children</label>
+            <label><input type="checkbox" class="filter-checkbox" data-column="10" checked> Purpose of Visit</label>
+            <label><input type="checkbox" class="filter-checkbox" data-column="11" checked> ID Image</label>
+        </div>
+
+        <div class="container-fluid mt-5" id="tableDiv">
+            <h2>Guest Information</h2>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Guest Name</th>
+                            <th>Guest Phone,<br>Email</th>
+                            <th>Check-in Date</th>
+                            <th>Check-out Date</th>
+                            <th>Guest Address, City, Country</th>
+                            <th>Guest ID Type</th>
+                            <th>Guest ID Details/Number</th>
+                            <th>Total No. of Guests</th>
+                            <th>Adults</th>
+                            <th>Children</th>
+                            <th>Purpose of Visit</th>
+                            <th>ID Image</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in guestdata %}
+                        <tr>
+                            <td>{{ i.guestname }}</td>
+                            <td>{{ i.guestphome }}<br>{{ i.guestemail }}</td>
+                            <td>{{ i.checkindate }}</td>
+                            <td>{{ i.checkoutdate }}</td>
+                            <td>{{ i.guestcity }}, {{ i.guestcountry }}</td>
+                            <td>{{ i.guestidtypes }}</td>
+                            <td>{{ i.guestsdetails }}</td>
+                            <td>{{ i.noofguest }}</td>
+                            <td>{{ i.adults }}</td>
+                            <td>{{ i.children }}</td>
+                            <td>{{ i.purposeofvisit }}</td>
+                            <td>
+                                {% if i.guestidimg %}
+                                <img src="{{ i.guestidimg.url }}" height="100px" alt="ID Image">
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle visibility based on checkbox
+        const checkboxes = document.querySelectorAll('.filter-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const columnIndex = this.getAttribute('data-column');
+                const table = document.querySelector('table');
+                const rows = table.querySelectorAll('tr');
+
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('th, td');
+                    if (cells[columnIndex]) {
+                        cells[columnIndex].style.display = this.checked ? '' : 'none';
+                    }
+                });
             });
         });
     </script>

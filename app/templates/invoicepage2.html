@@ -124,7 +124,7 @@
             width: 20%;
         }
 
-        #download-btn, #print-btn {
+        #download-btn, #print-btn, #back {
             position: fixed;
             bottom: 20px;
             right: 20px;
@@ -137,6 +137,13 @@
             border-radius: 5px;
         }
 
+       
+        #back {
+            bottom: 140px; /* Position Back above Download */
+            background-color: #28a745; /* Green color */
+        }
+
+
         #download-btn {
             bottom: 80px; /* Position Download above Print */
         }
@@ -146,7 +153,7 @@
         }
 
         @media print {
-            #download-btn, #print-btn {
+            #download-btn, #print-btn,#back {
                 display: none; /* Hide both buttons during printing */
             }
 
@@ -188,6 +195,7 @@
                 <p><strong>Date: </strong>{{data.invoice_date}}</p>
                 <p><strong>Check-In: </strong>{{data.customer.checkindate}}</p>
                 <p><strong>Check-Out: </strong>{{data.customer.checkoutdate}}</p>
+                <p><strong>Source: </strong>{{data.customer.channel}}</p>
             </div>
             <div class="right">
                 <p><strong>Name: </strong>{{data.customer.guestname}}</p>
@@ -326,6 +334,8 @@
       <!-- Buttons for Print and PDF Download -->
     <button id="download-btn" onclick="generatePDF()">Download as PDF</button>
     <button id="print-btn" onclick="printInvoice()">Print Invoice</button>
+    <a id="back" href="{% url 'homepage' %}">back</a>
+   
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>

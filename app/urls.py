@@ -38,6 +38,9 @@ urlpatterns = [
     path('checkoutroom/',views.checkoutroom,name="checkoutroom"),
     path('cancelroom/',views.cancelroom,name="cancelroom"),
     path('gotofoliobyhome/<int:id>/',views.gotofoliobyhome,name="gotofoliobyhome"),
+    path('gotoaddservice/<int:id>/',views.gotoaddservice,name="gotoaddservice"),
+
+    
     path('editcustomergstnumber/',views.editcustomergstnumber,name="editcustomergstnumber"),
     path('addguestdata/',views.addguestdata,name="addguestdata"),
     path('addguestdatafromadvanceroombook/',views.addguestdatafromadvanceroombook,name="addguestdatafromadvanceroombook"),
@@ -115,7 +118,7 @@ urlpatterns = [
     path('deleteloyltyajaxdata',loyltys.deleteloyltyajaxdata,name="deleteloyltyajaxdata"),
     path('getguestdatabyajaxinform',loyltys.getguestdatabyajaxinform,name="getguestdatabyajaxinform"),
     path('getrateplandata',loyltys.getrateplandata,name="getrateplandata"),
-    # path('receipt/<int:booking_id>/', views.receipt_view, name='receipt_view'),
+    path('receipt_book/<int:booking_id>/', views.receipt_view_book, name='receipt_view_book'),
     # In your urls.py file
     # path('receipt/<int:booking_id>/', views.receipt_view, name='receipt_view'),
     # path('receipt/', views.receipt_view, name='receipt_view'),

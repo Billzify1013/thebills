@@ -7,6 +7,10 @@ from django.db.models import Q
 from django.utils import timezone
 from datetime import datetime, timedelta
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+import threading
+from .newcode import *
+# Create your views here.
+from .dynamicrates import *
 
 def hourlyhomepage(request):
     try:
@@ -34,7 +38,10 @@ def addroomtohourlyrooms(request):
             subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
             if subuser:
                 user = subuser.vendor  
+            today = datetime.now().date()
             roomno = request.POST.get('roomno')
+            enddate = request.POST.get('enddate')
+            
 
             if HourlyRoomsdata.objects.filter(vendor=user,rooms=roomno).exists():
                 pass
@@ -43,6 +50,42 @@ def addroomtohourlyrooms(request):
                 HourlyRoomsdata.objects.create(vendor=user,rooms_id=roomno,checkinstatus=False,checkoutstatus=False,
                                             checkIntime=current_time,checkottime=current_time,time="3hours")
                 Rooms.objects.filter(vendor=user,id=roomno).update(checkin=6)
+                rdata = Rooms.objects.get(vendor=user,id=roomno)
+                savedateblock.objects.create(vendor=user,room=rdata,date=enddate)
+                existing_inventory = RoomsInventory.objects.filter(vendor=user,room_category_id=rdata.room_type, date__range=[today,enddate])
+                
+                for inventory in existing_inventory:
+                    if inventory.total_availibility > 0:  # Ensure there's at least 1 room available
+                        # Update room availability and booked rooms
+                        inventory.total_availibility -= 1
+                        
+                        # Calculate total rooms
+                        total_rooms = inventory.total_availibility + inventory.booked_rooms
+
+                        # Recalculate the occupancy based on the updated values
+                        if total_rooms > 0:
+                            inventory.occupancy = (inventory.booked_rooms / total_rooms) * 100
+                        else:
+                            inventory.occupancy = 0  # Avoid division by zero if no rooms exist
+
+                        # Save the updated inventory
+                        inventory.save()
+
+                if VendorCM.objects.filter(vendor=user):
+                    start_date = str(today)
+                    end_date = str(enddate)
+                    thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
+                    thread.start()
+                    # for dynamic pricing
+                    if  VendorCM.objects.filter(vendor=user,dynamic_price_active=True):
+                        thread = threading.Thread(target=rate_hit_channalmanager, args=(user.id, start_date, end_date))
+                        thread.start()
+                    else:
+                        pass
+
+                else:
+                    pass
+            
             return redirect('hourlyhomepage')
         else:
             return redirect('loginpage')
@@ -62,6 +105,43 @@ def removeroomfromhourly(request):
                 roomid = HourlyRoomsdata.objects.get(vendor=user,id=roomno)
                 Rooms.objects.filter(vendor=user,id=roomid.rooms.id).update(checkin=0)
                 HourlyRoomsdata.objects.filter(vendor=user,id=roomno).delete()
+                today = datetime.now().date()
+                rdata = Rooms.objects.get(vendor=user,id=roomid.rooms.id)
+                edatedata = savedateblock.objects.filter(vendor=user,room=rdata).last()
+                enddate = edatedata.date
+                edatedata.delete()
+                existing_inventory = RoomsInventory.objects.filter(vendor=user,room_category_id=rdata.room_type, date__range=[today,enddate])
+                for inventory in existing_inventory:
+                    if inventory.total_availibility > 0:  # Ensure there's at least 1 room available
+                        # Update room availability and booked rooms
+                        inventory.total_availibility += 1
+                        
+                        # Calculate total rooms
+                        total_rooms = inventory.total_availibility + inventory.booked_rooms
+
+                        # Recalculate the occupancy based on the updated values
+                        if total_rooms > 0:
+                            inventory.occupancy = (inventory.booked_rooms / total_rooms) * 100
+                        else:
+                            inventory.occupancy = 0  # Avoid division by zero if no rooms exist
+
+                        # Save the updated inventory
+                        inventory.save()
+
+                if VendorCM.objects.filter(vendor=user):
+                    start_date = str(today)
+                    end_date = str(enddate)
+                    thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
+                    thread.start()
+                    # for dynamic pricing
+                    if  VendorCM.objects.filter(vendor=user,dynamic_price_active=True):
+                        thread = threading.Thread(target=rate_hit_channalmanager, args=(user.id, start_date, end_date))
+                        thread.start()
+                    else:
+                        pass
+
+                else:
+                    pass
             
             return redirect('hourlyhomepage') 
         else:
@@ -129,65 +209,6 @@ def searchguestdata(request):
      
 
 
-# advance history search
-# def searchguestdataadvance(request):
-#     try:
-#         if request.user.is_authenticated and request.method == "POST":
-#             user = request.user
-#             subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
-#             if subuser:
-#                 user = subuser.vendor  
-#             guests = SaveAdvanceBookGuestData.objects.filter(vendor=user).order_by('bookingdate')
-
-#             guestname = request.POST.get('guestname', '').strip()
-#             guestphone = request.POST.get('guestphone', '').strip()
-#             checkindate_str = request.POST.get('checkindate', '').strip()
-#             checkoutdate_str = request.POST.get('checkoutdate', '').strip()
-
-            
-#             filters = Q()
-
-#             if guestname:
-#                 filters &= Q(bookingguest__icontains=guestname)
-#             if guestphone:
-#                 filters &= Q(bookingguestphone__icontains=guestphone)
-            
-#             if checkindate_str and checkoutdate_str:
-#                 # Convert string dates to date objects
-#                 checkindate = datetime.strptime(checkindate_str, '%Y-%m-%d')
-#                 checkoutdate = datetime.strptime(checkoutdate_str, '%Y-%m-%d') + timedelta(days=1)  # Include the entire checkout date
-#                 checkoutdatss =  datetime.strptime(checkoutdate_str, '%Y-%m-%d')
-#                 # Apply date range filter
-#                 filters &= Q(bookingdate__gte=checkindate) & Q(checkoutdate__lte=checkoutdate)
-            
-#             elif checkindate_str:
-#                 # Convert checkindate string to date object
-#                 checkindate = datetime.strptime(checkindate_str, '%Y-%m-%d')
-#                 checkoutdatss =  datetime.strptime(checkoutdate_str, '%Y-%m-%d')
-                
-#                 # Filter guests with checkindate
-#                 filters &= Q(bookingdate__gte=checkindate) & Q(bookingdate__lt=checkindate + timedelta(days=1))
-            
-#             elif checkoutdate_str:
-#                 # Convert checkoutdate string to date object
-#                 checkoutdate = datetime.strptime(checkoutdate_str, '%Y-%m-%d')
-#                 checkoutdatss =  datetime.strptime(checkoutdate_str, '%Y-%m-%d')
-                
-#                 # Filter guests with checkoutdate
-#                 filters &= Q(checkoutdate__gte=checkoutdate) & Q(checkoutdate__lt=checkoutdate + timedelta(days=1))
-
-#             advancersoomdata = guests.filter(filters)
-
-#             if not advancersoomdata.exists():
-#                 messages.error(request, "No matching guests found.")
-
-#             return render(request, 'advancebookinghistory.html', {'monthbookdata': advancersoomdata, 
-#                                          'first_day_of_month':checkindate,'last_day_of_month':checkoutdatss ,'active_page': 'advancebookhistory'})
-#         else:
-#             return redirect('loginpage')
-        
-#     except Exception as e:
-#         return render(request, '404.html', {'error_message': str(e)}, status=500)    
     
 def searchguestdataadvance(request):
     try:

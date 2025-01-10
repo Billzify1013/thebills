@@ -362,6 +362,7 @@ def addadvancebookingfromtrvel(request):
             reaminingamount = request.POST.get('reaminingamount',0)
             mealplan = request.POST.get('mealplan')
             guestcount = request.POST.get('guestcount')
+            guestcountss = int(request.POST.get('guestcountss'))
             paymentmode = request.POST.get('paymentmode')
             serialized_array = request.POST['news']
             traveldata = TravelAgency.objects.get(id=travelid)
@@ -381,7 +382,7 @@ def addadvancebookingfromtrvel(request):
             current_date = datetime.now()
             Saveadvancebookdata = SaveAdvanceBookGuestData.objects.create(vendor=user,bookingdate=bookingdate,noofrooms=noofrooms,bookingguest=guestname,
                 bookingguestphone=phone,staydays=totalstaydays,advance_amount=advanceamount,reamaining_amount=reaminingamount,discount=discountamount,
-                total_amount=totalamount,channal=channal,checkoutdate=bookenddate,email='',address_city='',state='',country='',totalguest=guestcount,
+                total_amount=totalamount,channal=channal,checkoutdate=bookenddate,email='',address_city='',state='',country='',totalguest=guestcountss,
                 action='book',booking_id=None,cm_booking_id=None,segment=travelname,special_requests='',pah=True,amount_after_tax=totalamount,amount_before_tax=0.00,
                   tax=0.00,currency="INR",checkin=current_date,Payment_types='postpaid',is_selfbook=False  )
             paymenttypes = 'postpaid'
@@ -396,26 +397,64 @@ def addadvancebookingfromtrvel(request):
                 pass     
             sellingprices = 0  
             totaltax = 0  
+            guestcountsstored = int(guestcountss) 
+            changedguestct = guestcountsstored
             for i in my_array:
                     roomid = int(i['id'])
                     roomsellprice = int(float(i['price']))
                     roomselltax = int(float(i['tax']))
-
-                    totalsellprice = (roomsellprice * roomselltax //100) + roomsellprice
+                    befortselprice=roomsellprice
+                    befortselprice = befortselprice / int(totalstaydays)
                     sellingprices = sellingprices + roomsellprice
-                    totaltax = totaltax + (roomsellprice * roomselltax //100)
-                   
+                    totalsellprice = (roomsellprice * roomselltax //100) + roomsellprice
+                    totaltax = totaltax + (roomsellprice * roomselltax /100) 
+                  
                     roomid = Rooms.objects.get(id=roomid)
                     roomtype = roomid.room_type.id
+
+                    # # manage rate plan guests
+                    maxperson = roomid.max_person
+                    if changedguestct >= maxperson:
+            
+                        changedguestct = changedguestct - maxperson
+                  
+                        satteldcount = maxperson
+                    else:
+                 
+                        satteldcount = changedguestct
+
+                  
+                
                     RoomBookAdvance.objects.create(vendor=user,saveguestdata=Saveadvancebookdata,bookingdate=bookingdate,roomno=roomid,
                                                     bookingguest=guestname,bookingguestphone=phone
-                                                ,checkoutdate=bookenddate,bookingstatus=True,channal=channal,totalguest=guestcount,
-                                               rateplan_code=mealplan,guest_name='',adults=0,children=0,sell_rate=totalsellprice )
+                                                ,checkoutdate=bookenddate,bookingstatus=True,channal=channal,totalguest=satteldcount,
+                                               rateplan_code=mealplan,guest_name='',adults=satteldcount,children=0,sell_rate=befortselprice )
                     noon_time_str = "12:00 PM"
                     noon_time = datetime.strptime(noon_time_str, "%I:%M %p").time()
                     Booking.objects.create(vendor=user,room=roomid,guest_name=guestname,check_in_date=bookingdate,check_out_date=bookenddate,
-                                check_in_time=noon_time,check_out_time=noon_time,segment=travelname,totalamount=totalamount,totalroom=noofrooms,
+                                check_in_time=noon_time,check_out_time=noon_time,segment="PMS",totalamount=totalamount,totalroom=noofrooms,
                                 gueststay=None,advancebook=Saveadvancebookdata,status="BOOKING"           )
+                
+            # for i in my_array:
+            #         roomid = int(i['id'])
+            #         roomsellprice = int(float(i['price']))
+            #         roomselltax = int(float(i['tax']))
+            #         befortselprice=roomsellprice
+            #         totalsellprice = (roomsellprice * roomselltax //100) + roomsellprice
+            #         sellingprices = sellingprices + roomsellprice
+            #         totaltax = totaltax + (roomsellprice * roomselltax //100)
+                   
+            #         roomid = Rooms.objects.get(id=roomid)
+            #         roomtype = roomid.room_type.id
+            #         RoomBookAdvance.objects.create(vendor=user,saveguestdata=Saveadvancebookdata,bookingdate=bookingdate,roomno=roomid,
+            #                                         bookingguest=guestname,bookingguestphone=phone
+            #                                     ,checkoutdate=bookenddate,bookingstatus=True,channal=channal,totalguest=guestcount,
+            #                                    rateplan_code=mealplan,guest_name='',adults=0,children=0,sell_rate=totalsellprice )
+            #         noon_time_str = "12:00 PM"
+            #         noon_time = datetime.strptime(noon_time_str, "%I:%M %p").time()
+            #         Booking.objects.create(vendor=user,room=roomid,guest_name=guestname,check_in_date=bookingdate,check_out_date=bookenddate,
+            #                     check_in_time=noon_time,check_out_time=noon_time,segment=travelname,totalamount=totalamount,totalroom=noofrooms,
+            #                     gueststay=None,advancebook=Saveadvancebookdata,status="BOOKING"           )
                     # inventory code
                     # Convert date strings to date objects
                     checkindate = str(bookingdate)

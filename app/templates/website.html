@@ -961,7 +961,7 @@ html, body {
                         if (data.success) {
                             //alert("Booking successfully done!");
                             const bookingId = data.id; // Assuming the server sends the booking ID
-                            window.location.href = `/receipt/${bookingId}/`;
+                            window.location.href = `/receipt_book/${bookingId}/`;
                         } else {
                             alert(data.message);
                             window.location.reload();

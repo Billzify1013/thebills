@@ -742,3 +742,8 @@ class Subuser(models.Model):
 
     def __str__(self):
         return f"{self.user.username} (Subuser of {self.vendor.username})"
+    
+class savedateblock(models.Model):
+    vendor = models.ForeignKey(User, on_delete=models.CASCADE)
+    room = models.ForeignKey(Rooms, on_delete=models.CASCADE)
+    date = models.DateField(auto_now=False)

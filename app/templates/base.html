@@ -473,7 +473,7 @@
               </a>
             </li>
             {%endif%}
-            {% comment %} <li class="menu-header small text-uppercase">
+          <li class="menu-header small text-uppercase">
               <span class="menu-header-text">Block Room Management</span>
             </li>
 
@@ -482,7 +482,7 @@
                 <i class='menu-icon bx mb-1 bx-timer'></i>
                 <div data-i18n="Analytics">Block Room Page</div>
               </a>
-            </li> {% endcomment %}
+            </li> 
 
            
 
@@ -1102,6 +1102,15 @@
                   </div></a>
                 </div>
                 {%endif%}
+
+                
+
+                <div class="col-3 p-1">
+                  <a href="{% url 'hourlyhomepage'  %}"><div class="card m-2" style="height:80px">
+                   <center> <h6 class="mt-3"><br>
+                    <b>Block Rooms</b></h6></center>
+                  </div></a>
+                </div>
 
                 <div class="col-3 p-1">
                   <a href="{% url 'mobileview' user=request.user %}"><div class="card m-2" style="height:80px">
