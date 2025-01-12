@@ -50,34 +50,50 @@
 </head>
 <body>
   {% if messages%}
-{% for msg in messages %}
-<div class="container mt-5">
-    <!-- Success Alert -->
-    {% if msg.tags == 'success' %}
-    <div id="success-alert" class="alert alert-danger alert-dismissible" role="alert">
-        {{msg}}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    {%else%}
-    <div id="success-alert" class="alert alert-danger alert-dismissible" role="alert">
-        {{msg}}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    {%endif%}
-</div>
-{%endfor%}
+  {% for msg in messages %}
+  <div class="container mt-5">
+      <!-- Success Alert -->
+      {% if msg.tags == 'success' %}
+      <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+          {{msg}}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      {%else%}
+      <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+          {{msg}}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      {%endif%}
+  </div>
+  {%endfor%}
+  
+  <script>
+      $(document).ready(function() {
+          // Fade out the alert after 5 seconds (5000 milliseconds)
+          setTimeout(function() {
+              $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+                  $(this).remove(); 
+              });
+          }, 2000);
+      });
 
-<script>
-    $(document).ready(function() {
+      $(document).ready(function() {
         // Fade out the alert after 5 seconds (5000 milliseconds)
         setTimeout(function() {
-            $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+            $("#danger-alert").fadeTo(500, 0).slideUp(500, function(){
                 $(this).remove(); 
             });
         }, 2000);
     });
-</script>
-{%endif%}
+  </script>
+  {%endif%}
+
+  <center>
+  {% if request.session.permissions %}
+  <a  value="Back" class="btn btn-outline-warning" href="{% url 'advanceroombookpage'  %}">Bakc To Page</a>
+     {%endif%}
+
+  </center>
 
   <div class="receipt-container">
     <!-- Branding -->

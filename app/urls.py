@@ -87,6 +87,8 @@ urlpatterns = [
     path('deleteproduct/<int:id>/',employeemanage.deleteproduct,name="deleteproduct"),
     # delete product in the folio url
     path('deleteitemstofolio/',views.deleteitemstofolio,name="deleteitemstofolio"),
+    
+    
     # for users check data
     path('userdatacheckbychandanbillsteam/',employeemanage.userdatacheckbychandanbillsteam,name="userdatacheckbychandanbillsteam"),
     path('handleuser/',employeemanage.handleuser,name="handleuser"),
@@ -119,6 +121,12 @@ urlpatterns = [
     path('getguestdatabyajaxinform',loyltys.getguestdatabyajaxinform,name="getguestdatabyajaxinform"),
     path('getrateplandata',loyltys.getrateplandata,name="getrateplandata"),
     path('receipt_book/<int:booking_id>/', views.receipt_view_book, name='receipt_view_book'),
+
+    # extendcheck ins
+    path('extendscheck/', loyltys.extendscheck, name='extendscheck'),
+    path('checkoutroombyone/',loyltys.checkoutroombyone,name="checkoutroombyone"),
+    path('extednroomform/',loyltys.extednroomform,name="extednroomform"),
+    
     # In your urls.py file
     # path('receipt/<int:booking_id>/', views.receipt_view, name='receipt_view'),
     # path('receipt/', views.receipt_view, name='receipt_view'),

@@ -21,8 +21,8 @@
     </div>
 </div> {% endcomment %}
 
-change room booking page hai ye
 
+<h4 class="text m-1">Booking Change Room Page/</h4>
 <div class="row p-3">
     <div class="col-3 card">
         <h6 class="text p-2">Current Rooms</h6>
@@ -44,7 +44,10 @@ change room booking page hai ye
         {% endfor %}
     </div>
 </div>
-
+<button class="btn btn-success btn-sm" type="button" id="loadbtn" style="display:none">
+    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+    Loading...
+  </button><br>
 <!-- Button to submit the selected rooms -->
 <button id="change-rooms-btn" class="btn btn-primary mt-3">Change Rooms</button>
 
@@ -84,7 +87,7 @@ change room booking page hai ye
     changeRoomsBtn.addEventListener('click', () => {
         const selectedCurrentRooms = [];
         const selectedAvailableRooms = [];
-
+        document.getElementById('loadbtn').style.display='block';
         // Get selected current rooms
         currentRoomCheckboxes.forEach(checkbox => {
             if (checkbox.checked) {
@@ -129,6 +132,7 @@ change room booking page hai ye
         })
         .then(response => response.json())
         .then(data => {
+            document.getElementById('loadbtn').style.display='none';
             if (data.success) {
                 alert("Rooms successfully changed!");  // Redirect after success
                 window.location.href = "{% url 'todaybookingpage' %}";

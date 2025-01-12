@@ -166,6 +166,8 @@
                                                   <span class="text text-gray me-1"><b>{{ i.bookingguest }}</b></span>
                                                   <span class="badge bg-label-primary mt-1">{{ i.bookingguestphone }}</span>
                                                   <span class="badge bg-label-primary mt-1">{{ i.channal.channalname }}</span>
+                                                  <span class="badge bg-label-primary mt-1">{{ i.bookingdate }}</span>=
+                                                  <span class="badge bg-label-warning mt-1">{{ i.checkoutdate }}</span>
                                                   <span>Guest Stay In This Rooms</span>
                                               </center>
                                           </div></a>
@@ -182,11 +184,13 @@
                                       <div class="card mt-3">
                                           <div class="card-body">
                                               <center>
-                                                  <i class='bx bxs-store fs-center mb-2 text-primary' style="font-size:21px"></i>
+                                                  {% comment %} <i class='bx bxs-store fs-center mb-2 text-primary' style="font-size:21px"></i> {% endcomment %}
                                                   <h4 class="card-title mt- text-center">{{ i.roomno.room_name }}</h4>
                                                   <span class="text text-gray me-1"><b>{{ i.bookingguest }}</b></span>
                                                   <span class="badge bg-label-primary mt-1">{{ i.bookingguestphone }}</span>
                                                   <span class="badge bg-label-primary mt-1">{{ i.channal.channalname }}</span>
+                                                  <span class="badge bg-label-primary mt-1">{{ i.bookingdate }}</span>=
+                                                  <span class="badge bg-label-warning mt-1">{{ i.checkoutdate }}</span>
                                               </center>
                                           </div>
                                       </div>
@@ -219,11 +223,13 @@
                                   
                                           <div class="card-body">
                                               <center>
-                                                  <i class='bx bxs-store fs-center mb-2 text-success' style="font-size:21px"></i>
+                                                  {% comment %} <i class='bx bxs-store fs-center mb-2 text-success' style="font-size:21px"></i> {% endcomment %}
                                                   <h4 class="card-title mt- text-center">{{ i.roomno.room_name }}</h4>
                                                   <span class="text text-gray me-1"><b>{{ i.bookingguest }}</b></span>
-                                                  <span class="badge bg-label-success mt-1">{{ i.bookingguestphone }}</span>
+                                                  <span class="text text-gray mt-1">{{ i.bookingguestphone }}</span>
                                                   <span class="badge bg-label-success mt-1">{{ i.channal.channalname }}</span>
+                                                  <span class="badge bg-label-primary mt-1">{{ i.bookingdate }}</span>=
+                                                  <span class="badge bg-label-warning mt-1">{{ i.checkoutdate }}</span>
                                               </center>
                                           </div>
                                         </a>

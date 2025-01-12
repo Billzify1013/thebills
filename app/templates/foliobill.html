@@ -228,24 +228,32 @@
                   <button class="dropdown-item btn" type="submit" href=""><i class='bx bx-sitemap'></i> Add Service</button>
                   
                   </form>
-                  
+                  <hr class="mt-0 mb-0">
                   <a class="btn dropdown-item " href="{% url 'guestregform' id=data.customer.id %}"><i class='bx bx-id-card mb-1'></i> Regstratrion Form</a>
-                  
+                  <hr class="mt-0 mb-0">
                   <a class="btn dropdown-item " href="{% url 'changeroompage' id=data.id %}"><i class='bx bx-exclude'></i> Change Room</a>
-
+                  <hr class="mt-0 mb-0">
                   
                   <a class="btn dropdown-item " data-bs-toggle="modal" data-bs-target="#backDropModal"><i class='bx bxl-paypal'></i> Add Payment</a>
-
+                  <hr class="mt-0 mb-0">
                   
                   <a class="btn dropdown-item" id="billToCompanyBtn" data-bs-toggle="modal" data-bs-target="#billToCompanyModal">
                     <i class='bx bxl-paypal'></i> Bill To Company
-                  </a>
+                  </a><hr class="mt-0 mb-0">
 
                   <a class="btn dropdown-item" href="#" style="text-decoration:none" data-bs-toggle="modal"
                                       data-bs-target="#basicModal" onclick="getroomnumberpopup({{ i.roomno.room_name }}, {{ i.id }})">
-                                      <i class='bx bxs-file-plus'></i> Add more guest</a>
+                                      <i class='bx bxs-file-plus'></i> Add more guest</a><hr class="mt-0 mb-0">
 
-               
+                  <a class="btn dropdown-item" href="#"  data-bs-toggle="modal"
+                  data-bs-target="#basicModalextends">
+                  <i class='bx bxs-skip-next-circle'></i> Extend Chek-In
+                  </a><hr class="mt-0 mb-0">
+
+                  <a class="btn dropdown-item" href="#"  data-bs-toggle="modal"
+                  data-bs-target="#basicModalecheckout">
+                 <i class='bx bxs-exit' ></i> Checkout Single Room  
+                  </a>
                   {%endfor%}
                 
                </div>
@@ -293,7 +301,7 @@
            
             <div class="invoice-items" >
                 <div class="table-responsive text-nowrap" >
-                    <table class="table " >
+                    {% comment %} <table class="table " >
                       <thead class="table-light">
                             <tr>
                                 <th>Services</th>
@@ -318,12 +326,7 @@
                             <tr >
                                 
                                 <td style="font-size:18px">
-                                    {% comment %} {%if iteams.paidstatus is True %}
-                                    <span class="badge bg-label-success me-1">Paid</span>
-                                    {%else%}
-                                    <span class="badge bg-label-warning me-1">UnPaid</span>
-                                   
-                                    {%endif%} {% endcomment %}
+                                    
                                     {{iteams.description}}<br>
                                     <p style="font-size:12px">{{iteams.mdescription}}</p></td>
                                 {%for data in invoice_data%}
@@ -343,7 +346,8 @@
                                 <td style="font-size:18px">{{iteams.quantity_likedays}}</td>
                                 <td style="font-size:18px">{{iteams.total_amount}}</td>
                                 <td >
-                                    {% comment %} <a href="{% url 'updateemployee' id=data.id %}"><span class="badge bg-label-info  "><i class='bx bxs-edit-alt'></i></span></a> {% endcomment %}
+                                    
+                                    {% if  iteams.is_room == False %}
                                     <form action="{% url 'deleteitemstofolio' %}" method="post" style="float:left">
                                         {% csrf_token %}
                                         {%for data in invoice_data%}
@@ -352,7 +356,11 @@
                                         <input type="hidden" name="invoiceitemsid" value="{{iteams.id}}" />
                                     <button class="btn" type="submit"><span class="badge bg-label-danger  "><i class='bx bxs-trash'></i></span></button>
                                     </form>
-                                
+                                    {%endif%}
+                                    
+                                    {% if  iteams.is_checkout == True %}
+                                    <span class="badge bg-label-success"><i class='bx bxs-check-shield'></i> Check-Out</span>
+                                    {%endif%}
                                 
                                   <!-- KOT Button -->
                            <!-- KOT Button -->
@@ -374,7 +382,120 @@
                             </tr>
                             {%endfor%}
                         </tbody>
+                    </table> {% endcomment %}
+                    <div class="cool-3 float-end">
+                      <!-- Filter Dropdown -->
+                      <select class="form-control" name="invoiceitemid" required>
+                        <option value="">Apply Filters</option>
+                        <option id="showCheckedOutBtn">Show Checked-Out</option>
+                        <option id="showCheckedInBtn">Show Checked-In</option>
+                        <option id="clearFilterBtn">Clear Filter</option>
+                      </select>
+                    </div>
+                    
+                    <table class="table">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Services</th>
+                          {% for data in invoice_data %}
+                            {% if data.taxtype == 'GST' %}
+                              <th>Cgst</th>
+                              <th>Sgst</th>
+                            {% else %}
+                              <th>Igst</th>
+                            {% endif %}
+                          {% endfor %}
+                          <th>HSN/SAC</th>
+                          <th>Price</th>
+                          <th>Qty/Day</th>
+                          <th>Total<br>(incl/Qty,tax,discount)</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody id="invoiceItemsList">
+                        {% for iteams in invoiceitemdata %}
+                          <tr class="invoice-item {% if iteams.is_checkout == True %} checked-out {% else %} not-checked-out {% endif %} {% if iteams.is_room == False %} not-room-item {% else %} is-room-item {% endif %}">
+                            <td style="font-size:18px">
+                              {{ iteams.description }}<br>
+                              <p style="font-size:12px">{{ iteams.mdescription }}</p>
+                            </td>
+                            {% for data in invoice_data %}
+                              {% if data.taxtype == 'GST' %}
+                                <td style="font-size:18px">{{ iteams.sgst_rate }} % </td>
+                                <td style="font-size:18px">{{ iteams.sgst_rate }} % </td>
+                              {% else %}
+                                {% if iteams.sgst_rate == 2.50 %}
+                                  <td style="font-size:18px"> 5% </td>
+                                {% else %}
+                                  <td style="font-size:18px">{{ iteams.sgst_rate|add:iteams.sgst_rate }}% </td>
+                                {% endif %}
+                              {% endif %}
+                            {% endfor %}
+                            <td style="font-size:18px">{{ iteams.hsncode }}</td>
+                            <td style="font-size:18px">{{ iteams.price }}</td>
+                            <td style="font-size:18px">{{ iteams.quantity_likedays }}</td>
+                            <td style="font-size:18px">{{ iteams.total_amount }}</td>
+                            <td>
+                              {% if iteams.is_room == False %}
+                                <form action="{% url 'deleteitemstofolio' %}" method="post" style="float:left">
+                                  {% csrf_token %}
+                                  {% for data in invoice_data %}
+                                    <input type="hidden" name="invoiceid" value="{{ data.id }}" />
+                                  {% endfor %}
+                                  <input type="hidden" name="invoiceitemsid" value="{{ iteams.id }}" />
+                                  <button class="btn" type="submit">
+                                    <span class="badge bg-label-danger"><i class='bx bxs-trash'></i></span>
+                                  </button>
+                                </form>
+                              {% endif %}
+                              {% if iteams.is_checkout == True %}
+                                <span class="badge bg-label-success"><i class='bx bxs-check-shield'></i> Check-Out</span>
+                              {% endif %}
+                              <!-- KOT Button -->
+                              <button class="btn kot-btn" type="button" data-bs-toggle="modal" 
+                                      data-bs-target="#kotModal" 
+                                      data-description="{{ iteams.description }}" 
+                                      data-mdescription="{{ iteams.mdescription }}"
+                                      data-hsncode="{{ iteams.hsncode }}"
+                                      data-price="{{ iteams.price }}"
+                                      data-tax="{% if iteams.sgst_rate|add:iteams.sgst_rate == 4 %} 5 {% else %} {{ iteams.sgst_rate|add:iteams.sgst_rate }} {% endif %}" 
+                                      data-quantity="{{ iteams.quantity_likedays }}"
+                                      data-total="{{ iteams.total_amount }}">
+                                <span class="badge bg-label-info"><i class='bx bx-printer'></i> KOT</span>
+                              </button>
+                            </td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
                     </table>
+                    
+                    <!-- JS to handle filtering using the dropdown -->
+                    <script>
+                      // Get the dropdown and add event listener
+                      document.querySelector('select[name="invoiceitemid"]').addEventListener('change', function() {
+                        let filterValue = this.value;  // Get selected filter option
+                    
+                        // Get all invoice item rows
+                        let items = document.querySelectorAll('.invoice-item');
+                        
+                        // Loop through all items and hide or show based on the selected filter
+                        items.forEach(function(item) {
+                          // By default show all items
+                          item.style.display = 'table-row'; 
+                    
+                          // Apply filter based on the selected value
+                          if (filterValue == 'Show Checked-Out' && !item.classList.contains('checked-out')) {
+                            item.style.display = 'none';  // Hide non-checked-out items
+                          } else if (filterValue == 'Show Checked-In' && (item.classList.contains('checked-out') || !item.classList.contains('is-room-item'))) {
+                            item.style.display = 'none';  // Hide checked-out and non-room items
+                          } else if (filterValue == 'Clear Filter' && item) {
+                            item.style.display = 'table-row';  // Show all items again
+                          }
+                        });
+                      });
+                    </script>
+                    
+                    
                 </div>
                 <div class="row">
                     <div class="col-5">
@@ -1181,6 +1302,163 @@ function printOrDownload(action) {
                                   <label for="dobBasic" class="form-label">Address</label>
                                   <input type="text" id="dobBasic" class="form-control" name="address" placeholder="Enter Full Address" />
                                 </div>
+                              </div>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                Close
+                              </button>
+                              <button type="submit" class="btn btn-primary">Save changes</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+
+               
+                
+            </div>
+
+
+            
+ <!-- Bootstrap modals -->
+             
+                      <!-- Modal -->
+                      <div class="modal fade" id="basicModalextends" tabindex="-1" aria-hidden="true">
+                        <form action="{% url 'extendscheck' %}" method="post" >
+                          {% csrf_token %}
+                          
+                        <div class="modal-dialog" role="document">
+                          <div class="modal-content">
+                            <input type="hidden" id="roombooknoidinput" name="roombookadvanceiddata" />
+                            <input type="hidden" id="roomnoidinput" name="roomnodata" />
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="exampleModalLabel1">Extends Room </h5>
+                              <button
+                                type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"
+                              ></button>
+                            </div>
+                            {%for data in invoice_data%}
+                
+                            <input type="hidden" value="{{data.customer.id}}" name="guestid" />
+                            
+                            <input type="hidden" value="{{ data.customer.checkoutdate|date:'Y-m-d' }}" id="checkoutdate"name="checkoutdate" />
+                            <input type="hidden" value="{{data.id}}" name="invcid" />
+                      {%endfor%}
+
+                            <div class="modal-body">
+                              <div class="row">
+                                <div class="col mb-3">
+                                  <label for="nameBasic" class="form-label">Check-Out Date</label>
+                                  <input type="date" id="fromdate"  class="form-control" name="fromdate" placeholder="Enter Name" required/>
+                                </div>
+                              </div>
+                              
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                Close
+                              </button>
+                              <button type="submit" class="btn btn-primary">Save changes</button>
+                            </div>
+                          </div>
+                        </div>
+
+                        <script>
+                          // Retrieve the value of checkoutdate from the hidden input
+                          const checkoutdateInput = document.getElementById('checkoutdate');
+                          if (checkoutdateInput) {
+                            const checkoutdate = checkoutdateInput.value;
+                        
+                            // Function to add one day to the checkout date
+                            function addOneDay(dateString) {
+                              const date = new Date(dateString); // Parse the date
+                              date.setDate(date.getDate() + 1); // Add 1 day
+                              const year = date.getFullYear();
+                              const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+                              const day = String(date.getDate()).padStart(2, '0');
+                              return `${year}-${month}-${day}`; // Format: YYYY-MM-DD
+                            }
+                        
+                            // Calculate the new minimum date (day after checkoutdate)
+                            const minDate = addOneDay(checkoutdate);
+                        
+                            // Set the "min" attribute of the date input
+                            const dateInput = document.getElementById('fromdate');
+                            if (dateInput && minDate) {
+                              dateInput.setAttribute('min', minDate);
+                              console.log("Min date set to:", minDate); // Debugging line to verify
+                            }
+                          }
+                        </script>
+                        
+                        
+
+
+                      </div>
+                    </div>
+                  </div>
+                </form>
+
+               
+                
+            </div>
+
+
+
+            
+
+ <!-- Bootstrap modals -->
+             
+                      <!-- Modal -->
+                      <div class="modal fade" id="basicModalecheckout" tabindex="-1" aria-hidden="true">
+                        <form action="{% url 'checkoutroombyone' %}" method="post" >
+                          {% csrf_token %}
+                          
+                        <div class="modal-dialog" role="document">
+                          <div class="modal-content">
+                            <input type="hidden" id="roombooknoidinput" name="roombookadvanceiddata" />
+                            <input type="hidden" id="roomnoidinput" name="roomnodata" />
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="exampleModalLabel1">Check-Out Room One By One</h5>
+                              <button
+                                type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"
+                              ></button>
+                            </div>
+                            {%for data in invoice_data%}
+                
+                            <input type="hidden" value="{{data.customer.id}}" name="guestid" />
+                            
+
+
+                      {%endfor%}
+
+                            <div class="modal-body">
+                              <div class="row">
+                                <div class="col-12 ">
+                                  <span class="text text-warning">Only one room can be selected at a time. If only one room exists, please fully check out that room; otherwise, checkout will not be possible.</span>
+                                  <h6 class="text p-2">Current Rooms</h6>
+                                  
+                                  <select class="form-control" name="invoiceitemid"  required >
+                                    <option  value="">Select a Room</option>
+                                    {%for iteams in invoiceitemdata%}
+                                  {%if iteams.is_room %}
+                                    {%if iteams.is_checkout == False %}
+                                    <option  value="{{iteams.id}}">Room No: {{iteams.description}}</option>
+                                    {%endif%}
+                                    {%endif%}
+                                    {%endfor%}
+                                  </select>
+                                 
+                                  
                               </div>
                             </div>
                             <div class="modal-footer">

@@ -1084,7 +1084,7 @@ def additemstofolio(request):
                     current_date = str(current_date)
                     InvoiceItem.objects.create(vendor=user,invoice_id=foliocustomer,description=iteams.description,mdescription=current_date,price=iteams.price,
                                         quantity_likedays=qty,cgst_rate=individualtax,sgst_rate=individualtax,
-                                        hsncode=hsccode,total_amount=totalamt)
+                                        hsncode=hsccode,total_amount=totalamt,is_room=False)
                     invc = Invoice.objects.get(vendor=user,id=foliocustomer)
                     totalamtinvc = invc.total_item_amount + total
                     subtotalinvc = total + invc.subtotal_amount
@@ -1105,7 +1105,7 @@ def additemstofolio(request):
                     current_date = datetime.now().date()
                     current_date = str(current_date)
                     InvoiceItem.objects.create(vendor=user,invoice_id=foliocustomer,description=iteams.description,mdescription=current_date,price=iteams.price,
-                                        quantity_likedays=qty,total_amount=total,cgst_rate=0.0,sgst_rate=0.0)
+                                        quantity_likedays=qty,total_amount=total,cgst_rate=0.0,sgst_rate=0.0,is_room=False)
                     invc = Invoice.objects.get(vendor=user,id=foliocustomer)
                     totalamtinvc = invc.total_item_amount + total
                     subtotalinvc = total + invc.subtotal_amount
@@ -1150,7 +1150,7 @@ def addlaundryitems(request):
                 
                 
                 InvoiceItem.objects.create(vendor=user,invoice_id=foliocustomer,description=name,price=price,
-                                        quantity_likedays=qty,total_amount=total,cgst_rate=0.0,sgst_rate=0.0)
+                                        quantity_likedays=qty,total_amount=total,cgst_rate=0.0,sgst_rate=0.0,is_room=False)
                 invc = Invoice.objects.get(vendor=user,id=foliocustomer)
                 totalamtinvc = invc.total_item_amount + total
                 subtotalinvc = total + invc.subtotal_amount

@@ -12,6 +12,10 @@ from django.conf import settings
 import urllib.parse
 from django.db.models import Sum
 from django.urls import reverse
+import threading
+from .newcode import *
+# Create your views here.
+from .dynamicrates import *
 
 
 def setting(request):
@@ -1663,4 +1667,384 @@ def saveloyltydata(request):
             return redirect("loginpage")
     except Exception as e:
         return render(request, "404.html", {"error_message": str(e)}, status=500)
+
+
+def extendscheck(request):
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor 
+            
+            guestid = request.POST.get("guestid")
+            fromdate = request.POST.get("fromdate")
+            checkoutdate = request.POST.get("checkoutdate")
+            print(checkoutdate,fromdate)
+
+            fromdates = datetime.strptime(fromdate, "%Y-%m-%d")
+            checkoutdates = datetime.strptime(checkoutdate, "%Y-%m-%d")
+
+            # Calculate the difference in days
+            difference = fromdates - checkoutdates
+            days_difference = difference.days 
+            print(days_difference,"days")
+
+            invcid = request.POST.get("invcid")
+            permission=False
+            if Gueststay.objects.filter(vendor=user,id=guestid).exists():
+                gestdatas = Gueststay.objects.get(vendor=user,id=guestid)
+                roomnumber = gestdatas.roomno
+
+                
+                fromdate = datetime.strptime(fromdate, "%Y-%m-%d").date()
+                checkoutdate = datetime.strptime(checkoutdate, "%Y-%m-%d").date()
+                if Booking.objects.filter(vendor=user,gueststay_id=guestid,room__room_name=roomnumber).exclude(status='CHECK OUT').exists():
+
+            
+                    bookdata = Booking.objects.filter(vendor=user,gueststay_id=guestid,room__room_name=roomnumber).exclude(status='CHECK OUT')
+                    
+                    for booking in bookdata:
+                        room = booking.room
+                        room_type = room.room_type  # Get the category of the room
+
+                        
+
+                    # Find unavaisame_category_rooms = Rooms.objects.filter(room_type=room_type)
+
+                        same_category_rooms = Rooms.objects.filter(vendor=user,room_type=room_type).exclude(checkin=6)
+
+                        # Step 3: Find rooms that are unavailable (i.e., booked between `checkoutdate` and `fromdate`)
+                        unavailable_rooms = Booking.objects.filter(vendor=user,
+                            room__in=same_category_rooms  # Filter by rooms in the same category
+                        ).filter(
+                            Q(check_in_date__lt=fromdate) & Q(check_out_date__gt=checkoutdate)  # Room booked during the date range
+                        ).values_list('room', flat=True)
+
+                        # Step 4: Find available rooms (exclude the ones that are unavailable)
+                        available_rooms = same_category_rooms.exclude(id__in=unavailable_rooms)
+
+                        # Step 5: Check if there are any available rooms
+                        # if available_rooms.exists():
+                        #     print("Available Rooms in the same category:", available_rooms)
+                        #     other_category_available_rooms=None
+
+                        for i in available_rooms:
+                            if i.room_name==roomnumber:
+                                permission  = True
+                    
+                      
+                        other_categories_rooms = Rooms.objects.filter(vendor=user).exclude(room_type=room_type).exclude(checkin=6).all()
+                        other_category_unavailable_rooms = Booking.objects.filter(vendor=user,
+                            room__in=other_categories_rooms  # Filter by rooms in other categories
+                        ).filter(
+                            Q(check_in_date__lt=fromdate) & Q(check_out_date__gt=checkoutdate)  # Room booked during the date range
+                        ).values_list('room', flat=True)
+
+                        # Step 8: Find available rooms from other categories (exclude the ones that are unavailable)
+                        other_category_available_rooms = other_categories_rooms.exclude(id__in=other_category_unavailable_rooms)
+
+                        # Step 9: Check if there are available rooms from other categories
+                        if other_category_available_rooms.exists():
+                            print("No rooms available in the selected category. Available rooms from other categories are:", other_category_available_rooms)
+                        else:
+                            print("No rooms available in the selected or other categories for the given date range.")
+
+            
+
+            # Get the valid room names (room_number) as integers from Rooms model
+            valid_room_numbers = Rooms.objects.filter(vendor=user).exclude(checkin=6).values_list('room_name', flat=True)
+
+            # Convert the integers to strings for comparison with the 'description' field
+            valid_room_names = [str(room_number) for room_number in valid_room_numbers]
+
+            # Filter InvoiceItem based on description matching valid room names
+            
+            invcitemdata = InvoiceItem.objects.filter(
+                vendor=user,
+                invoice_id=invcid,
+                description=roomnumber,
+                is_room=True,  # 'description' is a string, so valid_room_names should be strings
+                is_checkout=False
+            ).all()
+            totalprice = 0.00
+            grandtotal = 0.00
+            gstrate = 0.00 
+            sgstrate = 0.00
+            description = ''
+            mdescription = ''
+            hsncode = 0
+            for i in invcitemdata:
+                description = 'EXTEND' + ' ' + i.description 
+                hsncode = i.hsncode
+                mdescription =  i.mdescription
+                totalprice=i.price
+                maintotal = i.price * int(days_difference)
+                taxamt = 0 
+                if i.cgst_rate > 0.00:
+                    taxamt = maintotal*i.cgst_rate/100
+                    taxamt = taxamt * 2
+                    gstrate = i.cgst_rate
+                    sgstrate = i.cgst_rate
+                grandtotal = float(maintotal + taxamt)
+
+            taxs = sgstrate * 2
+
+            if len(bookdata) == 1:
+                pagepermission = True
+                print("ek hi hai new")
+            else:
+                pagepermission = False
+                print("jayda hai  ")
+
+
+
+            return render(request, 'extnd.html', {
+                
+                'bookdata': bookdata,
+                'invoice_id': invcid,
+                'available_rooms':available_rooms,
+                'other_category_available_rooms':other_category_available_rooms,
+                'fromdate':fromdate,
+                'checkoutdate':checkoutdate,
+                'invcitemdata':invcitemdata,
+                'permission':permission,
+                'totalprice':totalprice,
+                'grandtotal':grandtotal,
+                'taxs':taxs,
+                'sgstrate':sgstrate,
+                'totaldays':days_difference,
+                'pagepermission':pagepermission,
+                'description':description,
+                'mdescription':mdescription,
+                'hsncode':hsncode
+
+            })
+        
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+    
+
+        
+
+
+def checkoutroombyone(request):
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor 
+           
+            guestid = request.POST.get("guestid")
+            invoiceitemid = request.POST.get("invoiceitemid")
+            if Booking.objects.filter(vendor=user,gueststay_id=guestid).exists():
+                bookdata = Booking.objects.filter(vendor=user,gueststay_id=guestid).exclude(status='CHECK OUT')
+                invcdata = InvoiceItem.objects.get(id=invoiceitemid)
+                
+                roomname = invcdata.description
+
+               
+                checklimit = len(bookdata)
+                if checklimit <= 1:
+                    messages.error(request,"Please Checkout Full Room Because Is there Only One Room In Folio!")
+                else:
+                    if Booking.objects.filter(vendor=user,gueststay_id=guestid,room__room_name=roomname).exists():
+                        invccurrentdate = datetime.now().date()
+                        ctime = datetime.now().time()
+                       
+                        bookdataget = Booking.objects.get(vendor=user,gueststay_id=guestid,room__room_name=roomname)
+                        if bookdataget.status=='CHECK OUT':
+                            messages.error(request,"Room Already Check-Out!")
+                        else:
+                            checkindate =  invccurrentdate
+                            checkoutdate = bookdataget.check_out_date
+                            while checkindate < checkoutdate:
+                                        roomscat = Rooms.objects.get(vendor=user,id=bookdataget.room.id)
+                                        invtdata = RoomsInventory.objects.get(vendor=user,date=checkindate,room_category=roomscat.room_type)
+                                    
+                                        invtavaible = invtdata.total_availibility + 1
+                                        invtabook = invtdata.booked_rooms - 1
+                                        total_rooms = Rooms.objects.filter(vendor=user, room_type=roomscat.room_type).exclude(checkin=6).count()
+                                        occupancy = invtabook * 100//total_rooms
+                                                                                
+
+                                        RoomsInventory.objects.filter(vendor=user,date=checkindate,room_category=roomscat.room_type).update(booked_rooms=invtabook,
+                                                    total_availibility=invtavaible,occupancy=occupancy)
+                            
+                                        checkindate += timedelta(days=1)
+
+                            if VendorCM.objects.filter(vendor=user):
+                                    start_date = str(invccurrentdate)
+                                    end_date = str(checkoutdate)
+                                    
+                                    thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
+                                    thread.start()
+                                    # for dynamic pricing
+                                    if  VendorCM.objects.filter(vendor=user,dynamic_price_active=True):
+                                        thread = threading.Thread(target=rate_hit_channalmanager, args=(user.id, start_date, end_date))
+                                        thread.start()
+                                    else:
+                                        pass
+                            else:
+                                    pass
+
+                            Rooms.objects.filter(vendor=user,id=bookdataget.room.id).update(checkin=0,is_clean=False)
+                            Booking.objects.filter(vendor=user,id=bookdataget.id).update(status="CHECK OUT",
+                                                check_out_time=ctime,check_out_date=invccurrentdate)
+                            RoomBookAdvance.objects.filter(vendor=user,roomno_id=bookdataget.room.id,
+                                        saveguestdata_id=bookdataget.advancebook.id).update(checkOutstatus=True)
+                            booksdatas = Booking.objects.filter(vendor=user,gueststay_id=guestid).exclude(status='CHECK OUT').exclude(id=bookdataget.id)
+                            
+                            if Gueststay.objects.filter(vendor=user,id=guestid,roomno=bookdataget.room.room_name).exists():
+                                roomnumber = 0
+                                for i in booksdatas:
+                                    roomnumber = i.room.room_name
+                                Gueststay.objects.filter(vendor=user,id=guestid,roomno=bookdataget.room.room_name).update(roomno=roomnumber)
+                            else:
+                                pass
+                            invcdata.is_checkout=True
+                            invcdata.save()
+
+                            messages.success(request,"Room Check-Out SuccesFully!....")
+
+                       
+
+                        
+            return redirect('invoicepage', id=guestid)        
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+    
+
+
+from decimal import Decimal, ROUND_HALF_UP
+
+def extednroomform(request):
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor 
+           
+            invoiceid = request.POST.get("invoiceid")
+            price = request.POST.get("price")
+            days = request.POST.get("days")
+            tax = request.POST.get("tax")
+            adjustableamount = request.POST.get("adjustableamount")
+            checkoutdate_str = request.POST.get("checkoutdate")
+            description = request.POST.get("description")
+            mndescription = request.POST.get("mndescription")
+            hsncode = request.POST.get("hsncode")
+            print(description,mndescription,hsncode)
+            today = datetime.now().date()
+            checkoutdatemain = datetime.strptime(checkoutdate_str, "%Y-%m-%d").date()
+            new_date = checkoutdatemain - timedelta(days=1)
+            if Invoice.objects.filter(vendor=user,id=invoiceid).exists():
+                invcdata = Invoice.objects.get(vendor=user,id=invoiceid)
+                guestid = invcdata.customer.id
+                roomnumer = invcdata.customer.roomno
+                print(adjustableamount,tax,days,price)
+                
+                if Booking.objects.filter(vendor=user,gueststay_id=guestid,room__room_name=roomnumer).exists():
+                        invccurrentdate = datetime.now().date()
+                        ctime = datetime.now().time()
+                       
+                        bookdataget = Booking.objects.filter(vendor=user,gueststay_id=guestid,room__room_name=roomnumer).last()
+                        if bookdataget.status=='CHECK OUT':
+                            messages.error(request,"Room Already Check-Out!")
+                        else:
+                            
+                            checkindate =  bookdataget.check_out_date
+                            checkoutdate = checkoutdatemain
+                            while checkindate < checkoutdate:
+                                        roomscat = Rooms.objects.get(vendor=user,id=bookdataget.room.id)
+                                        if RoomsInventory.objects.filter(vendor=user,date=checkindate,room_category=roomscat.room_type).exists():
+                                            invtdata = RoomsInventory.objects.get(vendor=user,date=checkindate,room_category=roomscat.room_type)
+                                        
+                                            invtavaible = invtdata.total_availibility - 1
+                                            invtabook = invtdata.booked_rooms + 1
+                                            total_rooms = Rooms.objects.filter(vendor=user, room_type=roomscat.room_type).exclude(checkin=6).count()
+                                            occupancy = invtabook * 100//total_rooms
+                                                                                    
+
+                                            RoomsInventory.objects.filter(vendor=user,date=checkindate,room_category=roomscat.room_type).update(booked_rooms=invtabook,
+                                                        total_availibility=invtavaible,occupancy=occupancy)
+                                
+                                            checkindate += timedelta(days=1)
+                                        else:
+                                            total_rooms = Rooms.objects.filter(vendor=user, room_type=roomscat.room_type).exclude(checkin=6).count()
+                                            invtavaible = total_rooms - 1
+                                            invtabook =  1
+                                            
+                                            occupancy = invtabook * 100//total_rooms
+                                                                                    
+
+                                            RoomsInventory.objects.filter(vendor=user,date=checkindate,room_category=roomscat.room_type).update(booked_rooms=invtabook,
+                                                        total_availibility=invtavaible,occupancy=occupancy)
+                                
+                                            checkindate += timedelta(days=1)
+
+
+                            if VendorCM.objects.filter(vendor=user):
+                                    start_date = str(bookdataget.check_out_date)
+                                    end_date = str(new_date)
+                                    
+                                    thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
+                                    thread.start()
+                                    # for dynamic pricing
+                                    if  VendorCM.objects.filter(vendor=user,dynamic_price_active=True):
+                                        thread = threading.Thread(target=rate_hit_channalmanager, args=(user.id, start_date, end_date))
+                                        thread.start()
+                                    else:
+                                        pass
+                            else:
+                                    pass
+                            
+                            Booking.objects.filter(vendor=user,gueststay_id=guestid,room__room_name=roomnumer).update(check_out_date=checkoutdatemain)
+                            Gueststay.objects.filter(id=guestid).update(checkoutstatus=False,checkoutdate=checkoutdatemain)
+                                    # Convert inputs to proper types
+                                    
+                                # Convert inputs to proper types
+                            # Convert inputs to proper types
+                            price = Decimal(request.POST.get("price")).quantize(Decimal("0.00"), rounding=ROUND_HALF_UP)  # Price per day (convert to Decimal)
+                            days = int(request.POST.get("days"))  # Number of days (string from form)
+                            tax = Decimal(request.POST.get("tax")).quantize(Decimal("0.00"), rounding=ROUND_HALF_UP)  # Tax percentage (convert to Decimal)
+                            adjustableamount = Decimal(request.POST.get("adjustableamount")).quantize(Decimal("0.00"), rounding=ROUND_HALF_UP)  # Total amount user wants to pay (convert to Decimal)
+
+                            # Calculation
+                            dividetax = tax / 2  # Dividing tax by 2 (keeping as Decimal)
+                            amount_before_tax = adjustableamount / (1 + (tax / 100))  # Calculating amount before tax
+                            onedaysell = amount_before_tax / days  # Price per day without tax
+                            gst_tax_amount = adjustableamount - amount_before_tax  # Tax amount
+                            gst_tax_amount = gst_tax_amount /2
+                           
+                            adjustableamount = float(adjustableamount)
+                            gsttax_amount = float(gst_tax_amount)
+                    
+                            InvoiceItem.objects.create(vendor=user,invoice_id=invoiceid,description=description,mdescription=mndescription,price=onedaysell,
+                                                        quantity_likedays=days,cgst_rate=dividetax,sgst_rate=dividetax,
+                                                        hsncode=hsncode,total_amount=adjustableamount,is_room=True)
+                            invc = Invoice.objects.get(vendor=user,id=invoiceid)
+                            totals = onedaysell * days
+                            totalamtinvc = invc.total_item_amount + totals
+                            subtotalinvc = totals + invc.subtotal_amount
+                            grandtotal = float(invc.grand_total_amount) + adjustableamount 
+                            sgsttotal = float(invc.sgst_amount) + gsttax_amount
+                            gsttotal = float(invc.gst_amount) + gsttax_amount
+                            dueamount = float(invc.Due_amount) + adjustableamount
+                            Invoice.objects.filter(vendor=user,id=invoiceid).update(total_item_amount=totalamtinvc,subtotal_amount=subtotalinvc,
+                                                                                                grand_total_amount =grandtotal,sgst_amount=sgsttotal,gst_amount=gsttotal,
+                                                                                                Due_amount=dueamount)
+
+            return redirect('invoicepage', id=guestid)        
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+    
 

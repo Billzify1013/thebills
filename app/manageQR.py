@@ -80,7 +80,7 @@ def changeroompage(request, id):
             invoice_id = id
 
             # Get the valid room names (room_number) as integers from Rooms model
-            valid_room_numbers = Rooms.objects.filter(vendor=user).values_list('room_name', flat=True)
+            valid_room_numbers = Rooms.objects.filter(vendor=user).exclude(checkin=6).values_list('room_name', flat=True)
 
             # Convert the integers to strings for comparison with the 'description' field
             valid_room_names = [str(room_number) for room_number in valid_room_numbers]
@@ -89,11 +89,12 @@ def changeroompage(request, id):
             invcitemdata = InvoiceItem.objects.filter(
                 vendor=user,
                 invoice_id=invoice_id,
-                description__in=valid_room_names  # 'description' is a string, so valid_room_names should be strings
+                description__in=valid_room_names,  # 'description' is a string, so valid_room_names should be strings
+                is_checkout=False
             )
 
             # Available rooms where checkin is 0
-            avlrooms = Rooms.objects.filter(vendor=user, checkin=0)
+            avlrooms = Rooms.objects.filter(vendor=user, checkin=0).exclude(checkin=6)
 
             return render(request, 'changerom.html', {
                 'avlrooms': avlrooms,
@@ -259,7 +260,7 @@ def changeroombooking(request,id):
                 # for i in invcitemdata:
                 #     roomname = i.description
                 #     Rooms.objects.filter(vendor=user,room_name=roomname)
-                valid_room_names = Rooms.objects.filter(vendor=user).values_list('room_name', flat=True)
+                valid_room_names = Rooms.objects.filter(vendor=user).exclude(checkin=6).values_list('room_name', flat=True)
                 # Filter InvoiceItem records where the description matches a valid room name
                 # invcitemdata = InvoiceItem.objects.filter(vendor=user, invoice_id=invoice_id, description__in=valid_room_names)
                 if RoomBookAdvance.objects.filter(vendor=user,id=roombook_id).exists():

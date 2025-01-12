@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+
+
+{% comment %} <div class="row p-3">
+    <div class="col-3 card">
+       <span class="text p-2">CheckOut: {{checkoutdate}} <br>
+        Extend Date: {{fromdate}}<span>
+        <h6 class="text pt-2">Current Rooms <br>
+            <span>Select For Extend..</span></h6>
+        
+        {% for i in bookdata %}
+            <span class="ms-2">
+                Room Number:{{ i.room.room_name }}
+                <input type="checkbox" class="current-room-checkbox" data-id="{{ i.room.id }}" data-description="{{ i.room.room_name }}" />
+                
+            </span><br>
+        {% endfor %}
+    </div>
+
+    <div class="col-3 card">
+        
+        <h6 class="text p-2">Available Rooms</h6>
+        {% for i in available_rooms %}
+            <span class="ms-2">
+                {{ i.room_name }}
+                <input type="checkbox" class="available-room-checkbox" data-id="{{ i.id }}" data-room-name="{{ i.room_name }}" disabled />
+            </span><br>
+        {% endfor %}
+        
+        
+        <h6 class="text p-2">Available Rooms In Another Category</h6>
+        {%for i in other_category_available_rooms%}
+        <span class="ms-2">
+            {{ i.room_name }},{{ i.room_type }}
+            <input type="checkbox" class="available-room-checkbox" data-id="{{ i.id }}" data-room-name="{{ i.room_name }}" disabled />
+        </span><br>
+    {% endfor %}
+    
+    
+
+
+    </div>
+</div> {% endcomment %}
+
+<h4 class="text ">Extend Room Page/</h4>
+<div id="selectionMessage" class="alert alert-warning d-none" role="alert">
+    Please change the current room to an available room before extending.
+</div>
+{% if pagepermission == True %}
+<div class="row p-3">
+    <!-- Current Rooms Section -->
+    <div class="col-3 card">
+        <h6 class="text pt-2">Extend From :{{checkoutdate}}<br><span>To : {{fromdate}}</span></h6>
+     
+      {% for i in bookdata %}
+        <span class="ms-2">
+          Room Number: {{ i.room.room_name }}
+          <input type="hidden" class="current-room-checkbox" 
+                 data-id="{{ i.room.id }}" 
+                 data-description="{{ i.room.room_name }}" />
+        </span><br>
+      {% endfor %}
+      {% if permission == True %}
+      <span class="text text-success ">Room Available You Can Extend This Room and Guest CheckOut date is: {{fromdate}}</span>
+        {%else%}
+        <a class="btn btn-primary mt-2 mb-2" href="{% url 'changeroompage' id=invoice_id %}"><i class='bx bx-exclude'></i> Change Room</a>
+      {% endif %}
+
+    </div>
+  
+
+    <!-- Available Rooms Section -->
+    <div class="col-3 card">
+      <h6 class="text pt-2">Available Rooms</h6>
+      {% for i in available_rooms %}
+        <span class="ms-2">
+          {{ i.room_name }}
+          <span id="matchIndicator{{ i.id }}" class="text-success"></span>
+          <input type="hidden" class="available-room-checkbox" 
+                 data-id="{{ i.id }}" 
+                 data-room-name="{{ i.room_name }}" disabled />
+        </span><br>
+      {% endfor %}
+
+                
+  
+      <h6 class="text pt-2">Available Rooms in Another Category</h6>
+      {% for i in other_category_available_rooms %}
+        <span class="ms-2" id="otherCategoryRoom{{ i.id }}">
+          {{ i.room_name }}, {{ i.room_type }}
+          <input type="checkbox" class="other-category-checkbox" 
+                 data-id="{{ i.id }}" 
+                 data-room-name="{{ i.room_name }}" disabled />
+        </span><br>
+      {% endfor %}
+    </div>
+    {% if permission %}
+    <div class="col-6 p-2">
+      <form action="{% url 'extednroomform' %}" method="post">
+        {% csrf_token %}
+
+        <span class="ms-4">Recent Price For 1 Day : <b>₹ {{totalprice}}</b></span><br>
+        <span class="ms-4">Total Extends Day : <b>{{totaldays}}</b></span><br>
+        <span class="ms-4">Total Tax : <b>{{taxs}} %</b></span><br>
+        <span class="ms-4">Grand Total Amount : <b>₹ {{grandtotal}} </b></span><br>
+
+        
+        <input type="hidden" name="invoiceid" value="{{invoice_id}}" />
+        <input type="hidden" name="price" value="{{totalprice}}" />
+        <input type="hidden" name="days" value="{{totaldays}}" />
+        <input type="hidden" name="tax" value="{{taxs}}" />
+        <input type="hidden" name="checkoutdate" value="{{fromdate|date:"Y-m-d"}}" />
+        <input type="hidden" name="description" value="{{description}}" />
+        <input type="hidden" name="mndescription" value="{{mdescription}}" />
+        <input type="hidden" name="hsncode" value="{{hsncode}}" />
+
+        
+        <div class="modal-body">
+            <div class="row">
+              <div class="col-12 mb-3">
+                <label for="nameBackdrop" class="form-label">Adjust Amount</label>
+                <input
+                  type="number"
+                  name="adjustableamount"
+                  value='{{grandtotal}}'
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Enter RoomName"
+                  required
+                />
+              </div>
+  
+            </div>  
+          <div class="modal-footer">
+            
+            <button  class="btn btn-primary float-end">Extend Check-Out</button>
+          </div>
+    </div>
+  </form>
+    {%endif%}
+    
+</div>
+{%else%}
+
+<h4 class="text p-4 text-warning">Guest Have Multiple Room So Please Find Booking In  Advance-Booking Section !</h4>
+{%endif%}
+
+
+
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const currentRoomCheckboxes = document.querySelectorAll('.current-room-checkbox');
+    const availableRoomCheckboxes = document.querySelectorAll('.available-room-checkbox');
+    const otherCategoryCheckboxes = document.querySelectorAll('.other-category-checkbox');
+    const selectionMessage = document.getElementById('selectionMessage');
+
+    // Function to handle the exact match and update available rooms
+    function checkExactMatch() {
+        currentRoomCheckboxes.forEach(function(currentCheckbox) {
+            const currentRoomName = currentCheckbox.getAttribute('data-description');
+            let isExactMatchFound = false;
+
+            // Check if the current room matches any available room
+            availableRoomCheckboxes.forEach(function(availableCheckbox) {
+                const availableRoomName = availableCheckbox.getAttribute('data-room-name');
+                const matchIndicator = document.getElementById(`matchIndicator${availableCheckbox.dataset.id}`);
+
+                if (availableRoomName === currentRoomName) {
+                    // Exact match found
+                    isExactMatchFound = true;
+                    matchIndicator.textContent = "Perfect Match";
+                    matchIndicator.style.color = 'green';
+                    matchIndicator.style.fontWeight = 'bold';
+
+                    // Enable the checkbox for this room
+                    availableCheckbox.disabled = false;
+                }
+            });
+
+            // If no exact match is found, display warning
+            if (!isExactMatchFound) {
+                selectionMessage.classList.remove('d-none'); // Show the warning message
+                currentCheckbox.disabled = true;  // Disable the checkbox if no exact match
+            }
+        });
+    }
+
+    // Event listener for when available room checkbox is clicked
+    availableRoomCheckboxes.forEach(function(availableCheckbox) {
+        availableCheckbox.addEventListener('change', function() {
+            const availableRoomName = availableCheckbox.getAttribute('data-room-name');
+            let isMatchFound = false;
+
+            // Check if the room selected is the same as the current room
+            currentRoomCheckboxes.forEach(function(currentCheckbox) {
+                if (currentCheckbox.checked && currentCheckbox.getAttribute('data-description') === availableRoomName) {
+                    isMatchFound = true;
+                }
+            });
+
+            if (!isMatchFound) {
+                // If not the same room, show the warning and uncheck the available room checkbox
+                alert('Please change current room before selecting this room');
+                availableCheckbox.checked = false;
+            }
+        });
+    });
+
+    // Call the function to check for exact matches when the page loads
+    checkExactMatch();
+});
+</script>
+
+  
+
+
+{%endblock%}

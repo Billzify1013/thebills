@@ -177,7 +177,8 @@ class InvoiceItem(models.Model):
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     cgst_rate = models.DecimalField(max_digits=5, decimal_places=2, validators=[MinValueValidator(0)])
     sgst_rate = models.DecimalField(max_digits=5, decimal_places=2, validators=[MinValueValidator(0)])
-    paidstatus = models.BooleanField(default=False)
+    is_room = models.BooleanField(default=False)
+    is_checkout = models.BooleanField(default=False)
     date = models.DateField(auto_now=True)
 
    
@@ -550,6 +551,7 @@ class RoomBookAdvance(models.Model):
     checkoutdate = models.DateField(auto_now=False)
 
     checkinstatus = models.BooleanField(default=False)
+    checkOutstatus = models.BooleanField(default=False)
     partly_checkin = models.BooleanField(default=False)
     bookingstatus = models.BooleanField(default=False)
 
