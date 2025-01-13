@@ -422,6 +422,7 @@
                                 <div><strong>Address:</strong> ${supplier.customeraddress}</div>
                                 <div><strong>GSTIN:</strong> ${supplier.customergst || 'N/A'}</div>
                                 <div><strong>Company:</strong> ${supplier.companyname || 'N/A'}</div>
+                                <div><strong>STATE:</strong> ${supplier.state || 'N/A'}</div>
                             `).show();
     
                             // Show the checkbox for saving data to input fields
@@ -454,16 +455,17 @@
                 $('#supplierContact').val(supplierData.contact);
                 $('#supplierEmail').val(supplierData.email);
                 $('#supplierAddress').val(supplierData.address);
-                $('#supplierState').val(supplierData.state);
+                $('select[name="STATE"]').val(supplierData.state);
                 $('#supplierGst').val(supplierData.gstin);
                 $('#supplierCompany').val(supplierData.company);
+                console.log(supplierData.state,'state')
             } else {
                 // Clear the form fields if checkbox is unchecked
                 $('#supplierName').val('');  // Clear the supplier name
                 $('#supplierContact').val('');
                 $('#supplierEmail').val('');
                 $('#supplierAddress').val('');
-                $('#supplierState').val('');
+                $('select[name="STATE"]').val('');
                 $('#supplierGst').val('');
                 $('#supplierCompany').val('');
             }
@@ -486,7 +488,10 @@
                     data.gstin = text.split(':')[1].trim();
                 } else if (text.includes('Company:')) {
                     data.company = text.split(':')[1].trim();
+                }else if (text.includes('STATE:')) {
+                    data.state = text.split(':')[1].trim();
                 }
+                
             });
             return data;
         }

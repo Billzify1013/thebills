@@ -163,7 +163,17 @@
             <div class="col-1 m-4">
                 <a class="btn btn-primary text-white w-100" onClick="javascript:history.go(-1);">Back</a>
             </div>
-        </div>     
+        </div>  
+        
+        {%if creditdata%}
+        {%for i in creditdata%}
+        <div id="selectionMessage" class="alert alert-warning" role="alert">
+            The guest still has previous invoices pending. You can click here to view the details.
+            <a href="{% url 'creditinvoicecheck' id=i.id %}">Check Invoice</a>
+        </div>
+        {%endfor%}
+        {%endif%}
+
         </div>
 
         

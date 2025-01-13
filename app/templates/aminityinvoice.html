@@ -163,6 +163,7 @@
                 </optgroup>
                 <optgroup label="Other Locations">
                     <option value="foreign">Foreign</option>
+                    <option value="other">Other</option>
                 </optgroup>
               </select> </div>
 
@@ -828,6 +829,7 @@ function showinput() {
                                         $('input[name="customergstno"]').val(user.customergst);
                                         $('input[name="companyname"]').val(user.customercompany);
                                         $('select[name="STATE"]').val(user.state); // You may need to adjust this if you have a mapping for the state
+                                        console.log(user.state,'user state')
                                     } else {
                                         // Clear the fields if unchecked
                                         $('input[name="cname"]').val('');

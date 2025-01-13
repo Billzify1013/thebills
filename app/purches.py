@@ -880,7 +880,13 @@ def get_supplier_details(request):
             )
 
             if suppliers.exists():
+                profiledata = HotelProfile.objects.get(vendor=user)
                 supplier = suppliers.last()  # You can modify to return multiple suppliers if needed
+                if supplier.taxtype == 'GST':
+                     state = profiledata.zipcode
+                else:
+                     state='other'
+                print(state)
                 supplier_data = {
                     'customername': supplier.customername,
                     'customercontact': supplier.customercontact,
@@ -900,7 +906,8 @@ def get_supplier_details(request):
                     'modeofpayment': supplier.modeofpayment,
                     'cash_amount': str(supplier.cash_amount),
                     'online_amount': str(supplier.online_amount),
-                    'sattle': supplier.sattle
+                    'sattle': supplier.sattle,
+                    'state':str(state),
                 }
 
                 return JsonResponse({'status': 'success', 'data': supplier_data})

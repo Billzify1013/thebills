@@ -1512,7 +1512,7 @@ def search_user(request):
             user = subuser.vendor  
         # Get the mobile number from the GET request
         mobile_number = request.GET.get('mobile_number', '').strip()
-
+        profiledata = HotelProfile.objects.get(vendor=user)
         # Validate if the mobile number is provided
         if not mobile_number:
             return JsonResponse({'success': False, 'message': 'Mobile number is required'})
@@ -1523,6 +1523,10 @@ def search_user(request):
 
             if invoice:
                 # If a matching entry is found in AminitiesInvoice, return those details
+                if invoice.taxtype=='GST':
+                    statesame = profiledata.zipcode
+                else:
+                    statesame = 'other'
                 guest_details = {
                     'name': invoice.customername,
                     'email': invoice.customeremail,
@@ -1530,15 +1534,21 @@ def search_user(request):
                     'address': invoice.customeraddress,
                     'customercompany': invoice.customercompany,
                     'customergst': invoice.customergst,
+                    'state':statesame,
+
                     
                 }
                 return JsonResponse({'success': True, 'user': guest_details})
 
            
             else:
+                
                  # If no matching entry in AminitiesInvoice, check in Gueststay
                 guest = Gueststay.objects.filter(vendor=user, guestphome=mobile_number).last()  # Adjust field names if necessary
-
+                if guest.gueststates==profiledata.zipcode:
+                    statesame = profiledata.zipcode
+                else:
+                    statesame = 'other'
                 # If a matching guest is found in Gueststay, return those details
                 guest_details = {
                     'name': guest.guestname,
@@ -1547,6 +1557,7 @@ def search_user(request):
                     'address': guest.guestcity,
                     'customercompany': 'none',
                     'customergst': 'none',
+                    'state':statesame,
                 }
                 return JsonResponse({'success': True, 'user': guest_details})
 

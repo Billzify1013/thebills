@@ -734,7 +734,8 @@ class invPermit(models.Model):
     
 class invoiceDesign(models.Model):
     vendor = models.ForeignKey(User, on_delete=models.CASCADE)
-    invcdesign = models.IntegerField(default=0)
+    invcdesign = models.IntegerField(default=1)
+    guestinvcdesign = models.IntegerField(default=1)
     
 class Subuser(models.Model):
     vendor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subusers')

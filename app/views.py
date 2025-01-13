@@ -24,6 +24,7 @@ from .newcode import *
 # Create your views here.
 from .dynamicrates import *
 from django.db.models import F
+from . loyltys import searchcredit
 
 
 
@@ -367,12 +368,13 @@ def invoicepage(request, id):
                         'istamts':istamts
                     })
             else:
+                creditdata = CustomerCredit.objects.filter(vendor=user,phone=invoice_data.customer.guestphome)
                 if invoice_data.taxtype == 'GST':
                     gstamounts = invoice_data.gst_amount
                     sstamounts = invoice_data.sgst_amount
                     
                     invcheck =  invoiceDesign.objects.get(vendor=user)
-                    if invcheck.invcdesign==1:
+                    if invcheck.guestinvcdesign==1:
                         return render(request, 'invoicepage.html', {
                             'profiledata': profiledata,
                             'guestdata': guestdata,
@@ -380,9 +382,10 @@ def invoicepage(request, id):
                             'invoiceitemdata': invoiceitemdata,
                             'invcpayments':invcpayments,
                             'gstamounts':gstamounts,
-                            'sstamounts':sstamounts
+                            'sstamounts':sstamounts,
+                            'creditdata':creditdata
                         })
-                    elif invcheck.invcdesign==2:
+                    elif invcheck.guestinvcdesign==2:
                         return render(request, 'invoicepage2.html', {
                             'profiledata': profiledata,
                             'guestdata': guestdata,
@@ -390,24 +393,25 @@ def invoicepage(request, id):
                             'invoiceitemdata': invoiceitemdata,
                             'invcpayments':invcpayments,
                             'gstamounts':gstamounts,
-                            'sstamounts':sstamounts
+                            'sstamounts':sstamounts,
+                            'creditdata':creditdata
                         })
                         
                         
                 else:
                     istamts = invoice_data.sgst_amount + invoice_data.gst_amount
                     invcheck =  invoiceDesign.objects.get(vendor=user)
-                    if invcheck.invcdesign==1:
+                    if invcheck.guestinvcdesign==1:
                         return render(request, 'invoicepage.html', {
                             'profiledata': profiledata,
                             'guestdata': guestdata,
                             'invoice_data': invoice_datas,
                             'invoiceitemdata': invoiceitemdata,
                             'invcpayments':invcpayments,
-                            
+                            'creditdata':creditdata,
                             'istamts':istamts
                         })
-                    elif invcheck.invcdesign==2:
+                    elif invcheck.guestinvcdesign==2:
                         print(invcpayments)
                         return render(request, 'invoicepage2.html', {
                             'profiledata': profiledata,
@@ -415,7 +419,7 @@ def invoicepage(request, id):
                             'invoice_data': invoice_datas,
                             'invoiceitemdata': invoiceitemdata,
                             'invcpayments':invcpayments,
-                            
+                            'creditdata':creditdata,
                             'istamts':istamts
                         })
              
@@ -423,6 +427,35 @@ def invoicepage(request, id):
             return render(request, 'login.html')
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)
+
+
+def creditinvoicecheck(request,id):
+    try:
+        if request.user.is_authenticated :
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor 
+
+            dataid = id
+            data = CustomerCredit.objects.filter(vendor=user,id=dataid).last()
+            
+            new_request = request
+            new_request.method = "POST"  # Simulate a POST request
+            new_request.POST = QueryDict(mutable=True)
+            new_request.POST.update({
+                'name': str(''),
+                'phone':str(data.phone) ,
+                'date':str('')
+            })
+            messages.warning(request,"Panding Invoice Here")
+            # Call the bookingdate function with the modified request
+            return searchcredit(new_request)
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+      
 
 from django.urls import reverse
 def editcustomergstnumber(request):
@@ -3633,7 +3666,52 @@ def cart_processing(request):
                         pass
                     
                                  # api calling backend automatically
-                                # Start the long-running task in a separate thread
+            usermsglimit = Messgesinfo.objects.get(vendor_id=userids)
+            
+            if True:
+                        addmsg = usermsglimit.changedlimit + 2
+                        Messgesinfo.objects.filter(vendor_id=userids).update(changedlimit=addmsg)
+                        profilename = HotelProfile.objects.get(vendor_id=userids)
+                        mobile_number = guest_phone
+                        
+                        # message_content = f"Dear guest, Your booking at {profilename.name} is confirmed. Advance payment of Rs.{advanceamount} received. Check-in date: {bookingdate}. We're thrilled to host you and make your stay unforgettable. For assistance, contact us at {profilename.contact}. -BILLZIFY"
+                        # oururl = 'https://live.billzify.com/receipt/88/'
+                        # message_content = f"Hello {guestname}, Your reservation is confirmed. View your booking details here: {oururl}-BILLZIFY"
+                        bids=Saveadvancebookdata.id
+                        message_content = f"Hello {guest_name}, Your hotel reservation is confirmed. View your booking details here: https://live.billzify.com/receipt/?cd={bids} -BILLZIFY"
+                        
+                        base_url = "http://control.yourbulksms.com/api/sendhttp.php"
+                        params = {
+                            'authkey': settings.YOURBULKSMS_API_KEY,
+                            'mobiles': mobile_number,
+                            'sender':  'BILZFY',
+                            'route': '2',
+                            'country': '0',
+                            'DLT_TE_ID': '1707173659916248212'
+                        }
+                        encoded_message = urllib.parse.urlencode({'message': message_content})
+                        url = f"{base_url}?authkey={params['authkey']}&mobiles={params['mobiles']}&sender={params['sender']}&route={params['route']}&country={params['country']}&DLT_TE_ID={params['DLT_TE_ID']}&{encoded_message}"
+                        
+                        try:
+                            response = requests.get(url)
+                            if response.status_code == 200:
+                                try:
+                                    response_data = response.json()
+                                    if response_data.get('Status') == 'success':
+                                        messages.success(request, 'SMS sent successfully.')
+                                    else:
+                                        messages.success(request, response_data.get('Description', 'Failed to send SMS'))
+                                except ValueError:
+                                    messages.success(request, 'Failed to parse JSON response')
+                            else:
+                                messages.success(request, f'Failed to send SMS. Status code: {response.status_code}')
+                        except requests.RequestException as e:
+                            messages.success(request, f'Error: {str(e)}')
+            else:
+                pass
+            
+            
+            # Start the long-running task in a separate thread
             if VendorCM.objects.filter(vendor_id=userids,):
                         start_date = str(checkindate)
                         end_date = str(checkoutdate)

@@ -156,6 +156,9 @@
             #download-btn, #print-btn,#back {
                 display: none; /* Hide both buttons during printing */
             }
+            #warningcontent {
+                display: none; /* Hide both buttons during printing */
+            }
 
             /* Hide background image during print */
             body {
@@ -186,6 +189,16 @@
     </style>
 </head>
 <body>
+
+    {%if creditdata%}
+        {%for i in creditdata%}
+        <div id="warningcontent" class="alert alert-warning" style="background:yellow;position:relative" >
+            The guest still has previous invoices pending. You can click here to view the details.
+            Please Check On Credit Page With Same Guest Phone Number
+        </div>
+        {%endfor%}
+        {%endif%}
+
     <div class="container">
         
         <!-- Removed the "Invoice" heading and HR -->

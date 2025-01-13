@@ -64,6 +64,8 @@ urlpatterns = [
     path('invoicepage/<int:id>/',views.invoicepage,name="invoicepage"),
     path('addpaymentfolio/',views.addpaymentfolio,name="addpaymentfolio"),
     path('addpaymentfoliocredit/',views.addpaymentfoliocredit,name="addpaymentfoliocredit"),
+    path('creditinvoicecheck/<int:id>/',views.creditinvoicecheck,name="creditinvoicecheck"),
+    
     path('generate_qr/<path:url>/', views.generate_qr, name='generate_qr'),
     path('myprofile/', views.myprofile, name='myprofile'),
     path('addprofile/', views.addprofile, name='addprofile'),
