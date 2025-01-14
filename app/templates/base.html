@@ -679,7 +679,97 @@
                   </li>
 
                   <!--BELL TESTGIN CODE START-->
+                  <!-- Bell Icon -->
+                  <li class="nav-item lh-1 me-1 position-relative">
+                    <a
+                      class="btn"
+                      type="button"
+                      style="text-decoration:none;"
+                      onclick="handleNotificationClick()"
+                      href="{% url 'notification' %}"
+                    >
+                    {% if request.session.notification %}
+                      <i class='bx bxs-bell' style="font-size:25px; color: #7C4DFF;"></i>
+                      <span id="notification-count" 
+                            class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger">
+                            
+                      </span>
+                      
+                      <span class="flex-shrink-0 badge d-none badge-center rounded-pill bg-danger w-px-20 h-px-20">1</span>
+                      <span class="wave-animation"></span>
+                      {%else%}
+                      <i class='bx bxs-bell' style="font-size:25px; "></i>
+                      {%endif%}
+                      
+                    </a>
+                  </li>
                   
+
+                  <!-- CSS for Unique Wave Animation -->
+                  <style>
+                    .wave-animation {
+                      position: absolute;
+                      top: 50%;
+                      left: 50%;
+                      width: 60px;
+                      height: 60px;
+                      background:#6d68fe;
+                      border: 2px solid #a8b6e2;
+                      border-radius: 50%;
+                      animation: waveEffect 1.5s infinite;
+                      transform: translate(-50%, -50%);
+                      pointer-events: none;
+                      z-index: -1;
+                    }
+                    
+                    @keyframes waveEffect {
+                      0% {
+                        transform: translate(-50%, -50%) scale(1);
+                        opacity: 1;
+                      }
+                      100% {
+                        transform: translate(-50%, -50%) scale(2);
+                        opacity: 0;
+                      }
+                    }
+                    
+                    #notification-count {
+                      font-size: 12px;
+                      font-weight: bold;
+                      display: none;
+                    }
+                    
+                  </style>
+
+                  <!-- JavaScript -->
+                  <script>
+                    let notificationCount = 0;
+
+                  function incrementNotification() {
+                    notificationCount++;
+                    const countSpan = document.getElementById('notification-count');
+                    countSpan.textContent = notificationCount;
+                    countSpan.style.display = 'block';
+
+                    // Ensure wave animation is visible
+                    const wave = document.querySelector('.wave-animation');
+                    wave.style.display = 'block';
+                  }
+
+                  function handleNotificationClick() {
+                    notificationCount = 0;
+                    document.getElementById('notification-count').textContent = notificationCount;
+                    document.getElementById('notification-count').style.display = 'none';
+
+                    // Stop wave animation
+                    const wave = document.querySelector('.wave-animation');
+                    wave.style.display = 'none';
+                  }
+
+                  </script>
+                  
+
+
 
                   <!--BELL CODE END-->
 

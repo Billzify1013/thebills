@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<!-- Display Messages Section -->
+{% if messages %}
+{% for msg in messages %}
+<div class="container mt-0">
+    <div id="{{ msg.tags }}-alert" class="alert alert-{{ msg.tags }} alert-dismissible" role="alert">
+        {{ msg }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</div>
+{% endfor %}
+<script>
+    setTimeout(() => document.querySelectorAll('.alert').forEach(alert => alert.remove()), 5000);
+</script>
+{% endif %}
+
+<!-- Filters Section -->
+<div class="card p-3 mt-3">
+    <div class="d-flex mb-3 flex-wrap">
+        <div class="me-3">
+            <label for="searchFilter">Search by Name, Number, or Booking ID:</label>
+            <input type="text" id="searchFilter" class="form-control" placeholder="Search...">
+        </div>
+        <div class="me-3">
+            <label for="channelFilter">Filter by Channel:</label>
+            <select id="channelFilter" class="form-select">
+                <option value="">All Channels</option>
+            </select>
+        </div>
+        <div class="me-3">
+            <label for="paymentFilter">Filter by Payment Type:</label>
+            <select id="paymentFilter" class="form-select">
+                <option value="">All Payment Types</option>
+            </select>
+        </div>
+        <div class="me-3">
+            <label for="statusFilter">Filter by Booking Status:</label>
+            <select id="statusFilter" class="form-select">
+                <option value="">All Status</option>
+            </select>
+        </div>
+       
+    </div>
+    <div id="summaryDiv" class="mb-3">
+        <p><strong>Total Bookings:</strong> <span id="totalRows">0</span></p>
+        <p><strong>Total Amount:</strong> ₹<span id="totalAmount">0.00</span></p>
+    </div>
+</div>
+
+<!-- Table Section -->
+<div class="card mt-4">
+    <div class="row"><div class="col-9">
+        <h5 class="card-header"><i class='bx bx-transfer-alt'></i> New Bookings</h5>
+    </div>
+    <div class="col-3">
+        <button id="printBtn" class="btn btn-primary mt-3">Print Filtered Table</button>
+    </div>
+
+</div>
+    
+    <div class="table-responsive text-nowrap">
+        <table class="table table-striped" style="cursor: grabbing;">
+            <thead class="table-light">
+                <tr>
+                    <th>Guest Name/Phone</th>
+                    <th>Channel/Booking ID</th>
+                    <th>Stay Dates</th>
+                    <th>Total Amount</th>
+                    <th>Payment Type</th>
+                    <th>Confirmation</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="bookingTableBody">
+                {% for data in saveadvancebookdata %}
+                <tr data-channel="{{ data.channal.channalname }}" data-payment="{{ data.Payment_types }}" data-amount="{{ data.total_amount }}" data-status="{{ data.action }}" data-name="{{ data.bookingguest }}" data-number="{{ data.bookingguestphone }}" data-bookingid="{{ data.booking_id }}">
+                    {% if data.action == 'cancel' %}
+                    <td><strong><del>{{ data.bookingguest }}<br>{{ data.bookingguestphone }}</del></strong></td>
+                    {% else %}
+                    <td><strong>{{ data.bookingguest }}<br>{{ data.bookingguestphone }}</strong></td>
+                    {% endif %}
+                    <td>{{ data.channal.channalname }}<br>{{ data.booking_id }}</td>
+                    <td><span class="badge bg-label-primary">{{ data.bookingdate }} - {{ data.checkoutdate }}</span></td>
+                    <td>{{ data.total_amount }}</td>
+                    <td>
+                        {% if data.Payment_types == 'prepaid' %}
+                        <span class="badge bg-label-success">{{ data.Payment_types }}</span>
+                        {% elif data.Payment_types == 'postpaid' %}
+                        <span class="badge bg-label-warning">{{ data.Payment_types }}</span>
+                        {% else %}
+                        <span class="badge bg-label-info">{{ data.Payment_types }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if data.action == 'book' %}
+                        <span class="badge bg-label-success">Booked</span>
+                        {% elif data.action == 'modify' %}
+                        <span class="badge bg-label-info">Modified</span>
+                        {% else %}
+                        <span class="badge bg-label-danger">Cancelled</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <button type="button" class="btn dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                            <i class="bx bx-dots-vertical-rounded"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'advancebookingdetails' id=data.id %}"><i class="bx bx-edit-alt me-1"></i>Details</a></li>
+                            <li><a class="dropdown-item" href="{% url 'receipt_view' %}?cd={{ data.id }}"><i class='bx bx-conversation'></i>Voucher</a></li>
+                            <li><a class="dropdown-item" href="{% url 'addpaymenttobooking' booking_id=data.id %}"><i class='bx bxl-paypal'></i>Add Payment</a></li>
+                            <li><a class="dropdown-item" href="{% url 'advancebookingdelete' id=data.id %}"><i class="bx bx-trash me-1"></i>Cancel</a></li>
+                        </ul>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchFilter = document.getElementById("searchFilter");
+    const channelFilter = document.getElementById("channelFilter");
+    const paymentFilter = document.getElementById("paymentFilter");
+    const statusFilter = document.getElementById("statusFilter");
+    const tableBody = document.getElementById("bookingTableBody");
+    const totalRowsSpan = document.getElementById("totalRows");
+    const totalAmountSpan = document.getElementById("totalAmount");
+    const printBtn = document.getElementById("printBtn");
+
+    const tableRows = Array.from(tableBody.querySelectorAll("tr"));
+
+    function populateFilters() {
+        const channels = new Set();
+        const payments = new Set();
+        const statuses = new Set();
+
+        tableRows.forEach((row) => {
+            channels.add(row.getAttribute("data-channel"));
+            payments.add(row.getAttribute("data-payment"));
+            statuses.add(row.getAttribute("data-status"));
+        });
+
+        channels.forEach((channel) => {
+            const option = document.createElement("option");
+            option.value = channel;
+            option.textContent = channel;
+            channelFilter.appendChild(option);
+        });
+
+        payments.forEach((payment) => {
+            const option = document.createElement("option");
+            option.value = payment;
+            option.textContent = payment;
+            paymentFilter.appendChild(option);
+        });
+
+        statuses.forEach((status) => {
+            const option = document.createElement("option");
+            option.value = status;
+            option.textContent = status === 'book' ? 'Booked' : 'Cancelled';
+            statusFilter.appendChild(option);
+        });
+    }
+
+    function filterTable() {
+        const searchQuery = searchFilter.value.toLowerCase();
+        const selectedChannel = channelFilter.value;
+        const selectedPayment = paymentFilter.value;
+        const selectedStatus = statusFilter.value;
+
+        let totalRows = 0;
+        let totalAmount = 0;
+
+        tableRows.forEach((row) => {
+            const rowChannel = row.getAttribute("data-channel");
+            const rowPayment = row.getAttribute("data-payment");
+            const rowStatus = row.getAttribute("data-status");
+            const rowName = row.getAttribute("data-name").toLowerCase();
+            const rowNumber = row.getAttribute("data-number").toLowerCase();
+            const rowBookingID = row.getAttribute("data-bookingid").toLowerCase();
+            const rowAmount = parseFloat(row.getAttribute("data-amount")) || 0;
+
+            const matchesSearch = rowName.includes(searchQuery) || rowNumber.includes(searchQuery) || rowBookingID.includes(searchQuery);
+            const matchesChannel = !selectedChannel || rowChannel === selectedChannel;
+            const matchesPayment = !selectedPayment || rowPayment === selectedPayment;
+            const matchesStatus = !selectedStatus || rowStatus === selectedStatus;
+
+            if (matchesSearch && matchesChannel && matchesPayment && matchesStatus) {
+                row.style.display = "";
+                totalRows += 1;
+                totalAmount += rowAmount;
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        totalRowsSpan.textContent = totalRows;
+        totalAmountSpan.textContent = totalAmount.toFixed(2);
+    }
+
+    function printFilteredTable() {
+        const printWindow = window.open("", "_blank", "width=800,height=600");
+        const clonedTable = document.createElement("table");
+        clonedTable.classList.add("table", "table-bordered", "table-striped");
+
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+
+        const headerData = ["Guest Name/Phone", "Channel/Booking ID", "Stay Dates", "Total Amount", "Payment Type", "Confirmation"];
+
+        headerData.forEach((headerText) => {
+            const th = document.createElement("th");
+            th.textContent = headerText;
+            headerRow.appendChild(th);
+        });
+
+        thead.appendChild(headerRow);
+        clonedTable.appendChild(thead);
+
+        const tbody = document.createElement("tbody");
+        const visibleRows = Array.from(tableRows).filter(row => row.style.display !== "none");
+
+        visibleRows.forEach((row) => {
+            const rowClone = row.cloneNode(true);
+            rowClone.removeChild(rowClone.lastElementChild);
+            tbody.appendChild(rowClone);
+        });
+        clonedTable.appendChild(tbody);
+
+        printWindow.document.write("<html><head><title>Print Filtered Table</title>");
+        printWindow.document.write("<style>table, th, td {border: 1px solid black; border-collapse: collapse;} th, td {padding: 8px; text-align: left;}</style>");
+        printWindow.document.write("</head><body>");
+        printWindow.document.write("<h2>Filtered New Bookings</h2>");
+        printWindow.document.write(clonedTable.outerHTML);
+        printWindow.document.write("</body></html>");
+        printWindow.document.close();
+        printWindow.print();
+    }
+
+    populateFilters();
+    searchFilter.addEventListener("input", filterTable);
+    channelFilter.addEventListener("change", filterTable);
+    paymentFilter.addEventListener("change", filterTable);
+    statusFilter.addEventListener("change", filterTable);
+    printBtn.addEventListener("click", printFilteredTable);
+
+    filterTable();
+});
+</script>
+
+{% endblock %}

@@ -159,3 +159,49 @@ def searchmonthinvoice(request):
             return render(request, 'login.html')
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)
+    
+
+def notification(request):
+    try:
+        if request.user.is_authenticated:
+            user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            if hasattr(user, 'subuser_profile'):
+                    subuser = user.subuser_profile
+                    if not subuser.is_cleaner:
+                        # Update main user's notification (for subuser)
+                        main_user = subuser.vendor
+                        if main_user.is_authenticated:
+                            request.session['notification'] = False  # Update main user's session
+                            request.session.modified = True
+                        # Update subuser's own notification
+                        request.session['notification'] = False  # Update subuser's session
+                        request.session.modified = True
+            else:
+                        # If it's a main user, update their notification
+                        request.session['notification'] = False
+                        request.session.modified = True
+            # Get today's date
+            # today = timezone.now().date()
+           
+
+            
+            # advanceroomdata = RoomBookAdvance.objects.filter(vendor=user).all().order_by('bookingdate')
+            saveadvancebookdata = SaveAdvanceBookGuestData.objects.filter(vendor=user,checkinstatus=False).all().order_by('-id')[:25]
+           
+           
+        
+
+
+
+        
+
+            return render(request,'notify.html',{'saveadvancebookdata':saveadvancebookdata})
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+    
+    

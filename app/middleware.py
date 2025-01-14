@@ -26,6 +26,8 @@ from django.contrib.auth.models import User
 from app.models import Subuser
 from django.utils import timezone
 
+
+
 class UserSessionMiddleware(MiddlewareMixin):
     def process_request(self, request):
         try:
@@ -54,18 +56,17 @@ class UserSessionMiddleware(MiddlewareMixin):
                             'si': True, 'saa': True, 'ext': True, 'emp': True,
                             'pdt': True, 'set': True, 'ups': True, 'fce':True
                         }
+                    if 'notification' not in request.session:
+                        request.session['notification'] = False
                        
             else:
                 # For unauthenticated users, clear permissions in the session
                 request.session['is_subuser'] = False
                 request.session['permissions'] = {}
+                if 'notification' not in request.session:
+                        request.session['notification'] = False
 
         except Exception as e:
             # Optionally log the error if needed
             pass
-
-
-
-
-
-
+        

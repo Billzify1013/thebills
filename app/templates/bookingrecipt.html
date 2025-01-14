@@ -89,7 +89,7 @@
   {%endif%}
 
   <center>
-  {% if request.session.permissions %}
+  {% if request.session.permissions or request.session.is_subuser%}
   <a  value="Back" class="btn btn-outline-warning" href="{% url 'advanceroombookpage'  %}">Back To Page</a>
      {%endif%}
 

@@ -262,6 +262,9 @@ urlpatterns = [
     path('get_supplier_details/', purches.get_supplier_details, name='get_supplier_details'),
     path('fetch-supplier-items/', purches.fetch_supplier_items, name='fetch_supplier_items'),
 
+    
+    path('notification/', stayinvoices.notification, name='notification'),
+
     # channel manager changeroompage 
     path('channalmanager/', purches.channalmanager, name='channalmanager'),
 

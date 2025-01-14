@@ -25,7 +25,7 @@ from .newcode import *
 from .dynamicrates import *
 from django.db.models import F
 from . loyltys import searchcredit
-
+from django.contrib.sessions.backends.db import SessionStore
 
 
 
@@ -2146,7 +2146,7 @@ def bookingdate(request):
 from datetime import datetime, timedelta
 
 def addadvancebooking(request):
-    try:
+    # try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
             subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
@@ -2385,12 +2385,27 @@ def addadvancebooking(request):
                 
             url = f"{reverse('receipt_view')}?cd={Saveadvancebookdata.id}"
 
+            if hasattr(user, 'subuser_profile'):
+                subuser = user.subuser_profile
+                if not subuser.is_cleaner:
+                    # Update main user's notification (for subuser)
+                    main_user = subuser.vendor
+                    if main_user.is_authenticated:
+                        request.session['notification'] = True  # Update main user's session
+                        request.session.modified = True
+                    # Update subuser's own notification
+                    request.session['notification'] = True  # Update subuser's session
+                    request.session.modified = True
+            else:
+                # If it's a main user, update their notification
+                request.session['notification'] = True
+                request.session.modified = True
             return redirect(url)
             # return redirect('advanceroombookpage')
         else:
             return redirect('loginpage')
-    except Exception as e:
-        return render(request, '404.html', {'error_message': str(e)}, status=500)
+    # except Exception as e:
+    #     return render(request, '404.html', {'error_message': str(e)}, status=500)
     
 
 
@@ -2521,7 +2536,8 @@ def advanceroomhistory(request):
                 user = subuser.vendor  
 
             # Get today's date
-            today = timezone.now().date()
+            # today = timezone.now().date()
+            today = datetime.now().date()
 
             # Define the date range
             # Example: Get dates within the next 7 days from today
@@ -2550,9 +2566,11 @@ def advanceroomhistory(request):
             # Determine the first and last day of the current month
             first_day_of_month = now.replace(day=1)
             if now.month == 12:  # Handle December to January transition
-                last_day_of_month = now.replace(year=now.year + 1, month=1, day=1) - timezone.timedelta(days=1)
+                # last_day_of_month = now.replace(year=now.year + 1, month=1, day=1) - timezone.timedelta(days=1)
+                last_day_of_month = today
             else:
-                last_day_of_month = now.replace(month=now.month + 1, day=1) - timezone.timedelta(days=1)
+                # last_day_of_month = now.replace(month=now.month + 1, day=1) - timezone.timedelta(days=20)
+                last_day_of_month = today
         
 
 
@@ -3426,8 +3444,10 @@ def guestaddfromfolio(request):
 from django.views.decorators.csrf import csrf_protect
 
 
-
-
+from django.contrib.sessions.models import Session
+from django.contrib.auth.models import User
+from django.utils import timezone
+from django.contrib.sessions.backends.db import SessionStore
 
 @csrf_protect
 def cart_processing(request):
@@ -3726,6 +3746,50 @@ def cart_processing(request):
             else:
                         pass    
 
+
+            user = User.objects.get(id=userids)
+
+            # Fetch all active sessions (remove expiration filter temporarily for debugging)
+            sessions = Session.objects.filter(expire_date__gte=timezone.now())  # You can remove this condition if needed
+
+            # Iterate over all active sessions
+            for session in sessions:
+                session_store = SessionStore(session_key=session.session_key)
+                data = session_store.load()  # Load session data
+                
+                # Debugging: Check the session data before making any changes
+
+                # Match user ID with session data
+                if str(user.id) == str(data.get('_auth_user_id')):
+                    # Check if the user has a subuser profile
+                    if hasattr(user, 'subuser_profile'):
+                        subuser = user.subuser_profile
+                        if not subuser.is_cleaner:
+                            # Get the main user (vendor) of this subuser
+                            main_user = subuser.vendor
+                            if main_user:
+                                # Iterate over all sessions to find the main user's session
+                                for main_session in sessions:
+                                    main_session_store = SessionStore(session_key=main_session.session_key)
+                                    main_session_data = main_session_store.load()
+                                    
+                                    if str(main_user.id) == str(main_session_data.get('_auth_user_id')):
+                                        # Update the main user's session with a notification
+                                        main_session_data['notification'] = True
+                                        main_session_store.update(main_session_data)
+                                        main_session_store.save()  # Save after making changes
+
+                        # Update the subuser's session
+                        data['notification'] = True
+                        session_store.update(data)
+                        session_store.save()  # Save after making changes
+
+                    else:
+                        # If no subuser profile, update the main user's session
+                        data['notification'] = True
+                        session_store.update(data)
+                        session_store.save()  # Save after making changes
+                       
 
            
             

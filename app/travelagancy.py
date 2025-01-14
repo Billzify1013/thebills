@@ -341,8 +341,10 @@ def bookingdatetravel(request):
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)
     
-
-
+from django.contrib.sessions.models import Session
+from django.contrib.auth.models import User
+from django.utils import timezone
+from django.contrib.sessions.backends.db import SessionStore
 
 def addadvancebookingfromtrvel(request):
     try:
@@ -435,28 +437,7 @@ def addadvancebookingfromtrvel(request):
                                 check_in_time=noon_time,check_out_time=noon_time,segment="PMS",totalamount=totalamount,totalroom=noofrooms,
                                 gueststay=None,advancebook=Saveadvancebookdata,status="BOOKING"           )
                 
-            # for i in my_array:
-            #         roomid = int(i['id'])
-            #         roomsellprice = int(float(i['price']))
-            #         roomselltax = int(float(i['tax']))
-            #         befortselprice=roomsellprice
-            #         totalsellprice = (roomsellprice * roomselltax //100) + roomsellprice
-            #         sellingprices = sellingprices + roomsellprice
-            #         totaltax = totaltax + (roomsellprice * roomselltax //100)
-                   
-            #         roomid = Rooms.objects.get(id=roomid)
-            #         roomtype = roomid.room_type.id
-            #         RoomBookAdvance.objects.create(vendor=user,saveguestdata=Saveadvancebookdata,bookingdate=bookingdate,roomno=roomid,
-            #                                         bookingguest=guestname,bookingguestphone=phone
-            #                                     ,checkoutdate=bookenddate,bookingstatus=True,channal=channal,totalguest=guestcount,
-            #                                    rateplan_code=mealplan,guest_name='',adults=0,children=0,sell_rate=totalsellprice )
-            #         noon_time_str = "12:00 PM"
-            #         noon_time = datetime.strptime(noon_time_str, "%I:%M %p").time()
-            #         Booking.objects.create(vendor=user,room=roomid,guest_name=guestname,check_in_date=bookingdate,check_out_date=bookenddate,
-            #                     check_in_time=noon_time,check_out_time=noon_time,segment=travelname,totalamount=totalamount,totalroom=noofrooms,
-            #                     gueststay=None,advancebook=Saveadvancebookdata,status="BOOKING"           )
-                    # inventory code
-                    # Convert date strings to date objects
+           
                     checkindate = str(bookingdate)
                     checkoutdate = str(bookenddate)
                     checkindate = datetime.strptime(checkindate, '%Y-%m-%d').date()
@@ -548,7 +529,55 @@ def addadvancebookingfromtrvel(request):
             messages.success(request,"Booking Done")
             user_name = user.username
             mids=travelid
+            
             url = reverse('bookrooms', args=[user_name, mids])
+
+           
+
+            # Fetch all active sessions (remove expiration filter temporarily for debugging)
+            sessions = Session.objects.filter(expire_date__gte=timezone.now())  # You can remove this condition if needed
+
+            # Iterate over all active sessions
+            for session in sessions:
+                session_store = SessionStore(session_key=session.session_key)
+                data = session_store.load()  # Load session data
+                
+                # Debugging: Check the session data before making any changes
+                
+
+                # Match user ID with session data
+                if str(user.id) == str(data.get('_auth_user_id')):
+                    # Check if the user has a subuser profile
+                    if hasattr(user, 'subuser_profile'):
+                        subuser = user.subuser_profile
+                        if not subuser.is_cleaner:
+                            # Get the main user (vendor) of this subuser
+                            main_user = subuser.vendor
+                            if main_user:
+                                # Iterate over all sessions to find the main user's session
+                                for main_session in sessions:
+                                    main_session_store = SessionStore(session_key=main_session.session_key)
+                                    main_session_data = main_session_store.load()
+                                    
+                                    if str(main_user.id) == str(main_session_data.get('_auth_user_id')):
+                                        # Update the main user's session with a notification
+                                        main_session_data['notification'] = True
+                                        main_session_store.update(main_session_data)
+                                        main_session_store.save()  # Save after making changes
+                                      
+
+                        # Update the subuser's session
+                        data['notification'] = True
+                        session_store.update(data)
+                        session_store.save()  # Save after making changes
+                        
+
+                    else:
+                        # If no subuser profile, update the main user's session
+                        data['notification'] = True
+                        session_store.update(data)
+                        session_store.save()  # Save after making changes
+                       
             return redirect(url)
         else:
             return redirect('loginpage')

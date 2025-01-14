@@ -9,6 +9,10 @@ import threading
 from .newcode import *
 # Create your views here.
 from .dynamicrates import *
+from django.contrib.sessions.models import Session
+from django.contrib.auth.models import User
+from django.utils import timezone
+from django.contrib.sessions.backends.db import SessionStore
 
 
 # Logging setup
@@ -311,8 +315,47 @@ def aiosell_new_reservation(request):
                                         else:
                                             pass
                             else:
-                                        pass    
-                           
+                                        pass  
+                              
+                            
+
+                            user = vendordata.vendor
+                            
+                            # Fetch all sessions
+                            sessions = Session.objects.filter(expire_date__gte=timezone.now())
+
+                            # Iterate over active sessions to find the user's session
+                            for session in sessions:
+                                session_store = SessionStore(session_key=session.session_key)
+                                data = session_store.load()  # Load session data
+                                
+                                if str(user.id) == str(data.get('_auth_user_id')):  # Match user ID with session data
+                                    # Check if the user is a subuser
+                                    if hasattr(user, 'subuser_profile'):
+                                        subuser = user.subuser_profile
+                                        if not subuser.is_cleaner:
+                                            # Get the main user (vendor) of this subuser
+                                            main_user = subuser.vendor
+                                            if main_user:
+                                                # Update main user's session
+                                                for main_session in sessions:
+                                                    main_session_store = SessionStore(session_key=main_session.session_key)
+                                                    main_session_data = main_session_store.load()
+                                                    if str(main_user.id) == str(main_session_data.get('_auth_user_id')):
+                                                        main_session_data['notification'] = True
+                                                        main_session_store.update(main_session_data)
+                                                        main_session_store.save()
+
+                                            # Update subuser's session
+                                            data['notification'] = True
+                                            session_store.update(data)
+                                            session_store.save()
+
+                                    else:
+                                        # Update the main user's session
+                                        data['notification'] = True
+                                        session_store.update(data)
+                                        session_store.save()
 
                             return JsonResponse({'success': True, 'message': 'Reservation Updated Successfully'})
                             
