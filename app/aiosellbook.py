@@ -13,7 +13,7 @@ from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.contrib.sessions.backends.db import SessionStore
-
+import re
 
 # Logging setup
 logger = logging.getLogger(__name__)
@@ -77,6 +77,16 @@ def aiosell_new_reservation(request):
                     guestname = str(guest['firstName']) + " " + str(guest['lastName'])
                     guetemail =  guest['email']
                     guestphone =  guest['phone']
+
+                    
+
+                    # Remove spaces from the string
+                    guestphone = re.sub(r'\s+', '', guestphone)  # Removes all spaces
+
+                    # Extract the last 10 characters
+                    guestphone = guestphone[-10:]
+
+                    print(guestphone)
                     guestaddress =  str(guest['address']['line1']) + " " + str(guest['address']['city']) + " " + str(guest['address']['zipCode'])
                     
                     state = str(guest['address']['state'])

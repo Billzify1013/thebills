@@ -152,6 +152,8 @@ urlpatterns = [
     path('sendwelcomemsg/',loyltys.sendwelcomemsg,name="sendwelcomemsg"),
     path('sendloyaltymsg/',loyltys.sendloyaltymsg,name="sendloyaltymsg"),
     path('searchguestexportdta/',loyltys.searchguestexportdta,name="searchguestexportdta"),
+    path('policereport/',loyltys.policereport,name="policereport"),
+
     path('sendbulksmsloylty/<int:id>/',loyltys.sendbulksmsloylty,name="sendbulksmsloylty"),
     path('deleteloylty/<int:id>/',loyltys.deleteloylty,name="deleteloylty"),
     # exceldata page

@@ -89,6 +89,11 @@ class Gueststay(models.Model):
     guestsdetails = models.CharField(max_length=40,default=None, blank=True)
     gueststates = models.CharField(max_length=50,default=None, blank=True)
     saveguestid = models.IntegerField(blank=True,null=True)
+    ar = models.CharField(max_length=50,default=True,blank=True)
+    dp = models.CharField(max_length=50,default=True,blank=True)
+    male = models.CharField(max_length=50,default=True,blank=True)
+    female = models.CharField(max_length=50,default=True,blank=True)
+    transg = models.CharField(max_length=50,default=True,blank=True)
     def __str__(self) -> str:
         return self.guestname
 

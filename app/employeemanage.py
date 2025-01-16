@@ -1301,11 +1301,38 @@ def finddatevisesales(request):
                 # Calculate total invoices count
                 total_invoices_count = sum(data['total_invoices'] for data in channel_data)
 
+                # Manually adding static time to the date
+                startdate_str = f"{startdate} 00:00:00"  # Start at 00:00:00
+                enddate_str = f"{enddate} 23:59:59"      # End at 23:59:59
+
+                # Convert the strings to datetime objects and make them timezone-aware
+                startdate = timezone.make_aware(timezone.datetime.strptime(startdate_str, "%Y-%m-%d %H:%M:%S"))
+                enddate = timezone.make_aware(timezone.datetime.strptime(enddate_str, "%Y-%m-%d %H:%M:%S"))
+
+                # Filter payments based on the time range
+                payments = InvoicesPayment.objects.filter(
+                    payment_date__gte=startdate,
+                    payment_date__lte=enddate
+                )
+
+                # Calculate total amount and count per payment mode
+                mode_summary = payments.values('payment_mode').annotate(
+                    total_amount=Sum('payment_amount'),
+                    transaction_count=Count('id')
+                )
+
+                # Calculate total amount and count for all modes
+                total_amount = payments.aggregate(Sum('payment_amount'))['payment_amount__sum'] or 0.00
+                total_count = payments.count()
+
                 return render(request,'datewisesale.html',{'active_page':'index','sattle_total_amount':sattle_total_amount,
                                                     'channel_data': channel_data,
                                                     'total_grand_total_sum': total_grand_total_sum,
                                                     'total_tax_amount_sum': total_tax_amount_sum,
                                                     'net_profit_sum': net_profit_sum,
+                                                    'mode_summary': mode_summary,
+                                                    'total_amount': total_amount,
+                                                    'total_count': total_count,
                                                     'total_invoices_count': total_invoices_count,'total_cash_amount':total_cash_amount,'total_online_amount':total_online_amount,'grand_total_amount':grand_total_amount,'startdate':startdate,'enddate':enddate,'folio_total_amount':folio_total_amount,'total_gst_amount':total_gst_amount})
             else:
                 return render(request,'datewisesale.html',{'active_page':'index','startdate':startdate,'enddate':enddate,
@@ -1316,9 +1343,9 @@ def finddatevisesales(request):
         return render(request, '404.html', {'error_message': str(e)}, status=500)  
 
 
-
+from django.utils import timezone
 def todaysales(request):
-    try:
+    # try:
         if request.user.is_authenticated  :
             user=request.user
             subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
@@ -1432,14 +1459,39 @@ def todaysales(request):
                                             checkoutdate__gt=today,
                                             checkinstatus=False ).all()
                 
-              
+                # Manually adding static time to the date
+                startdate_str = f"{startdate} 00:00:00"  # Start at 00:00:00
+                enddate_str = f"{enddate} 23:59:59"      # End at 23:59:59
 
+                # Convert the strings to datetime objects and make them timezone-aware
+                startdate = timezone.make_aware(timezone.datetime.strptime(startdate_str, "%Y-%m-%d %H:%M:%S"))
+                enddate = timezone.make_aware(timezone.datetime.strptime(enddate_str, "%Y-%m-%d %H:%M:%S"))
+
+                # Filter payments based on the time range
+                payments = InvoicesPayment.objects.filter(
+                    payment_date__gte=startdate,
+                    payment_date__lte=enddate
+                )
+
+                # Calculate total amount and count per payment mode
+                mode_summary = payments.values('payment_mode').annotate(
+                    total_amount=Sum('payment_amount'),
+                    transaction_count=Count('id')
+                )
+
+                # Calculate total amount and count for all modes
+                total_amount = payments.aggregate(Sum('payment_amount'))['payment_amount__sum'] or 0.00
+                total_count = payments.count()
+
+                
                 return render(request,'datewisesale.html',{'active_page':'todaysales','sattle_total_amount':sattle_total_amount,
                                                     'channel_data': channel_data,
                                                     'total_grand_total_sum': total_grand_total_sum,
                                                     'total_tax_amount_sum': total_tax_amount_sum,
                                                     'net_profit_sum': net_profit_sum,
-                                                    'bookingdata':bookingdata,
+                                                    'bookingdata':bookingdata,'mode_summary': mode_summary,
+                                                    'total_amount': total_amount,
+                                                    'total_count': total_count,
                                                     'total_invoices_count': total_invoices_count,'total_cash_amount':total_cash_amount,'total_online_amount':total_online_amount,'grand_total_amount':grand_total_amount,'startdate':startdate,'enddate':enddate,'folio_total_amount':folio_total_amount,'total_gst_amount':total_gst_amount})
             else:
                 today = datetime.now().date()
@@ -1449,8 +1501,8 @@ def todaysales(request):
                                         'erroe':"NO DATA FIND ON THIS DATES"})
         else:
             return redirect('loginpage')
-    except Exception as e:
-        return render(request, '404.html', {'error_message': str(e)}, status=500)  
+    # except Exception as e:
+    #     return render(request, '404.html', {'error_message': str(e)}, status=500)  
 
 
 

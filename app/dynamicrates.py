@@ -80,9 +80,18 @@ def rate_hit_channalmanager(user_id, start_date_str, end_date_str):
                     print(f"Created inventory record for {category} on {current_date} with {total_rooms} rooms.")
                 
                 if room_inventory.total_availibility > 0:
-                    occupancy = (room_inventory.booked_rooms * 100 // total_rooms)
+                    # occupancy = (room_inventory.booked_rooms * 100 // total_rooms)
+                    # room_inventory.occupancy = occupancy
+                    # print(f"Occupancy for {category} on {current_date}: {occupancy}%")
+                    # Check to avoid division by zero
+                    if total_rooms > 0:
+                        occupancy = (room_inventory.booked_rooms * 100 // total_rooms)
+                    else:
+                        occupancy = 0  # Default occupancy when total_rooms is zero
+
                     room_inventory.occupancy = occupancy
                     print(f"Occupancy for {category} on {current_date}: {occupancy}%")
+
                     
                     days_to_date = (current_date - datetime.now().date()).days
 
@@ -260,11 +269,17 @@ def update_rates_cm(user, start_date, end_date):
             "updates": inventory_updates
         }
         
-        # API request
+        # API request and its testing api
         response = requests.post(
             "https://live.aiosell.com/api/v2/cm/update-rates/sample-pms",
             json=payload
         )
+
+        # its workingon local thats why abhi band krde
+        # response = requests.post(
+        #     "https://live.aiosell.com/api/v2/cm/update-rates/billzify",
+        #     json=payload
+        # )
         
         if response.status_code == 200:
             print("Successfully sent rate update to API.")

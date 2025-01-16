@@ -1,0 +1,484 @@
+{% comment %} 
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Printable Table</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .table-container {
+            margin: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            page-break-inside: avoid;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            .page-number {
+                position: fixed;
+                bottom: 0;
+                width: 100%;
+                text-align: left;
+                font-size: 12px;
+            }
+
+            table {
+                page-break-after: auto;
+            }
+
+            .no-print {
+                display: none;
+            }
+
+            @page {
+                size: landscape; /* Sets the print page orientation to horizontal */
+            }
+        }
+
+        .button-container {
+            margin: 20px;
+        }
+
+        button {
+            padding: 10px 15px;
+            font-size: 14px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="button-container no-print">
+        <button onclick="window.print()">Print</button>
+        <button onclick="window.history.back()">Back</button>
+    </div>
+
+   <center> <span>Police Station Report</span> <hr></center>
+    <div class="" style="text-transform: uppercase;">
+        <center>     {%for i in hoteldata%}
+             <p><b>HOTEL {{i.name}}</b></p>
+             <p style="margin-top:-10px" >address : {{i.address}} {{i.zipcode}}</p>
+             <p style="margin-top:-10px">Contact : {{i.contact}}</p>
+             {%endfor%}
+        </center>
+         </div><hr>
+         <span style="margin-left:21px">FROM : <b>{{ startdate }}</b></span>
+             <span >TO : <b>{{ enddate }}</b></span>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Sr. No</th>
+                    <th>Guest Details</th>
+                    <th>Arrival To Departure</th>
+                    <th>Check-In Date & Time</th>
+                    <th>M,F,K,O </th>
+                    <th>Total Guest</th>
+                    <th>Room No</th>
+                </tr>
+            </thead>
+            <tbody>
+              
+            {% for i in guestdata %}
+                <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td><b>
+                        {{i.guestname}}<br>
+                        {{ i.guestidtypes }}/{{ i.guestsdetails }}</b><br>
+                        {{ i.guestcity }}, {{i.gueststates}},{{ i.guestcountry }}
+                    </td>
+                    <td></td>
+                    <td><b>{{ i.checkindate }}</b></td>
+                    <td><b>,{{ i.children }},</b></td>
+                    <td><b>{{ i.noofguest }}</b></td>
+                    <td><b>{{ i.roomno }}</b></td>
+                    
+                </tr>
+                {% endfor %}
+               
+                <!-- Add more rows as needed -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="page-number">
+        Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+    </div>
+
+    <script>
+        function updatePageNumbers() {
+            const totalPages = Math.max(1, Math.ceil(document.body.scrollHeight / window.innerHeight));
+            document.getElementById('totalPages').innerText = totalPages;
+
+            window.addEventListener('scroll', () => {
+                const currentPage = Math.min(totalPages, Math.ceil((window.scrollY + window.innerHeight) / window.innerHeight));
+                document.getElementById('currentPage').innerText = currentPage;
+            });
+        }
+
+        window.onload = updatePageNumbers;
+    </script>
+</body>
+</html>
+{% endcomment %}
+
+{% comment %} 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Printable Table</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .hotel-info {
+            margin-top: 20px;
+            text-transform: uppercase;
+            padding: 10px;
+            border-bottom: 1px solid #000;
+        }
+
+        .table-container {
+            margin: 20px;
+            page-break-before: always;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            page-break-inside: avoid;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            .no-print {
+                display: none;
+            }
+
+            table {
+                page-break-after: ;
+                margin-top: 250px; /* Added space for hotel info */
+            }
+
+            
+
+            .page-number {
+                position: fixed;
+                bottom: 0;
+                width: 100%;
+                text-align: left;
+                font-size: 12px;
+            }
+
+            @page {
+                size: landscape;
+                margin: 0;
+            }
+        }
+
+        .button-container {
+            margin: 20px;
+        }
+
+        button {
+            padding: 10px 15px;
+            font-size: 14px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="button-container no-print">
+        <button onclick="downloadPDF()">Download PDF</button>
+        <button onclick="window.print()">Print</button>
+        <button onclick="window.history.back()">Back</button>
+    </div>
+
+    <!-- Hotel Info Section (Fixed on Top) -->
+    <div class="hotel-info">
+        <center>
+            <span>Police Station Report</span><hr>
+            {% for i in hoteldata %}
+            <p><b>HOTEL {{i.name}}</b></p>
+            <p style="margin-top:-10px">address: {{i.address}} {{i.zipcode}}</p>
+            <p style="margin-top:-10px">Contact: {{i.contact}}</p>
+            {% endfor %}
+        </center>
+        <hr>
+        <span style="margin-left:21px">FROM : <b>{{ startdate }}</b></span>
+        <span>TO : <b>{{ enddate }}</b></span>
+    </div>
+
+    <!-- Table Data -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Sr. No</th>
+                    <th>Guest Details</th>
+                    <th>Arrival To Departure</th>
+                    <th>Check-In Date & Time</th>
+                    <th>M,F,K,O</th>
+                    <th>Total Guest</th>
+                    <th>Room No</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for i in guestdata %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td><b>{{ i.guestname }}<br>{{ i.guestidtypes }}/{{ i.guestsdetails }}</b><br>{{ i.guestcity }}, {{ i.gueststates }}, {{ i.guestcountry }}</td>
+                    <td></td>
+                    <td><b>{{ i.checkindate }}</b></td>
+                    <td><b>,{{ i.children }},</b></td>
+                    <td><b>{{ i.noofguest }}</b></td>
+                    <td><b>{{ i.roomno }}</b></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="page-number">
+        Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+    </div>
+
+    <script>
+        function updatePageNumbers() {
+            const totalPages = Math.max(1, Math.ceil(document.body.scrollHeight / window.innerHeight));
+            document.getElementById('totalPages').innerText = totalPages;
+
+            window.addEventListener('scroll', () => {
+                const currentPage = Math.min(totalPages, Math.ceil((window.scrollY + window.innerHeight) / window.innerHeight));
+                document.getElementById('currentPage').innerText = currentPage;
+            });
+        }
+
+        window.onload = updatePageNumbers;
+
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('landscape');
+            
+            // Add Hotel Info (Manual Entry for Demo)
+            doc.setFontSize(12);
+            doc.text("Police Station Report", 10, 10);
+            {% for i in hoteldata %}
+            doc.text(`HOTEL ${i.name}`, 10, 20);
+            doc.text(`Address: ${i.address} ${i.zipcode}`, 10, 30);
+            doc.text(`Contact: ${i.contact}`, 10, 40);
+            {% endfor %}
+
+            // Add Table
+            const tableColumn = ["Sr. No", "Guest Details", "Arrival To Departure", "Check-In Date & Time", "M,F,K,O", "Total Guest", "Room No"];
+            const tableRows = [];
+            {% for i in guestdata %}
+            tableRows.push([`{{ forloop.counter }}`, `{{ i.guestname }}\n{{ i.guestidtypes }}/{{ i.guestsdetails }}\n{{ i.guestcity }}, {{ i.gueststates }}, {{ i.guestcountry }}`, "", `{{ i.checkindate }}`, `{{ i.children }}`, `{{ i.noofguest }}`, `{{ i.roomno }}`]);
+            {% endfor %}
+            
+            doc.autoTable({
+                head: [tableColumn],
+                body: tableRows,
+                startY: 50, // Start below the hotel info
+                margin: { top: 250 },
+                theme: 'striped'
+            });
+
+            doc.save('hotel-report.pdf');
+        }
+    </script>
+</body>
+</html> {% endcomment %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            color: #333;
+        }
+    </style>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                margin: 0;
+            }
+            .table-responsive {
+                display: block;
+                overflow: visible !important;
+            }
+            thead {
+                display: table-header-group;
+            }
+            img {
+                max-width: 100px;
+                height: auto;
+            }
+            table {
+                width: 100%;
+                table-layout: auto;
+            }
+            th, td {
+                word-wrap: break-word;
+                white-space: normal;
+                padding: 4px 8px; /* Reduce padding to make rows shorter */
+                font-size: 14px;  /* Reduce font size */
+            }
+            .filter-options, /* Hide filter options in print view */
+            .mb-4 { /* Hide Back and Print buttons */
+                display: none !important;
+            }
+            /* Set the page orientation to landscape for printing */
+            @page {
+                size: landscape;
+                margin: 5mm 5mm; /* Adjust margins to optimize space */
+            }
+
+            /* Force row height to be smaller */
+            tbody tr {
+                height: 18px; /* Set a fixed height for rows */
+            }
+            
+            /* Remove extra space from the top and move content up */
+            .container-fluid {
+                margin-top: 0 !important;
+                padding-top: 0 !important;
+            }
+            
+            /* Remove extra space before hotel details */
+            .container-fluid hr {
+                margin-top: 0;
+                margin-bottom: 5px; /* Adjust spacing between sections */
+            }
+
+            /* Ensure hotel name and address appear without extra space */
+            .container-fluid center {
+                margin-top: 0;
+                padding-top: 0;
+            }
+
+            /* Adjust the header and content margin for printing */
+            .container-fluid p {
+                margin: 0;
+            }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.min.js"></script>
+</head>
+<body>
+    
+    <div class="container-fluid">
+        <div class="mb-4 mt-4">
+            
+            <button class="btn btn-primary ms-3" onclick="window.print()">Print Page</button>
+            <input type="button" value="Back" class="btn btn-outline-warning ms-3" onClick="javascript:history.go(-1);">
+        </div>
+        <hr>
+        <center><span>Police Station Report</span><hr></center>
+        <div class="" style="text-transform: uppercase;">
+            <center>
+                {%for i in hoteldata%}
+                    <p style="margin-bottom:5px;"><b>HOTEL {{i.name}}</b></p>
+                    <p style="margin-bottom:5px;">Address: {{i.address}} {{i.zipcode}}</p>
+                    <p >Contact: {{i.contact}}</p>
+                {%endfor%}
+            </center>
+        </div>
+        <hr>
+        <span style="margin-left:21px">FROM: <b>{{ startdate }}</b></span>
+        <span>TO: <b>{{ enddate }}</b></span>
+
+        <div class="container-fluid mt-5" id="tableDiv">
+           
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Sr No.</th>
+                            <th>Guest Details</th>
+                            <th>Arrival To Departure</th>
+                            <th>Check-In Date & Time</th>
+                            <th>M &nbsp;&nbsp; F &nbsp;&nbsp; K &nbsp;&nbsp; O</th>
+                            <th>Total Guest</th>
+                            <th>Room No.</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in guestdata %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td style="width:300px"><b>{{ i.guestname }}</b><br>
+                                {{ i.guestidtypes }}/{{ i.guestsdetails }}<br>
+                                {{ i.guestcity }}, {{i.gueststates}}</td>
+                            <td><center>{{i.ar}} To {{i.dp}}</center></td>
+                            <td><center>{{ i.checkindate }}</center></td>
+                            <td>{{i.male}}&nbsp;&nbsp;&nbsp; {{i.female}} &nbsp;&nbsp;&nbsp; {{ i.children }} &nbsp;&nbsp;&nbsp; {{i.transg}}</td>
+                            <td><center>{{ i.noofguest }}</center></td>
+                            <td><center>{{ i.roomno }}</center></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+ 

@@ -403,14 +403,15 @@
                     <span id="basic-icon-default-company2" class="input-group-text"
                       >Id Type <i class='bx bx-down-arrow-alt'></i></span>
                     
-                    <select class="form-control" name="idtype" id="guestidtype" placeholder="Chek-In Time">
-                      <option>ID Type</option>
-                      <option>Aadhar Card</option>
-                      <option>Licence</option>
-                      <option>Passport</option>
-                      <option>VoterID Card</option>
+                    <select class="form-control" name="idtype" id="guestidtype" placeholder="Chek-In Time" required>
+                      <option value=''>ID Type</option>
+                      <option value="Aadhar Card">Aadhar Card</option>
+                      <option value="Licence">Licence</option>
+                      <option value="Passport">Passport</option>
+                      <option value="VoterID Card">VoterID Card</option>
                     </select>
-                  </div>
+                    
+                  </div><span class="text-danger">* </span>
                 </div>
           </div>
 
@@ -433,62 +434,209 @@
             </div>
         </div>
 
-          <div class="col-2">
-              <div class="mb-3 mt-3">
-                  <div class="input-group input-group-merge">
-                    <span id="basic-icon-default-company2" class="input-group-text"
-                      ><i class='bx bxs-group'></i></span>
-                    <input
-                      type="number"
-                      required
-                      name = "noofguest"
-                      id="noofguesttotal"
-                      class="form-control"
-                      placeholder="Total Guests"
-                      aria-label="ACME Inc."
-                      aria-describedby="basic-icon-default-company2"
-                    />
-                  </div><span class="text-danger">*</span>
-                </div>
+        <div class="col-3">
+          <div class="mb-3 mt-3">
+            <div class="input-group input-group-merge">
+              <span id="basic-icon-default-company2" class="input-group-text"
+                ><i class='bx bxs-plane-land ' ></i></span>
+              <input
+                type="text"
+                
+                name = "arival"
+                id="guestidetail"
+                class="form-control"
+                placeholder="Arrival"
+                aria-label="ACME Inc."
+                aria-describedby="basic-icon-default-company2"
+              />
+            </div>
           </div>
-          <div class="col-2">
-              <div class="mb-3 mt-3">
-                  <div class="input-group input-group-merge">
-                    <span id="basic-icon-default-company2" class="input-group-text"
-                      ><i class='bx bxs-user'></i></span>
-                    <input
-                      type="number" 
-                      required
-                      name = "guestadults"
-                      id="basic-icon-default-company"
-                      class="form-control"
-                      placeholder="Adults"
-                      aria-label="ACME Inc."
-                      aria-describedby="basic-icon-default-company2"
-                    />
-                  </div><span class="text-danger">*</span>
-                </div>
+      </div>
+
+      <div class="col-3">
+        <div class="mb-3 mt-3">
+          <div class="input-group input-group-merge">
+            <span id="basic-icon-default-company2" class="input-group-text"
+              ><i class='bx bxs-plane-take-off '></i></span>
+            <input
+              type="text"
+              
+              name = "departure"
+              id="guestidetail"
+              class="form-control"
+              placeholder="Departure"
+              aria-label="ACME Inc."
+              aria-describedby="basic-icon-default-company2"
+            />
           </div>
+        </div>
+    </div>
+
+
+      </div>
+
+
+
+      <div class="row">
+
+       
+
+      <div class="col-2">
+        <div class="mb-3 mt-3">
+          MALE <span class="text-danger">*</span>
+            <div class="input-group input-group-merge">
+              <span id="basic-icon-default-company2" class="input-group-text"
+                ><i class='bx bx-male-sign'></i></span>
+              <input
+                type="number"
+                required
+                name = "male"
+                id=""
+                class="form-control"
+                placeholder="Total Male"
+                aria-label="ACME Inc."
+                aria-describedby="basic-icon-default-company2"
+              />
+            </div>
+              </div>
+        </div>
+
 
           <div class="col-2">
               <div class="mb-3 mt-3">
+                FEMALE <span class="text-danger">*</span>
                   <div class="input-group input-group-merge">
                     <span id="basic-icon-default-company2" class="input-group-text"
-                      ><i class='bx bx-child'></i></span>
+                      ><i class='bx bx-female-sign'></i></span>
                     <input
                       type="number"
                       required
-                      name = "guestchildren"
-                      id="basic-icon-default-company"
+                      name = "female"
+                      id=""
                       class="form-control"
-                      placeholder="Children"
+                      placeholder="Total Female"
                       aria-label="ACME Inc."
                       aria-describedby="basic-icon-default-company2"
                     />
                   </div>
-                  <span class="text-danger">*</span>
                 </div>
           </div>
+          <div class="col-2">
+              <div class="mb-3 mt-3">
+                OTHER <span class="text-danger">*</span>
+                  <div class="input-group input-group-merge">
+                    <span id="basic-icon-default-company2" class="input-group-text"
+                      ><i class='bx bx-female'></i></span>
+                    <input
+                      type="number" 
+                      required
+                      name = "other"
+                      id="basic-icon-default-company"
+                      class="form-control"
+                      placeholder="Other"
+                      aria-label="ACME Inc."
+                      aria-describedby="basic-icon-default-company2"
+                    />
+                  </div>
+                </div>
+          </div>
+
+          <div class="col-2">
+            <div class="mb-3 mt-3">
+              KIDS <span class="text-danger">*</span>
+                <div class="input-group input-group-merge">
+                  <span id="basic-icon-default-company2" class="input-group-text"
+                    ><i class='bx bxs-baby-carriage' ></i></span>
+                  <input
+                    type="number"
+                    required
+                    name = "guestchildren"
+                    id=""
+                    class="form-control"
+                    placeholder="Total Kids"
+                    aria-label="ACME Inc."
+                    aria-describedby="basic-icon-default-company2"
+                  />
+                </div>
+              </div>
+        </div>
+
+        <div class="col-2">
+          <div class="mb-3 mt-3">
+           TOTAL ADULTS <span class="text-danger">*</span>
+              <div class="input-group input-group-merge">
+                <span id="basic-icon-default-company2" class="input-group-text"
+                  ><i class='bx bx-child'></i></span>
+                <input
+                  type="number"
+                  required
+                  name = "guestadults"
+                  id="noofguesttotal"
+                  class="form-control"
+                  placeholder="Total Adults"
+                  aria-label="ACME Inc."
+                  aria-describedby="basic-icon-default-company2"
+                />
+              </div>
+              
+            </div></DIV>
+
+          <div class="col-2">
+              <div class="mb-3 mt-3">
+                TOTAL GUEST  <span class="text-danger">*</span>
+                  <div class="input-group input-group-merge">
+                    <span id="basic-icon-default-company2" class="input-group-text"
+                      ><i class='bx bx-grid-small'></i></span>
+                    <input
+                      type="number"
+                      required
+                      name = "noofguest"
+                      id="basic-icon-default-company"
+                      class="form-control"
+                      placeholder="Total Guest"
+                      aria-label="ACME Inc."
+                      aria-describedby="basic-icon-default-company2"
+                    />
+                  </div>
+                  
+                </div>
+          </div>
+
+          
+
+        <script>
+          // Function to update total guest count and total adults count dynamically
+          function calculateTotals() {
+              // Get values from input fields (defaults to 0 if empty or invalid)
+              let male = parseInt(document.querySelector("[name='male']").value) || 0;
+              let female = parseInt(document.querySelector("[name='female']").value) || 0;
+              let other = parseInt(document.querySelector("[name='other']").value) || 0;
+              let kids = parseInt(document.querySelector("[name='guestchildren']").value) || 0;
+  
+              // Calculate total guests and total adults
+              let totalGuests = male + female + other + kids;
+              let totalAdults = male + female + other;
+  
+              // Set the calculated values to hidden fields (these fields should not be manually edited)
+              document.querySelector("[name='noofguest']").value = totalGuests;
+              document.querySelector("[name='guestadults']").value = totalAdults;
+              document.getElementById('totalguestcounts').innerHTML=totalAdults;
+          }
+  
+          // Event listener to trigger calculation on input change
+          document.addEventListener('DOMContentLoaded', function() {
+              // Set initial values of Total Guest and Total Adults to 0
+              document.querySelector("[name='noofguest']").value = 0;
+              document.querySelector("[name='guestadults']").value = 0;
+  
+              // Ensure all input fields default to 0 if empty when page loads
+              const inputs = document.querySelectorAll("[name='male'], [name='female'], [name='other'], [name='guestchildren']");
+              inputs.forEach(input => {
+                  if (input.value === "") input.value = 0;
+                  input.addEventListener('input', calculateTotals);
+              });
+          });
+      </script>
       
       </div>
 
@@ -664,7 +812,8 @@
                     
                     <h5 class="card-header mb-1">Room No: <span class="text-success fw-bold">{{i.room_name}} </span>
                       <br><br>Total Stay Day : <span class="text-success fw-bold" id="resultdays"></span>
-                      <br><br>Rate Plan: <span class="text-success fw-bold" id="rateplansview">Room Only</span>
+                      <br><br>Rate Plan: <span class="text-success fw-bold" id="rateplansview">Select Rate Plan</span>
+                      <br><br>Total Adults Guest: <span class="text-success fw-bold" id="totalguestcounts"></span>
                     </h5>
                   </div>
 
@@ -715,7 +864,7 @@
                             <select class="form-control" name="rateplan" onchange="pricechange()" id="rateplanselect" required placeholder="Chek-In Time">
                               
                               {%for i in meal_plan%}
-                              <option  value="{{i.id}}">{{i.rate_plan_name}},{{i.rate_plan_code}}</option>
+                              <option  value="{{i.id}}" >{{i.rate_plan_name}},{{i.rate_plan_code}},{{i.max_persons}}</option>
                               {%endfor%}
                             </select>
 
@@ -1081,7 +1230,7 @@
                 // Convert milliseconds to days
                 var daysDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
                
-
+                
                 
                 console.log(daysDiff)
                 // Display the result

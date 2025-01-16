@@ -1382,6 +1382,47 @@ def searchguestexportdta(request):
         return render(request, "404.html", {"error_message": str(e)}, status=500)
 
 
+
+
+def policereport(request):
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+
+            # Retrieve POST data with default empty string or '0'
+            startdate = request.POST.get("startdate", "")
+            enddate = request.POST.get("enddate", "")
+            
+            # Filter guest data based on date range
+            if startdate == enddate:
+                guestdata = Gueststay.objects.filter(
+                    vendor=user, checkindate__date=startdate
+                ).order_by("checkindate")
+            else:
+                guestdata = Gueststay.objects.filter(
+                    vendor=user, checkindate__range=[startdate, enddate]
+                ).order_by("checkindate")
+
+            hoteldata = HotelProfile.objects.filter(vendor=user)
+
+            return render(
+                request,
+                "policerpt.html",
+                {
+                    "guestdata": guestdata, 
+                    "startdate": startdate,
+                    "enddate": enddate,
+                    "hoteldata": hoteldata,
+                },
+            )
+        else:
+            return redirect("loginpage")
+    except Exception as e:
+        return render(request, "404.html", {"error_message": str(e)}, status=500)
+
 def cleanroombtn(request, id):
     if request.user.is_authenticated:
         user = request.user

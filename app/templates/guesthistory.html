@@ -116,8 +116,8 @@
  <!-- Bootstrap Table with Header - Light -->
  <div class="card">
     <h5 class="card-header">Guest Stay History
-
-      <a href=""  data-bs-toggle="modal" onclick="getroomnumberpopup({{data.id}})" data-bs-target="#backDropModalsearchdate" class="btn btn-outline-primary float-end" style=>Export Data</a>
+      <a href=""  data-bs-toggle="modal"  data-bs-target="#backDropModalsearchdatepolice" class="btn btn-outline-primary float-end ms-4" style=><i class='bx bx-radar'></i> Police Report</a>
+      <a href=""  data-bs-toggle="modal"  data-bs-target="#backDropModalsearchdate" class="btn btn-outline-primary float-end" style=>Export Data</a>
     </h5>
     <div class="table-responsive text-nowrap">
       <table class="table">
@@ -314,6 +314,68 @@
             
         <div class="modal-header">
           <h5 class="modal-title" id="backDropModalTitle">Export Guest Data</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Start Date</label>
+              <input
+                type="date"
+                name="startdate"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter RoomName"
+              />
+            </div>
+
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">End Date</label>
+              <input
+                type="date"
+                name="enddate"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter RoomName"
+              />
+            </div>
+          </div>
+         
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+
+
+  <!-- Modal datesearch model -->
+  <div class="modal fade" id="backDropModalsearchdatepolice" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'policereport'%}" method="POST" class="modal-content">
+            {% csrf_token %}
+        
+            <input type="hidden" id="roomnoidinput" name="dataid"/>
+            
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Police Report</h5>
           <button
             type="button"
             class="btn-close"

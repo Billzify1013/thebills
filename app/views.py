@@ -968,6 +968,11 @@ def addguestdata(request):
             checkindate = request.POST.get('guestcheckindate')
             checkoutdate = request.POST.get('guestcheckoutdate')
             noofguest = request.POST.get('noofguest')
+            male = request.POST.get('male')
+            female = request.POST.get('female')
+            other = request.POST.get('other')
+            arival = request.POST.get('arival')
+            departure = request.POST.get('departure')
             adults = request.POST.get('guestadults')
             children = request.POST.get('guestchildren')
             purposeofvisit = request.POST.get('Purpose')
@@ -1009,7 +1014,7 @@ def addguestdata(request):
                                         checkindate=current_date,checkoutdate=checkoutdate ,noofguest=noofguest,adults=adults,children=children
                                         ,purposeofvisit=purposeofvisit,roomno=roomno,tax=tax,discount=discount,subtotal=subtotal,total=total,noofrooms=1
                                         ,guestidtypes=idtype,guestsdetails=iddetails,gueststates=state,rate_plan=rateplanname,
-                                        channel='PMS',saveguestid=None)
+                                        channel='PMS',saveguestid=None,male=male,female=female,transg=other,dp=departure,ar=arival)
                 gsid=guestdata.id
                 if checkmoredatastatus == 'on':
                     moreguestname = request.POST.get('moreguestname')
@@ -1158,7 +1163,7 @@ def addguestdata(request):
 
 
 def addguestdatafromadvanceroombook(request):
-    try:
+    # try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
             subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
@@ -1173,6 +1178,11 @@ def addguestdatafromadvanceroombook(request):
             checkindate = request.POST.get('guestcheckindate')
             checkoutdate = request.POST.get('guestcheckoutdate')
             noofguest = request.POST.get('noofguest')
+            male = request.POST.get('male')
+            female = request.POST.get('female')
+            other = request.POST.get('other')
+            arival = request.POST.get('arival')
+            departure = request.POST.get('departure')
             adults = request.POST.get('guestadults')
             children = request.POST.get('guestchildren')
             purposeofvisit = request.POST.get('Purpose')
@@ -1182,6 +1192,7 @@ def addguestdatafromadvanceroombook(request):
             tax = request.POST.get('tax')
             noofrooms = request.POST.get('noofrooms')
             saveguestdata = request.POST.get('saveguestdata')
+            msid = saveguestdata
             SaveAdvanceBookGuestData.objects.filter(vendor=user,id=saveguestdata).update(checkinstatus=True)
             checkmoredatastatus = request.POST.get('checkmoredatastatus')
             roomalldefaultcheckinbutton = request.POST.get('roomalldefaultcheckinbutton')
@@ -1216,12 +1227,16 @@ def addguestdatafromadvanceroombook(request):
                     guestdata=Gueststay.objects.create(vendor=user,guestname=guestname,guestphome=guestphome,guestemail=guestemail,guestcity=guestcity,guestcountry=guestcountry,guestidimg=guestidimg,
                                                 checkindate=current_date,checkoutdate=checkoutdate ,noofguest=noofguest,adults=adults,children=children
                                                 ,purposeofvisit=purposeofvisit,roomno=roomno,tax=tax,discount=discount,subtotal=subtotal,total=total,noofrooms=noofrooms
-                                            ,rate_plan=rateplansdata.rateplan_code,guestidtypes=idtype,guestsdetails=iddetails,gueststates=state,saveguestid=saveguestdata.id,channel=saveguestdata.channal.channalname)
+                                            ,rate_plan=rateplansdata.rateplan_code,guestidtypes=idtype,guestsdetails=iddetails,gueststates=state,saveguestid=saveguestdata.id,channel=saveguestdata.channal.channalname,
+                                            male=male,female=female,transg=other,dp=departure,ar=arival)
                     Invoiceid = Invoice.objects.create(vendor=user,customer=guestdata,customer_gst_number="",
                                                 invoice_number="",invoice_date=checkindate,total_item_amount=0.0,discount_amount=discount,
                                                         subtotal_amount=0.0,gst_amount=0.0,sgst_amount=0.0,accepted_amount=0.00,
                                                         Due_amount=0.00,grand_total_amount=0.0,modeofpayment=paymentstatus,room_no=0.0,taxtype=taxtypes)
-                        
+                    if SaveAdvanceBookGuestData.objects.filter(vendor=user,id=msid,bookingguestphone=guestphome).exists():
+                        pass
+                    else:
+                        SaveAdvanceBookGuestData.objects.filter(vendor=user,id=msid).update(bookingguestphone=guestphome)
                     
                     totalrooms = RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id=saveguestdata).all()
                     staydays = saveguestdata.staydays
@@ -1369,8 +1384,8 @@ def addguestdatafromadvanceroombook(request):
                 return redirect('todaybookingpage')
         else:
             return redirect('loginpage')
-    except Exception as e:
-        return render(request, '404.html', {'error_message': str(e)}, status=500)
+    # except Exception as e:
+    #     return render(request, '404.html', {'error_message': str(e)}, status=500)
    
 
 # checkout button function
@@ -1658,7 +1673,6 @@ def cancelroom(request):
                     multipleroomsdata = RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id=saveguestidfilter).all()
                  
                     for i in multipleroomsdata:
-                           
                             Rooms.objects.filter(vendor=user,id=i.roomno.id).update(checkin=0)
 
                     # update occupancy
@@ -2468,8 +2482,18 @@ def openroomclickformtodayarriwalspage(request,id):
             paymentdatauserfromsaveadvancedata = SaveAdvanceBookGuestData.objects.filter(vendor=user,id=saveguestdata).all()
             roomnumberdata = RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id=saveguestdata)
             countrooms = len(roomnumberdata)
+            adults = 0
+            child = 0
+            for i in roomnumberdata:
+                adults  = adults + i.adults
+                child = child +i.children
+
             # return render(request,'advanceroomclickpage.html',{'id':roomno,'countrooms':countrooms,'roomnumberdata':roomnumberdata,'room_data':room_data,'roomguestdata':roomguestdata})
-            return render(request,'advanceroomclickpage.html',{'loyltydata':loyltydata,'id':roomno,'countrooms':countrooms,'roomnumberdata':roomnumberdata,'room_data':room_data,'roomguestdata':roomguestdata,'paymentdatauserfromsaveadvancedata':paymentdatauserfromsaveadvancedata})
+            return render(request,'advanceroomclickpage.html',{'loyltydata':loyltydata,'id':roomno,
+                                    'countrooms':countrooms,'roomnumberdata':roomnumberdata,
+                                    'room_data':room_data,'roomguestdata':roomguestdata,
+                                    'paymentdatauserfromsaveadvancedata':paymentdatauserfromsaveadvancedata,
+                                    'adults':adults,'child':child})
         else:
             return redirect('loginpage')
     except Exception as e:

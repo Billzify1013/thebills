@@ -107,6 +107,39 @@
         </div>
         
         
+    <div class="w-100  mt-4 mb-5">
+        
+        
+        <h4>Payments</h4>
+        <div class="card mt-4">
+            <table class="table table-bordered" style="background-color: white;">
+                <thead>
+                    <tr style="font-weight: bold;">
+                        <th>Payment Mode</th>
+                        <th>Total Amount</th>
+                        <th>Transaction Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mode in mode_summary %}
+                    <tr>
+                        <td>{{ mode.payment_mode }}</td>
+                        <td>₹{{ mode.total_amount }}</td>
+                        <td>{{ mode.transaction_count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr style="font-weight: bold; background-color: #f8f9fa;">
+                        <td><strong>Total</strong></td>
+                        <td>₹{{ total_amount }}</td>
+                        <td>{{ total_count }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+
   <div class="row mt-4">
     {%if bookingdata%}
     <h4>Today Recents Bookings</h4>
@@ -187,7 +220,6 @@
 
     
     
-
 
 
 

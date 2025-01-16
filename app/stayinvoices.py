@@ -192,16 +192,9 @@ def notification(request):
             saveadvancebookdata = SaveAdvanceBookGuestData.objects.filter(vendor=user,checkinstatus=False).all().order_by('-id')[:25]
            
            
-        
-
-
-
-        
-
             return render(request,'notify.html',{'saveadvancebookdata':saveadvancebookdata})
         else:
             return redirect('loginpage')
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)
-    
     
