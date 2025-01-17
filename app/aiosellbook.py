@@ -81,10 +81,13 @@ def aiosell_new_reservation(request):
                     
 
                     # Remove spaces from the string
-                    guestphone = re.sub(r'\s+', '', guestphone)  # Removes all spaces
+                    if not guestphone:
+                         guestphone=0
+                    else:
+                        guestphone = re.sub(r'\s+', '', guestphone)  # Removes all spaces
 
-                    # Extract the last 10 characters
-                    guestphone = guestphone[-10:]
+                        # Extract the last 10 characters
+                        guestphone = guestphone[-10:]
 
                     print(guestphone)
                     guestaddress =  str(guest['address']['line1']) + " " + str(guest['address']['city']) + " " + str(guest['address']['zipCode'])
