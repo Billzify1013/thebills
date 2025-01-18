@@ -452,7 +452,10 @@
                             <th>Guest Details</th>
                             <th>Arrival To Departure</th>
                             <th>Check-In Date & Time</th>
-                            <th>M &nbsp;&nbsp; F &nbsp;&nbsp; K &nbsp;&nbsp; O</th>
+                            <th>M </th>
+                            <th>F</th>
+                            <th>K</th>
+                            <th>O</th>
                             <th>Total Guest</th>
                             <th>Room No.</th>
                         </tr>
@@ -466,7 +469,11 @@
                                 {{ i.guestcity }}, {{i.gueststates}}</td>
                             <td><center>{{i.ar}} To {{i.dp}}</center></td>
                             <td><center>{{ i.checkindate }}</center></td>
-                            <td>{{i.male}}&nbsp;&nbsp;&nbsp; {{i.female}} &nbsp;&nbsp;&nbsp; {{ i.children }} &nbsp;&nbsp;&nbsp; {{i.transg}}</td>
+                            {% comment %} <td>{{i.male}}&nbsp;&nbsp;&nbsp; {{i.female}} &nbsp;&nbsp;&nbsp; {{ i.children }} &nbsp;&nbsp;&nbsp; {{i.transg}}</td> {% endcomment %}
+                            <td>{{i.male}}</td>
+                            <td>{{i.female}}</td>
+                            <td>{{i.children}}</td>
+                            <td>{{i.transg}}</td>
                             <td><center>{{ i.noofguest }}</center></td>
                             <td><center>{{ i.roomno }}</center></td>
                         </tr>
