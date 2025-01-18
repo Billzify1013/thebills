@@ -40,6 +40,16 @@ urlpatterns = [
     path('gotofoliobyhome/<int:id>/',views.gotofoliobyhome,name="gotofoliobyhome"),
     path('gotoaddservice/<int:id>/',views.gotoaddservice,name="gotoaddservice"),
 
+    # cashflow
+    path('cashflow/',stayinvoices.cashflow,name="cashflow"),
+    path('addcashamount/',stayinvoices.addcashamount,name="addcashamount"),
+    path('expenseamount/',stayinvoices.expenseamount,name="expenseamount"),
+    path('cashoutamount/',stayinvoices.cashoutamount,name="cashoutamount"),
+    path('handovercash/',stayinvoices.handovercash,name="handovercash"),
+    path('searchcashdata/',stayinvoices.searchcashdata,name="searchcashdata"),
+
+    
+
     
     path('editcustomergstnumber/',views.editcustomergstnumber,name="editcustomergstnumber"),
     path('addguestdata/',views.addguestdata,name="addguestdata"),

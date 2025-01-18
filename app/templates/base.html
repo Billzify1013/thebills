@@ -332,6 +332,13 @@
                   </a>
                 </li>
 
+                <li class="menu-item text-uppercase {% if active_page == 'cashflow' %}active{% endif %} ">
+                  <a href="{% url 'cashflow'  %}" class="menu-link">
+                    <i class='menu-icon bx bxs-bank'></i>
+                    <div data-i18n="Analytics">Cash Management</div>
+                  </a>
+                </li>
+
               
               
 
@@ -1187,6 +1194,15 @@
                   </div></a>
                 </div>
                 {%endif%}
+
+                <div class="col-3 p-1">
+                  <a href="{% url 'cashflow'  %}"><div class="card m-2" style="height:80px">
+                   <center> <h6 class="mt-2"><br>
+                    <b>Cash Management</b></h6></center>
+                  </div></a>
+                </div>
+
+                
                 
                 
                 {% if request.session.permissions.ext %}

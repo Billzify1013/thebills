@@ -181,21 +181,11 @@
               <h4>All Deduction & Gross Profit</h4>
 
               <div class="row">
-              <div class="col-lg-7 mb-4 order-0">
+              <div class="col-lg-3 mb-4 order-0">
                 <div class="card">
                   <div class="d-flex align-items-end row">
-                    <div class="col-sm-7 text-center text-sm-left">
-                      <div class="card-body pb-0 px-0 px-md-4">
-                        <img
-                          src="{% static 'undercss/assets/img/illustrations/man-with-laptop-light.png'%}"
-                          height="140"
-                          alt="View Badge User"
-                          data-app-dark-img="illustrations/man-with-laptop-dark.png"
-                          data-app-light-img="illustrations/man-with-laptop-light.png"
-                        />
-                      </div>
-                    </div>
-                    <div class="col-sm-5">
+                    
+                    <div class="col-sm-12">
                           <div class="card-body">
                             <div class="card-title d-flex align-items-start justify-content-between">
                               <div class="avatar flex-shrink-0">
@@ -227,10 +217,44 @@
                   </div>
                 </div>
               </div>
-              <div class="col-lg-5 col-md-5 order-1">
+              <div class="col-lg-9 col-md-5 order-1">
                 <div class="row">
                   
-                  <div class="col-lg-5 col-md-8 col-5 mb-4">
+                  <div class="col-lg-4 col-md-8 col-5 mb-4">
+                    <div class="card">
+                      <div class="card-body">
+                        <div class="card-title d-flex align-items-start justify-content-between">
+                          <div class="avatar flex-shrink-0">
+                            <img
+                              src="{% static 'undercss/assets/img/icons/unicons/wallet-info.png'%}"
+                              alt="Credit Card"
+                              class="rounded"
+                            />
+                          </div>
+                          <div class="dropdown">
+                            <button
+                              class="btn p-0"
+                              type="button"
+                              id="cardOpt6"
+                              data-bs-toggle="dropdown"
+                              aria-haspopup="true"
+                              aria-expanded="false"
+                            >
+                              <i class="bx mt-1 bx-dots-vertical-rounded"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt6">
+                              <a class="dropdown-item" href="javascript:void(0);">Its Total Cash Expenses.</a>
+                            </div>
+                          </div>
+                        </div>
+                        <span class="fw-semibold d-block mb-1">Cash Expenses</span>
+                        <h5 class="card-title text-nowrap mb-2">₹{{total_cash_expense}}</h5>
+                        <small class="text-danger mb-2 fw-semibold"><i class="bx bx-up-arrow-alt"></i> Deduction</small>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-lg-4 col-md-8 col-5 mb-4">
                     <div class="card">
                       <div class="card-body">
                         <div class="card-title d-flex align-items-start justify-content-between">
@@ -263,8 +287,11 @@
                       </div>
                     </div>
                   </div>
+
+
                   
-                  <div class="col-lg-7 col-md-12 col-7 mb-4">
+                  
+                  <div class="col-lg-4 col-md-12 col-7 mb-4">
                     <div class="card">
                       <div class="card-body">
                         <div class="card-title d-flex align-items-start justify-content-between">
@@ -435,13 +462,13 @@
                             <div>
                               <small class="text-muted d-block">Total Deduct Balance</small>
                               <div class="d-flex align-items-center">
-                                <h6 class="mb-0 me-1">₹{{totaltax|add:totalsalaryexpance|add:total_purches_settled}}</h6>
+                                <h6 class="mb-0 me-1">₹{{totaltax|add:totalsalaryexpance|add:total_purches_settled|add:total_cash_expense}}</h6>
                                 
                               </div>
                             </div>
                           </div>
                           <input type="hidden" id="totalsale" value="{{subtotalsale}}" />
-                          <input type="hidden" id="totalexpanse" value="{{totaltax|add:totalsalaryexpance|add:total_purches_settled}}" />
+                          <input type="hidden" id="totalexpanse" value="{{totaltax|add:totalsalaryexpance|add:total_purches_settled|add:total_cash_expense}}" />
                           <input type="hidden" id="totalprofit" value="{{totalsalaryexcludedeductions}}" />
                           <input type="hidden" id="totalonlineamount" value="{{total_online_amount}}" />
                           <input type="hidden" id="totalcash" value="{{total_cash_amount}}" />

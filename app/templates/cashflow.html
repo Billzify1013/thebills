@@ -1,0 +1,654 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+   
+    <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%endif%}
+</div>
+{%endfor%}
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 1000);
+  });
+</script>
+{%endif%} 
+
+<h5>cash flow page/</h5>
+
+
+
+<div class="row">
+    <div class="col-3">
+        <button class="btn btn-outline-success w-100" data-bs-toggle="modal"
+        data-bs-target="#addcashmodel">₹ Add Cash</button>
+    </div>
+    <div class="col-3">
+        <button class="btn btn-outline-danger w-100" data-bs-toggle="modal"
+        data-bs-target="#expensemodel"><i class='bx bx-exit'></i> Expenses</button>
+    </div>
+    <div class="col-3">
+        <button class="btn btn-outline-warning w-100" data-bs-toggle="modal"
+        data-bs-target="#handovermodel"><i class='bx bx-link-external'></i> Hand-over</button>
+    </div>
+    <div class="col-3">
+        <button class="btn btn-outline-info w-100" data-bs-toggle="modal"
+        data-bs-target="#cashoutmodel"><i class='bx bx-log-out-circle'></i> Cash Out</button>
+    </div>
+
+</div>
+
+
+
+  <b>  <p class="mt-3">Data From:{{startdate_str}} TO {{enddate_str}}</p></b>
+
+  <a href=""  data-bs-toggle="modal"  data-bs-target="#backDropModalsearchdate" class="btn ms-4 btn-outline-primary float-end" style=>
+    <i class='bx bx-search-alt-2'></i> Search Data</a>
+   
+
+
+<div class="card" >
+  <h4 class="text m-3">Total Available Cash : ₹ {{cashavailable.avl_amount}}</h4></div>
+
+
+
+  <div class="row mt-4">
+    <div class="col-6">
+  
+  
+  <div class="card">
+      <h5 class="card-header"><span class="text text-success">₹</span> Add Cash Details<br>
+     
+      </h5>
+      <div class="table-responsive text-nowrap" style="height:190px">
+        <table class="table" id="secondInvoiceTable" >
+          <thead class="table-light">
+            <tr>
+              <th >No.</th>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>User</th>
+             
+            </tr>
+          </thead>
+          <tbody class="table-border-bottom-0" >
+              {%for data in addcashdata%}
+            <tr>
+              <td >{{forloop.counter}}</td>
+              <td> {{data.date_time}}</td>
+              
+              <td class="text text-success">{{data.add_amount}}</td>
+              {%if data.subuser.user.username%}
+              <td>{{data.subuser.user.username}}</td>
+              {%else%}
+              <td>{{data.vendor.username}}</td>
+              {%endif%}
+              
+              
+            </tr>
+            {%endfor%}
+     
+          
+          </tbody>
+        </table>
+      </div>
+      <div>
+          <h6 class="text m-3"><b>Total Add Cash ₹ {{total_cash_amount}} </b></h6>
+      </div>
+    </div>
+  </div>
+    <!-- Bootstrap Table with Header - Light -->
+  
+  
+  
+  <div class="col-6">
+  
+      <div class="card">
+          <h5 class="card-header"><i class='bx bx-exit text-danger'></i> Expenses Cash Details<br>
+          
+          </h5>
+          <div class="table-responsive text-nowrap" style="height:190px">
+            <table class="table" id="secondInvoiceTable" >
+              <thead class="table-light">
+                <tr>
+                  <th >No.</th>
+                  <th>Date</th>
+                  <th>Amount</th>
+                  <th>User</th>
+                  <th>Comments</th>
+                 
+                </tr>
+              </thead>
+              <tbody class="table-border-bottom-0">
+                  {%for data in expansedata%}
+                <tr>
+                  <td >{{forloop.counter}}</td>
+                  <td> {{data.date_time}}</td>
+                  
+                  <td class="text text-danger">{{data.less_amount}}</td>
+                  {%if data.subuser.user.username%}
+                  <td>{{data.subuser.user.username}}</td>
+                  {%else%}
+                  <td>{{data.vendor.username}}</td>
+                  {%endif%}
+                  <td>{{data.comments}}</td>
+                  
+                  
+                </tr>
+                {%endfor%}
+         
+              
+              </tbody>
+            </table>
+          </div>
+          <div>
+              <h6 class="text m-3"><b>Total Expenses Cash ₹  {{total_less_amount}}</b></h6>
+          </div>
+        </div>
+      </div>
+        <!-- Bootstrap Table with Header - Light -->
+      
+      
+      </div>
+  
+  
+  
+  
+  
+      
+  
+      
+
+
+<div class="row mt-4">
+  <div class="col-6">
+
+
+<div class="card">
+    <h5 class="card-header"><i class='bx bx-link-external text-warning'></i> Hand-Over Details<br>
+   
+    </h5>
+    <div class="table-responsive text-nowrap" style="height:240px">
+      <table class="table" id="secondInvoiceTable" >
+        <thead class="table-light">
+          <tr>
+            <th >No.</th>
+            <th>Date</th>
+            <th>Amount</th>
+            <th>User To</th>
+            <th>User From</th>
+           
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0" >
+            {%for data in handoverdata%}
+          <tr>
+            <td >{{forloop.counter}}</td>
+            <td> {{data.date_time}}</td>
+            
+            <td class="text text-success">{{data.amount}}</td>
+          
+            <td>{{data.userto}}</td>
+            
+            <td>{{data.userfrom}}</td>
+           
+            
+            
+          </tr>
+          {%endfor%}
+   
+        
+        </tbody>
+      </table>
+    </div>
+ 
+  </div>
+</div>
+  <!-- Bootstrap Table with Header - Light -->
+
+
+
+<div class="col-6">
+
+    <div class="card">
+        <h5 class="card-header"><i class='bx bx-log-out-circle text-info'></i> Cash Out Details<br>
+        
+        </h5>
+        <div class="table-responsive text-nowrap" style="height:190px">
+          <table class="table" id="secondInvoiceTable" >
+            <thead class="table-light">
+              <tr>
+                <th >No.</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>User</th>
+                <th>Comments</th>
+               
+              </tr>
+            </thead>
+            <tbody class="table-border-bottom-0">
+                {%for data in casoutdata%}
+              <tr>
+                <td >{{forloop.counter}}</td>
+                <td> {{data.date_time}}</td>
+                
+                <td class="text text-info">{{data.cash_out_amount}}</td>
+                {%if data.subuser.user.username%}
+                <td>{{data.subuser.user.username}}</td>
+                {%else%}
+                <td>{{data.vendor.username}}</td>
+                {%endif%}
+                <td>{{data.comments}}</td>
+                
+                
+              </tr>
+              {%endfor%}
+       
+            
+            </tbody>
+          </table>
+        </div>
+        <div>
+            <h6 class="text m-3"><b>Total Cash Out ₹  {{total_cash_out_amount}}</b></h6>
+        </div>
+      </div>
+    </div>
+      <!-- Bootstrap Table with Header - Light -->
+    
+    
+    </div>
+
+
+
+
+
+    
+
+    
+</div>
+
+
+
+
+<!-- Modal add Cash -->
+<div class="modal fade" id="addcashmodel" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'addcashamount'  %}" method="POST" class="modal-content">
+            {% csrf_token %}
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="addcashmodeltitle">Add Cash <span class="text text-success"> ₹ </span></h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">User</label>
+              <input
+                type="text"
+                name="user"
+                id="nameBackdrop"
+                value='{{request.user}}'
+                readonly
+                class="form-control"
+                placeholder="Enter RoomName"
+                required
+              />
+            </div>
+
+           
+        </div>
+              <div class="col-12 mb-3">
+                <label for="nameBackdrop" class="form-label">Amount</label>
+                <input
+                  type="number"
+                  name="cashamout"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Enter Cash Amount"
+                  required
+                />
+              </div>
+          </.div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+
+<!-- Modal expense Cash -->
+<div class="modal fade" id="expensemodel" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'expenseamount'  %}" method="POST" class="modal-content">
+            {% csrf_token %}
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="addcashmodeltitle">Expenses Cash <span class="text text-danger"> ₹ </span></h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">User</label>
+              <input
+                type="text"
+                name="user"
+                id="nameBackdrop"
+                value='{{request.user}}'
+                readonly
+                class="form-control"
+                placeholder="Enter RoomName"
+                required
+              />
+            </div>
+
+           
+        </div>
+              <div class="col-12 mb-3">
+                <label for="nameBackdrop" class="form-label">Expenses Amount</label>
+                <input
+                  type="number"
+                  name="cashamout"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Enter Cash Amount"
+                  required
+                />
+              </div>
+          </.div>
+          <div class="col-12 mb-3">
+            <label for="nameBackdrop" class="form-label">Comments</label>
+            <input
+              type="text"
+              name="cmt"
+              id="nameBackdrop"
+              class="form-control"
+              placeholder="Enter Comments"
+              maxlength="48"
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+
+
+<!-- Modal expense Cash -->
+<div class="modal fade" id="handovermodel" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog">
+      <form action="{% url 'handovercash'  %}" method="POST" class="modal-content">
+          {% csrf_token %}
+      
+      <div class="modal-header">
+        <h5 class="modal-title" id="addcashmodeltitle">Hand-Over Cash<span class="text text-danger"> ₹ </span></h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">User</label>
+            <input
+              type="text"
+              name="user"
+              id="nameBackdrop"
+              value='{{request.user}}'
+              readonly
+              class="form-control"
+              placeholder="Enter RoomName"
+              required
+            />
+          </div>
+
+         
+      </div>
+            <div class="col-12 mb-3">
+              <label for="nameBackdrop" class="form-label">Expenses Amount</label>
+              <input
+                type="number"
+                name="cashamout"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter Cash Amount"
+                readonly
+                value="{{cashavailable.avl_amount}}"
+                required
+              />
+            </div>
+        </.div>
+        <div class="col-12 mb-3">
+          <label for="nameBackdrop" class="form-label">Select User For Hand-Over</label>
+          <select class="form-control" name="userfrom"  placeholder="Chek-In Time" required>
+            <option >Select User</option>
+            {%for i in users %}
+            <option value='{{i.user.username}}'>{{i.user.username}}</option>
+            {%endfor%}
+            <option value='{{mainuser}}'>{{mainuser}} </option>
+            
+            
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button  class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+
+
+
+
+
+<!-- Modal expense Cash -->
+<div class="modal fade" id="cashoutmodel" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog">
+      <form action="{% url 'cashoutamount'  %}" method="POST" class="modal-content">
+          {% csrf_token %}
+      
+      <div class="modal-header">
+        <h5 class="modal-title" id="addcashmodeltitle">Cash Out <span class="text text-info"> ₹ </span></h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">User</label>
+            <input
+              type="text"
+              name="user"
+              id="nameBackdrop"
+              value='{{request.user}}'
+              readonly
+              class="form-control"
+              placeholder="Enter RoomName"
+              required
+            />
+          </div>
+
+         
+      </div>
+      <input type="hidden" name="existsmount" value="{{cashavailable.avl_amount}}" />
+            <div class="col-12 mb-3">
+              <label for="nameBackdrop" class="form-label">Cash Out Amount</label>
+              <input
+                type="number"
+                name="cashamout"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter Cash Out Amount"
+                value="{{cashavailable.avl_amount}}"
+                
+                required
+              />
+            </div>
+        </.div>
+        <div class="col-12 mb-3">
+          <label for="nameBackdrop" class="form-label">Comments</label>
+          <input
+            type="text"
+            name="cmt"
+            id="nameBackdrop"
+            class="form-control"
+            placeholder="Enter Comments"
+            maxlength="48"
+          />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button  class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+
+
+  <!-- Modal datesearch model -->
+  <div class="modal fade" id="backDropModalsearchdate" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'searchcashdata'%}" method="POST" class="modal-content">
+            {% csrf_token %}
+        
+            <input type="hidden" id="roomnoidinput" name="dataid"/>
+            
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Search Cash Management Data</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Start Date</label>
+              <input
+                type="date"
+                name="startdate"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter RoomName"
+              />
+            </div>
+
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">End Date</label>
+              <input
+                type="date"
+                name="enddate"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter RoomName"
+              />
+            </div>
+          </div>
+         
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+
+
+{%endblock%}

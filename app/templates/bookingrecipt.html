@@ -179,8 +179,10 @@
         <hr>
         <div class="col-6">Advance Amount:</div>
         <div class="col-6 text-end">{{data.advance_amount|floatformat:2}}</div>
+        {% if data.segment == 'BOOKING-ENGINE' %}
         <div class="col-6">Payment Type:</div>
         <div class="col-6 text-end">Pay@Hotel</div>
+        {%endif%}
       </div>
 
       <hr>

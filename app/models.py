@@ -756,3 +756,39 @@ class savedateblock(models.Model):
     vendor = models.ForeignKey(User, on_delete=models.CASCADE)
     room = models.ForeignKey(Rooms, on_delete=models.CASCADE)
     date = models.DateField(auto_now=False)
+
+
+
+
+
+class addCash(models.Model):
+    vendor = models.ForeignKey(User, on_delete=models.CASCADE)
+    subuser = models.ForeignKey(Subuser, on_delete=models.CASCADE, null=True, blank=True)
+    add_amount = models.BigIntegerField(default=0)
+    date_time = models.DateTimeField(auto_now=False)
+
+class expenseCash(models.Model):
+    vendor = models.ForeignKey(User, on_delete=models.CASCADE)
+    subuser = models.ForeignKey(Subuser, on_delete=models.CASCADE, null=True, blank=True)
+    less_amount = models.BigIntegerField(default=0)
+    date_time = models.DateTimeField(auto_now=False)
+    comments = models.CharField(max_length=50,null=True, blank=True)
+
+class avlCash(models.Model):
+    vendor = models.ForeignKey(User, on_delete=models.CASCADE)
+    avl_amount = models.BigIntegerField(default=0)
+
+class CashOut(models.Model):
+    vendor = models.ForeignKey(User, on_delete=models.CASCADE)
+    subuser = models.ForeignKey(Subuser, on_delete=models.CASCADE, null=True, blank=True)
+    cash_out_amount = models.BigIntegerField(default=0)
+    date_time = models.DateTimeField(auto_now=False)
+    comments = models.CharField(max_length=50,null=True, blank=True)
+
+
+class hand_overCash(models.Model):
+    vendor = models.ForeignKey(User, on_delete=models.CASCADE)
+    userto = models.CharField(max_length=20,null=True, blank=True)
+    userfrom = models.CharField(max_length=20,null=True, blank=True)
+    amount = models.BigIntegerField(default=0)
+    date_time = models.DateTimeField(auto_now=False)

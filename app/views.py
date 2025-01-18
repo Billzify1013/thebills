@@ -149,7 +149,11 @@ def index(request):
             ).aggregate(total_sales=Sum('grand_total_amount'))['total_sales'] or 0
 
             # Sum the grand_total_amount for the filtered suppliers
-           
+
+            total_cash_expense = expenseCash.objects.filter(vendor=user
+                    ,date_time__year=current_year).aggregate(less_amount=Sum('less_amount'))['less_amount'] or 0
+
+            totalsalaryexcludedeductions = totalsalaryexcludedeductions - total_cash_expense - total_purches_settled
             # Pass data to the template
             return render(request, 'index.html', {
                 'subtotalsale': subtotalsale,
@@ -164,6 +168,7 @@ def index(request):
                 'weeklys_data': weeklys_data,
                 'current_year': current_year,
                 'total_purches_settled':total_purches_settled,
+                'total_cash_expense':total_cash_expense,
             })
         else:
             return render(request, 'login.html')
@@ -1249,7 +1254,15 @@ def addguestdatafromadvanceroombook(request):
                             toalamtitem = toalamtitem * staydays
                             hsn = roomdata.room_type.Hsn_sac
                             gstrate = roomdata.tax.taxrate/2
-
+                            
+                            if selllprice >7500 and gstrate==6.0:
+                                if Taxes.objects.filter(vendor=user,taxrate=18).exists():
+                                    gstrate = 9.00
+                                else:
+                                    Taxes.objects.create(vendor=user,taxrate=18,taxname='VAT-18',taxcode=18)
+                                    gstrate = 9.00
+                            else:
+                                pass
                             
                             
                             if RatePlan.objects.filter(vendor=user,room_category_id=roomdata.room_type.id,rate_plan_name=i.rateplan_code,
@@ -3388,6 +3401,12 @@ def changeindexyear(request):
                 invoicedate__year=selected_year
             ).aggregate(total_sales=Sum('grand_total_amount'))['total_sales'] or 0
             # Return the updated data to the index page
+
+            total_cash_expense = expenseCash.objects.filter(vendor=user
+                    ,date_time__year=selected_year).aggregate(less_amount=Sum('less_amount'))['less_amount'] or 0
+
+            totalsalaryexcludedeductions = totalsalaryexcludedeductions - total_cash_expense - total_purches_settled
+
             return render(request, 'index.html', {
                 'subtotalsale': subtotalsale,
                 'totaltax': totaltax,
@@ -3400,6 +3419,7 @@ def changeindexyear(request):
                 'weeklys_data': weeklys_data,
                 'current_year': selected_year,
                 'total_purches_settled':total_purches_settled,
+                'total_cash_expense':total_cash_expense,
             })
         else:
             return render(request, 'login.html')
