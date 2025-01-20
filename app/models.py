@@ -244,6 +244,8 @@ class DailyManagement(models.Model):
     check_in_time = models.TimeField(null=True,blank=True)
     check_out_time = models.TimeField(null=True,blank=True)
     halfday = models.BooleanField(default=False)
+    totalhours = models.DecimalField(max_digits=10, decimal_places=2,null=True,blank=True)
+    overtime = models.DecimalField(max_digits=10, decimal_places=2,null=True,blank=True)
     
 
     def __str__(self):
@@ -792,3 +794,8 @@ class hand_overCash(models.Model):
     userfrom = models.CharField(max_length=20,null=True, blank=True)
     amount = models.BigIntegerField(default=0)
     date_time = models.DateTimeField(auto_now=False)
+
+
+class googlereview(models.Model):
+    vendor = models.ForeignKey(User, on_delete=models.CASCADE)
+    googleurl = models.URLField(max_length=200, blank=True, null=True)

@@ -178,31 +178,137 @@ def employeecheckin(request,dsd):
         return render(request, '404.html', {'error_message': str(e)}, status=500)    
     
          
-def employeecheckout(request,dsd):
-    try:
-        if request.user.is_authenticated:
-            user=request.user
-            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
-            if subuser:
-                user = subuser.vendor  
-            current_date = datetime.now().date()
-            current_time = datetime.now().time()
-            lastday = current_date - timedelta(days=1)
-            if DailyManagement.objects.filter(vendor=user,employee_id=dsd,date=current_date).exists():
-                DailyManagement.objects.filter(vendor=user,employee_id=dsd,date=current_date).update(check_out_time=current_time)
-                messages.success(request,"Employees successfully checked Out.")
-                return redirect('dailyattendance')
+# def employeecheckout(request,dsd):
+#     try:
+#         if request.user.is_authenticated:
+#             user=request.user
+#             subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+#             if subuser:
+#                 user = subuser.vendor  
+#             current_date = datetime.now().date()
+#             current_time = datetime.now().time()
+#             lastday = current_date - timedelta(days=1)
+#             if DailyManagement.objects.filter(vendor=user,employee_id=dsd,date=current_date).exists():
+#                 DailyManagement.objects.filter(vendor=user,employee_id=dsd,date=current_date).update(check_out_time=current_time)
+#                 messages.success(request,"Employees successfully checked Out.")
+#                 return redirect('dailyattendance')
             
-            elif DailyManagement.objects.filter(vendor=user,employee_id=dsd,date=lastday).exists() and  not DailyManagement.objects.filter(vendor=user,employee_id=dsd,date=current_date).exists():
-                DailyManagement.objects.filter(vendor=user,employee_id=dsd,date=lastday).update(check_out_time=current_time)
-                messages.success(request,"Employees successfully checked Out.")
-                return redirect('dailyattendance')
+#             elif DailyManagement.objects.filter(vendor=user,employee_id=dsd,date=lastday).exists() and  not DailyManagement.objects.filter(vendor=user,employee_id=dsd,date=current_date).exists():
+#                 DailyManagement.objects.filter(vendor=user,employee_id=dsd,date=lastday).update(check_out_time=current_time)
+#                 messages.success(request,"Employees successfully checked Out.")
+#                 return redirect('dailyattendance')
+#             else:
+#                 return redirect('dailyattendance')
+#         else:
+#             return redirect('loginpage')
+#     except Exception as e:
+#         return render(request, '404.html', {'error_message': str(e)}, status=500)    
+
+
+from datetime import datetime, timedelta
+from django.shortcuts import redirect
+from django.contrib import messages
+
+def employeecheckout(request, dsd):
+    if request.user.is_authenticated:
+        user = request.user
+
+        # Check if the user is a subuser, then get the main vendor
+        subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+        if subuser:
+            user = subuser.vendor
+        
+        # Current date and time
+        current_date = datetime.now().date()
+        current_time = datetime.now().time()
+        last_day = current_date - timedelta(days=1)
+
+        try:
+            # Case 1: Employee's check-out on the current day
+            if DailyManagement.objects.filter(vendor=user, employee_id=dsd, date=current_date).exists():
+                DailyManagement.objects.filter(vendor=user, employee_id=dsd, date=current_date).update(check_out_time=current_time)
+                messages.success(request, "Employee successfully checked out.")
+                datas = DailyManagement.objects.get(vendor=user, employee_id=dsd, date=current_date)
+            
+            # Case 2: If no check-out today, check for the last day
+            elif DailyManagement.objects.filter(vendor=user, employee_id=dsd, date=last_day).exists() and not DailyManagement.objects.filter(vendor=user, employee_id=dsd, date=current_date).exists():
+                DailyManagement.objects.filter(vendor=user, employee_id=dsd, date=last_day).update(check_out_time=current_time)
+                messages.success(request, "Employee successfully checked out.")
+                datas = DailyManagement.objects.get(vendor=user, employee_id=dsd, date=last_day)
+            
             else:
+                # If no valid record exists, redirect back with an error
+                messages.error(request, "No valid check-in record found for the employee.")
                 return redirect('dailyattendance')
-        else:
-            return redirect('loginpage')
-    except Exception as e:
-        return render(request, '404.html', {'error_message': str(e)}, status=500)    
+
+            # Calculate total time worked
+            check_in_time = datas.check_in_time
+            check_out_time = current_time
+
+            # Combine date and time for accurate difference calculation
+            if datas.date == current_date:
+                check_in_datetime = datetime.combine(datas.date, check_in_time)
+                check_out_datetime = datetime.combine(datas.date, check_out_time)
+            else:
+                # If the check-out is on the next day
+                check_in_datetime = datetime.combine(datas.date, check_in_time)
+                check_out_datetime = datetime.combine(current_date, check_out_time)
+
+            # Calculate the time difference
+            total_time_worked = check_out_datetime - check_in_datetime
+            strcheck = str(total_time_worked)
+            result = ""
+
+            if strcheck[1]==':':
+                result  = strcheck[0]+"."+strcheck[2] + strcheck[3]
+
+            elif  strcheck[2]==':':
+                result  = strcheck[0]+strcheck[1]+"."+strcheck[3] + strcheck[4]
+            else:
+                result = 0.00        
+
+            # Output the modified result
+            print(result,"reults")  # Output: 11.37
+            result = float(result)
+            empsdata = Employee.objects.get(id=dsd)
+            worktime = empsdata.working_hours
+            if worktime < int(result):
+                print("over time")
+                print(result - worktime,"over time")
+                overtime = result - worktime
+                messages.success(request, "Working Over Time")
+            else:
+                print("not over time")
+                print(result)
+                overtime = 0.00
+
+            checkhalfdays = worktime /2
+            if checkhalfdays > int(result):
+                datas.halfday=True
+                messages.success(request, "Half Day Assign")
+            else:
+                messages.success(request, "Working Full Day")
+                
+
+            datas.totalhours=result
+            datas.overtime=overtime
+            datas.save()
+
+
+            print(f"Check-in: {check_in_datetime}, Check-out: {check_out_datetime}, Total Time Worked: {total_time_worked}")
+
+            
+            return redirect('dailyattendance')
+
+        except Exception as e:
+            # Handle any unexpected errors gracefully
+            messages.error(request, f"An error occurred: {str(e)}")
+            return redirect('dailyattendance')
+
+    else:
+        return redirect('loginpage')
+
+
     
          
 def employeehalfday(request,dsd):
@@ -215,8 +321,66 @@ def employeehalfday(request,dsd):
             current_date = datetime.now().date()
             current_time = datetime.now().time()
             if DailyManagement.objects.filter(vendor=user,employee_id=dsd,date=current_date).exists():
-                DailyManagement.objects.filter(vendor=user,employee_id=dsd,date=current_date).update(halfday=True,check_out_time=current_time)
+                DailyManagement.objects.filter(vendor=user,employee_id=dsd,date=current_date).update(check_out_time=current_time)
                 messages.success(request,"Employees successfully checked Out in Halfday.")
+                datas = DailyManagement.objects.get(vendor=user,employee_id=dsd,date=current_date)
+
+                # Calculate total time worked
+                check_in_time = datas.check_in_time
+                check_out_time = current_time
+
+                # Combine date and time for accurate difference calculation
+                if datas.date == current_date:
+                    check_in_datetime = datetime.combine(datas.date, check_in_time)
+                    check_out_datetime = datetime.combine(datas.date, check_out_time)
+                else:
+                    # If the check-out is on the next day
+                    check_in_datetime = datetime.combine(datas.date, check_in_time)
+                    check_out_datetime = datetime.combine(current_date, check_out_time)
+
+                # Calculate the time difference
+                total_time_worked = check_out_datetime - check_in_datetime
+                strcheck = str(total_time_worked)
+                result = ""
+
+                if strcheck[1]==':':
+                    result  = strcheck[0]+"."+strcheck[2] + strcheck[3]
+
+                elif  strcheck[2]==':':
+                    result  = strcheck[0]+strcheck[1]+"."+strcheck[3] + strcheck[4]
+                else:
+                    result = 0.00        
+
+                # Output the modified result
+                print(result,"reults")  # Output: 11.37
+                result = float(result)
+                empsdata = Employee.objects.get(id=dsd)
+                worktime = empsdata.working_hours
+                if worktime < int(result):
+                    print("over time")
+                    print(result - worktime,"over time")
+                    overtime = result - worktime
+                else:
+                    print("not over time")
+                    print(result)
+                    overtime = 0.00
+                    
+                
+                checkhalfdays = worktime /2
+                if checkhalfdays > int(result):
+                    datas.halfday=True
+                else:
+                    pass
+
+                datas.totalhours=result
+                datas.overtime=overtime
+                datas.save()
+
+
+                print(f"Check-in: {check_in_datetime}, Check-out: {check_out_datetime}, Total Time Worked: {total_time_worked}")
+
+
+
                 return redirect('dailyattendance')
             else:
                 return redirect('dailyattendance')
@@ -311,8 +475,28 @@ def employeereport(request,eid):
                 avg_working_time_in_hours = round(avg_working_hours, 2)
             else:
                 avg_working_time_in_hours = 0
+            
+            
+            # Query to filter data
+            queryset = DailyManagement.objects.filter(vendor=user, employee_id=eid)
+
+            # Calculate the total sums for 'totalhours' and 'overtime'
+            result = queryset.aggregate(
+                total_hours_sum=Sum('totalhours', default=0),
+                overtime_sum=Sum('overtime', default=0)
+            )
+
+            # Access the individual totals and convert to float
+            total_hours_sum = float(result['total_hours_sum'] or 0)  # Convert Decimal to float
+            overtime_sum = float(result['overtime_sum'] or 0)  # Convert Decimal to float
+
+            print(f"Total Hours (float): {total_hours_sum}")
+            print(f"Overtime (float): {overtime_sum}")
+            
             return render(request,'attendancereportpage.html',{'empattendancedata':empattendancedata,'active_page': 'attendancepage','start_date':s,'last_date':e,'dayscount':dayscount,'leavsday':leavsday,'comeday':comeday
-                                                            ,'avg_working_time_in_hours':avg_working_time_in_hours,'fulldaycount':fulldaycount,'salary':salary,'halfdaycount':halfdaycount,'totalsalaryday':totalsalaryday,'totalsalary':totalsalary})
+                                                            ,'avg_working_time_in_hours':avg_working_time_in_hours,'fulldaycount':fulldaycount,
+                                                            'salary':salary,'halfdaycount':halfdaycount,'totalsalaryday':totalsalaryday,'totalsalary':totalsalary,
+                                                    'total_hours_sum':total_hours_sum,'overtime_sum':overtime_sum})
         
         else:
             return redirect('loginpage')

@@ -111,7 +111,7 @@
           <tr>
             <th>Employee Details</th>
            
-            <th>Half-Day</th>
+            {% comment %} <th>Half-Day</th> {% endcomment %}
             <th>Check-OUT</th>
           </tr>
         </thead>
@@ -119,12 +119,12 @@
 
          {% for data in employees_not_checked_out%}
           <tr>
-            <td><i class="fab fa-angular fa-lg text-danger "></i> <strong>{{data.first_name}} {{data.last_name}}</strong><br>{{data.employee_contact}}<br>{{data.position}}<br>{{data.department}}</td>
+            <td> <strong>{{data.first_name}} {{data.last_name}}</strong><br>{{data.employee_contact}}<br>{{data.position}}<br>{{data.department}}</td>
             
            
-            <td>
+            {% comment %} <td>
                 <a href="{% url 'employeehalfday' dsd=data.id %}" class="btn btn-outline-danger">Half-Day</a>
-            </td>
+            </td> {% endcomment %}
             <td>
                 <a href="{% url 'employeecheckout' dsd=data.id %}" class="btn btn-outline-warning">Check-OUT</a>
             </td>

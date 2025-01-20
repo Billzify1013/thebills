@@ -290,6 +290,9 @@ urlpatterns = [
     path('changeroombooking/<int:id>/', manageQR.changeroombooking, name='changeroombooking'),
     path('change_rooms_book_url/', manageQR.change_rooms_book_url, name='change_rooms_book_url'),
 
+    # google reviews
+    path('reviews/', loyltys.reviews, name='reviews'), 
+
     # rate lan page 
     path('rateplanpage/', dynamicrates.rateplanpage, name='rateplanpage'),
     path('addbookingrateplan/', dynamicrates.addbookingrateplan, name='addbookingrateplan'),

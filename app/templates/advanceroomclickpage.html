@@ -424,7 +424,7 @@
                 type="text"
                 
                 name = "arival"
-                id="guestidetail"
+                id="arivals"
                 class="form-control"
                 placeholder="Arrival"
                 aria-label="ACME Inc."
@@ -444,7 +444,7 @@
               type="text"
               
               name = "departure"
-              id="guestidetail"
+              id="dpt"
               class="form-control"
               placeholder="Departure"
               aria-label="ACME Inc."
@@ -1609,6 +1609,8 @@
                           gueststate = item.gueststates;
                           idtype = item.guestidtypes;
                           iddetail = item.guestsdetails;
+                          arrivsl=item.ar;
+                          dep=item.dp;
                         });
                         
                         console.log(name);
@@ -1618,6 +1620,8 @@
                         $("#country").val(gueststate);
                         $("#guestidtype").val(idtype);
                         $("#guestidetail").val(iddetail);
+                        $("#arivals").val(arrivsl);
+                        $("#dpt").val(dep);
                         $('#customerinfos').html('<p>Repeat Guest </p>');
                     }
                   },
@@ -1630,6 +1634,8 @@
                         $("#country").val('');
                         $("#guestidtype").val();
                         $("#guestidetail").val('');
+                        $("#arivals").val('');
+                        $("#dpt").val('');
                   }
                 });
           

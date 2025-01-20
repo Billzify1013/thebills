@@ -271,6 +271,7 @@ def changeroombooking(request,id):
 
                 
                 avlrooms = Rooms.objects.filter(vendor=user,checkin=0)
+                
                 return render(request,'changerombook.html',{'avlrooms':avlrooms,'invcitemdata':Bookedrooms,'invoice_id':saveguestid})
         else:
             return render(request, 'login.html')

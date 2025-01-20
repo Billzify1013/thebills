@@ -235,6 +235,8 @@ def getguestdatabyajaxinform(request):
                             "gueststates",
                             "guestidtypes",
                             "guestsdetails",
+                            "ar",
+                            "dp"
                         )
                     ),
                     safe=False,
@@ -2100,3 +2102,27 @@ def extednroomform(request):
         return render(request, '404.html', {'error_message': str(e)}, status=500)
     
 
+
+
+
+def reviews(request):
+    # Get the user_id (vendor ID) from the query parameter
+    user_id = request.GET.get('cd')
+
+    # Validate that user_id is provided
+    if not user_id:
+        return HttpResponse("Error: Missing vendor ID (cd parameter).")
+
+    # Fetch the googleurl for the given vendor
+    linkdata = googlereview.objects.filter(vendor_id=user_id).first()
+
+    # Check if a googleurl is found; otherwise, handle gracefully
+    if linkdata and linkdata.googleurl:
+        url = linkdata.googleurl
+    else:
+        url = None
+
+    hoteldata = HotelProfile.objects.get(vendor_id=user_id)
+
+    # Pass the URL to the template
+    return render(request, 'review.html', {'url': url,'hoteldata':hoteldata})

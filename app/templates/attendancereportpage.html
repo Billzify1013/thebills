@@ -20,6 +20,8 @@
             <th>Date</th>
             <th>Check-In Time</th>
             <th>Check-OUT Time</th>
+            <th>Duty-Time</th>
+            <th>Over-Time</th>
             <th>status</th>
           </tr>
         </thead>
@@ -27,9 +29,11 @@
 
          {% for data in empattendancedata %}
           <tr>
-            <td><i class="fab fa-angular fa-lg text-danger "></i> <strong>{{data.date}}</strong></td>
+            <td> <strong>{{data.date}}</strong></td>
             <td>{{data.check_in_time}}</td>
             <td>{{data.check_out_time}}</td>
+            <td>{{data.totalhours}}</td>
+            <td>{{data.overtime}}</td>
             {%if data.halfday %}
             <td><span class="badge bg-label-warning me-1">Halfday</span></td>
             {%else%}
@@ -57,6 +61,14 @@
             <span class="text float-end"><strong>{{data.employee.working_hours}}/HRS</strong></span><br>
             <b><span class="text w-50">Avg Working Time(in total days)</span></b> 
             <span class="text float-end"><strong>{{avg_working_time_in_hours}}/HRS</strong></span><br>
+
+            <b><span class="text w-50">Total Working Hours</span></b> 
+            <span class="text float-end"><strong>{{total_hours_sum}}/HRS</strong></span><br>
+
+            <b><span class="text w-50">Total Over-Time Hours </span></b> 
+            <span class="text float-end"><strong>{{overtime_sum}}/HRS</strong></span><br>
+
+
             <b><span class="text w-50">Working Status</span></b> 
             {% if data.employee.working_hours > avg_working_time_in_hours %}
             <span class="badge float-end bg-label-warning ">not on time</span>
