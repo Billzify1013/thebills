@@ -487,7 +487,8 @@ class VendorCM(models.Model):
     dynamic_price_active = models.BooleanField(default=False)
     dynamic_price_plan = models.IntegerField(default=None,blank=True,null=True)
     channal_manager_link = models.URLField(max_length=200, blank=True, null=True)
-    admin_dynamic_active = models.BooleanField(default=False)
+    admin_dynamic_active = models.BooleanField(default=False) 
+    inventory_active = models.BooleanField(default=True)
 
 
 

@@ -313,7 +313,7 @@ def update_inventory(user, start_date_str, end_date_str):
                 })
 
         # Prepare the data to send to the external API
-        if VendorCM.objects.filter(vendor=user).exists():
+        if VendorCM.objects.filter(vendor=user,inventory_active=True).exists():
             vndorcms = VendorCM.objects.get(vendor=user)
             hotelscodecm = vndorcms.hotelcode
             data = {

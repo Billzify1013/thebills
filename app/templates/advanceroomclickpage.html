@@ -174,32 +174,10 @@
           <input type="hidden" name="noofrooms" value="{{countrooms}}"/>
           
           <div class="row">
+            <div class="text-success" id="customerinfos"></div>
               <div class="col-6">
                   <div class="mb-3">
-                      <div class="input-group input-group-merge">
-                        <span id="basic-icon-default-fullname2" class="input-group-text"
-                          ><i class="bx bx-user"></i
-                        ></span>
-                        <input
-                          type="text"
-                          name = "guestname"
-                          required
-                          readonly
-                          value="{{i.bookingguest}}"
-                          class="form-control"
-                          id="basic-icon-default-fullname"
-                          placeholder="John Doe"
-                          aria-label="John Doe"
-                          aria-describedby="basic-icon-default-fullname2"
-                          
-                        />
-                      </div>
-                      <span class="text-danger">*</span>
-                      <div class="text-success" id="customerinfos"></div>
-                    </div>
-              </div>
-              <div class="col-6">
-                  <div class="mb-3">
+                    Guest Phone
                       <div class="input-group input-group-merge">
                         <span id="basic-icon-default-company2" class="input-group-text"
                           ><i class="bx bx-phone"></i
@@ -221,13 +199,44 @@
                       <span class="text-danger">*</span>
                     </div>
               </div>
+
+              <div class="col-6">
+                
+                <div class="mb-3">
+                  <span>Guest Name</span>
+                    <div class="input-group input-group-merge">
+                      <span id="basic-icon-default-fullname2" class="input-group-text"
+                        ><i class="bx bx-user"></i
+                      ></span>
+                      <input
+                        type="text"
+                        name = "guestname"
+                        required
+                        readonly
+                        value="{{i.bookingguest}}"
+                        class="form-control"
+                        id="basic-icon-default-fullname"
+                        placeholder="John Doe"
+                        aria-label="John Doe"
+                        aria-describedby="basic-icon-default-fullname2"
+                        
+                      />
+                    </div>
+                    <span class="text-danger">*</span>
+                    
+                  </div>
+            </div>
+
+
           </div>
 
           
 
           <div class="row">
               <div class="col-3">
+                
                   <div class="mb-3 mt-3">
+                    Guest Gmail
                       <div class="input-group input-group-merge">
                         <span class="input-group-text"><i class="bx bx-envelope"></i></span>
                         <input
@@ -246,7 +255,7 @@
 
 
               <div class="mb-3 col-md-3 mt-3">
-                
+                Guest State
                 <select id="country" name="STATE" required placeholder="select States" class="select2 form-select">
                   <option value="">Select States </option>
                   <optgroup label="Indian States">
@@ -298,6 +307,7 @@
 
 
               <div class="col-3">
+                Guest Address,City
                   <div class="mb-3 mt-3">
                       <div class="input-group input-group-merge">
                         <span id="basic-icon-default-company2" class="input-group-text"
@@ -316,6 +326,7 @@
               </div>
 
               <div class="col-3">
+                Guest Country
                   <div class="mb-3 mt-3">
                       <div class="input-group input-group-merge">
                         <span id="basic-icon-default-company2" class="input-group-text"
@@ -336,6 +347,7 @@
 
           <div class="row">
               <div class="col-6">
+                Check-In Date
                   <div class="mb-3">
                       <div class="input-group input-group-merge">
                         <span id="basic-icon-default-company2" class="input-group-text"
@@ -352,6 +364,7 @@
                     </div>
               </div>
               <div class="col-6">
+                Check-Out Date
                   <div class="mb-3">
                     
                       <div class="input-group input-group-merge">
@@ -588,6 +601,7 @@
 
       <div class="row">
           <div class="col-6">
+            Guest Id Photo
               <div class="mb-3">
                   <div class="input-group input-group-merge">
                     <p id="message1" style="color: red;"></p>
@@ -705,6 +719,7 @@
 
 
           <div class="col-6">
+            Purpose Of Visit
               <div class="mb-3">
                 <div class="input-group input-group-merge">
                   <span id="basic-icon-default-company2" class="input-group-text"
