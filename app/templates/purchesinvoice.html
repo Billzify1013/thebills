@@ -80,6 +80,11 @@
                             Purchase Invoice Date:<input type="date" id="dateInput" class="form-control" name="invcdate"> <br>
 
                         </p>
+                    </div><br>
+
+                    <div class="col-3 mt-4">
+                        <p>Purchase Invoice Number</p>
+                        <input type="text"  class="form-control" name="purchaseinvoicenumber" placeholder="Purchase Invoice Number" required> <br>
                     </div>
                     
 
@@ -210,12 +215,12 @@
     
         <div class="col-4 mt-3">
             <span class="text">Tax %</span>
-            <input  type="text" class="form-control mt-2 " pattern="^(-0\.0|0|0\0|5|12|18|24|35)$" 
-            title="Only the values -0.0, 0.0,0,5, 12, 18, 24, 35 are allowed" id="productTax" name="producttax" >
+            <input  type="text" class="form-control mt-2 "  
+            title="Only the values -0.0, 0.0,0,5, 12, 18, 24, 35 are allowed" id="productTax" name="producttax" required>
         </div>
         <div class="col-4 mt-3">
             <span class="text">HSN/SAC</span>
-            <input  type="text" class="form-control mt-2 " id="productHsn" name="producthsn" >
+            <input  type="text" class="form-control mt-2 " id="productHsn" name="producthsn" required>
         </div>
         <div class="col-4 mt-3">
             <span class="text"><i class='bx bxs-discount'></i>Discount</span>
@@ -234,6 +239,11 @@
             <span class="text"><i class='bx bxs-discount'></i>Selling Price</span>
             <input type="number" class="form-control mt-2" id="sellingprc" name="sellrate">
         </div>
+
+        <div class="col-4 mt-3" id="selling-hsn-container" style="display: none;">
+            <span class="text"><i class='bx bxs-discount'></i>Selling HSN/SAC</span>
+            <input type="number" class="form-control mt-2" id="sellinghsn" name="sellinghsn">
+        </div>
         
         <script>
             // Get the dropdown and the selling price container
@@ -245,11 +255,15 @@
                 if (invDropdown.value === 'Yes') {
                     sellingPriceContainer.style.display = 'block'; // Show the selling price field
                     document.getElementById('sellingprc').setAttribute('required', 'required');
+                    document.getElementById('sellinghsn').setAttribute('required', 'required');
+                    document.getElementById('selling-hsn-container').style.display='block';
 
                 } else {
                     sellingPriceContainer.style.display = 'none'; // Hide the selling price field
                     document.getElementById('sellingprc').value = ''; // Clear the selling price input
                     document.getElementById('sellingprc').removeAttribute('required');;
+                    document.getElementById('selling-hsn-container').style.display='none';
+                    document.getElementById('sellinghsn').removeAttribute('required');
                 }
             }
         
@@ -325,6 +339,7 @@
                             <div class="col-2">Discount: ${item.discount_amount || 'N/A'}</div>
                             <div class="col-2"> inventory use: ${item.is_intvntory}</div> <!-- Corrected the key name -->
                             <div class="col-2"> Selling price: ${item.salerate}</div> <!-- Corrected the key name -->
+                            <div class="col-2"> Selling HSN/SAC: ${item.sellinghsn}</div> <!-- Corrected the key name -->
                        
                             `;
 
@@ -347,17 +362,21 @@
                                     document.getElementById('productTax').value = selectedItem.tax_rate || '';
                                     document.getElementById('productHsn').value = selectedItem.hsncode || '';
                                     document.getElementById('productDiscount').value = selectedItem.discount_amount || '';
-                                   
+                                    
+                                    
                                     
                                     // Check for is_intvntory instead of is_inventory
                                     if (selectedItem.is_intvntory === true) {
                                         document.getElementById('isinvtry').value = 'Yes';
                                         document.getElementById('sellingprc').value = selectedItem.salerate;
+                                        document.getElementById('sellinghsn').value = selectedItem.sellinghsn;
                                         document.getElementById('selling-price-container').style.display = 'block';
+                                        document.getElementById('selling-hsn-container').style.display = 'block';
                                         document.getElementById('sellingprc').setAttribute('required', 'required');
                                     } else {
                                         document.getElementById('isinvtry').value = 'No';
                                         document.getElementById('selling-price-container').style.display = 'none';
+                                        document.getElementById('selling-hsn-container').style.display = 'none';
                                         document.getElementById('sellingprc').removeAttribute('required');;
                                     }
                                 }
@@ -655,12 +674,29 @@
                 <b><span class="text w-50">Subtotal</span></b> 
                 <span class="text float-end"><strong>{{invcdata.subtotal_amount}}</strong></span><br>
                 <b><span class="text w-50">Tax Amount</span></b> 
-                <span class="text float-end"><strong>{{invcdata.gst_amount|add:invcdata.sgst_amount}}</strong></span><hr>
+                {% comment %} <span class="text float-end"><strong>{{invcdata.gst_amount|add:invcdata.sgst_amount}}</strong></span><hr> {% endcomment %}
+                <span id="gstAmount" data-gst="{{ invcdata.gst_amount }}" data-sgst="{{ invcdata.sgst_amount }}" class="text float-end">
+                    <strong id="totalGstAmount"></strong>
+                </span><hr>
                 <b><span class="text w-50">Grand Total</span></b> 
                 <span class="text float-end"><strong>{{invcdata.grand_total_amount}}</strong></span>
                
         </div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Get GST and SGST values from data attributes
+            let gstAmount = parseFloat(document.getElementById("gstAmount").getAttribute("data-gst")) || 0;
+            let sgstAmount = parseFloat(document.getElementById("gstAmount").getAttribute("data-sgst")) || 0;
+        
+            // Calculate total GST amount
+            let totalGstAmount = (gstAmount + sgstAmount).toFixed(2); // Keep 2 decimal places
+        
+            // Update the span with calculated value
+            document.getElementById("totalGstAmount").innerText = totalGstAmount;
+        });
+        </script>
 
         <!--existing products data end-->
 
@@ -717,12 +753,12 @@
     
         <div class="col-4 mt-3">
             <span class="text">Tax %</span>
-            <input  type="text" id="productTax1" class="form-control mt-2 "  name="producttax" pattern="^(-0\.0|0|0\0|5|12|18|24|35)$" 
+            <input  type="text" required id="productTax1" class="form-control mt-2 "  name="producttax"  
             title="Only the values -0.0, 0,0.0,5, 12, 18, 24, 35 are allowed">
         </div>
         <div class="col-4 mt-3">
             <span class="text">HSN/SAC</span>
-            <input  type="text" id="productHSN1" class="form-control mt-2 " name="producthsn" >
+            <input  type="text" id="productHSN1" class="form-control mt-2 " name="producthsn" required>
         </div>
         <div class="col-4 mt-3">
             <span class="text"><i class='bx bxs-discount'></i>Discount</span>
@@ -741,6 +777,11 @@
             <span class="text"><i class='bx bxs-discount'></i>Selling Price</span>
             <input type="number" class="form-control mt-2" id="sellingprc1" name="sellrate1">
         </div>
+
+        <div class="col-4 mt-3" id="selling-hsn-container1" style="display: none;">
+            <span class="text"><i class='bx bxs-discount'></i>Selling HSN/SAC</span>
+            <input type="number" class="form-control mt-2" id="sellinghsn1" name="sellinghsn">
+        </div>
         
         <script>
             // Get the dropdown and the selling price container
@@ -752,11 +793,13 @@
                 if (invDropdown.value === 'Yes') {
                     sellingPriceContainer.style.display = 'block'; // Show the selling price field
                     document.getElementById('sellingprc1').setAttribute('required', 'required');
+                    document.getElementById('selling-hsn-container1').style.display='block';
 
                 } else {
                     sellingPriceContainer.style.display = 'none'; // Hide the selling price field
                     document.getElementById('sellingprc1').value = ''; // Clear the selling price input
                     document.getElementById('sellingprc1').removeAttribute('required');;
+                    document.getElementById('selling-hsn-container1').style.display='none';
                 }
             }
         
@@ -774,7 +817,85 @@
     </div>
     <!--product data end-->
     </form>
-    </div></div></div></div>
+    </div></div></div>
+
+
+    <!--tax slab working here-->
+<div class="container mt-2">
+    <div class="table-responsive">
+        <table class="table table-bordered">
+          Tax Descriptions
+            <thead class="thead-light">
+                <tr>
+                    <th>HSN/SAC </th>
+                    {%if taxtype == "GST" %}
+                    <th>CGST</th>
+                    <th>SGST</th>
+                    <th>CGST Amount</th>
+                    <th>SGST Amount</th>
+                    {%else%}
+                    <th>IGST</th>
+                    <th>IGST Amount</th>
+                    {%endif%}
+                    <th> Total Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%for data in purchasehsndata %}
+                <tr>
+                    <td>{{data.tax_hsnsac_name}}
+                        
+                    </td>
+                    {%if data.invoice.taxtype == "GST" %}
+                    <td><span class="text w-50">{{data.cgst}} %</span></td>
+                    <td><span class="text w-50">{{data.sgst}}%</span></td>
+                    <td><span class="text w-50">₹ {{data.sgst_amount}} </span></td>
+                    <td><span class="text w-50">₹ {{data.sgst_amount}}</span></td>
+                    <td><span class="text w-50">₹ {{data.total_amount}}</span></td>
+                    {%else%}
+                    <!-- CGST and SGST Percentage (Hidden) -->
+                    <input type="hidden" class="cgst_value" value="{{ data.cgst }}">
+                    <input type="hidden" class="sgst_value" value="{{ data.sgst }}">
+                    <input type="hidden" class="sgst_amount_value" value="{{ data.sgst_amount }}">
+
+                    <!-- GST % Column (Updated Dynamically) -->
+                    <td><span class="gst_percentage text w-50"></span></td>
+
+                    <!-- Total GST Amount Column (Updated Dynamically) -->
+                    <td><span class="text w-50">₹ <span class="gst_amount"></span></span></td>
+                    <td><span class="text w-50">₹ {{data.total_amount}}</span></td>
+                    {%endif%}
+                </tr>
+                {%endfor%}
+                
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll(".cgst_value").forEach(function(cgstInput, index) {
+            let sgstInput = document.querySelectorAll(".sgst_value")[index];
+            let sgstAmountInput = document.querySelectorAll(".sgst_amount_value")[index];
+    
+            let cgst = parseFloat(cgstInput.value) || 0;
+            let sgst = parseFloat(sgstInput.value) || 0;
+            let sgst_amount = parseFloat(sgstAmountInput.value) || 0;
+    
+            // Calculate total GST percentage
+            let totalGstPercentage = cgst + sgst;
+    
+            // Calculate total GST amount
+            let totalGstAmount = (sgst_amount * 2).toFixed(2); // Multiply by 2 with two decimal places
+    
+            // Update values in HTML
+            document.querySelectorAll(".gst_percentage")[index].innerText = totalGstPercentage + " %";
+            document.querySelectorAll(".gst_amount")[index].innerText = totalGstAmount;
+        });
+    });
+    </script>
+
 
     <script>
         // Attach input event listener to the "Product description" field for the second form
@@ -819,7 +940,7 @@
                                 <div class="col-2">Discount: ${item.discount_amount || 'N/A'}</div>
                                 <div class="col-2"> inventory use: ${item.is_intvntory}</div> <!-- Corrected the key name -->
                                 <div class="col-2"> Selling price: ${item.salerate}</div> <!-- Corrected the key name -->
-                       
+                                <div class="col-2"> Selling HSN/SAC: ${item.sellinghsn}</div>
                             `;
     
                             searchResultsDiv2.appendChild(resultRow);
@@ -848,11 +969,15 @@
                                       if (selectedItem.is_intvntory === true) {
                                         document.getElementById('isinvtry1').value = 'Yes';
                                         document.getElementById('sellingprc1').value = selectedItem.salerate;
+                                        document.getElementById('sellinghsn1').value = selectedItem.sellinghsn;
+                                        
                                         document.getElementById('selling-price-container1').style.display = 'block';
+                                        document.getElementById('selling-hsn-container1').style.display = 'block';
                                         document.getElementById('sellingprc1').setAttribute('required', 'required');
                                     } else {
                                         document.getElementById('isinvtry').value = 'No';
                                         document.getElementById('selling-price-container1').style.display = 'none';
+                                        document.getElementById('selling-hsn-container1').style.display = 'none';
                                         document.getElementById('sellingprc1').removeAttribute('required');;
                                     }
 
@@ -905,11 +1030,15 @@
             <select  name="paymentmode" id="selectValue" onchange="showinput()" required placeholder="select Payment Mode" class="select2 form-select mt-2">
                 <option value="">Select Payment mode</option>
                 <option value="cash">Cash</option>
-                <option value="online">Online</option>
-                <option value="Partly">Partially</option>
+                <option value="UPI">UPI</option>
+                <option value="Cheque">Cheque</option>
+                <option value="Card">Card</option>
+                <option value="BankTransfer">BankTransfer</option>
+                <option value="unpaid">Unpaid</option>
 
             </select>
         </div>
+
 
         <div class="col-12 mt-3" style="display:none" id="inputcash">
             <span class="text">Cash Amount</span>
@@ -921,6 +1050,7 @@
             <input  type="number" class="form-control mt-2 " value=0.00 placeholder="Online Amount" name="onlineamount" >
         </div>
     </div>
+
 
        <button type="submit" class="btn btn-primary w-100">Save</button>
 

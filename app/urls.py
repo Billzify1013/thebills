@@ -9,6 +9,9 @@ from .newcode import *
 from . import dynamicrates
 from . import aiosellbook ,travelagancy,stayinvoices,purches,companyies
 from django.urls import re_path
+from . import bookingpayment
+from . import accountses
+
 
 urlpatterns = [
     path('',views.loginpage,name="loginpage"),
@@ -31,6 +34,9 @@ urlpatterns = [
     path('addroom/',views.addroom,name="addroom"),
     path('updaterooms/',views.updaterooms,name="updaterooms"),
     path('guesthistory/',views.guesthistory,name="guesthistory"),
+    path('guesthistorysearchview/',views.guesthistorysearchview,name="guesthistorysearchview"),
+    path('guestearch/<int:id>/',stayinvoices.guestearch,name="guestearch"),
+    
     path('guestdetails/<int:id>/',views.guestdetails,name="guestdetails"),
     path('openroomclickformpage/<str:id>/',views.openroomclickformpage,name="openroomclickformpage"),
     path('openroomclickformtodayarriwalspage/<str:id>/',views.openroomclickformtodayarriwalspage,name="openroomclickformtodayarriwalspage"),
@@ -47,7 +53,8 @@ urlpatterns = [
     path('cashoutamount/',stayinvoices.cashoutamount,name="cashoutamount"),
     path('handovercash/',stayinvoices.handovercash,name="handovercash"),
     path('searchcashdata/',stayinvoices.searchcashdata,name="searchcashdata"),
-
+    path('geditminvc/<int:id>/', stayinvoices.editminvc, name='editminvc'),
+    path('geditfbinvc/<int:id>/', stayinvoices.geditfbinvc, name='geditfbinvc'),
     
 
     
@@ -72,6 +79,7 @@ urlpatterns = [
     path('guestaddfromfolio/',views.guestaddfromfolio,name="guestaddfromfolio"),
     path('opencheckinforadvanebooking/<int:pk>/',views.opencheckinforadvanebooking,name="opencheckinforadvanebooking"),
     path('invoicepage/<int:id>/',views.invoicepage,name="invoicepage"),
+    path('fbinvoicepage/<int:id>/',views.fbinvoicepage,name="fbinvoicepage"),
     path('addpaymentfolio/',views.addpaymentfolio,name="addpaymentfolio"),
     path('addpaymentfoliocredit/',views.addpaymentfoliocredit,name="addpaymentfoliocredit"),
     path('creditinvoicecheck/<int:id>/',views.creditinvoicecheck,name="creditinvoicecheck"),
@@ -136,8 +144,12 @@ urlpatterns = [
 
     # extendcheck ins
     path('extendscheck/', loyltys.extendscheck, name='extendscheck'),
+    path('extendscheckonebyone/', loyltys.extendscheckonebyone, name='extendscheckonebyone'),
     path('checkoutroombyone/',loyltys.checkoutroombyone,name="checkoutroombyone"),
     path('extednroomform/',loyltys.extednroomform,name="extednroomform"),
+    path('changeromcolor/',loyltys.changeromcolor,name="changeromcolor"),
+
+    
     
     # In your urls.py file
     # path('receipt/<int:booking_id>/', views.receipt_view, name='receipt_view'),
@@ -157,6 +169,8 @@ urlpatterns = [
     path('addpaymentininvoice/<int:id>/',loyltys.addpaymentininvoice,name="addpaymentininvoice"),
     path('addcreditcustomer/',loyltys.addcreditcustomer,name="addcreditcustomer"),
     path('saveinvoicetocredit/<int:id>/',loyltys.saveinvoicetocredit,name="saveinvoicetocredit"),
+    path('deletecreditdata/<int:id>/',loyltys.deletecreditdata,name="deletecreditdata"),
+    
     path('searchcredit/',loyltys.searchcredit,name="searchcredit"),
     path('Messages/',loyltys.Messages,name="Messages"),
     path('sendwelcomemsg/',loyltys.sendwelcomemsg,name="sendwelcomemsg"),
@@ -177,6 +191,8 @@ urlpatterns = [
     path('removeroomfromhourly/',hourlypage.removeroomfromhourly,name="removeroomfromhourly"),
     path('searchguestdata/',hourlypage.searchguestdata,name="searchguestdata"),
     path('searchguestdataadvance/',hourlypage.searchguestdataadvance,name="searchguestdataadvance"),
+    path('searchinvoicedata/',hourlypage.searchinvoicedata,name="searchinvoicedata"),
+    
     path('searchdateevents/',hourlypage.searchdateevents,name="searchdateevents"),
     path('loylty/',hourlypage.loylty,name="loylty"),
     path('eventsalse/',hourlypage.eventsalse,name="eventsalse"),
@@ -246,7 +262,7 @@ urlpatterns = [
     
     path('stayinvoice/', stayinvoices.stayinvoice, name='stayinvoice'),
     path('searchmonthinvoice/', stayinvoices.searchmonthinvoice, name='searchmonthinvoice'),
-
+    path('editinvoice/<int:id>/', stayinvoices.editinvoice, name='editinvoice'),
     # path('room/<int:id>/', views.openroomclickformpage, name='openroomclickformpage'),
     
     path('cleanroombtnajax/', views.cleanroombtnajax, name='cleanroombtnajax'),
@@ -288,7 +304,9 @@ urlpatterns = [
     path('changeroompage/<int:id>/', manageQR.changeroompage, name='changeroompage'),
     path('change-rooms/', manageQR.change_rooms, name='change_rooms_url'),
     path('changeroombooking/<int:id>/', manageQR.changeroombooking, name='changeroombooking'),
+    path('changeroomadvance/', manageQR.changeroomadvance, name='changeroomadvance'),
     path('change_rooms_book_url/', manageQR.change_rooms_book_url, name='change_rooms_book_url'),
+    path('change_rooms_book_week_url/', manageQR.change_rooms_book_week_url, name='change_rooms_book_week_url'),
 
     # google reviews
     path('reviews/', loyltys.reviews, name='reviews'), 
@@ -341,10 +359,81 @@ urlpatterns = [
     path('bulkinventoryform/',employeemanage.bulkinventoryform,name="bulkinventoryform"),
     path('bulkformprice/',employeemanage.bulkformprice,name="bulkformprice"),
 
-    
-    
-    
 
+    # booking payments 
+    path('bookingpayments/',bookingpayment.bookingpayments,name="bookingpayments"),
+    path('bookpaymentsearch/',bookingpayment.bookpaymentsearch,name="bookpaymentsearch"),
+    path('invoicepayment/',bookingpayment.invoicepayment,name="invoicepayment"),
+    path('checkinpaymentsearch/',bookingpayment.checkinpaymentsearch,name="checkinpaymentsearch"),
+    
+    # invoice explenations
+    path('roomsales/',bookingpayment.roomsales,name="roomsales"),
+    path('productssales/',bookingpayment.productssales,name="productssales"),
+    path('arriwalsrpt/',bookingpayment.arriwalsrpt,name="arriwalsrpt"),
+    path('searcharriwlasrpt/',bookingpayment.searcharriwlasrpt,name="searcharriwlasrpt"),
+    path('searchitemsales/',bookingpayment.searchitemsales,name="searchitemsales"),
+    path('departurerpt/',bookingpayment.departurerpt,name="departurerpt"),
+    path('rvrpt/',bookingpayment.rvrpt,name="rvrpt"),
+    path('searchdeparture/',bookingpayment.searchdeparture,name="searchdeparture"),
+    path('salestablesearch/',bookingpayment.salestablesearch,name="salestablesearch"),
+
+
+    # accounts working here 
+    path('accounts/',accountses.accounts,name="accounts"),
+    path('searchtaxesaccount/',accountses.searchtaxesaccount,name="searchtaxesaccount"),
+    path('searchtaxslabvidget/',accountses.searchtaxslabvidget,name="searchtaxslabvidget"),
+    path('gstr1/',accountses.gstr1,name="gstr1"),
+    path('b2bInvoicedetails/',accountses.b2bInvoicedetails,name="b2bInvoicedetails"),
+    path('b2cInvoicetaxdetails/',accountses.b2cInvoicetaxdetails,name="b2cInvoicetaxdetails"),
+    path('nillratedforms/',accountses.nillratedforms,name="nillratedforms"),
+    # path('generate_gstr1_excel/',accountses.generate_gstr1_excel,name="generate_gstr1_excel"), this is gstr-1 actual url with excel buttons
+    
+    path('generate_gstr1_mix_invoice_excel/',accountses.generate_gstr1_mix_invoice_excel,name="generate_gstr1_mix_invoice_excel"),
+    path('hsnsummry/',accountses.hsnsummry,name="hsnsummry"),
+    path('documentsummry/',accountses.documentsummry,name="documentsummry"),
+    path('generate_b2b_invoice_excel/',accountses.generate_b2b_invoice_excel,name="generate_b2b_invoice_excel"),
+    path('generate_form_purchesinvoice_excel/',donwloadexcel.generate_form_purchesinvoice_excel,name="generate_form_purchesinvoice_excel"),
+    path('payble/',accountses.payble,name="payble"),
+
+    # online channel management
+    path('onlinechannel/',accountses.onlinechannel,name="onlinechannel"),
+    path('addchannel/',accountses.addchannel,name="addchannel"),
+    path('deletechannel/<int:id>/',accountses.deletechannel,name="deletechannel"),
+    path('updatechanel/',accountses.updatechanel,name="updatechanel"),
+    path('proformainvoice/<int:id>/',accountses.proformainvoice,name="proformainvoice"),
+
+    path('createpurchasefromproduct/',accountses.createpurchasefromproduct,name="createpurchasefromproduct"),
+    
+    # new work from here weekview to folio
+    
+    path('weekwiewfromfolio/',stayinvoices.weekwiewfromfolio,name="weekwiewfromfolio"),
+
+
+    path('addpaymentpagepurchase/<int:id>/',purches.addpaymentpagepurchase,name="addpaymentpagepurchase"),
+    path('addpaymenttopurchase/',purches.addpaymenttopurchase,name="addpaymenttopurchase"),   
+
+
+    # edit invoice work here
+    path('editaddpaymentfolio/',stayinvoices.editaddpaymentfolio,name="editaddpaymentfolio"),
+    path('editinvoicepayment/',stayinvoices.editinvoicepayment,name="editinvoicepayment"),
+    path('invoicepaymentedit/',stayinvoices.invoicepaymentedit,name="invoicepaymentedit"),
+    
+    path('deletepayment/<int:id>/',stayinvoices.deletepayment,name="deletepayment"),
+    
+    path('deleteitemstofolioedit/',stayinvoices.deleteitemstofolioedit,name="deleteitemstofolioedit"),
+    path('editcustomergstnumberbyedit/',stayinvoices.editcustomergstnumberbyedit,name="editcustomergstnumberbyedit"),
+    path('addproductonedit/',stayinvoices.addproductonedit,name="addproductonedit"),
+    path('editdueamount/',stayinvoices.editdueamount,name="editdueamount"),
+    path('makeseprateinvoice/',stayinvoices.makeseprateinvoice,name="makeseprateinvoice"),
+    path('makeotaandfnbinvc/',stayinvoices.makeotaandfnbinvc,name="makeotaandfnbinvc"),
+
+    path("guest_logs/<int:id>/", stayinvoices.guest_logs, name="guest_logs"),
+    path("showlogs", stayinvoices.showlogs, name="showlogs"),
+    path("showlogsbook", stayinvoices.showlogsbook, name="showlogsbook"),
+    path("showbooklog/<int:id>/", stayinvoices.showbooklog, name="showbooklog"),
+    
+    
+    # path("logs/gueststay/<int:gueststay_id>/", loggers.get_logs_by_gueststay, name="gueststay_logs"),
 
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

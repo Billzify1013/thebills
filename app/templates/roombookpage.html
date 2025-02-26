@@ -340,24 +340,7 @@
              
               
 
-              <div class="col-sm-6 mt-2">
-                <label class="col-sm-12 col-form-label" for="basic-icon-default-fullname">Total-Amount</label>
-                <div class="input-group input-group-merge">
-                  <span id="basic-icon-default-fullname2" class="input-group-text"
-                    >₹</span>
-                  <input
-                    type="number"
-                    name = "totalamount"
-                    class="form-control"
-                    id="totalamountinput"
-                    readonly
-                    placeholder="Total-Amount"
-                    aria-label="John Doe"
-                    aria-describedby="basic-icon-default-fullname2"
-                  />
-                </div>
-                <small class="text-muted float-end badge bg-label-primary me-1">Total Amount INCL GST. </small>
-              </div>
+              
 
               <div class="col-sm-6 mt-2">
                 <label class="col-sm-12 col-form-label" for="basic-icon-default-fullname">Advance-Amount</label>
@@ -394,6 +377,26 @@
               </div>
 
 
+              <div class="col-sm-6 mt-2">
+                <label class="col-sm-12 col-form-label" for="basic-icon-default-fullname">Total-Amount</label>
+                <div class="input-group input-group-merge">
+                  <span id="basic-icon-default-fullname2" class="input-group-text"
+                    >₹</span>
+                  <input
+                    type="number"
+                    name = "totalamount"
+                    class="form-control"
+                    id="totalamountinput"
+                    readonly
+                    placeholder="Total-Amount"
+                    aria-label="John Doe"
+                    aria-describedby="basic-icon-default-fullname2"
+                  />
+                </div>
+                <small class="text-muted float-end badge bg-label-primary me-1">Total Amount INCL GST. </small>
+              </div>
+
+
               <div class="col-sm-6 mt-2" style="display:none">
                 <label class="col-sm-12 col-form-label" for="basic-icon-default-fullname">Discount-Amount</label>
                 <div class="input-group input-group-merge">
@@ -413,7 +416,7 @@
                </div>
 
 
-               <div class="col-sm-6 mt-2">
+               <div class="col-sm-6 mt-2" style="display:none">
                 <label class="col-sm-12 col-form-label" for="basic-icon-default-fullname">Settlement-Amount</label>
               <div class="input-group">
                   
@@ -422,6 +425,7 @@
                     
                     class="form-control"
                     value=0
+                   
                     id="excaptedamountinput"
                     placeholder="Excepted amount"
                     aria-label="Recipient's username"
@@ -431,6 +435,8 @@
                   <button type="button" class="btn btn-primary" onclick="adddiscountcheck()">=</button>
                 </div>
                </div>
+
+               
 
               <div class="col-sm-6 mt-2">
                 <label class="col-sm-12 col-form-label" for="basic-icon-default-fullname">Reamaining-Amount</label>
@@ -461,12 +467,32 @@
                   </div>
               </div>
 
+
+              <div class="col-sm-6 mt-2" style="display:">
+                <label class="col-sm-12 col-form-label" for="basic-icon-default-fullname">Excepted Amount₹</label>
+                <div class="input-group">
+                    
+                    <input
+                      type="number"
+                      
+                      class="form-control"
+                      value=0
+                      id="finalesamt"
+                      name="finalesamount"
+                      placeholder="Excepted amount"
+                      aria-label="Recipient's username"
+                      aria-describedby="button-addon2"
+                      {% comment %} onClick="calculateamount()" {% endcomment %}
+                    />
+                    
+                  </div>
+              </div>
              
                 
             
             
               <div class="col-sm-12 mt-4">
-                <button type="submit" class="btn btn-primary w-100" id="submitButton" onClick="calculateamount()">Send</button>
+                <button type="submit" class="btn btn-primary w-100" id="submitButton" >Send</button>
               </div>
             
           </form>
@@ -583,6 +609,16 @@ $(document).ready(function(){
             var tax = value.split(',')[2];
             price = parseInt(price)
             tax = parseInt(tax)
+            console.log(price,"by chandan advance")
+            var checkpricesamt = price / parseInt(daysDiff)
+            if (checkpricesamt > 7500) {
+              tax = 18
+            }
+
+            else if (checkpricesamt <= 7500) {
+              tax=12
+            }
+            console.log(tax)
             selectedData.push({id: id, price: price, tax:tax});
             taxamount = (price * tax) /100;
             var total_price = price + taxamount;
@@ -600,6 +636,7 @@ $(document).ready(function(){
         var l =selectedData.length;
         $('#totalamt').html(total_amount);
         $('#totalamountinput').val(total_amount);
+        $('#finalesamt').val(total_amount);
         var serializedArray = JSON.stringify(selectedData);
         $('#new').val(serializedArray);
         $('#totalroom').html(l);
@@ -650,6 +687,15 @@ function resetamountdata() {
             var tax = value.split(',')[2];
             price = parseInt(price)
             tax = parseInt(tax)
+            console.log(price,"by chandan advance")
+            var checkpricesamt = price / parseInt(daysDiff)
+            if (checkpricesamt > 7500) {
+              tax = 18
+            }
+
+            else if (checkpricesamt <= 7500) {
+              tax=12
+            }
             selectedData.push({id: id, price: price, tax:tax});
             taxamount = (price * tax) /100;
             var total_price = price + taxamount;
@@ -667,6 +713,7 @@ function resetamountdata() {
         var l =selectedData.length;
         $('#totalamt').html(total_amount);
         $('#totalamountinput').val(total_amount);
+        $('#finalesamt').val(total_amount);
         var serializedArray = JSON.stringify(selectedData);
         $('#new').val(serializedArray);
         $('#totalroom').html(l);
@@ -760,6 +807,15 @@ function updaterateplanprice(mealpriceguest) {
             var tax = value.split(',')[2];
             price = parseInt(price) + mealprice;
             tax = parseInt(tax)
+            console.log(price,"by chandan advance")
+            var checkpricesamt = price / parseInt(daysDiff)
+            if (checkpricesamt > 7500) {
+              tax = 18
+            }
+
+            else if (checkpricesamt <= 7500) {
+              tax=12
+            }
             selectedData.push({id: id, price: price, tax:tax});
             taxamount = (price * tax) /100;
             var total_price = price + taxamount;
@@ -777,6 +833,7 @@ function updaterateplanprice(mealpriceguest) {
         var l =selectedData.length;
         $('#totalamt').html(total_amount);
         $('#totalamountinput').val(total_amount);
+        $('#finalesamt').val(total_amount);
         var serializedArray = JSON.stringify(selectedData);
         $('#new').val(serializedArray);
         $('#totalroom').html(l);
@@ -850,9 +907,20 @@ console.log(mealprice)
       }
     }
 
+    console.log(price,"by chandan advance")
+    var checkpricesamt = price / parseInt(daysDiff)
+    if (checkpricesamt > 7500) {
+              tax = 18
+            }
+
+    else if (checkpricesamt <= 7500) {
+              tax=12
+            }
+
     // Calculate tax
     taxAmount = price * (tax / 100);
     var totalPrice = price + taxAmount;
+    console.log(totalPrice,'this is total price')
     totalAmount += totalPrice;
 
     selectedData.push({ id: id, price: price.toFixed(2), tax: tax });
@@ -863,6 +931,7 @@ console.log(mealprice)
 
   $('#totalamt').html(parseInt(totalAmount));
   $('#totalamountinput').val(totalAmount);
+  $('#finalesamt').val(totalAmount);
   var serializedArray = JSON.stringify(selectedData);
   $('#new').val(serializedArray);
   $('#totalroom').html(selectedData.length);
@@ -1119,6 +1188,15 @@ function adddiscountcheck() {
     var id = parts[0];
     var price = parseFloat(parts[1]) + mealprice;
     var tax = parseFloat(parts[2]);
+    console.log(price,"by chandan advance")
+    var checkpricesamt = price / parseInt(daysDiff)
+    if (checkpricesamt > 7500) {
+              tax = 18
+            }
+
+    else if (checkpricesamt <= 7500) {
+              tax=12
+            }
     selectedData.push({ id: id, price: price, tax: tax });
     totalAmountBeforeTax += price;
   });
@@ -1158,7 +1236,7 @@ function adddiscountcheck() {
   $('#showamts').text((totalAmountBeforeTax - discountNeeded).toFixed(2));
   $('#discountamountinput').val(parseInt(totalAmountBeforeTax - discountNeeded));
   calculateamount();
-}
+} 
 
 
 </script>

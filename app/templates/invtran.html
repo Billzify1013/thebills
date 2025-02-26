@@ -51,6 +51,21 @@
             
           </tr>
           {%endfor%}
+
+          {%for data in moreaddedmainitms%}
+          <tr>
+            <td> <strong>{{data.date}}</strong></td>
+            
+            <td>{{data.items.description}}</td>
+            <td>{{data.add_qty}}</td>
+            <td class="total-amount">
+              ₹{{ data.total_amount|floatformat:2 }}
+          </td>
+            
+          </tr>
+          {%endfor%}
+
+          
    
         
         </tbody>

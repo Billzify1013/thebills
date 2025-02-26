@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block content %}
+<h6 class="ms-2">Account / B2B Details</h6>
+<div class="card mt-4">
+    <div class="w-100 mt-4 mb-5">
+        
+        <div class="row w-100 mb-4">
+            
+                <div class="col-2">
+                    <div class="col ms-3">
+                        <label for="nameBackdrop" class="form-label">From Date :</label>
+                        <input type="date" readonly name="startdate" id="nameBackdrop" class="form-control" required value="{{ startdate|date:'Y-m-d' }}" />
+                    </div>
+                </div>
+                <div class="col-2">
+                    <div class="col ms-3">
+                        <label for="nameBackdrop" class="form-label">To Date :</label>
+                        <input type="date" readonly name="enddate" id="nameBackdrop" class="form-control" required value="{{ enddate|date:'Y-m-d' }}" />
+                    </div>
+                </div>
+
+                <div class="col-2"></div>
+                <div class="col-2"></div>
+                
+                <div class="col-3 mt-3">
+                    <form class="mt-2" id="downloadGSTR1Excel" action="{% url 'generate_b2b_invoice_excel' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" value="{{ startdate|date:'Y-m-d' }}" name="startdate" />
+                        <input type="hidden" value="{{ enddate|date:'Y-m-d' }}" name="enddate" />
+                        <a href="#" id="downloadBtn" class="btn btn-primary text-white mb-0 w-100">
+                            Download Excel
+                        </a>
+                    </form>
+                    
+                    <script>
+                        document.getElementById("downloadBtn").addEventListener("click", function(event) {
+                            event.preventDefault(); // Default action ko rokna
+                            document.getElementById("downloadGSTR1Excel").submit(); // Form submit karna
+                        });
+                    </script>
+                </div>
+
+                
+
+                <div class="col-1">
+                    <div class="col  mt-4">
+                       <button class="btn btn-primary" onClick="javascript:history.go(-1);">Back</button>
+                    </div>
+                </div>
+
+            
+            
+        </div>
+
+
+<div class="card mt-5 m-1">
+    <h5 class="m-2"> Details of B2B Invoices - 4A, 4B, 4C, 6B, 6C</h5>
+     <table class="table table-bordered W-100" style="background-color: white;">
+         <thead class="bg-dark">
+             <tr style="font-weight: bold;" >
+                 <th class="text-white">Guest</th>
+                 <th class="text-white">GSTIN</th>
+                 <th class="text-white">Taxable Amount ₹</th>
+                 <th class="text-white">IGST ₹</th>
+                 <th class="text-white">CGST ₹</th>
+                 <th class="text-white">SGST ₹ </th>
+                 <th class="text-white">CESS AMOUNT ₹</th>
+                 <th class="text-white">TAX AMOUNT ₹</th>
+                 <TH class="text-white">Invoice Amount ₹</TH>
+             </tr>
+         </thead>
+         <tbody>
+             {% for data in b2binvoice %}
+             <tr>
+                <td>{{ data.customer.guestname }}</td>
+                <td>{{ data.customer_gst_number }}</td>
+                <td>{{ data.taxable_amount }}</td>
+                <td>0.00</td>
+                <td class="gst-amount">{{ data.gst_amount }}</td>  <!-- GST amount -->
+                <td class="gst-amount">{{ data.gst_amount }}</td>
+                <td>0</td>
+                <td class="gst-total"></td>  <!-- This will be calculated using JavaScript -->
+                <td>{{ data.grand_total_amount }}</td>
+            </tr>
+             {% endfor %}
+         </tbody>
+     </table>
+ </div>
+
+
+ <script>
+    // Select all rows and calculate GST Total for each row
+    document.addEventListener("DOMContentLoaded", function () {
+        let rows = document.querySelectorAll("tbody tr");
+
+        rows.forEach(row => {
+            let gstAmounts = row.querySelectorAll(".gst-amount");  // Select all GST amounts in row
+            let totalGST = 0;
+
+            gstAmounts.forEach(cell => {
+                totalGST += parseFloat(cell.innerText) || 0;  // Convert text to float and add
+            });
+
+            // Set calculated total in the last column
+            row.querySelector(".gst-total").innerText = totalGST.toFixed(2);
+        });
+    });
+</script>
+{%endblock%}

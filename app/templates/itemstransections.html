@@ -1,0 +1,288 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+
+<div class="row mb-3">
+    <div class="col-9">
+        <a class="btn btn-warning text-white" onClick="javascript:history.go(-1);">Back</a>
+    </div>
+
+    
+
+    <div class="col-3 float-end">
+        <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#backDropModal">
+            <i class='bx bx-search-alt-2'></i> Search By Dates
+        </button>
+    </div>
+</div>
+
+<div class="card">
+    <h5 class="card-header">
+       Selling Products Sales Details Folio/Check-Out<br><br>
+        <span>From: {{ startdate }} TO {{ enddate }}</span>
+    </h5>
+
+    
+    
+{% comment %} 
+    <div class="table-responsive text-nowrap">
+        <table class="table table-bordered" id="secondInvoiceTable">
+            <thead class="table-light">
+                <tr>
+                    <th>Sr No.</th>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th >QTY</th>
+                    <th>Total</th>
+                    <th>Tax</th>
+                    <th>grandTotal</th>
+                    <th>Primary Room</th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0" id="tableBody">
+                {% for data in invoicedata %}
+                <tr data-mode="{{ data.payment_mode }}" data-channel="{{ data.invoice.customer.channel }}">
+                    <td>{{ forloop.counter }} </td>
+                    <td>  {{ data.description }}</td>
+                    <td>{{data.price}}</td>
+                    <td>{{data.quantity_likedays}}</td>
+                    <td>{{data.totalwithouttax}}</td>
+                    <td>cgst: {{data.sgst_rate_amount}}<br>sgst: {{data.sgst_rate_amount}}</td>
+                    <td><strong >{{ data.total_amount }}</strong></td>
+                    <td>{{data.invoice.room_no}}</td>
+                    
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div> {% endcomment %}
+
+    <div class="table-responsive text-nowrap">
+      <!-- Display total calculation at the top -->
+      <div id="tableSummary" class="m-3">
+          <div>Total (without tax): <span id="totalWithoutTax"></span></div>
+          <div>Total Tax: <span id="totalTax"></span></div>
+          <div>Grand Total: <b><span id="grandTotalSum"></span></b></div>
+      </div>
+  
+      <table class="table table-bordered" id="secondInvoiceTable">
+          <thead class="table-light">
+              <tr>
+                  <th>Sr No.</th>
+                  <th>Product</th>
+                  <th>Price</th>
+                  <th>QTY</th>
+                  <th>Total</th>
+                  <th>Tax</th>
+                  <th>Grand Total</th>
+                  <th>Primary Room</th>
+              </tr>
+          </thead>
+           <!-- Add buttons for printing and downloading Excel -->
+  <div class="m-3 float-end">
+    <button class="btn btn-primary" onclick="printTable()">Print Table</button>
+    <button class="btn btn-success" onclick="downloadExcel()">Download Excel</button>
+</div>
+          <tbody class="table-border-bottom-0" id="tableBody">
+              {% for data in invoicedata %}
+              <tr data-mode="{{ data.payment_mode }}" data-channel="{{ data.invoice.customer.channel }}">
+                  <td>{{ forloop.counter }} </td>
+                  <td>{{ data.description }}</td>
+                  <td>{{ data.price }}</td>
+                  <td>{{ data.quantity_likedays }}</td>
+                  <td>{{ data.totalwithouttax }}</td>
+                  <td class="tax-column" data-sgst-rate="{{ data.sgst_rate_amount }}"></td> <!-- Placeholder for tax -->
+                  <td><strong class="grandTotal">{{ data.total_amount }}</strong></td>
+                  <td>{{ data.invoice.room_no }}</td>
+              </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+  </div>
+  
+ 
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script> <!-- xlsx library for Excel export -->
+  
+  <script>
+      // Function to update SGST + CGST, Grand Total and Total Calculations
+      function updateTable() {
+          let totalWithoutTax = 0;
+          let totalTax = 0;
+          let grandTotalSum = 0;
+  
+          // Get all rows in the table
+          const rows = document.querySelectorAll('#secondInvoiceTable tbody tr');
+  
+          rows.forEach(row => {
+              const totalWithoutTaxValue = parseFloat(row.cells[4].textContent); // Total without tax (column 5)
+              const sgstRateAmount = parseFloat(row.querySelector('.tax-column').getAttribute('data-sgst-rate')); // SGST rate from data attribute
+              
+              // Calculate the total tax (SGST + CGST)
+              const totalTaxForRow = sgstRateAmount * 2;
+              
+              // Update the tax column with the calculated total tax
+              row.querySelector('.tax-column').textContent = totalTaxForRow.toFixed(2);
+              
+              // Calculate the grand total for the row (Total without tax + SGST + CGST)
+              const grandTotal = totalWithoutTaxValue + totalTaxForRow;
+              
+              // Update the grandTotal column
+              row.querySelector('.grandTotal').textContent = grandTotal.toFixed(2);
+              
+              // Accumulate the totals for the entire table
+              totalWithoutTax += totalWithoutTaxValue;
+              totalTax += totalTaxForRow;
+              grandTotalSum += grandTotal;
+          });
+  
+          // Update the totals at the top of the table
+          document.getElementById('totalWithoutTax').textContent = totalWithoutTax.toFixed(2);
+          document.getElementById('totalTax').textContent = totalTax.toFixed(2);
+          document.getElementById('grandTotalSum').textContent = grandTotalSum.toFixed(2);
+      }
+  
+      // Call the function to update the table and totals after the page loads
+      window.onload = updateTable;
+  
+      // Function to print the table
+      function printTable() {
+          const printWindow = window.open('', '', 'height=400,width=800');
+          const tableContent = document.getElementById('secondInvoiceTable').outerHTML;
+          const summaryContent = document.getElementById('tableSummary').outerHTML;
+  
+          // Get dynamic start and end dates from the template
+          const startDate = "{{ startdate }}"; // Dynamically from the template
+          const endDate = "{{ enddate }}"; // Dynamically from the template
+  
+          // Add custom styling for printing
+          const printStyles = `
+              <style>
+                  body {
+                      font-family: Arial, sans-serif;
+                      margin: 20px;
+                  }
+                  .table {
+                      width: 100%;
+                      border-collapse: collapse;
+                  }
+                  .table th, .table td {
+                      border: 1px solid #000;
+                      padding: 8px;
+                      text-align: left;
+                  }
+                  .table th {
+                      background-color: #f8f9fa;
+                  }
+                  .table td, .table th {
+                      border: 1px solid black;
+                      font-size: 12px;
+                  }
+                  .table th {
+                      background-color: #f1f1f1;
+                  }
+                  .summary {
+                      margin-bottom: 20px;
+                  }
+                  .title {
+                      font-size: 18px;
+                      font-weight: bold;
+                      margin-bottom: 10px;
+                  }
+                  .date-range {
+                      font-size: 14px;
+                      margin-bottom: 10px;
+                  }
+              </style>
+          `;
+  
+          // Title and Date Range for the print version
+          const title = `<div class="title">Selling Products Sales Details</div>`;
+          const dateRange = `<div class="date-range">From: ${startDate} TO ${endDate}</div>`; // Dynamic date range
+  
+          // Open the print window and write content
+          printWindow.document.write('<html><head><title>Invoice Table</title>');
+          printWindow.document.write(printStyles);
+          printWindow.document.write('</head><body>');
+          printWindow.document.write(title); // Add title
+          printWindow.document.write(dateRange); // Add dynamic date range
+          printWindow.document.write(summaryContent); // Add the summary content (total section)
+          printWindow.document.write(tableContent);  // Add the table content
+          printWindow.document.write('</body></html>');
+          printWindow.document.close();
+          printWindow.print();
+      }
+  
+      // Function to download the table as Excel file
+      function downloadExcel() {
+          const wb = XLSX.utils.table_to_book(document.getElementById('secondInvoiceTable'), { sheet: "Invoice Data" });
+          XLSX.writeFile(wb, 'invoice_data.xlsx');
+      }
+  </script>
+  
+
+</div>
+
+
+<!-- Modal add rooms -->
+<div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'searchitemsales'  %}" method="POST" class="modal-content">
+            {% csrf_token %}
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Search Data</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Start Date</label>
+              <input
+                type="date"
+                name="startdate"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter RoomName"
+                required
+              />
+            </div>
+
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">End Date</label>
+                <input
+                  type="date"
+                  name="enddate"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Enter RoomName"
+                  required
+                />
+              </div>
+
+            
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+{%endblock%}

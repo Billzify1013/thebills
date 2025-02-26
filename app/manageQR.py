@@ -130,7 +130,7 @@ def change_rooms(request):
                 available_room_id = available_room['id']
                 current_description = current_room['description']
                 available_room_name = available_room['room_name']
-         
+                print(current_description,available_room_name)
 
                
                 orginvc = Invoice.objects.get(id=invoice_id)
@@ -146,7 +146,7 @@ def change_rooms(request):
                                 colourcode = i.checkin
                                 Rooms.objects.filter(vendor_id=gustfirstroom.vendor.id,id=available_room_id).update(checkin=colourcode)
                             
-                            Rooms.objects.filter(vendor_id=gustfirstroom.vendor.id,room_name=current_description).update(checkin=0)
+                            Rooms.objects.filter(vendor_id=gustfirstroom.vendor.id,room_name=current_description).update(checkin=0,is_clean=False)
                             InvoiceItem.objects.filter(id=current_room_id).update(description=changeroomno)
                             checks=True
                             Gueststay.objects.filter(id=orginvc.customer.id).update(roomno=changeroomno)
@@ -159,7 +159,7 @@ def change_rooms(request):
                         for i in roomcolourdata:
                             colourcode = i.checkin
                             Rooms.objects.filter(vendor_id=gustfirstroom.vendor.id,id=available_room_id).update(checkin=colourcode)
-                        Rooms.objects.filter(vendor_id=gustfirstroom.vendor.id,room_name=current_description).update(checkin=0)
+                        Rooms.objects.filter(vendor_id=gustfirstroom.vendor.id,room_name=current_description).update(checkin=0,is_clean=False)
                         InvoiceItem.objects.filter(vendor_id=gustfirstroom.vendor.id,id=current_room_id).update(description=changeroomno)
                         checks=True
                        
@@ -182,7 +182,9 @@ def change_rooms(request):
                 else:
                      pass
                          
-                         
+                actionss = 'Change Room'
+                CustomGuestLog.objects.create(vendor_id=gustfirstroom.vendor.id,customer=orginvc.customer,by=request.user,action=actionss,
+                    description=f'Change Room {str(current_description)} TO {str(changeroomno)}')         
 
                 
                 if checks==True:
@@ -236,8 +238,10 @@ def change_rooms(request):
                                 else:
                                     pass
                         else:
-                                pass      
-                
+                                pass    
+                          
+            
+                                
                         
 
             return JsonResponse({'success': True, 'message': 'Rooms changed successfully'})
@@ -273,6 +277,68 @@ def changeroombooking(request,id):
                 avlrooms = Rooms.objects.filter(vendor=user,checkin=0)
                 
                 return render(request,'changerombook.html',{'avlrooms':avlrooms,'invcitemdata':Bookedrooms,'invoice_id':saveguestid})
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+    
+
+def changeroomadvance(request):
+    try:
+        if request.user.is_authenticated:
+                user=request.user
+                subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+                if subuser:
+                    user = subuser.vendor  
+                bookingmodelid = request.POST.get('bookingmodelid')
+                print(bookingmodelid)
+                if Booking.objects.filter(id=bookingmodelid).exists():
+                    bookingdata =  Booking.objects.get(id=bookingmodelid)
+                    checkindate = bookingdata.check_in_date
+                    checkoutdate = bookingdata.check_out_date
+                    print(checkindate,checkoutdate)
+
+                    bookedrooms = Booking.objects.filter(
+                            vendor=user,
+                            check_in_date__lte=checkoutdate,check_out_date__gt=checkindate
+                        ).exclude(status="CHECK OUT")
+                    print(bookedrooms)
+
+                    roomids = []
+                    for i in bookedrooms:
+                        print(i.room.room_name)
+                        roomids.append(i.room.id)
+
+                    avlrooms = Rooms.objects.filter(vendor=user).exclude(id__in=roomids)
+
+                    Bookedrooms = RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id=bookingdata.advancebook)
+
+                # invcitemdata = InvoiceItem.objects.filter(vendor=user,invoice_id=invoice_id)
+                # for i in invcitemdata:
+                #     roomname = i.description
+                #     Rooms.objects.filter(vendor=user,room_name=roomname)
+                # valid_room_names = Rooms.objects.filter(vendor=user).exclude(checkin=6).values_list('room_name', flat=True)
+                # # Filter InvoiceItem records where the description matches a valid room name
+                # # invcitemdata = InvoiceItem.objects.filter(vendor=user, invoice_id=invoice_id, description__in=valid_room_names)
+                # if SaveAdvanceBookGuestData.objects.filter(vendor=user,id=roombook_id).exists():
+                #     roombookdata = SaveAdvanceBookGuestData.objects.get(vendor=user,id=roombook_id)
+                #     checkindate = roombookdata.bookingdate
+                #     checkoutdate = roombookdata.checkoutdate
+                #     # rombokdata = RoomBookAdvance.objects.get(vendor=user,id=roombook_id)
+                #     # saveguestid = rombokdata.saveguestdata.id
+                #     # Bookedrooms = RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id=saveguestid)
+
+
+                #     bookedrooms = Booking.objects.filter(
+                #             vendor=user,
+                #             check_in_date__lte=checkoutdate,check_out_date__gte=checkindate
+                #         )
+
+                #     print(bookedrooms,'booked rooms')
+                
+
+                
+                return render(request,'changeroomfromweek.html',{'avlrooms':avlrooms,'invcitemdata':Bookedrooms,'invoice_id':bookingdata.advancebook})
         else:
             return render(request, 'login.html')
     except Exception as e:
@@ -335,6 +401,105 @@ def change_rooms_book_url(request):
                         checkindate = saveguestdata.bookingdate
                         checkoutdate = saveguestdata.checkoutdate
 
+                        current_date = checkindate
+                        while current_date < checkoutdate:
+                            try:
+                                # Fetch and update inventory using atomic updates
+                                RoomsInventory.objects.filter(room_category=avlblsrid.room_type, date=current_date).update(
+                                    total_availibility=F('total_availibility') - 1,
+                                    booked_rooms=F('booked_rooms') + 1
+                                )
+
+                                RoomsInventory.objects.filter(room_category=roomcsdata.room_type, date=current_date).update(
+                                    total_availibility=F('total_availibility') + 1,
+                                    booked_rooms=F('booked_rooms') - 1
+                                )
+
+                            except RoomsInventory.DoesNotExist:
+                                return JsonResponse({'success': False, 'message': f'Inventory record not found for date {current_date}'})
+
+                            current_date += timedelta(days=1)
+
+                        # Start background tasks for inventory and pricing updates
+                        user = saveguestdata.vendor
+
+                        if VendorCM.objects.filter(vendor=user):
+                                start_date = str(checkindate)
+                                end_date = str(checkoutdate)
+                                thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
+                              
+                                thread.start()
+                                # for dynamic pricing
+                                if  VendorCM.objects.filter(vendor=user,dynamic_price_active=True):
+                                    thread = threading.Thread(target=rate_hit_channalmanager, args=(user.id, start_date, end_date))
+                               
+                                    thread.start()
+                                else:
+                                    pass
+                        else:
+                                pass
+            return JsonResponse({'success': True, 'message': 'Rooms changed successfully'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': f'Failed to change rooms: {str(e)}'})
+
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+
+
+
+
+
+def change_rooms_book_week_url(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+
+        invoice_id = data.get('invoice_id')
+        current_rooms = data.get('current_rooms', [])
+        available_rooms = data.get('available_rooms', [])
+        print(available_rooms,current_rooms,invoice_id)
+
+        if len(current_rooms) != len(available_rooms):
+            return JsonResponse({'success': False, 'message': 'Room count mismatch'})
+
+        try:
+            # Using atomic transaction for consistency
+            with transaction.atomic():
+                for current_room, available_room in zip(current_rooms, available_rooms):
+                    current__room_book_id = current_room['id']
+                    available_room_id = available_room['id']
+                    print(current__room_book_id)
+                    # Fetch current RoomBookAdvance and room details
+                    rbadvc = RoomBookAdvance.objects.select_related('roomno').get(id=current__room_book_id)
+                    roomcsdata = rbadvc.roomno
+                    print("yaha tk chal gaya loop ke above if")
+                    # Reset check-in status for the current room if necessary
+                    today = datetime.today().date()
+                    checkindatecheck = rbadvc.saveguestdata.bookingdate
+                    checkoutdatecheck = rbadvc.saveguestdata.checkoutdate
+                    print(today,checkindatecheck,checkoutdatecheck)
+                    if checkindatecheck <= today <= checkoutdatecheck:
+                        print("checkin dat erange me hai")
+                        if roomcsdata.checkin in [0, 4]:
+                            Rooms.objects.filter(id=roomcsdata.id).update(checkin=0)
+                    else:
+                         print("checkin date range me nhi hai")
+
+                    print("yaha tk chal gaya loop ke below if")
+                    # Update the new room in RoomBookAdvance
+                    RoomBookAdvance.objects.filter(id=current__room_book_id).update(roomno_id=available_room_id)
+                    print(current__room_book_id,'curent id',rbadvc.saveguestdata,'save guest',available_room_id,'avl id ')
+                    # Update the Booking table with the new room
+                    # ye query nhi chal rhe sath hi same checkin date hoto handle rhne dena checkout before hoto kr dena handle 
+                    data = Booking.objects.filter(advancebook=rbadvc.saveguestdata, room_id=roomcsdata.id).update(room_id=available_room_id)
+                    print(data,"yaha tk chal gaya on update")
+                    print("yaha tk chal gaya loop ke upr")
+                    # If room types are different, update inventory
+                    avlblsrid = Rooms.objects.get(id=available_room_id)
+                    if roomcsdata.room_type != avlblsrid.room_type:
+                        saveguestdata = SaveAdvanceBookGuestData.objects.get(id=invoice_id)
+                        checkindate = saveguestdata.bookingdate
+                        checkoutdate = saveguestdata.checkoutdate
+                        print("yaha tk chal gaya")
                         current_date = checkindate
                         while current_date < checkoutdate:
                             try:

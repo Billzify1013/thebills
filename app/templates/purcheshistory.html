@@ -81,7 +81,7 @@
       <label for="firstName" class="form-label">Invoice Number</label>
       <input
         class="form-control"
-        type="number"
+        type="text"
         id="firstName"
         name="invnumber"
         value=""
@@ -136,7 +136,9 @@
             <th>Phone</th>
             <th>Billing Date</th>
             <th>Total Amount</th>
+            <th>Status</th>
             <th>Invoices</th>
+            <th>Add Payment</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -150,9 +152,19 @@
               {{data.invoicedate}}
             </td>
               <td><span class="badge bg-label-primary me-1">{{data.grand_total_amount}}</span></td>
-        
+            {%if data.unpaid%}
+            <td class="text-danger">UNPAID</td>
+            {%else%}
+            <td class="text-success">PAID</td>
+            {%endif%}
             <td>
                 <a href="{% url 'purchesinvoices' id=data.id %}" class="btn btn-primary text-white">INVOICE</a>
+            </td>
+
+            <td>
+              {%if data.unpaid%}
+              <a href="{% url 'addpaymentpagepurchase' id=data.id %}" class="btn btn-primary text-white">Add Payment</a>
+              {%endif%}
             </td>
             
             <td>
@@ -160,6 +172,7 @@
                         <a class="btn btn-light" href="{% url 'deletepurchesinvc' id=data.id %}"><i class="bx bx-trash me-1 text-danger"></i></a>
                 {%endif%}    
             </td>
+            
           </tr>
           {%endfor%}
    

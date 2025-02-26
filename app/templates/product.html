@@ -34,15 +34,15 @@
 <!--product Create button-->
         
 <div class="row mt-5"> 
-    <div class="col-8">
+    <div class="col-10">
         <h5 class="card-title  ms-2 mt-2">Add New Product</h5>
     </div> 
-    <div class="col-2">
+    {% comment %} <div class="col-2">
           <!-- Button to Open Permission Modal -->
 <button class="btn btn-warning" type="button" data-bs-toggle="modal" data-bs-target="#permissionModal">
   Set Permissions
 </button>
-    </div>
+    </div> {% endcomment %}
     <div class="col-2">
         <button class="btn btn-primary  w-100 "   data-bs-toggle="modal"
         data-bs-target="#backDropModal"> Add Product</button>
@@ -115,6 +115,12 @@
                       <i class="bx bx-dots-vertical-rounded"></i>
                       </button>
                       <ul class="dropdown-menu">
+
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
+                          data-bs-target="#backDropModalupdatecreatepurchase" 
+                          onclick="getcreatorder({{ data.id }}, '{{ data.description }}' )" ><i class='bx bx-folder-plus'></i> Create Purchase</a></li>
+                        
+
                         <li><a class="dropdown-item" href="#" data-bs-toggle="modal"
                           data-bs-target="#backDropModalupdate"
                           onclick="getroomnumberpopup({{ data.id }}, '{{ data.description }}', {{ data.price }}, '{{ data.hsncode }}', {{ data.category_tax.id }}, {{ data.available_qty }}, {{ data.total_qty }})">
@@ -466,7 +472,84 @@ function getroomnumberpopup(id, description, price, hsncode, category_tax_id, av
 }
 
 
+function getcreatorder(id, description) {
+  // Set the values in the modal inputs
+  document.getElementById('prodcutid').value = id;
+  document.getElementById('pname').value = description;
+}
+
 </script>
+
+
+
+<!--create purchase model-->
+<div class="modal fade" id="backDropModalupdatecreatepurchase" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog">
+    <form action="{% url 'createpurchasefromproduct' %}" method="POST" class="modal-content">
+      {% csrf_token %}
+      <input type="hidden" id="roomnoidinput" name="itemid" />
+      <div class="modal-header">
+        <h5 class="modal-title" id="backDropModalTitle">Create Purchase</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col mb-3">
+            <label for="descriptionInput" class="form-label">Product Name</label>
+            <input
+              type="text"
+              name="description"
+              id="pname"
+              class="form-control"
+              placeholder="Enter product name"
+              readonly
+            />
+          </div>
+<input type="hidden" id="prodcutid" name="pid" />
+         
+        </div>
+
+        <div class="row">
+          
+
+          
+        </div>
+
+        <div class="row">
+          <div class="col mb-3">
+            <label for="availableQtyInput" class="form-label">Purchase Quantity</label>
+            <input
+              type="number"
+              name="add_qty"
+              id="addqty"
+              class="form-control"
+              placeholder="Enter available quantity"
+              required
+            />
+          </div>
+
+          <div class="col mb-3">
+            <label for="totalQtyInput" class="form-label">Total Amount</label>
+            <input
+              type="number"
+              name="totalamount"
+              id="ttamt"
+              class="form-control"
+              placeholder="Enter total quantity"
+              required
+            />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button class="btn btn-warning">Update</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 
 

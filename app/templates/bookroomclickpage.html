@@ -414,7 +414,7 @@
                     <span id="basic-icon-default-company2" class="input-group-text"
                       >Id Type <i class='bx bx-down-arrow-alt'></i></span>
                     
-                    <select class="form-control" name="idtype" id="guestidtype" placeholder="Chek-In Time" required>
+                    <select class="form-control" name="idtype" id="guestidtype" placeholder="Chek-In Time" >
                       <option value=''>ID Type</option>
                       <option value="Aadhar Card">Aadhar Card</option>
                       <option value="Licence">Licence</option>
@@ -422,7 +422,7 @@
                       <option value="VoterID Card">VoterID Card</option>
                     </select>
                     
-                  </div><span class="text-danger">* </span>
+                  </div>
                 </div>
           </div>
 
@@ -850,7 +850,7 @@
 
                   <div class="col-4">
 
-                    <h5 class="card-header mb-1">Room Tax: <span class="text-success fw-bold">{{i.tax}}</span><span style="display:none" id="texamt"></span> 
+                    <h5 class="card-header mb-1">Room Tax: <span id="roomtaxshow" class="text-success fw-bold"></span> %<span style="display:none" id="texamt"></span> 
                       <br><br>Total amount incl tax and days: <span class="text-success fw-bold" id="totalamounttext"></span>
                     </h5>
                   </div>
@@ -880,9 +880,50 @@
                             <select class="form-control" name="rateplan" onchange="pricechange()" id="rateplanselect" required placeholder="Chek-In Time">
                               
                               {%for i in meal_plan%}
-                              <option  value="{{i.id}}" >{{i.rate_plan_name}},{{i.rate_plan_code}},{{i.max_persons}}</option>
+                              {% comment %} <option  value="{{i.id}}" >{{i.rate_plan_name}},{{i.rate_plan_code}},{{i.max_persons}}</option> {% endcomment %}
+                              <option value="{{ i.id }}" data-max-persons="{{ i.max_persons }}">
+                                {{i.rate_plan_name}},{{i.rate_plan_code}},{{i.max_persons}}</option>
                               {%endfor%}
                             </select>
+
+                            <script>
+                              // Function to update rate plan options based on the total guests
+                              function filterRatePlans() {
+                                // Get the selected total guest count (assumed it's updated somewhere in your code)
+                                let totalGuests = parseInt(document.getElementById("totalguestcounts").textContent) || 0; // Default to 0 if no value
+                                
+                                // Get all options from the select dropdown
+                                let ratePlanSelect = document.getElementById("rateplanselect");
+                                let options = ratePlanSelect.getElementsByTagName("option");
+                                
+                                let matchFound = false; // Flag to track if any match is found
+                                
+                                // Loop through all options and hide/show based on total guests
+                                for (let option of options) {
+                                  let maxPersons = parseInt(option.getAttribute("data-max-persons"));
+                                  
+                                  // If the number of total guests matches the max persons in this option, show it
+                                  if (totalGuests === maxPersons) {
+                                    option.style.display = 'block';
+                                    matchFound = true;
+                                  } else {
+                                    // Otherwise, hide the option
+                                    option.style.display = 'none';
+                                  }
+                                }
+
+                                // If no match is found and totalGuests is not 0, show all options
+                                if (!matchFound && totalGuests !== 0) {
+                                  for (let option of options) {
+                                    option.style.display = 'block';
+                                  }
+                                }
+                              }
+
+                              // You can call this function manually when needed
+                              // Example: Call filterRatePlans() whenever required (after totalguestcounts is updated)
+
+                            </script>
 
                             <input type="hidden" name="rateplanname" id="rateplansviewinput" value="Room Only">
                             <input type="hidden" name="rateplanprice" id="rateplansviewinputprice" value=0>
@@ -901,8 +942,8 @@
                       var noofguesttotal = $("#noofguesttotal").val();
                       var staydayscount = $("#resultdaysinput").val();
                       var subtotalinvc = $("#subtotalinputsrp").val();
+                      var romsprice = $("#roomprice").val();
                       var taxinvc = $("#roomtax").val();
-                      console.log(rateplanid,'chandan here');
                       if (rateplanid == "Only Room"){
                         $("#rateplansview").html('Room Only')
                         $("#rateplansviewinput").val('Room Only')
@@ -935,12 +976,26 @@
                                 console.log('jayda hai')
                                 var extraguest = noofguesttotal-maxperson
                                 var mealtotalamount = parseInt(extraguest) * parseInt(addpprice) + parseInt(baseprice)
+                               
                                 mealtotalamount = mealtotalamount * parseInt(staydayscount)
-                                console.log(mealtotalamount,'totalday by')
+                                
+                                /*check tax rates here*/
+                                var checkedamt = parseInt(romsprice) + (parseInt(mealtotalamount)/parseInt(staydayscount))
+                                console.log(checkedamt,'chnged amount')
+                                if (checkedamt>7500){
+                                  
+                                  taxinvc=18
+                                  console.log(checkedamt,'18%')
+                                }
+                                else {
+                                 
+                                  taxinvc=12
+                                  console.log(checkedamt,'12%')
+                                }
                                 var grandtmramt = mealtotalamount + parseInt(subtotalinvc)
                                 var taxamtrp = grandtmramt * parseInt(taxinvc)/100
                                 var vargrandtotalrp = parseInt(grandtmramt + taxamtrp)
-                                console.log(grandtmramt,taxamtrp,vargrandtotalrp)
+                               
 
                                 $("#subtotal").val(grandtmramt);
                                 $("#totalamount").val(vargrandtotalrp);
@@ -949,9 +1004,22 @@
                                 $("#rateplansview").html(rate_plan_name+"  " +rate_plan_code+" ₹:"+mealtotalamount+" Extra Guest ("+ extraguest+")");
                                 $("#rateplansviewinput").val(rate_plan_name)
                                 $("#rateplansviewinputprice").val(parseInt(extraguest) * parseInt(addpprice) + parseInt(baseprice));
-
+                                $("#roomtaxshow").html(taxinvc);
                               }
                               else{
+                              /*new tax calculation here*/
+                                var acheckedamt = parseInt(romsprice) + parseInt(baseprice)
+                                
+                                if (acheckedamt>7500){
+                                  
+                                  taxinvc=18
+                                }
+                                else {
+                                
+                                  taxinvc = 12
+                                }
+
+
                                 var mealtotalamounts = parseInt(baseprice) * parseInt(staydayscount) 
                                 var grandtmramts = mealtotalamounts + parseInt(subtotalinvc)
                                 var taxamtrps = grandtmramts * parseInt(taxinvc)/100
@@ -963,7 +1031,7 @@
                                 $("#rateplansview").html(rate_plan_name+"  " +rate_plan_code+" ₹:"+mealtotalamounts);
                                 $("#rateplansviewinput").val(rate_plan_name)
                                 $("#rateplansviewinputprice").val(parseInt(baseprice));
-                              
+                                $("#roomtaxshow").html(taxinvc);
                               }
                              //calculation start here
                              
@@ -982,7 +1050,7 @@
 
                   </script>
 
-                  <div class="col-sm-4 ms-4 mb-3">
+                  <div class="col-sm-4 ms-4 mb-3" style="display:none">
                     <label class="col-sm-12  col-form-label" for="basic-icon-default-fullname">Excepted Amount₹</label>
                     <div class="input-group">
                         
@@ -1085,7 +1153,7 @@
                         value="{{i.price}}"
                         aria-label="Username"
                         aria-describedby="basic-addon11"
-                        readonly
+                        
                       />
                     </div>
                   </div>
@@ -1258,6 +1326,19 @@
                 roomprice = parseInt(roomprice)
                 subtotalamount = subtotalamountbyinput * daysDiff
                 var roomtax = $("#roomtax").val();
+
+                /*my work here */
+                console.log(roomprice,"roomprice by chandan",roomtax) 
+                if (roomprice <=7500)
+                {
+                  roomtax = 12
+                  console.log("12% me hi aayega")
+                }
+                else {
+                  roomtax = 18
+                  console.log("18% me hi aayega")
+                }
+                console.log(roomprice,"roomprice by chandan",roomtax) 
                 var taxamount = (roomprice * roomtax) /100
                 var totalamount = (taxamount + roomprice) * daysDiff
                 $("#totalamountdays").text(totalamount);
@@ -1271,14 +1352,18 @@
                 document.getElementById('rateplanselect').value='Room Only';
                 document.getElementById('excaptedamountinput').value=0;
                 $("#taxamountall").val(parseInt(taxcalcluatedamt));
-                $("#rateplansview").html('Room Only');
+                $("#rateplansview").html('Select Rate Plan');
                 $("#rateplansviewinput").val('Room Only')
                 $("#rateplansviewinputprice").val(0);
+                $("#roomtaxshow").html(roomtax);
+
+                //call funtion to select plan
+                filterRatePlans();
                 
               }
 
               function adddiscount() {
-                var subtotal = document.getElementById('subtotalinput').value
+                var subtotal = document.getElementById('subtotalinput').value;
                 var selectopt = document.getElementById('selectopt').value;
                 var diffdays = document.getElementById('resultdays').innerHTML;
                 var roomtax = $("#roomtax").val();
@@ -1292,7 +1377,7 @@
                 
                   
                 }
-                document.getElementById('totalamount').value = total;
+                
               
                 subtotal = subtotal * diffdays
                 subtotal = subtotal - discountamount

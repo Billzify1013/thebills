@@ -150,6 +150,19 @@
               </li>
               {%endif%}
 
+              {% if request.session.permissions.ups %}
+              <li class="nav-item w-100 m-1">
+                <a
+                  type="button"
+                  class="nav-link"
+                  style="text-align:left"
+                 href="{% url 'onlinechannel' %}"
+                >
+                <i class='bx bxs-category-alt'></i> Online Channel
+                </a>
+              </li>
+              {%endif%}
+
             </ul>
             
           </div>
@@ -302,13 +315,13 @@
                                 </div>
                                 <div class="row mt-2">
                                     <div class="col mb-12">
-                                      <label for="nameBackdrop" class="form-label mt-2">Tax Code</label>
+                                      <label for="nameBackdrop" class="form-label mt-2">Tax HSN/SAC Code</label>
                                       <input
                                         type="text"
                                         name="taxcode"
                                         id="nameBackdrop"
                                         class="form-control"
-                                        placeholder="like 105,102,110"
+                                        placeholder="Enter HSN/SAC Code"
                                         required
                                       />
                                     </div>
@@ -345,7 +358,7 @@
                         <thead class="table">
                           <tr>
                             <th>Tax name</th>
-                            <th>Code</th>
+                            <th>HSN/SAC Code</th>
                             <th>Rate</th>
                             <th>Action</th>
                           </tr>

@@ -152,13 +152,13 @@
             <button class="btn btn-primary w-100" onclick="downloadPDF()">Donwload Invoice</button>
             </div>
 
-            <div class="col-2 m-4">
+            {% comment %} <div class="col-2 m-4">
                 <button class="btn btn-primary w-100" data-bs-toggle="modal"
                 data-bs-target="#backDropModal">Edit Customer  Details</button>
-                </div>
+                </div> {% endcomment %}
 
                 <div class="col-2 m-4">
-                    <button class="btn btn-primary w-100" href="{% url 'homepage' %}">Home Page</button>
+                    <a class="btn btn-primary w-100 text-white" href="{% url 'homepage' %}">Home Page</a>
                     </div>
             <div class="col-1 m-4">
                 <a class="btn btn-primary text-white w-100" onClick="javascript:history.go(-1);">Back</a>
@@ -231,7 +231,7 @@
             <div class="invoice-details">{%for data in invoice_data%}
                 <div class="left" style="font-size:15\3px">
                     <h6>Invoice</h6>
-                    <p>Invoice #: {{data.invoice_number}}</p>
+                    <p>Invoice #: {{data.invoice_number}} {{checkproforma}}</p>
                     <p>Date: {{data.invoice_date}}<br>
                         CheckIn date: {{data.customer.checkindate}}<br>
                         CheckOut date: {{data.customer.checkoutdate}}</p>
@@ -246,9 +246,14 @@
                     Guests: {{data.customer.noofguest}}<br>
 
                 </p>
+                <p>
                 {%if data.customer_gst_number%}
-                <p>gstin: {{data.customer_gst_number}}</p>
+                gstin: {{data.customer_gst_number}}<br>
                 {%endif%}
+                {%if data.customer_company%}
+                Company: {{data.customer_company}}<br>
+                {%endif%}
+            </p>
                 </div>
                 {%endfor%}
                
@@ -338,8 +343,11 @@
                                 
                                     {%if payment.transaction_id%}
                                     <span class="text w-25" style="font-size:12px">D:{{payment.transaction_id}}<br>
-                                        C:{{payment.descriptions}}</span>
-                                    {%endif%}</td>
+                                        {%endif%}
+                                        {%if payment.descriptions%}
+                                        C:{{payment.descriptions}}
+                                    {%endif%}</span>
+                                    </td>
                             </tr>
                             {%endfor%}
                             
@@ -396,9 +404,44 @@
                 </ul>
                 <span class="mt-2 mb-2 text " style="font-size:9px"><i class='bx bxs-info-circle'></i>Rooms have discount, so their tax calculation are done after applying the discount.</span>
             
+                 
+                    
+
               </div>
             </div>
-
+<!--tax slab working here-->
+<div class="container mt-2">
+    <div class="table-responsive">
+        <table class="table table-bordered">
+          Tax Descriptions
+            <thead class="thead-light">
+                <tr>
+                    <th>Tax </th>
+                    <th>CGST</th>
+                    <th>SGST</th>
+                    <th>CGST Amount</th>
+                    <th>SGST Amount</th>
+                    <th> Total Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%for data in taxelab%}
+                <tr>
+                    <td>{{data.tax_rate_name}}
+                        
+                    </td>
+                    <td><span class="text w-50">{{data.cgst}} %</span></td>
+                    <td><span class="text w-50">{{data.sgst}}%</span></td>
+                    <td><span class="text w-50">₹ {{data.sgst_amount}} </span></td>
+                    <td><span class="text w-50">₹ {{data.sgst_amount}}</span></td>
+                    <td><span class="text w-50">₹ {{data.total_amount}}</span></td>
+                </tr>
+                {%endfor%}
+                
+            </tbody>
+        </table>
+    </div>
+</div>
           
         </div>
    
@@ -444,7 +487,7 @@
           ></button>
         </div>
         {%for data in invoice_data%}
-        <input type="hidden" name="invcid" value="{{data.customer.id}}" >
+        <input type="hidden" name="invcid" value="{{data.id}}" >
         
         <div class="modal-body">
           <div class="row">

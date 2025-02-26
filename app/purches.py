@@ -12,6 +12,7 @@ from django.conf import settings
 import urllib.parse
 from django.db.models import Sum
 from django.db.models import F
+from django.urls import reverse
 
 def purchesinvoice(request):
     try:
@@ -25,6 +26,14 @@ def purchesinvoice(request):
             invoiceitemsdata = SupplierInvoiceItem.objects.filter(
                 vendor=user, invoice=invcdata
             )
+
+            purchasehsndata = taxSlabpurchase.objects.filter(vendor=user,invoice=invcdata)
+            if invcdata:
+                 taxtype = invcdata.taxtype
+                # taxtype = "ggss"
+            else:
+                taxtype = None
+            print(purchasehsndata)
             return render(
                 request,
                 "purchesinvoice.html",
@@ -33,6 +42,8 @@ def purchesinvoice(request):
                     "profiledata": profiledata,
                     "invcdata": invcdata,
                     "invoiceitemsdata": invoiceitemsdata,
+                    'purchasehsndata':purchasehsndata,
+                    'taxtype':taxtype
                 },
             )
 
@@ -61,6 +72,8 @@ def purchesinvoiceform(request):
             customergstno = request.POST.get("customergstno", "")
             companyname = request.POST.get("companyname", "")
             productname = request.POST.get("productname", "")
+            purchaseinvoicenumber = request.POST.get("purchaseinvoicenumber", "")
+            sellinghsn = request.POST.get("sellinghsn", "")
             productprice_str = request.POST.get(
                 "productprice", "0"
             )  # Default to '0' if not provided
@@ -134,15 +147,7 @@ def purchesinvoiceform(request):
             else:
                 grand_total = subtotal_amount
 
-            # Invoice number handling
-            invcnumberdata = Supplier.objects.filter(vendor=user).last()
-            if invcnumberdata and invcnumberdata.invoicenumber:
-                try:
-                    invcno = int(invcnumberdata.invoicenumber) + 1
-                except ValueError:
-                    invcno = 1
-            else:
-                invcno = 1
+            
 
             # Create invoice
             today = datetime.now().date()
@@ -154,7 +159,7 @@ def purchesinvoiceform(request):
                 customeraddress=address,
                 customergst=customergstno,
                 companyname=companyname,
-                invoicenumber=invcno,
+                invoicenumber=purchaseinvoicenumber,
                 invoicedate=invcdate,
                 taxtype=taxtypes,
                 total_item_amount=float(total_amount),
@@ -167,6 +172,7 @@ def purchesinvoiceform(request):
                 cash_amount=float(0),
                 online_amount=float(0),
                 sattle=False,
+                state=state
             )
 
             # Create invoice item
@@ -184,19 +190,33 @@ def purchesinvoiceform(request):
                 tax_amt=tax_amount,
                 grand_total=grand_total,
                 is_intvntory=isivdata,
-                salerate=sellrate
+                salerate=sellrate,
+                sellinghsn=sellinghsn
             )
+
+            if producthsn:
+                productstaxbytwo = producttax / 2
+                taxamountsbytwo = tax_amount / 2
+                taxSlabpurchase.objects.create(vendor=user,invoice=invoiceid,tax_hsnsac_name=producthsn,cgst=productstaxbytwo,
+                        sgst=productstaxbytwo,cgst_amount=taxamountsbytwo,sgst_amount=taxamountsbytwo,total_amount=tax_amount,
+                        taxableamount=subtotal_amount)
+
 
             if isivdata==True:
                 if producttax>0:
                         if Taxes.objects.filter(vendor=user,taxrate=producttax).exists():
                             taxdata = Taxes.objects.get(vendor=user,taxrate=producttax)
                         else:
-                            if producttax==5 or producttax==12 or producttax==18 or producttax==24 or producttax==35:
+                            if sellinghsn:
+                                 taxhsn = sellinghsn
+                            else:
+                                 taxhsn = None
+                            if True:
+                                taxname = "GST"+str(producttax)
                                 taxdata = Taxes.objects.create(vendor=user,
                                                                taxrate=producttax,
-                                                               taxcode=producttax,
-                                                               taxname=producttax)
+                                                               taxcode=taxhsn,
+                                                               taxname=taxname)
                             else:
                                 taxdata=None
                 else:
@@ -209,7 +229,7 @@ def purchesinvoiceform(request):
                         total_qty=F('total_qty') + productqty,
                         price=sellrate,
                         category_tax=taxdata,
-                        hsncode=producthsn,
+                        hsncode=sellinghsn,
                         
                     )
                     itemdata = Items.objects.get(vendor=user,description=productname)
@@ -219,7 +239,7 @@ def purchesinvoiceform(request):
                         vendor=user,
                         description=productname,
                         category_tax=taxdata,
-                        hsncode=producthsn,
+                        hsncode=sellinghsn,
                         price=sellrate,
                         available_qty=productqty,
                         total_qty=productqty 
@@ -238,7 +258,7 @@ def purchesinvoiceform(request):
 
 
 def addmorepurchesproductininvoice(request):
-    # try:
+    try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
             subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
@@ -256,7 +276,7 @@ def addmorepurchesproductininvoice(request):
             producttax_str = request.POST.get("producttax", "0")
             producthsn = request.POST.get("producthsn", "")
             productdiscount_str = request.POST.get("productdiscount", "0")
-            
+            sellinghsn = request.POST.get("sellinghsn", "")
             isinvtry = request.POST.get("isinvtry1")
             if isinvtry=="Yes":
                 sellrate = request.POST.get("sellrate1")
@@ -346,20 +366,37 @@ def addmorepurchesproductininvoice(request):
                 tax_amt=tax_amount,
                 grand_total=grand_total,
                 is_intvntory=isivdata,
-                salerate=sellrate
+                salerate=sellrate,
+                sellinghsn=sellinghsn,
                 
             )
             
+            spdata = Supplier.objects.get(id=invcid)
+            productstaxbytwo = producttax / 2
+            taxamountsbytwo = tax_amount / 2
+            if taxSlabpurchase.objects.filter(vendor=user,invoice=spdata,tax_hsnsac_name=producthsn,cgst=productstaxbytwo).exists():
+                taxSlabpurchase.objects.filter(vendor=user,invoice=spdata,tax_hsnsac_name=producthsn).update(cgst_amount=F('cgst_amount')+taxamountsbytwo,sgst_amount=F('sgst_amount')+taxamountsbytwo,total_amount= F('total_amount') + tax_amount,
+                        taxableamount=F('taxableamount') + subtotal_amount)
+            else:
+                taxSlabpurchase.objects.create(vendor=user,invoice=spdata,tax_hsnsac_name=producthsn,cgst=productstaxbytwo,
+                        sgst=productstaxbytwo,cgst_amount=taxamountsbytwo,sgst_amount=taxamountsbytwo,total_amount=tax_amount,
+                        taxableamount=subtotal_amount)
+
+
+            # i am working here
             if isivdata==True:
                 if producttax>0:
                         if Taxes.objects.filter(vendor=user,taxrate=producttax).exists():
                             taxdata = Taxes.objects.get(vendor=user,taxrate=producttax)
                         else:
-                            if producttax==5 or producttax==12 or producttax==18 or producttax==24 or producttax==35:
+                            if True:
+                                if sellinghsn:
+                                    taccodes = sellinghsn
+                                    taxname = "GST"+str(producttax)
                                 taxdata = Taxes.objects.create(vendor=user,
                                                                taxrate=producttax,
-                                                               taxcode=producttax,
-                                                               taxname=producttax)
+                                                               taxcode=taccodes,
+                                                               taxname=taxname)
                             else:
                                 taxdata=None
                 else:
@@ -372,7 +409,7 @@ def addmorepurchesproductininvoice(request):
                         total_qty=F('total_qty') + productqty,
                         price=sellrate,
                         category_tax=taxdata,
-                        hsncode=producthsn,
+                        hsncode=sellinghsn,
                         
                     )
                     itemdata = Items.objects.get(vendor=user,description=productname)
@@ -382,7 +419,7 @@ def addmorepurchesproductininvoice(request):
                         vendor=user,
                         description=productname,
                         category_tax=taxdata,
-                        hsncode=producthsn,
+                        hsncode=sellinghsn,
                         price=sellrate,
                         available_qty=productqty,
                         total_qty=productqty 
@@ -394,8 +431,8 @@ def addmorepurchesproductininvoice(request):
             return redirect("purchesinvoice")
         else:
             return redirect("loginpage")
-    # except Exception as e:
-    #     return render(request, "404.html", {"error_message": str(e)}, status=500)
+    except Exception as e:
+        return render(request, "404.html", {"error_message": str(e)}, status=500)
 
 
 
@@ -467,7 +504,7 @@ def purchesitemdelete(request, id):
 
 
 def deletepurchesinvc(request, id):
-    # try:
+    try:
         if request.user.is_authenticated:
             user = request.user
             subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
@@ -499,8 +536,8 @@ def deletepurchesinvc(request, id):
                 return redirect("purchesinvoice")
         else:
             return redirect("loginpage")
-    # except Exception as e:
-    #     return render(request, "404.html", {"error_message": str(e)}, status=500)
+    except Exception as e:
+        return render(request, "404.html", {"error_message": str(e)}, status=500)
 
 
 
@@ -516,23 +553,43 @@ def savepurchesinvoice(request):
             paymentmode = request.POST.get("paymentmode")
             cashamount = request.POST.get("cashamount")
             onlineamount = request.POST.get("onlineamount")
-
+            today = datetime.now().date()
             datainvc = Supplier.objects.get(vendor=user, id=invoiceid)
             totalamt = datainvc.grand_total_amount
-            if paymentmode == "cash":
+            # if paymentmode == "cash":
+            #     Supplier.objects.filter(vendor=user, id=invoiceid).update(
+            #         modeofpayment="cash", sattle=True, cash_amount=totalamt
+            #     )
+            # elif paymentmode == "online":
+            #     Supplier.objects.filter(vendor=user, id=invoiceid).update(
+            #         modeofpayment="online", sattle=True, online_amount=totalamt
+            #     )
+            # elif paymentmode == "Partly":
+            #     Supplier.objects.filter(vendor=user, id=invoiceid).update(
+            #         modeofpayment="Partly",
+            #         sattle=True,
+            #         cash_amount=cashamount,
+            #         online_amount=onlineamount,
+            #     )
+             
+            if paymentmode == "unpaid":
                 Supplier.objects.filter(vendor=user, id=invoiceid).update(
-                    modeofpayment="cash", sattle=True, cash_amount=totalamt
-                )
-            elif paymentmode == "online":
-                Supplier.objects.filter(vendor=user, id=invoiceid).update(
-                    modeofpayment="online", sattle=True, online_amount=totalamt
-                )
-            elif paymentmode == "Partly":
-                Supplier.objects.filter(vendor=user, id=invoiceid).update(
-                    modeofpayment="Partly",
+                    modeofpayment="unpaid",
                     sattle=True,
-                    cash_amount=cashamount,
-                    online_amount=onlineamount,
+                    unpaid=True,
+                    due_amount = totalamt,
+                    reviced_amount = 0.00,
+                )
+            
+            else:
+                PurchasePayment.objects.create(vendor=user,invoice=datainvc,payment_amount=totalamt,payment_date=today,
+                                payment_mode= paymentmode,transaction_id='',descriptions='' )
+                
+                Supplier.objects.filter(vendor=user, id=invoiceid).update(
+                    modeofpayment=paymentmode,
+                    sattle=True,
+                    due_amount=0.00,
+                    reviced_amount=totalamt,
                 )
 
             return redirect("purchesinvoice")
@@ -668,12 +725,23 @@ def purchesinvoices(request, id):
                 invoiceitemdata = SupplierInvoiceItem.objects.filter(
                     vendor=user, invoice_id=invcid
                 )
+                invcdata = Supplier.objects.get(vendor=user, id=invcid)
+                purchasehsndata = taxSlabpurchase.objects.filter(vendor=user,invoice=invcdata)
+                if invcdata:
+                    taxtype = invcdata.taxtype
+                    # taxtype = "ggss"
+                else:
+                    taxtype = None
+                invcpayments = PurchasePayment.objects.filter(vendor=user,invoice=invcdata)
                 return render(
                     request,
                     "purchesinvoicepage.html",
                     {
                         "invoice_data": invoice_data,
                         "invoiceitemdata": invoiceitemdata,
+                        'purchasehsndata':purchasehsndata,
+                        'taxtype':taxtype,
+                        'invcpayments':invcpayments
                     },
                 )
             else:
@@ -935,7 +1003,7 @@ def fetch_supplier_items(request):
                 description__icontains=description
             ).values(
                 'id', 'description', 'price', 'tax_rate', 'hsncode', 'discount_amount' , 'is_intvntory',
-                'salerate'
+                'salerate','sellinghsn'
             )
 
             # Remove duplicates using a dictionary to retain the first occurrence
@@ -946,9 +1014,89 @@ def fetch_supplier_items(request):
             
             last_item = items[-1] if items else None
 
+            
+
             # Return the last item in the response
             return JsonResponse({'success': True, 'items': [last_item]}, status=200)
         
         return JsonResponse({'success': False, 'error': 'No description provided.'}, status=400)
 
     return JsonResponse({'success': False, 'error': 'Invalid request method.'}, status=405)
+
+
+
+def addpaymentpagepurchase(request,id):
+
+    try:
+        if request.user.is_authenticated:
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                    user = subuser.vendor 
+            if Supplier.objects.filter(vendor=user,id=id).exists():
+                spdata = Supplier.objects.get(vendor=user,id=id)
+
+                return render(request,'purchaseamt.html',{'spdata':spdata})
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+
+
+def addpaymenttopurchase(request):
+    if request.user.is_authenticated and request.method == "POST":
+        user = request.user
+        subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+        if subuser:
+                    user = subuser.vendor 
+        amount = float(request.POST.get("amount"))
+        paymentmode = request.POST.get("paymentmode")
+        paymntdetails = request.POST.get("paymntdetails")
+        comment = request.POST.get("comment")
+        suppilerid = request.POST.get("suppilerid")
+        today = datetime.now().date()
+        if Supplier.objects.filter(id=suppilerid).exists():
+            spdata = Supplier.objects.get(id=suppilerid)
+            dueamount = spdata.due_amount
+            if float(dueamount) == amount:
+                PurchasePayment.objects.create(vendor=user,invoice=spdata,payment_amount=dueamount,payment_date=today,
+                                payment_mode= paymentmode,transaction_id=paymntdetails,descriptions=comment )
+                
+                Supplier.objects.filter(vendor=user, id=suppilerid).update(
+                    modeofpayment=paymentmode,
+                    sattle=True,
+                    due_amount=0.00,
+                    unpaid=False,
+                    reviced_amount=dueamount,
+                )
+            else:
+                if amount > spdata.due_amount:
+                    messages.error(request,"Amount grater then billing amount")
+                    return redirect('purcheshistory') 
+                
+                else:
+                    dueamounts = float(spdata.due_amount) - amount
+                    PurchasePayment.objects.create(vendor=user,invoice=spdata,payment_amount=amount,payment_date=today,
+                                payment_mode= paymentmode,transaction_id=paymntdetails,descriptions=comment )
+                    
+                    Supplier.objects.filter(vendor=user, id=suppilerid).update(
+                    modeofpayment=paymentmode,
+                    due_amount=dueamounts,
+                    unpaid=True,
+                    reviced_amount=F('reviced_amount') + amount,
+                    )
+
+                     
+
+            userid = spdata.id
+            url = reverse('purchesinvoices', args=[userid])
+            return redirect(url)
+
+        else:
+            messages.error(request,"data not found")
+            return redirect('purcheshistory') 
+
+    else:
+            return redirect("loginpage")
+
+        

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<h6>Account/Payables</h6>
+
+
+<div class="row">
+    <div class="col-3">
+        <a class="btn btn-outline-primary w-100 " href="{% url 'accounts' %}"  >Taxes</a>
+    </div>
+    <div class="col-3">
+        <a class="btn btn-outline-primary w-100" href="{% url 'creditmanage' %}"><i class='bx bx-exit'></i> Receivables</a>
+    </div>
+    <div class="col-3">
+        <a class="btn btn-primary w-100" href="{% url 'payble' %}"><i class='bx bx-link-external'></i> Payables</a>
+    </div>
+    {% comment %} <div class="col-3">
+        <button class="btn btn-outline-primary w-100" data-bs-toggle="modal"
+        data-bs-target="#cashoutmodel"><i class='bx bx-log-out-circle'></i> Reconciliation </button>
+    </div> {% endcomment %}
+
+</div>
+
+
+ <!-- Bootstrap Table with Header - Light -->
+ <div class="card mt-3">
+    <h5 class="card-header">Payables  Reports
+      {% if totaldueamount%}
+      <span class="text float-end">Total Payables Amount: {{totaldueamount|floatformat:0 }}</span>
+      {%endif%}
+    </h5>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead class="table-light">
+          <tr>
+            <th>Name </th>
+            <th>Phone</th>
+            <th>GST/VAT</th>
+            <th>Total Outstanding Amount</th>
+            <th>Actions</th>
+            <th>Add Payment</th>
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+            {%for data in purchasepanding%}
+          <tr>
+            <td><strong>{{data.customername}}</strong></td>
+            <td>{{data.customercontact}}</td>
+            <td>{{data.customergst}}</td>
+            <td>{{data.due_amount}}</td>
+            
+            <td>
+                <a href="{%url 'purcheshistory'  %}"  class="btn btn-primary">History</a>
+            </td>
+          
+          <td>
+            {%if data.unpaid%}
+            <a href="{% url 'addpaymentpagepurchase' id=data.id %}" class="btn btn-primary text-white">Add Payment</a>
+            {%endif%}
+          </td>
+        </tr>
+          {%endfor%}
+   
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Bootstrap Table with Header - Light -->
+
+
+
+
+{%endblock%}

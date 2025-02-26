@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+
+<div class="row mb-3">
+    <div class="col-9">
+        <a class="btn btn-warning text-white" onClick="javascript:history.go(-1);">Back</a>
+    </div>
+
+    
+
+    <div class="col-3 float-end">
+        <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#backDropModal">
+            <i class='bx bx-search-alt-2'></i> Search By Dates
+        </button>
+    </div>
+</div>
+
+<div class="card">
+  
+<h5 class="card-header">
+    Room Wise Revenue Report<br><br>
+    <span>From: {{ startdate }} TO {{ enddate }}</span>
+</h5>
+<!-- Summary Section (Above Table) -->
+<div id="summarySection" class="m-3">
+    <div>Total (without tax): ₹ <span id="totalWithoutTax"></span></div>
+    <div>Total Tax: ₹ <span id="totalTax"></span></div>
+    <div>Grand Total: ₹ <strong><span id="grandTotalSum"></span></strong></div>
+</div>
+
+<div class="table-responsive text-nowrap">
+    <!-- Add buttons for printing and downloading Excel -->
+    <div class="m-3 float-end">
+        <button class="btn btn-primary" onclick="printTable()">Print Table</button>
+        <button class="btn btn-success" onclick="downloadExcel()">Download Excel</button>
+    </div>
+
+    <!-- Table displaying invoice data -->
+    <table class="table table-bordered" id="secondInvoiceTable">
+        <thead class="table-light">
+            <tr>
+                <th>Room No</th>
+                <th>Check-In Date</th>
+                <th>Check-Out Date</th>
+                <th>Total</th>
+                <th>Tax</th>
+                <th>Grand Total</th>
+                <th>	Source</th>
+            </tr>
+        </thead>
+        <tbody class="table-border-bottom-0" id="tableBody">
+            {% for data in bookingdata %}
+            <tr>
+                <td><b>{{ data.description }}
+                    {%if data.is_extend%}
+                    <span class="badge bg-label-primary">EXTEND</span>
+                    {%endif%}
+                </b></td>
+                <td>{{ data.date }}</td>
+                <td>{{ data.checkout_date }}</td>
+                <td>{{ data.totalwithouttax }}</td>
+                <td class="tax-column" data-sgst-rate="{{ data.sgst_rate_amount }}"></td>
+                <td><strong>₹ {{ data.total_amount }}</strong></td>
+                <td>{{data.invoice.customer.channel}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div id="startDate" style="display:none;">{{ startdate }}</div>
+<div id="endDate" style="display:none;">{{ enddate }}</div>
+
+<!-- Include the XLSX library for Excel export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+
+<script>
+    // Function to update the table and calculations
+    function updateTable() {
+        let totalWithoutTax = 0;
+        let totalTax = 0;
+        let grandTotalSum = 0;
+
+        const rows = document.querySelectorAll('#secondInvoiceTable tbody tr');
+
+        rows.forEach(row => {
+            const totalWithoutTaxValue = parseFloat(row.cells[3].textContent);  // Total without tax (column 4)
+            const sgstRateAmount = parseFloat(row.querySelector('.tax-column').getAttribute('data-sgst-rate')); // SGST rate
+
+            // Calculate the total tax (SGST * 2)
+            const totalTaxForRow = sgstRateAmount * 2;
+
+            // Update the tax column with the calculated tax
+            row.querySelector('.tax-column').textContent = totalTaxForRow.toFixed(2);
+
+            // Calculate the grand total (Total without tax + Total Tax)
+            const grandTotal = totalWithoutTaxValue + totalTaxForRow;
+
+            // Update the Grand Total column
+            row.cells[5].textContent = '₹ ' + grandTotal.toFixed(2);
+
+            // Accumulate the totals
+            totalWithoutTax += totalWithoutTaxValue;
+            totalTax += totalTaxForRow;
+            grandTotalSum += grandTotal;
+        });
+
+        // Update the summary at the top of the table
+        document.getElementById('totalWithoutTax').textContent = totalWithoutTax.toFixed(2);
+        document.getElementById('totalTax').textContent = totalTax.toFixed(2);
+        document.getElementById('grandTotalSum').textContent = grandTotalSum.toFixed(2);
+    }
+
+    // Call the updateTable function after the page loads to populate tax and totals
+    window.onload = updateTable;
+
+    function printTable() {
+        const printWindow = window.open('', '', 'height=400,width=800');
+        const tableContent = document.getElementById('secondInvoiceTable').outerHTML;
+        const summaryContent = document.getElementById('summarySection').outerHTML;  // Get the summary section HTML
+    
+        // Dynamically get the start and end dates from the page
+        const startDate = document.getElementById('startDate').textContent || '{{ startdate }}';  // Replace with your actual data source
+        const endDate = document.getElementById('endDate').textContent || '{{ enddate }}';  // Replace with your actual data source
+    
+        // Create the date range content to display in the print summary
+        const dateRangeContent = `<div style="text-align: center; font-size: 16px;">
+                                    <h3>Room Wise Revenue Report</h3>
+                                    <div>From: ${startDate} TO ${endDate}</div>
+                                  </div>`;
+    
+        // Add custom styles for printing
+        const printStyles = `
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 20px;
+                }
+                .table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+                .table th, .table td {
+                    border: 1px solid #000;
+                    padding: 8px;
+                    text-align: left;
+                }
+                .table th {
+                    background-color: #f8f9fa;
+                }
+                .table td, .table th {
+                    border: 1px solid black;
+                    font-size: 12px;
+                }
+                .table th {
+                    background-color: #f1f1f1;
+                }
+                .summary-section {
+                    text-align: center;
+                    font-size: 16px;
+                    margin-bottom: 20px;
+                }
+            </style>
+        `;
+    
+        // Open the print window and write content
+        printWindow.document.write('<html><head><title>Room Wise Revenue Report</title>');
+        printWindow.document.write(printStyles);
+        printWindow.document.write('</head><body>');
+        
+        // Add the date range content and summary content before the table
+        printWindow.document.write(dateRangeContent);  // Add the date range summary (startdate and enddate)
+        printWindow.document.write('<div class="summary-section">');
+        printWindow.document.write(summaryContent);  // Add the summary content (total, tax, grand total)
+        printWindow.document.write('</div>');
+    
+        printWindow.document.write(tableContent);    // Add the table content
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.print();
+    }
+
+    // Function to download the table as an Excel file
+    function downloadExcel() {
+        const wb = XLSX.utils.table_to_book(document.getElementById('secondInvoiceTable'), { sheet: "Room Wise Revenue Report" });
+        XLSX.writeFile(wb, 'Room Wise Revenue Report.xlsx');
+    }
+</script>
+
+ 
+  
+
+</div>
+
+
+<!-- Modal add rooms -->
+<div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'searchdeparture'  %}" method="POST" class="modal-content">
+            {% csrf_token %}
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Search Data</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Start Date</label>
+              <input
+                type="date"
+                name="startdate"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter RoomName"
+                required
+              />
+            </div>
+
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">End Date</label>
+                <input
+                  type="date"
+                  name="enddate"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Enter RoomName"
+                  required
+                />
+              </div>
+
+            
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+{%endblock%}

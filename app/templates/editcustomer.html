@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<div class="row">
+    
+    <div class="col-10 ">
+        <!-- Bootstrap Table with Header - Light -->
+ 
+ <div class="card">
+    <form action="{% url 'editcustomergstnumber' %}" method="post" >
+        {% csrf_token %}
+        <input type="hidden" name="guestid" value="{{invoicedata.customer.id}}" />
+        <input type="hidden" name="invcid" value="{{invoicedata.id}}" />
+        <div class="row">
+            <span class="text ms-3 mt-2"><i class='bx bx-receipt'></i> Edit Invoice</span>
+    <div class="col-11 m-4 mb-4">
+        <span class="text ">Mobile Number</span>
+        <div class="col mb-3">
+            <input
+              type="number"
+              name="customerphone"
+              id="nameBackdrop"
+              value="{{invoicedata.customer.guestphome}}"
+              class="form-control"
+              placeholder="Enter RoomName"
+              required
+            />
+          </div>
+        <div>
+            
+        <div class="col-12 mt-3">
+            <span class="text">GST Number</span>
+            <div class="col mb-3">
+                <input
+                  type="text"
+                  maxlength="15"
+                  name="gstnumber"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder=""
+                  value="{{invoicedata.customer_gst_number}}"
+                />
+              </div>
+        </div>
+        <div class="col-12 mt-3">
+            <span class="text">Company</span>
+            <div class="col mb-3">
+                <input
+                  type="text"
+                  name="company"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder=""
+                  value="{{invoicedata.customer_company}}"
+                />
+              </div>
+        </div>
+
+    </div></div>
+</div>
+
+    <button class="btn btn-primary mb-3 ms-4" type="submit" >Edit Done</button>
+
+        </form>
+       
+    
+     
+    </div>
+</div>
+
+</div>
+
+
+
+{%endblock%}

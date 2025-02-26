@@ -53,7 +53,10 @@ def addroomtohourlyrooms(request):
                 rdata = Rooms.objects.get(vendor=user,id=roomno)
                 savedateblock.objects.create(vendor=user,room=rdata,date=enddate)
                 existing_inventory = RoomsInventory.objects.filter(vendor=user,room_category_id=rdata.room_type, date__range=[today,enddate])
-                
+                noon_time_str = "12:00 PM"
+                noon_time = datetime.strptime(noon_time_str, "%I:%M %p").time()
+                Booking.objects.create(vendor=user,room=rdata,guest_name="BLOCK",check_in_date=today,check_out_date=enddate,
+                                check_in_time=current_time,check_out_time=noon_time,    )
                 for inventory in existing_inventory:
                     if inventory.total_availibility > 0:  # Ensure there's at least 1 room available
                         # Update room availability and booked rooms
@@ -206,8 +209,63 @@ def searchguestdata(request):
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)    
     
-     
 
+def searchinvoicedata(request):
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            guests = Invoice.objects.filter(vendor=user)
+
+            # Get input values
+            guestname = request.POST.get('guestname', '').strip()
+            guestphone = request.POST.get('guestphone', '').strip()
+
+            invoicenumber = request.POST.get('bookid', '').strip()
+            invoicedate = request.POST.get('invoicedate', '').strip()
+
+            # Initialize filters
+            filters = Q()
+
+            # Add filters for guest name and phone
+            if guestname:
+                filters &= Q(customer__guestname__icontains=guestname)
+            if guestphone:
+                filters &= Q(customer__guestphome__icontains=guestphone)
+
+            if invoicenumber:
+                filters &= Q(invoice_number__icontains=invoicenumber)
+
+            if invoicedate:
+                filters &= Q(invoice_date=invoicedate)
+
+           
+
+             # Apply filters and fetch data
+            guesthistory = guests.filter(filters)
+
+            # If no results found
+            if not guesthistory.exists():
+                messages.error(request, "No matching Invoice found.")
+
+
+            return render(request, 'invoicefilter.html', {
+                'active_page': 'stayinvoice',
+                'guesthistory': guesthistory,
+            })
+            # Return results
+            # return render(request, 'advancebookinghistory.html', {
+            #     'monthbookdata': advancersoomdata,
+            #     'active_page': 'advancebookhistory',
+            # })
+        else:
+            return redirect('loginpage')
+
+    except Exception as e:
+        # Handle unexpected errors
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
 
     
 def searchguestdataadvance(request):

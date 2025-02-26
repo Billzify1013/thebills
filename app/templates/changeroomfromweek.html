@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<h4 class="text m-1">Booking Change Room Page/</h4>
+<div class="row p-3">
+    <div class="col-3 card">
+        <h6 class="text p-2">Current Rooms</h6>
+        {% for i in invcitemdata %}
+            <span class="ms-2">
+                {{ i.roomno.room_name }}
+                <input type="checkbox" class="current-room-checkbox" data-id="{{ i.id }}" data-description="{{ i.roomno.room_name }}" />
+            </span><br>
+        {% endfor %}
+    </div>
+
+    <div class="col-3 card">
+        <h6 class="text p-2">Available Rooms</h6>
+        {% for i in avlrooms %}
+            <span class="ms-2">
+                {{ i.room_name }}
+                <input type="checkbox" class="available-room-checkbox" data-id="{{ i.id }}" data-room-name="{{ i.room_name }}" disabled />
+            </span><br>
+        {% endfor %}
+    </div>
+</div>
+<button class="btn btn-success btn-sm" type="button" id="loadbtn" style="display:none">
+    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+    Loading...
+  </button><br>
+<!-- Button to submit the selected rooms -->
+<button id="change-rooms-btn" class="btn btn-primary mt-3">Change Rooms</button>
+
+<script>
+    // Get all checkboxes and the button
+    const currentRoomCheckboxes = document.querySelectorAll('.current-room-checkbox');
+    const availableRoomCheckboxes = document.querySelectorAll('.available-room-checkbox');
+    const changeRoomsBtn = document.getElementById('change-rooms-btn');
+    const invoiceId = "{{ invoice_id }}";  // Get the invoice ID from the context
+
+    // Function to handle enabling/disabling available room checkboxes
+    function handleCheckboxes() {
+        const checkedCurrent = document.querySelectorAll('.current-room-checkbox:checked').length;
+
+        if (checkedCurrent > 0) {
+            availableRoomCheckboxes.forEach(checkbox => {
+                checkbox.disabled = false;
+            });
+        } else {
+            availableRoomCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+                checkbox.disabled = true;
+            });
+        }
+
+        const checkedAvailable = document.querySelectorAll('.available-room-checkbox:checked').length;
+        if (checkedAvailable >= checkedCurrent) {
+            availableRoomCheckboxes.forEach(checkbox => {
+                if (!checkbox.checked) {
+                    checkbox.disabled = true;
+                }
+            });
+        }
+    }
+
+    // Collect selected room data and send it to the Django URL
+    changeRoomsBtn.addEventListener('click', () => {
+        const selectedCurrentRooms = [];
+        const selectedAvailableRooms = [];
+        document.getElementById('loadbtn').style.display='block';
+        // Get selected current rooms
+        currentRoomCheckboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                selectedCurrentRooms.push({
+                    id: checkbox.dataset.id,
+                    description: checkbox.dataset.description
+                });
+            }
+        });
+
+        // Get selected available rooms
+        availableRoomCheckboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                selectedAvailableRooms.push({
+                    id: checkbox.dataset.id,
+                    room_name: checkbox.dataset.roomName
+                });
+            }
+        });
+
+        // Check if the selections are valid
+        if (selectedCurrentRooms.length !== selectedAvailableRooms.length) {
+            alert("Please select the same number of current and available rooms.");
+            return;
+        }
+
+        // Prepare data to send
+        const requestData = {
+            invoice_id: invoiceId,
+            current_rooms: selectedCurrentRooms,
+            available_rooms: selectedAvailableRooms
+        };
+
+        // Send data to the Django URL via AJAX
+        fetch("{% url 'change_rooms_book_week_url' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify(requestData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('loadbtn').style.display='none';
+            if (data.success) {
+                alert("Rooms successfully changed!");  // Redirect after success
+                window.location.href = "{% url 'weekviews' %}";
+            } else {
+                alert("Failed to change rooms. Please try again.");
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("An error occurred. Please check the console for details.");
+        });
+    });
+
+    // Event listeners for checkbox changes
+    currentRoomCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', handleCheckboxes);
+    });
+
+    availableRoomCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', handleCheckboxes);
+    });
+</script>
+
+{%endblock%}

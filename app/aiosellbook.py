@@ -250,7 +250,7 @@ def aiosell_new_reservation(request):
                                         check_out_date=checkoutdate,
                                         check_in_time=noon_time,
                                         check_out_time=noon_time,
-                                        segment=segment,
+                                        segment=channel,
                                         totalamount=amountbeforetax,
                                         totalroom=roomcount,
                                         gueststay=None,
@@ -369,6 +369,11 @@ def aiosell_new_reservation(request):
                                         data['notification'] = True
                                         session_store.update(data)
                                         session_store.save()
+
+                            actionss = 'Create Booking'
+                            CustomGuestLog.objects.create(vendor=user,by='system Assign',action=actionss,
+                                            advancebook=Saveadvancebookdata,description=f'Booking Created for {Saveadvancebookdata.bookingguest}, This Booking From OTA ')
+
 
                             return JsonResponse({'success': True, 'message': 'Reservation Updated Successfully'})
                             
@@ -639,6 +644,12 @@ def aiosell_new_reservation(request):
                                             pass
                             else:
                                         pass
+                            
+                            actionss = 'Edit Booking'
+                            user=Saveadvancebookdata.vendor
+                            CustomGuestLog.objects.create(vendor=user,by='system Assign',action=actionss,
+                                            advancebook=Saveadvancebookdata,description=f'Booking Edited for {Saveadvancebookdata.bookingguest}, This Booking From OTA ')
+
                             return JsonResponse({'success': True, 'message': 'Reservation Modified Successfully'})
                         else:
                              return JsonResponse({'success': True, 'message': 'Reservation Not Found!'})
@@ -658,6 +669,9 @@ def aiosell_new_reservation(request):
                                 user = vendordata.vendor
                                 saveguestid=SaveAdvanceBookGuestData.objects.get(vendor=vendordata.vendor,booking_id=bookingIds,channal=cnalledata)
                                 roomdata = RoomBookAdvance.objects.filter(vendor=user,saveguestdata=saveguestid).all()
+                                InvoicesPayment.objects.filter(vendor=user,advancebook=saveguestid).update(
+                                    payment_mode="Refund"
+                                )
                                 if roomdata: 
                                     for data in roomdata:
                                         Rooms.objects.filter(vendor=user,id=data.roomno.id).update(checkin=0)
@@ -686,6 +700,10 @@ def aiosell_new_reservation(request):
 
                                     SaveAdvanceBookGuestData.objects.filter(vendor=user,id=saveguestid.id).update(action='cancel')
                                     Booking.objects.filter(vendor=user,advancebook_id=saveguestid.id).delete()
+                                    actionss = 'Cancel Booking'
+                                    CustomGuestLog.objects.create(vendor=user,by='system Assign',action=actionss,
+                                            advancebook=saveguestid,description=f'Booking Cancel for {saveguestid.bookingguest}, This Booking From OTA ')
+
                                     return JsonResponse({'success': True, 'message': 'Reservation Cancelled Successfully'})
                         else:
                             return JsonResponse({'success': True, 'message': 'Reservation Cancelled Already'})

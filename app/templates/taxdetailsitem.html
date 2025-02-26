@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<h6>Account/Taxes/Details</h6>
+
+<div class="col-2 ">
+    <input type=button value="Back" class="btn btn-outline-warning m-2" onClick="javascript:history.go(-1);">
+    </div>
+
+{% comment %} <div class="card">
+    <h5 class="card-header">
+        Ledger: {{taxes.tax_rate_name}}<br><br>
+        <span>From: {{ startdate }} TO {{ enddate }}</span>
+    </h5>
+    <div class="table-responsive text-nowrap">
+        <table class="table table-bordered" id="secondInvoiceTable">
+            <thead class="table-light">
+                <tr>
+                    <th>Sr No.</th>
+                    <th>Date</th>
+                    <th>Service Name</th>
+                    <th>Service Value</th>
+                    <th>Tax</th>
+                 
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0" id="tableBody">
+                {% for data in invoiceitem %}
+                <tr data-mode="{{ data.payment_mode }}" data-channel="{{ data.invoice.customer.channel }}">
+                    <td>{{ forloop.counter }}</td>
+                    <td><strong>{{ data.invoice.invoice_date }}</strong></td>
+                    <td >{{ data.description }}</td>
+                    <td>{{ data.totalwithouttax }}</td>
+                    <td>{ "Total": {{ data.cgst_rate_amount|floatformat:2|add:data.sgst_rate_amount|floatformat:2 }}
+                        ,
+                        "CGST {{data.cgst_rate}}%": {{data.cgst_rate_amount}},
+                        "SGST {{data.sgst_rate}}%": {{data.sgst_rate_amount}}
+                     }</td>
+                    
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div> {% endcomment %}
+
+<div class="card">
+    <h5 class="card-header">
+        Ledger: {{taxes.tax_rate_name}}<br><br>
+        <span>From: {{ startdate }} TO {{ enddate }}</span>
+    </h5>
+    <div class="table-responsive text-nowrap">
+        <table class="table table-bordered" id="secondInvoiceTable">
+            <thead class="table-light">
+                <tr>
+                    <th>Sr No.</th>
+                    <th>Date</th>
+                    <th>Service Name</th>
+                    <th>Service Value</th>
+                    <th>Tax</th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0" id="tableBody">
+                {% for data in invoiceitem %}
+                <tr data-mode="{{ data.payment_mode }}" data-channel="{{ data.invoice.customer.channel }}">
+                    <td>{{ forloop.counter }}</td>
+                    <td><strong>{{ data.invoice.invoice_date }}</strong></td>
+                    <td>{{ data.description }}</td>
+                    <td>{{ data.totalwithouttax }}</td>
+                    <td>
+                        {
+                            "Total": <span class="total-tax" data-cgst="{{ data.cgst_rate_amount }}" data-sgst="{{ data.sgst_rate_amount }}"></span>,
+                            "CGST {{ data.cgst_rate }}%": {{ data.cgst_rate_amount }},
+                            "SGST {{ data.sgst_rate }}%": {{ data.sgst_rate_amount }}
+                        }
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Get all rows with tax data
+        const rows = document.querySelectorAll("#tableBody tr");
+
+        rows.forEach((row) => {
+            // Fetch the CGST and SGST values from the data attributes
+            const cgst = parseFloat(row.querySelector(".total-tax").getAttribute("data-cgst")) || 0;
+            const sgst = parseFloat(row.querySelector(".total-tax").getAttribute("data-sgst")) || 0;
+
+            // Calculate the total
+            const total = (cgst + sgst).toFixed(2);
+
+            // Insert the total value into the span
+            const totalSpan = row.querySelector(".total-tax");
+            totalSpan.textContent = total;
+        });
+    });
+</script>
+
+
+{%endblock%}

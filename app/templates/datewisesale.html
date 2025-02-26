@@ -12,9 +12,9 @@
     
     <div class="col-3 p-2">
         <div class="card p-3">
-            <center><h4 class="pt-2"><b> {{startdate}}</b><br>
-            <i class='bx bx-chevrons-down m-1' style="font-size:30px"></i> <br>
-            <b>{{enddate}}</b></h4></center>
+            <center><h5 class="pt-2 pb-3"><b> {{startdate}}</b><br>
+            <i class='bx bx-chevrons-down m-1' ></i> <br>
+            <b>{{enddate}}</b></h5></center>
             <span class="badge bg-label-success">DATES</span>
         </div>
     </div>
@@ -106,11 +106,11 @@
             </table>
         </div>
         
+        <div class="row">
+    <div class="col-6  mt-4 mb-5">
         
-    <div class="w-100  mt-4 mb-5">
         
-        
-        <h4>Payments</h4>
+        <h4>Payments {Check-In}</h4>
         <div class="card mt-4">
             <table class="table table-bordered" style="background-color: white;">
                 <thead>
@@ -124,7 +124,7 @@
                     {% for mode in mode_summary %}
                     <tr>
                         <td>{{ mode.payment_mode }}</td>
-                        <td>₹{{ mode.total_amount }}</td>
+                        <td>₹{{ mode.total_amount|floatformat:2 }}</td>
                         <td>{{ mode.transaction_count }}</td>
                     </tr>
                     {% endfor %}
@@ -132,14 +132,70 @@
                 <tfoot>
                     <tr style="font-weight: bold; background-color: #f8f9fa;">
                         <td><strong>Total</strong></td>
-                        <td>₹{{ total_amount }}</td>
+                        <td>₹{{ total_amount|floatformat:2 }}</td>
                         <td>{{ total_count }}</td>
                     </tr>
                 </tfoot>
             </table>
         </div>
+    </div>
 
+        <div class="col-6 mt-4 mb-0">
+            Daily Summary <caption class="text-center h3 mb-4">{incl Bookings}</caption>
+            
+            <table class="table table-bordered table-striped ">
+                <thead class="thead-light">
+                    <tr>
+                        <th scope="col"></th>
+                        <th scope="col">{{startdate}} To {{enddate}}</th>
+                    </tr>
+                </thead>
+                <tbody class="thead-white">
+                    <tr>
+                        <td>No. of rooms occupied</td>
+                        <td>{{booksdatacount}}</td>
+                        
+                    </tr>
+                    <tr>
+                        <td>Occupancy</td>
+                        <td>{{Occupancy}} %</td>
+                    </tr>
+                    <tr>
+                        <td>ARR (INR)</td>
+                        <td>{{arr}}</td>
+                    </tr>
+                    
+                </tbody>
+            </table>
+        </div>
+    
 
+    </div>
+    
+        
+    
+        <div class="card mt-5 m-3">
+            <h5 class="m-2">Tax Summary</h5>
+             <table class="table table-bordered" style="background-color: white;">
+                 <thead>
+                     <tr style="font-weight: bold;">
+                         <th>Tax</th>
+                         <th>Total Amount</th>
+                     </tr>
+                 </thead>
+                 <tbody>
+                     {% for data in taxes %}
+                     <tr>
+                         <td>{{ data.tax_rate_name }}</td>
+                         <td>₹ {{ data.total_amount|floatformat:2 }}</td>
+                         
+                     </tr>
+                     {% endfor %}
+                 </tbody>
+             </table>
+         </div>
+
+{% comment %} 
   <div class="row mt-4">
     {%if bookingdata%}
     <h4>Today Recents Bookings</h4>
@@ -175,9 +231,9 @@
 
 
    
-</div>{% endif %}
+</div>{% endif %} {% endcomment %}
 </div>
-
+<div class="row">
 <div class="col-3">
     
     <div class="card  p-1  mb-5">
@@ -205,13 +261,24 @@
           </div>
       
         
-          
-      
+        
       </div>
-</div>
-   
+      
 
-  </div>
+<div class="col-3">
+    <a class="btn btn-primary w-100" href="{% url 'roomsales' %}">Sales Per Invoice</a>
+
+        <a class="btn btn-primary w-100 mt-3" href="{% url 'productssales' %}">Item Consumption Report</a>
+
+        <a class="btn btn-primary w-100 mt-3" href="{% url 'arriwalsrpt' %}"> Arrival Report</a>
+
+        <a class="btn btn-primary w-100 mt-3" href="{% url 'departurerpt' %}"> Departure Report</a>
+
+        <a class="btn btn-primary w-100 mt-3" href="{% url 'rvrpt' %}"> Room Wise Revenue Report</a>
+      
+</div>
+</div>
+
 
       
 

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h5>Accounts / HSN/SAC View</h5>
+<div class="card mt-4">
+    <div class="w-100 mt-4 mb-5">
+        
+        <div class="row w-100 mb-4">
+            
+                <div class="col-2">
+                    <div class="col ms-3">
+                        <label for="nameBackdrop" class="form-label">From Date :</label>
+                        <input type="date" name="startdate" id="nameBackdrop" class="form-control" required value="{{ startdate|date:'Y-m-d' }}" />
+                    </div>
+                </div>
+                <div class="col-2">
+                    <div class="col ms-3">
+                        <label for="nameBackdrop" class="form-label">To Date :</label>
+                        <input type="date" name="enddate" id="nameBackdrop" class="form-control" required value="{{ enddate|date:'Y-m-d' }}" />
+                    </div>
+                </div>
+
+                <div class="col-2"></div>
+                <div class="col-3"></div>
+                
+                <div class="col-2 mt-4">
+                    
+                      
+                </div>
+
+                
+
+                <div class="col-1">
+                    <div class="col  mt-4">
+                       <button class="btn btn-primary" onClick="javascript:history.go(-1);">Back</button>
+                    </div>
+                </div>
+
+            
+            
+        </div>
+
+
+<div class="card mt-5 m-1">
+    <h5 class="m-2"> HSN/SAC View</h5>
+     <table class="table table-bordered W-100" style="background-color: white;">
+         <thead class="bg-dark">
+             <tr style="font-weight: bold;" >
+                 <th class="text-white">HSN/ SAC</th>
+                 <th class="text-white">Description</th>
+                 <th class="text-white">Type of Supply</th>
+                 <th class="text-white">UQC</th>
+                 <th class="text-white">Total Quantity</th>
+                 <th class="text-white">Total Value</th>
+                 <th class="text-white">Tax Rate</th>
+                 <th class="text-white">Taxable Amount</th>
+             </tr>
+         </thead>
+         <tbody>
+             {% for data in hsn_data %}
+             <tr>
+                <td>{{ data.hsncode }}</td>
+                <td>{{ data.hsncode }}</td>
+                <td>Services</td>
+                <td>NA</td>
+                <td >0</td>  
+                <td>{{ data.total_amount|floatformat:2 }}</td>
+                <td >{{ data.total_tax_rate }} %</td>  
+                <td>{{ data.totalwithouttax|floatformat:2 }}</td>
+            </tr>
+             {% endfor %}
+         </tbody>
+     </table>
+ </div>
+
+
+ <script>
+    // Select all rows and calculate GST Total for each row
+    document.addEventListener("DOMContentLoaded", function () {
+        let rows = document.querySelectorAll("tbody tr");
+
+        rows.forEach(row => {
+            let gstAmounts = row.querySelectorAll(".gst-amount");  // Select all GST amounts in row
+            let totalGST = 0;
+
+            gstAmounts.forEach(cell => {
+                totalGST += parseFloat(cell.innerText) || 0;  // Convert text to float and add
+            });
+
+            // Set calculated total in the last column
+            row.querySelector(".gst-total").innerText = totalGST.toFixed(2);
+        });
+    });
+</script>
+{%endblock%}

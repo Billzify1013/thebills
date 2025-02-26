@@ -266,17 +266,54 @@
             {%for data in invoice_data%}
            <div class="row">
             <div class="w-50">
-                {% if data.modeofpayment == "Partly" %}
-                <p class="text ms-3">Payment Mode : {{data.modeofpayment}}</p>
-                <p class="text ms-3">Cash Amount : {{data.cash_amount}}</p>
-                <p class="text ms-3">Online Amount : {{data.online_amount}}</p>
-                {%else%}
-                <p class="text ms-3">Payment Mode : {{data.modeofpayment}}</p>
-                {%endif%}
+                
+
+                <div class="container mt-4 w-100" >
+                    <div class="table-responsive">
+                        Payments
+                        <table class="table table-bordered" style="font-size:15px">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th> Mode</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {%for payment in invcpayments%}
+                                <tr>
+                                    <td>{{payment.payment_date}}
+                                        
+                                    </td>
+                                    <td><span class="text w-50">{{payment.payment_amount}}</span></td>
+                                    <td><span class="text w-50">{{payment.payment_mode}}</span>
+                                    
+                                        {%if payment.transaction_id%}
+                                        <span class="text w-25" style="font-size:12px">D:{{payment.transaction_id}}<br>
+                                            C:{{payment.descriptions}}</span>
+                                        {%endif%}</td>
+                                </tr>
+                                {%endfor%}
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
             <div class="card shadow-none mb-0 w-50 float-end">
                 
-          
+                {%for data in invoice_data%}
+                {%if data.Due_amount == 0 %}
+                {%else%}
+                    <span>Payment Status</span>
+                    <span class="badge bg-label-success me-1 col-2">Paid</span>
+                    <span>Total Paid Amount:₹ <b>{{data.reviced_amount}}</b> </span>
+                    <hr>
+                    <span class="badge bg-label-warning me-1 float-end col-2">Due</span>
+                        <span>Overall Due Amount:₹ <b>{{data.due_amount}}</b> </span>
+                    <hr>
+                    {%endif%}
+                {%endfor%}
                   
                   <li class="list-group-item" style="font-size:13px">
                     <span class="text w-50">Total</span> 
@@ -293,8 +330,10 @@
                                 <span class="text float-end">₹ {{data.sgst_amount}}</span>
                             {%else%}
                             <span class="text w-50">Igst Total</span> 
-                            <span class="text float-end">₹ {{data.gst_amount|add:data.sgst_amount}}</span><br>
-                            
+                            {% comment %} <span class="text float-end">₹ {{data.gst_amount|add:data.sgst_amount}}</span><br> {% endcomment %}
+                            <span id="gstAmount" data-gst="{{ data.gst_amount }}" data-sgst="{{ data.sgst_amount }}" class="text float-end">
+                                <strong id="totalGstAmount"></strong>
+                            </span>
                             {%endif%}
                     {%endfor%}
                   </li> 
@@ -310,6 +349,97 @@
                 
               </div>
             </div>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    // Get GST and SGST values from data attributes
+                    let gstAmount = parseFloat(document.getElementById("gstAmount").getAttribute("data-gst")) || 0;
+                    let sgstAmount = parseFloat(document.getElementById("gstAmount").getAttribute("data-sgst")) || 0;
+                
+                    // Calculate total GST amount
+                    let totalGstAmount = (gstAmount + sgstAmount).toFixed(2); // Keep 2 decimal places
+                
+                    // Update the span with calculated value
+                    document.getElementById("totalGstAmount").innerText = totalGstAmount;
+                });
+                </script>
+
+            
+    <!--tax slab working here-->
+<div class="container mt-2">
+    <div class="table-responsive">
+        <table class="table table-bordered">
+          Tax Descriptions
+            <thead class="thead-light">
+                <tr>
+                    <th>HSN/SAC </th>
+                    {%if taxtype == "GST" %}
+                    <th>CGST</th>
+                    <th>SGST</th>
+                    <th>CGST Amount</th>
+                    <th>SGST Amount</th>
+                    {%else%}
+                    <th>IGST</th>
+                    <th>IGST Amount</th>
+                    {%endif%}
+                    <th> Total Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%for data in purchasehsndata %}
+                <tr>
+                    <td>{{data.tax_hsnsac_name}}
+                        
+                    </td>
+                    {%if data.invoice.taxtype == "GST" %}
+                    <td><span class="text w-50">{{data.cgst}} %</span></td>
+                    <td><span class="text w-50">{{data.sgst}}%</span></td>
+                    <td><span class="text w-50">₹ {{data.sgst_amount}} </span></td>
+                    <td><span class="text w-50">₹ {{data.sgst_amount}}</span></td>
+                    <td><span class="text w-50">₹ {{data.total_amount}}</span></td>
+                    {%else%}
+                    <!-- CGST and SGST Percentage (Hidden) -->
+                    <input type="hidden" class="cgst_value" value="{{ data.cgst }}">
+                    <input type="hidden" class="sgst_value" value="{{ data.sgst }}">
+                    <input type="hidden" class="sgst_amount_value" value="{{ data.sgst_amount }}">
+
+                    <!-- GST % Column (Updated Dynamically) -->
+                    <td><span class="gst_percentage text w-50"></span></td>
+
+                    <!-- Total GST Amount Column (Updated Dynamically) -->
+                    <td><span class="text w-50">₹ <span class="gst_amount"></span></span></td>
+                    <td><span class="text w-50">₹ {{data.total_amount}}</span></td>
+                    {%endif%}
+                </tr>
+                {%endfor%}
+                
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll(".cgst_value").forEach(function(cgstInput, index) {
+            let sgstInput = document.querySelectorAll(".sgst_value")[index];
+            let sgstAmountInput = document.querySelectorAll(".sgst_amount_value")[index];
+    
+            let cgst = parseFloat(cgstInput.value) || 0;
+            let sgst = parseFloat(sgstInput.value) || 0;
+            let sgst_amount = parseFloat(sgstAmountInput.value) || 0;
+    
+            // Calculate total GST percentage
+            let totalGstPercentage = cgst + sgst;
+    
+            // Calculate total GST amount
+            let totalGstAmount = (sgst_amount * 2).toFixed(2); // Multiply by 2 with two decimal places
+    
+            // Update values in HTML
+            document.querySelectorAll(".gst_percentage")[index].innerText = totalGstPercentage + " %";
+            document.querySelectorAll(".gst_amount")[index].innerText = totalGstAmount;
+        });
+    });
+    </script>
 
             <div class="footer" >
                 <img src="{% static 'undercss/assets/img/avatars/inv2.png'%}" style="padding-top:-225px" class="mb-3" width="100%" alt="Footer Image">

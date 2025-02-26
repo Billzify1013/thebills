@@ -1,0 +1,456 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% comment %} 
+<div class="card">
+    <h5 class="card-header">
+        Sales Details<br><br>
+        <span>From: {{ startdate }} TO {{ enddate }}</span>
+    </h5>
+    <div class="table-responsive text-nowrap">
+        <table class="table table-bordered" id="secondInvoiceTable">
+            <thead class="table-light">
+                <tr>
+                    <th>Sr No.</th>
+                    <th>Guest</th>
+                   
+                    <th>Total Amount</th>
+                    <th>Rooms</th>
+                    <th>Service</th>
+                    <th>Check-In Date</th>
+                   
+                    <th>Invoices</th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0" id="tableBody">
+                {% for data in invoicedata %}
+                
+                <tr data-mode="{{ data.payment_mode }}" data-channel="{{ data.invoice.customer.channel }}">
+                    <td>{{forloop.counter}}</td>
+                    <td>  {{ data.customer.guestname }}<br>
+                    C-In:{{data.customer.checkindate}}<br>
+                    C-Out:{{data.customer.checkoutdate}}</td>
+                    <td><strong>{{ data.grand_total_amount }}</strong></td>
+                    <td><ul>
+                        {% for item in data.items.all %}
+                        {%if item.is_room%}
+                        <li>{{ item.description }}, ₹{{ item.total_amount }}</li>
+                        {%endif%}
+                        {% endfor %}</ul>
+                    </td>
+                    <td><ul>
+                        {% for item in data.items.all %}
+                        {% if not item.is_room %}
+                       <li> {{ item.description }}, ₹{{ item.total_amount }}</li>
+                        {%endif%}
+                        {% endfor %}
+                    </ul>
+                    </td>
+                    <td>CheckOut</td>
+                    
+                    <td>
+                        <a class="dropdown-item" href="{% url 'invoicepage' id=data.customer.id %}">
+                            <i class="bx bx-edit-alt me-1"></i>Invoice
+                        </a> 
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div> {% endcomment %}
+
+{% comment %} <div class="card">
+    <h5 class="card-header">
+        Sales Details<br><br>
+        <span>From: {{ startdate }} TO {{ enddate }}</span>
+    </h5>
+
+    <!-- Total Calculation Summary -->
+    <div id="total-summary" class="ms-4">
+        <h5>Total Summary:</h5>
+        <p>Total Amount: ₹<span id="totalAmount">0</span></p>
+        <p>Total Rooms Amount: ₹<span id="roomsTotal">0</span></p>
+        <p>Total Services Amount: ₹<span id="servicesTotal">0</span></p>
+    </div>
+
+    <!-- Print Button -->
+    <div class="mt-3">
+        <button class="btn btn-primary float-end m-2" onclick="printTable()">Print Table</button>
+    </div>
+
+    <div class="table-responsive text-nowrap">
+        <table class="table table-bordered" id="secondInvoiceTable">
+            <thead class="table-light">
+                <tr>
+                    <th>Sr No.</th>
+                    <th>Guest</th>
+                    <th>Total Amount</th>
+                    <th>Rooms</th>
+                    <th>Service</th>
+                    <th>Status</th>
+                    <th>Invoices</th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0" id="tableBody">
+                {% for data in invoicedata %}
+                <tr data-mode="{{ data.payment_mode }}" data-channel="{{ data.invoice.customer.channel }}">
+                    <td>{{forloop.counter}}</td>
+                    <td>  {{ data.customer.guestname }}<br>
+                   <span style="font-size:11px"> C-In:{{data.customer.checkindate}}<br>
+                    C-Out:{{data.customer.checkoutdate}}</span></td>
+                    <td><strong class="total-amount">{{ data.grand_total_amount }}</strong></td>
+                    <td><ul class="room-list">
+                        {% for item in data.items.all %}
+                        {% if item.is_room %}
+                        <li class="room-item " data-amount="{{ item.total_amount }}">{{ item.description }}, ₹{{ item.total_amount }}</li>
+                        {% endif %}
+                        {% endfor %}
+                    </ul></td>
+                    <td><ul class="service-list">
+                        {% for item in data.items.all %}
+                        {% if not item.is_room %}
+                        <li class="service-item" data-amount="{{ item.total_amount }}">{{ item.description }}, ₹{{ item.total_amount }}</li>
+                        {% endif %}
+                        {% endfor %}
+                    </ul></td>
+                    <td>
+                        {% if data.invoice_status %}
+                        Check-Out
+                        {%else%}
+                        Not Check-Out
+                        {%endif%}
+                    </td>
+                    <td>
+                        <a class="dropdown-item" href="{% url 'invoicepage' id=data.customer.id %}">
+                            <i class="bx bx-edit-alt me-1"></i>Invoice
+                        </a> 
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let totalAmount = 0;
+        let roomsTotal = 0;
+        let servicesTotal = 0;
+
+        // Loop through all rows in the table
+        let rows = document.querySelectorAll('#secondInvoiceTable tbody tr');
+        rows.forEach(function(row) {
+            // Calculate the total amount for the entire row
+            let rowTotal = parseFloat(row.querySelector('.total-amount').textContent.replace('₹', '').trim());
+
+            // Add the row total to the overall total amount
+            totalAmount += rowTotal;
+
+            // Calculate rooms total for the current row
+            let roomItems = row.querySelectorAll('.room-item');
+            roomItems.forEach(function(item) {
+                roomsTotal += parseFloat(item.getAttribute('data-amount'));
+            });
+
+            // Calculate services total for the current row
+            let serviceItems = row.querySelectorAll('.service-item');
+            serviceItems.forEach(function(item) {
+                servicesTotal += parseFloat(item.getAttribute('data-amount'));
+            });
+        });
+
+        // Display the calculated totals
+        document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);
+        document.getElementById('roomsTotal').textContent = roomsTotal.toFixed(2);
+        document.getElementById('servicesTotal').textContent = servicesTotal.toFixed(2);
+    });
+
+    // Function to print the table with totals at the top
+    function printTable() {
+        let totalAmount = parseFloat(document.getElementById('totalAmount').textContent);
+        let roomsTotal = parseFloat(document.getElementById('roomsTotal').textContent);
+        let servicesTotal = parseFloat(document.getElementById('servicesTotal').textContent);
+        let startdate = '{{ startdate }}';  // Retrieve the start date from your template context
+        let enddate = '{{ enddate }}';      // Retrieve the end date from your template context
+
+        // Create a new window for printing
+        let printWindow = window.open('', '', 'height=600,width=800');
+
+        // Write the contents of the table and style to the new window
+        printWindow.document.write('<html><head><title>Print Table</title>');
+        printWindow.document.write('<style>');
+        printWindow.document.write('table { width: 100%; border-collapse: collapse; }');
+        printWindow.document.write('th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }');
+        printWindow.document.write('.table-light { background-color: #f8f9fa; }');
+        printWindow.document.write('</style>');
+        printWindow.document.write('</head><body>');
+        
+        // Print the Payment Summary at the top
+        printWindow.document.write('<h3>Total Summary:</h3>');
+        printWindow.document.write('<p><strong>Total Amount:</strong> ₹' + totalAmount.toFixed(2) + '</p>');
+        printWindow.document.write('<p><strong>Total Rooms Amount:</strong> ₹' + roomsTotal.toFixed(2) + '</p>');
+        printWindow.document.write('<p><strong>Total Services Amount:</strong> ₹' + servicesTotal.toFixed(2) + '</p>');
+        
+        // Print the Date Range
+        printWindow.document.write('<p><strong>Date Range:</strong> From: ' + startdate + ' TO ' + enddate + '</p>');
+        
+        // Now print the table
+        printWindow.document.write('<h1>Sales Details</h1>');
+        printWindow.document.write('<table class="table table-bordered" id="secondInvoiceTable">');
+        printWindow.document.write(document.getElementById('secondInvoiceTable').outerHTML);
+        printWindow.document.write('</table>');
+        
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+
+        // Wait for the content to load and then trigger the print
+        printWindow.onload = function() {
+            printWindow.print();
+        };
+    }
+</script> {% endcomment %}
+
+<div class="row mb-3">
+    <div class="col-9">
+        <a class="btn btn-warning text-white" onClick="javascript:history.go(-1);">Back</a>
+    </div>
+
+    
+
+    <div class="col-3 float-end">
+        <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#backDropModal">
+            <i class='bx bx-search-alt-2'></i> Search By Dates
+        </button>
+    </div>
+</div>
+
+<div class="card">
+    <h5 class="card-header">
+       Invoice/Folio Sales Details<br><br>
+        <span>From: {{ startdate }} TO {{ enddate }}</span>
+    </h5>
+
+    <!-- Total Calculation Summary -->
+    <div id="total-summary" class="ms-4">
+        <h5>Total Summary:</h5>
+        <p>Total Amount: ₹<span id="totalAmount">0</span></p>
+        <p>Total Rooms Amount: ₹<span id="roomsTotal">0</span></p>
+        <p>Total Services Amount: ₹<span id="servicesTotal">0</span></p>
+    </div>
+
+    <!-- Print Button -->
+    <div class="mt-3">
+        <button class="btn btn-primary float-end m-2" onclick="printTable()">Print Table</button>
+    </div>
+
+    <div class="table-responsive text-nowrap">
+        <table class="table table-bordered" id="secondInvoiceTable">
+            <thead class="table-light">
+                <tr>
+                    <th>Sr No.</th>
+                    <th>Guest</th>
+                    <th>Total Amount</th>
+                    <th style="width:220px">Rooms</th>
+                    <th>Service</th>
+                    <th>Status</th>
+                    <th>Invoices</th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0" id="tableBody">
+                {% for data in invoicedata %}
+                <tr data-mode="{{ data.payment_mode }}" data-channel="{{ data.invoice.customer.channel }}">
+                    <td>{{ forloop.counter }} </td>
+                    <td>  {{ data.customer.guestname }}<br>
+                        <span style="font-size:11px">C-In: {{ data.customer.checkindate }}<br>
+                        C-Out: {{ data.customer.checkoutdate }}</span></td>
+                    <td><strong class="total-amount">{{ data.grand_total_amount }}</strong></td>
+                    <td><ul class="room-list">
+                        {% for item in data.items.all %}
+                        {% if item.is_room %}
+                        <li class="room-item " data-amount="{{ item.total_amount }}">[ {{ item.description }}, ₹{{ item.total_amount }} ]</li>
+                        {% endif %}
+                        {% endfor %}
+                    </ul></td>
+                    <td><ul class="service-list">
+                        {% for item in data.items.all %}
+                        {% if not item.is_room %}
+                        <li class="service-item" data-amount="{{ item.total_amount }}">[ {{ item.description }}, ₹{{ item.total_amount }} ]</li>
+                        {% endif %}
+                        {% endfor %}
+                    </ul></td>
+                    <td>
+                        {% if data.customer.checkoutdone %}
+                        Check-Out
+                        {% else %}
+                        Not Check-Out
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a class="dropdown-item" href="{% url 'invoicepage' id=data.customer.id %}">
+                            <i class="bx bx-edit-alt me-1"></i>Invoice
+                        </a> 
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let totalAmount = 0;
+        let roomsTotal = 0;
+        let servicesTotal = 0;
+
+        // Loop through all rows in the table
+        let rows = document.querySelectorAll('#secondInvoiceTable tbody tr');
+        rows.forEach(function(row) {
+            // Calculate the total amount for the entire row
+            let rowTotal = parseFloat(row.querySelector('.total-amount').textContent.replace('₹', '').trim());
+
+            // Add the row total to the overall total amount
+            totalAmount += rowTotal;
+
+            // Calculate rooms total for the current row
+            let roomItems = row.querySelectorAll('.room-item');
+            roomItems.forEach(function(item) {
+                roomsTotal += parseFloat(item.getAttribute('data-amount'));
+            });
+
+            // Calculate services total for the current row
+            let serviceItems = row.querySelectorAll('.service-item');
+            serviceItems.forEach(function(item) {
+                servicesTotal += parseFloat(item.getAttribute('data-amount'));
+            });
+        });
+
+        // Display the calculated totals
+        document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);
+        document.getElementById('roomsTotal').textContent = roomsTotal.toFixed(2);
+        document.getElementById('servicesTotal').textContent = servicesTotal.toFixed(2);
+    });
+
+    // Function to print the table with totals at the top
+    function printTable() {
+        let totalAmount = parseFloat(document.getElementById('totalAmount').textContent);
+        let roomsTotal = parseFloat(document.getElementById('roomsTotal').textContent);
+        let servicesTotal = parseFloat(document.getElementById('servicesTotal').textContent);
+        let startdate = '{{ startdate }}';  // Retrieve the start date from your template context
+        let enddate = '{{ enddate }}';      // Retrieve the end date from your template context
+
+        // Create a new window for printing
+        let printWindow = window.open('', '', 'height=600,width=800');
+
+        // Write the contents of the table and style to the new window
+        printWindow.document.write('<html><head><title>Print Table</title>');
+        printWindow.document.write('<style>');
+        printWindow.document.write('table { width: 100%; border-collapse: collapse; }');
+        printWindow.document.write('th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }');
+        printWindow.document.write('.table-light { background-color: #f8f9fa; }');
+        printWindow.document.write('</style>');
+        printWindow.document.write('</head><body>');
+        
+        // Print the Payment Summary at the top
+        printWindow.document.write('<h3>Total Summary:</h3>');
+        printWindow.document.write('<p><strong>Total Amount:</strong> ₹' + totalAmount.toFixed(2) + '</p>');
+        printWindow.document.write('<p><strong>Total Rooms Amount:</strong> ₹' + roomsTotal.toFixed(2) + '</p>');
+        printWindow.document.write('<p><strong>Total Services Amount:</strong> ₹' + servicesTotal.toFixed(2) + '</p>');
+        
+        // Print the Date Range
+        printWindow.document.write('<p><strong>Date Range:</strong> From: ' + startdate + ' TO ' + enddate + '</p>');
+        
+        // Now print the table without the last column (Invoices)
+        printWindow.document.write('<h1>Invoice/Folio Sales Details</h1>');
+        printWindow.document.write('<table class="table table-bordered" id="secondInvoiceTable">');
+        printWindow.document.write('<thead class="table-light"><tr>');
+        printWindow.document.write('<th>Sr No.</th><th>Guest</th><th>Total Amount</th><th>Rooms</th><th>Service</th><th>Status</th>');
+        printWindow.document.write('</tr></thead><tbody>');
+        rows = document.querySelectorAll('#secondInvoiceTable tbody tr');
+        rows.forEach(function(row) {
+            printWindow.document.write('<tr>');
+            let cells = row.querySelectorAll('td:not(:last-child)'); // Exclude the last column
+            cells.forEach(function(cell) {
+                printWindow.document.write('<td>' + cell.innerHTML + '</td>');
+            });
+            printWindow.document.write('</tr>');
+        });
+        printWindow.document.write('</tbody></table>');
+
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+
+        // Wait for the content to load and then trigger the print
+        printWindow.onload = function() {
+            printWindow.print();
+        };
+    }
+</script>
+
+
+ <!-- Modal add rooms -->
+ <div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'salestablesearch'  %}" method="POST" class="modal-content">
+            {% csrf_token %}
+       
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Search Data</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Start Date</label>
+              <input
+                type="date"
+                name="startdate"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter RoomName"
+                required
+              />
+            </div>
+
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">End Date</label>
+                <input
+                  type="date"
+                  name="enddate"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Enter RoomName"
+                  required
+                />
+              </div>
+
+            
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+{%endblock%}

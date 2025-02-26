@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h6 class="ms-2">Account / GSTR-1</h6>
+    <style>
+        /* Ensure table fits within the screen */
+        .table-container {
+            width: 100%;
+            overflow-x: auto; /* Prevents horizontal scroll */
+            max-width: 100vw; /* Ensures it doesn't exceed screen width */
+        }
+    
+        /* Table formatting */
+        table {
+            width: 100%;
+            font-size: 14px; /* Smaller font for better fit */
+            border-collapse: collapse;
+            table-layout: fixed; /* Prevents auto-expansion */
+        }
+    
+        th, td {
+            padding: 4px; /* Reduced padding */
+            text-align: left;
+            border: 1px solid #ddd;
+            word-wrap: break-word; /* Ensures text stays inside cell */
+        }
+    
+        /* Adjust column widths */
+        th:nth-child(2), td:nth-child(2) {
+            width: 18%; /* Wider "Particular" column */
+        }
+        th:nth-child(1), td:nth-child(1) {
+            width: 4%; /* Smaller "Sl." column */
+        }
+    
+        /* Styling for Total Row */
+        tfoot tr {
+            background-color: #f1f1f1; /* Light gray background */
+            font-weight: bold;
+        }
+    </style>
+    
+    <div class="card mt-4">
+        <div class="w-100 mt-4 mb-5">
+            <form action="{% url 'gstr1' %}" method="post">
+                {% csrf_token %}
+            <div class="row w-100 mb-4">
+                
+                    <div class="col-2">
+                        <div class="col ms-3">
+                            <label for="nameBackdrop" class="form-label">From Date :</label>
+                            <input type="date" name="startdate" id="nameBackdrop" onclick="showdateinput()" class="form-control" required value="{{ startdate|date:'Y-m-d' }}" />
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <div class="col ms-3">
+                            <label for="nameBackdrop" class="form-label">To Date :</label>
+                            <input type="date" name="enddate" id="nameBackdrop" onclick="showdateinput()" class="form-control" required value="{{ enddate|date:'Y-m-d' }}" />
+                        </div>
+                    </div>
+                    <div class="col-3 mt-4">
+                        <button class="btn btn-primary" style="display:none" id="changebuton"><i class='bx bx-search-alt-2'></i> Change Date</button></div>
+                    <script>
+                        function showdateinput() {
+                            document.getElementById('changebuton').style.display="block";
+                        }
+                    </script>
+                
+
+                    <div class="col-1 mt-4">
+                        
+                       
+                    </div></form>
+                    <div class="col-3 mt-3">
+                            <form class="mt-2" id="downloadGSTR1Excel" action="{% url 'generate_gstr1_mix_invoice_excel' %}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" value="{{ startdate|date:'Y-m-d' }}" name="startdate" />
+                                <input type="hidden" value="{{ enddate|date:'Y-m-d' }}" name="enddate" />
+                                <a href="#" id="downloadBtn" class="btn btn-primary text-white mb-0 w-100">
+                                    Download Excel
+                                </a>
+                            </form>
+                            
+                            <script>
+                                document.getElementById("downloadBtn").addEventListener("click", function(event) {
+                                    event.preventDefault(); // Default action ko rokna
+                                    document.getElementById("downloadGSTR1Excel").submit(); // Form submit karna
+                                });
+                            </script>
+                            
+                    </div>
+
+                    
+
+                    <div class="col-1">
+                        <div class="col  mt-4">
+                           <a class="btn btn-primary text-white" onClick="javascript:history.go(-1);">Back</a>
+                        </div>
+                    </div>
+
+               
+                
+            </div> 
+    
+            <!-- ✅ Table inside container without scroll -->
+            <div class="table-container">
+                <table class="table table-bordered" style="background-color: white;">
+                    <thead class="bg-dark">
+                        <tr>
+                            <th class="text-white">Sl.</th>
+                            <th class="text-white">Particular</th>
+                            <th class="text-white" style="font-size:11px;padding:10px">Voucher Count</th>
+                            <th class="text-white" style="font-size:11px;padding:10px">Taxable Amount</th>
+                            <th class="text-white" style="font-size:11px;padding:9px">Integrated Tax Amount</th>
+                            <th class="text-white" style="font-size:11px;padding:9px">Central Tax Amount</th>
+                            <th class="text-white" style="font-size:11px;padding:9px">State Tax Amount</th>
+                            <th class="text-white">Cess Amount</th>
+                            <th class="text-white">Tax Amount</th>
+                            <th class="text-white">Invoice Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1</td>
+                            <td><form class="mt-2" id="b2bInvoiceForm" action="{% url 'b2bInvoicedetails' %}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" value="{{ startdate|date:'Y-m-d' }}" name="startdate" />
+                                <input type="hidden" value="{{ enddate|date:'Y-m-d' }}" name="enddate" />
+                                <a href="#" onclick="document.getElementById('b2bInvoiceForm').submit(); return false;" class=" mb-0">
+                                B2B Invoices - 4A, 4B, 4C, 6B, 6C</a>
+                            </form>
+                            </td>
+                        <td>{{b2bCount}}</td><td>{{ taxable_total_amount|floatformat:2 }}</td><td>0.00</td><td>{{CGST_total_amount|floatformat:2}}</td><td>{{CGST_total_amount|floatformat:2}}</td><td>0</td><td>{{totaltaxamount|floatformat:2}} </td><td>{{Invoiceamount|floatformat:2}}</td></tr>
+                        <tr><td>2</td><td>B2C(Large) Invoices - 5A, 5B</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                        <tr><td>3</td><td>
+                            <form class="mt-2" id="b2cInvoiceForm" action="{% url 'b2cInvoicetaxdetails' %}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" value="{{ startdate|date:'Y-m-d' }}" name="startdate" />
+                                <input type="hidden" value="{{ enddate|date:'Y-m-d' }}" name="enddate" />
+                                <a href="#" onclick="document.getElementById('b2cInvoiceForm').submit(); return false;" class=" mb-0">
+                            B2C(Small) Invoices - 7</a>
+                                </form>
+                        </td><td>{{b2cCount}}</td><td>{{b2ctaxable_total_amount|floatformat:2}}</td><td>0.00</td><td>{{b2cCGST_total_amount|floatformat:2}}</td><td>{{b2cCGST_total_amount|floatformat:2}}</td><td>0</td><td>{{b2ctotaltaxamount|floatformat:2}}</td><td>{{b2cInvoiceamount|floatformat:2}}</td></tr>
+                        <tr><td>4</td><td>Credit/Debit Notes(Registered) - 9B</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                        <tr><td>5</td><td>Credit/Debit Notes(Unregistered) - 9B</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                        <tr><td>6</td><td>Export Invoices - 6A</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                        <tr><td>7</td><td>Tax Liability(Advances Received) - 11A(1) 11A(2)</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                        <tr><td>8</td><td>Adjustment of Advances: 11B(1) 11B(2)</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                        <tr><td>9</td><td>
+                            <form class="mt-2" id="nillratedform" action="{% url 'nillratedforms' %}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" value="{{ startdate|date:'Y-m-d' }}" name="startdate" />
+                                <input type="hidden" value="{{ enddate|date:'Y-m-d' }}" name="enddate" />
+                                <a href="#" onclick="document.getElementById('nillratedform').submit(); return false;" class=" mb-0">
+                              
+                            Nill Rated Invoices - 8A, 8B, 8C, 8D
+                                </form>
+                        </td><td></td><td>{{nillrateamount|floatformat:2}}</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td></td>
+                            <td><strong>Total</strong></td>
+                            <td>{{totalvouchercount}}</td>
+                            <td>{{totaltaxableamount|floatformat:2}}</td>
+                            <td>0.00</td>
+                            <td>{{cgsttotalboth|floatformat:2}}</td>
+                            <td>{{cgsttotalboth|floatformat:2}}</td>
+                            <td>0</td>
+                            <td>{{totaltaxamountboth|floatformat:2}}</td>
+                            <td>{{totalinvoiceamounts|floatformat:2}}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+                <div class="m-3 ms-5">
+                    <form class="mt-2" id="hsnsummry" action="{% url 'hsnsummry' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" value="{{ startdate|date:'Y-m-d' }}" name="startdate" />
+                        <input type="hidden" value="{{ enddate|date:'Y-m-d' }}" name="enddate" />
+                        <a href="#" onclick="document.getElementById('hsnsummry').submit(); return false;" class=" mb-0">
+                      HSN/SAC Summary
+                        </form>
+                    <br><br>
+
+                    <form class="mt-2" id="documentsummry" action="{% url 'documentsummry' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" value="{{ startdate|date:'Y-m-d' }}" name="startdate" />
+                        <input type="hidden" value="{{ enddate|date:'Y-m-d' }}" name="enddate" />
+                        <a href="#" onclick="document.getElementById('documentsummry').submit(); return false;" class=" mb-0">
+                     	Document Summary
+                    </a></form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+{%endblock%}

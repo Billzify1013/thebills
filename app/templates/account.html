@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<h6>Account/Taxes</h6>
+
+
+<div class="row">
+    <div class="col-3">
+        <a class="btn btn-primary w-100 text-white" >Taxes</a>
+    </div>
+    <div class="col-3">
+        <a class="btn btn-outline-primary w-100" href="{% url 'creditmanage' %}"><i class='bx bx-exit'></i> Receivables</a>
+    </div>
+    <div class="col-3">
+        <a class="btn btn-outline-primary w-100" href="{% url 'payble' %}"><i class='bx bx-link-external'></i> Payables</a>
+    </div>
+    {% comment %} <div class="col-3">
+        <button class="btn btn-outline-primary w-100" data-bs-toggle="modal"
+        data-bs-target="#cashoutmodel"><i class='bx bx-log-out-circle'></i> Reconciliation </button>
+    </div> {% endcomment %}
+
+</div>
+
+
+
+<div class="card mt-4">
+
+<div class="w-100  mt-4 mb-5">
+        <h5 class="ms-2">Taxes</h5>
+       <div class="row w-100 ">
+            <form action="{% url 'searchtaxesaccount' %}" method="post" class="d-flex align-items-end w-100 flex-wrap">
+                {% csrf_token %}
+            <div class="col-2">
+                <div class="col ms-3">
+                    <label for="nameBackdrop" class="form-label">From Date :</label>
+                    <input
+                      type="date"
+                      name="startdate"
+                      id="nameBackdrop"
+                      class="form-control"
+                      placeholder="Enter RoomName"
+                      required
+                      value="{{ startdate|date:"Y-m-d" }}"
+                    />
+                  </div>
+            </div>
+            <div class="col-2">
+                <div class="col ms-3">
+                    <label for="nameBackdrop" class="form-label">To Date :</label>
+                    <input
+                      type="date"
+                      name="enddate"
+                      id="nameBackdrop"
+                      class="form-control"
+                      placeholder="Enter RoomName"
+                      value="{{ enddate|date:"Y-m-d" }}"
+                      required
+                    />
+                  </div>
+            </div>
+            <div class="col-2">
+                <div class="col ms-3">
+                    <label for="nameBackdrop" class="form-label">Type</label>
+                    <select  class="form-control" name="Type">
+                        <option value='{{Type}}'>{{Type}}</option>
+                        {%if Type == 'Sales' %}
+                        {%else%}
+                        <option value='Sales'>Sales</option>
+                        {%endif%}
+
+                        {%if Type == 'Purchase' %}
+                        {%else%}
+                        <option value='Purchase'>Purchase</option>
+                        {%endif%}
+                        
+                    </select>
+                    
+                  </div>
+            </div>
+
+            <div class="col-2 ms-3">
+                <button class="btn btn-primary mt-4">Generate</button>
+            </div>
+
+            </form>
+
+            
+
+            
+
+        </div> 
+        {%if Type == 'Sales' %}
+       <div style="display:none"> <form action="{% url 'gstr1' %}" method="post">
+        {% csrf_token %}
+        <input
+                      type="date"
+                      name="startdate"
+                      id="nameBackdrop"
+                      class="form-control"
+                      placeholder="Enter RoomName"
+                      required
+                      value="{{ startdate|date:"Y-m-d" }}"
+                    />
+                  
+
+
+                  <input
+                  type="date"
+                  name="enddate"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Enter RoomName"
+                  required
+                  value="{{ enddate|date:"Y-m-d" }}"
+                />
+             
+            </div>
+
+        <div class="col-2 float-end">
+            <button type="submit" class="btn text-white btn-primary mt-5 float-end me-2">GSTR1</button>
+        </div>
+    </form>
+
+    {%endif%}
+
+
+    {%if Type == 'Sales' %}
+        <div class="card mt-5 m-3">
+           <h5 class="m-2"> Type: {{Type}}</h5>
+            <table class="table table-bordered" style="background-color: white;">
+                <thead>
+                    <tr style="font-weight: bold;">
+                        <th>Tax</th>
+                        <th>Total Amount</th>
+                        <th>View</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in taxes %}
+                    <tr>
+                        <td>{{ data.tax_rate_name }}</td>
+                        <td>₹ {{ data.total_amount|floatformat:2 }}</td>
+                        <td>
+                            <form action="{% url 'searchtaxslabvidget' %}" method="post">
+                                {% csrf_token %}
+                                <div style="Display:none">
+                                <input type="text" name="type" value="{{Type}}" >
+                                <input type="date" name="startdate" value="{{ startdate|date:"Y-m-d" }}">
+                                <input type="date" name="enddate" value="{{ enddate|date:"Y-m-d" }}">
+                                <input type="number" name="taxrate" value="{{data.cgst}}" >
+                                </div>
+                            <button type="submit" class="dropdown-item" >
+                                View Ledger 
+                            </button> 
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {%else%}
+        <div style="display:none"><form action="{% url 'generate_form_purchesinvoice_excel' %}" method="post">
+            {% csrf_token %}
+            <input
+                          type="date"
+                          name="startdate"
+                          id="nameBackdrop"
+                          class="form-control"
+                          placeholder="Enter RoomName"
+                          required
+                          value="{{ startdate|date:"Y-m-d" }}"
+                        />
+                      
+    
+    
+                      <input
+                      type="date"
+                      name="enddate"
+                      id="nameBackdrop"
+                      class="form-control"
+                      placeholder="Enter RoomName"
+                      required
+                      value="{{ enddate|date:"Y-m-d" }}"
+                    />
+                 
+                </div>
+    
+            <div class="col-4 float-end">
+                <button type="submit" class="btn text-white btn-primary mt-5 float-end me-2">Donwload Purchase Excel</button>
+            </div>
+        </form>
+        {%endif%}
+
+</div>
+
+
+
+{%endblock%}

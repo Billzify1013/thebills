@@ -229,7 +229,7 @@
                   
                   </form>
                   <hr class="mt-0 mb-0">
-                  <a class="btn dropdown-item " href="{% url 'guestregform' id=data.customer.id %}"><i class='bx bx-id-card mb-1'></i> Regstratrion Form</a>
+                  <a class="btn dropdown-item " href="{% url 'guestregform' id=data.customer.id %}"><i class='bx bx-id-card mb-1'></i> Registration Form</a>
                   <hr class="mt-0 mb-0">
                   <a class="btn dropdown-item " href="{% url 'changeroompage' id=data.id %}"><i class='bx bx-exclude'></i> Change Room</a>
                   <hr class="mt-0 mb-0">
@@ -247,13 +247,19 @@
 
                   <a class="btn dropdown-item" href="#"  data-bs-toggle="modal"
                   data-bs-target="#basicModalextends">
-                  <i class='bx bxs-skip-next-circle'></i> Extend Check-In
+                  <i class='bx bxs-skip-next-circle'></i> Extend All Room Check-In
                   </a><hr class="mt-0 mb-0">
 
                   <a class="btn dropdown-item" href="#"  data-bs-toggle="modal"
                   data-bs-target="#basicModalecheckout">
                  <i class='bx bxs-exit' ></i> Check-Out Single Room  
                   </a>
+                  <hr class="mt-0 mb-0">
+                  <a class="btn dropdown-item " href="{% url 'proformainvoice' id=data.customer.id %}"><i class='bx bx-id-card mb-1'></i> Pro Forma Invoice</a>
+                  <hr class="mt-0 mb-0">
+                  <a class="btn dropdown-item " href="{% url 'guest_logs' id=data.customer.id %}"><i class='bx bxl-blogger'></i> logs</a>
+                  
+                  
                   {%endfor%}
                 
                </div>
@@ -287,8 +293,14 @@
                     
                 <p>Check-In Date : {{data.customer.checkindate}}</p>
                 <p>Check-Out Date: {{data.customer.checkoutdate}} <span style="font-size:10px">Checkout time not update please check it</span></p>
+                
+                {%if data.customer.extend%}
+                <p class="text-warning">Room Extend</p>
+                <p>{{data.customer.extend_decription}}</p>
+                {%endif%}
                 {%if data.customer_gst_number%}
                 <p>gstin: {{data.customer_gst_number}}</p>
+                <p>Company: {{data.customer_company}}</p>
                 {%endif%}
                 </div>
                 {%endfor%}
@@ -301,94 +313,14 @@
            
             <div class="invoice-items" >
                 <div class="table-responsive text-nowrap" >
-                    {% comment %} <table class="table " >
-                      <thead class="table-light">
-                            <tr>
-                                <th>Services</th>
-                                {%for data in invoice_data%}
-                                {%if data.taxtype == 'GST'%}
-                                <th>Cgst</th>
-                                <th>Sgst</th>
-                                {%else%}
-                                <th>Igst</th>
-                                {%endif%}
-                                {%endfor%}
-                                <th>HSN/SAC</th>
-                                <th>Price</th>
-                                <th>Qty/Day</th>
-                                <th>Total<br>(incl/Qty,tax,discount)
-                                </th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {%for iteams in invoiceitemdata%}
-                            <tr >
-                                
-                                <td style="font-size:18px">
-                                    
-                                    {{iteams.description}}<br>
-                                    <p style="font-size:12px">{{iteams.mdescription}}</p></td>
-                                {%for data in invoice_data%}
-                                {%if data.taxtype == 'GST'%}
-                                <td style="font-size:18px">{{iteams.sgst_rate}} %  </td>
-                                <td style="font-size:18px">{{iteams.sgst_rate}} %  </td>
-                                {%else%}
-                                    {% if iteams.sgst_rate == 2.50 %}
-                                    <td style="font-size:18px"> 5% </td>
-                                    {%else%}
-                                    <td style="font-size:18px">{{iteams.sgst_rate|add:iteams.sgst_rate}}% </td>
-                                    {%endif%}    
-                                {%endif%}
-                                {%endfor%}
-                                <td style="font-size:18px">{{iteams.hsncode}}</td>
-                                <td style="font-size:18px">{{iteams.price}}</td>
-                                <td style="font-size:18px">{{iteams.quantity_likedays}}</td>
-                                <td style="font-size:18px">{{iteams.total_amount}}</td>
-                                <td >
-                                    
-                                    {% if  iteams.is_room == False %}
-                                    <form action="{% url 'deleteitemstofolio' %}" method="post" style="float:left">
-                                        {% csrf_token %}
-                                        {%for data in invoice_data%}
-                                        <input type="hidden" name="invoiceid" value="{{data.id}}" />
-                                        {%endfor%}
-                                        <input type="hidden" name="invoiceitemsid" value="{{iteams.id}}" />
-                                    <button class="btn" type="submit"><span class="badge bg-label-danger  "><i class='bx bxs-trash'></i></span></button>
-                                    </form>
-                                    {%endif%}
-                                    
-                                    {% if  iteams.is_checkout == True %}
-                                    <span class="badge bg-label-success"><i class='bx bxs-check-shield'></i> Check-Out</span>
-                                    {%endif%}
-                                
-                                  <!-- KOT Button -->
-                           <!-- KOT Button -->
-                <button class="btn kot-btn" type="button" data-bs-toggle="modal" 
-                data-bs-target="#kotModal" 
-                data-description="{{ iteams.description }}" 
-                data-mdescription="{{ iteams.mdescription }}"
-                data-hsncode="{{ iteams.hsncode }}"
-                data-price="{{ iteams.price }}"
-
-                 data-tax="{% if iteams.sgst_rate|add:iteams.sgst_rate == 4 %} 5 {% else %} {{ iteams.sgst_rate|add:iteams.sgst_rate }} {% endif %}" 
-   
-                data-quantity="{{ iteams.quantity_likedays }}"
-                data-total="{{ iteams.total_amount }}">
-            <span class="badge bg-label-info"><i class='bx bx-printer'></i> KOT</span>
-        </button>
-                                </td>
-                               
-                            </tr>
-                            {%endfor%}
-                        </tbody>
-                    </table> {% endcomment %}
+                   
                     <div class="cool-3 float-end">
                       <!-- Filter Dropdown -->
                       <select class="form-control" name="invoiceitemid" required>
                         <option value="">Apply Filters</option>
                         <option id="showCheckedOutBtn">Show Checked-Out</option>
                         <option id="showCheckedInBtn">Show Checked-In</option>
+                        <option id="showCheckOut">Show ExtendRoom-In</option>
                         <option id="clearFilterBtn">Clear Filter</option>
                       </select>
                     </div>
@@ -396,6 +328,7 @@
                     <table class="table">
                       <thead class="table-light">
                         <tr>
+                          <th style="width: 5px !important;">SR.</th>
                           <th>Services</th>
                           {% for data in invoice_data %}
                             {% if data.taxtype == 'GST' %}
@@ -414,7 +347,9 @@
                       </thead>
                       <tbody id="invoiceItemsList">
                         {% for iteams in invoiceitemdata %}
-                          <tr class="invoice-item {% if iteams.is_checkout == True %} checked-out {% else %} not-checked-out {% endif %} {% if iteams.is_room == False %} not-room-item {% else %} is-room-item {% endif %}">
+                          <tr class="invoice-item {% if iteams.is_checkout == True %} checked-out {% else %} not-checked-out {% endif %} {% if iteams.is_room == False %} not-room-item {% else %} is-room-item {% endif %}  {% if iteams.is_extend == False %} not-room-item {% else %} is-extendroom-item {% endif %}">
+                            
+                            <td >{{forloop.counter}}</td>
                             <td style="font-size:18px">
                               {{ iteams.description }}<br>
                               <p style="font-size:12px">{{ iteams.mdescription }}</p>
@@ -436,21 +371,53 @@
                             <td style="font-size:18px">{{ iteams.quantity_likedays }}</td>
                             <td style="font-size:18px">{{ iteams.total_amount }}</td>
                             <td>
-                              {% if iteams.is_room == False %}
-                                <form action="{% url 'deleteitemstofolio' %}" method="post" style="float:left">
-                                  {% csrf_token %}
-                                  {% for data in invoice_data %}
+                              {% if iteams.is_room == False and iteams.mdescription != 'Extra Charges' %}
+                             
+
+                                  <div class="dropdown">
+                                    <button
+                                      class="btn "
+                                      type="button"
+                                      id="cardOpt6"
+                                      data-bs-toggle="dropdown"
+                                      aria-haspopup="true"
+                                      aria-expanded="false"
+                                    >
+                                    <span class="badge bg-label-danger"><i class='bx bxs-trash'></i></span>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt6">
+                                      <form action="{% url 'deleteitemstofolio' %}" method="post" style="float:left">
+                                      {% csrf_token %}
+                                        <div>
+                                        {% for data in invoice_data %}
                                     <input type="hidden" name="invoiceid" value="{{ data.id }}" />
                                   {% endfor %}
                                   <input type="hidden" name="invoiceitemsid" value="{{ iteams.id }}" />
-                                  <button class="btn" type="submit">
-                                    <span class="badge bg-label-danger"><i class='bx bxs-trash'></i></span>
-                                  </button>
-                                </form>
+                                        <span class="p-2">Item Quantity</span>
+                                      <input type="number" name="qty" value={{ iteams.quantity_likedays }} required  class="form-control mt-2 ms-2 w-75" /></div>
+                                      <button type="submit" class="btn btn-primary w-75 m-2">delete</button>
+                                    </div>
+                                  </form>
+                                  </div>
+                                {% comment %} </form> {% endcomment %}
                               {% endif %}
                               {% if iteams.is_checkout == True %}
                                 <span class="badge bg-label-success"><i class='bx bxs-check-shield'></i> Check-Out</span>
                               {% endif %}
+
+                              {% if iteams.is_extend == True %}
+                                <span class="badge bg-label-warning"><i class='bx bxs-check-shield'></i> Extend Room</span>
+                              {% endif %}
+
+                              {% if iteams.is_room == True and iteams.is_extend == False %}
+                              <button class="btn kot-btn" type="button" data-bs-toggle="modal" 
+                              data-bs-target="#basicModalextendsitem" 
+                              onclick="setidanddate('{{iteams.id}}','{{iteams.checkout_date}}')"
+                              >
+                            <span class="badge bg-label-info"> Extend</span>
+                          </button>
+
+                              {%endif%}
                               <!-- KOT Button -->
                               <button class="btn kot-btn" type="button" data-bs-toggle="modal" 
                                       data-bs-target="#kotModal" 
@@ -482,7 +449,7 @@
                         items.forEach(function(item) {
                           // By default show all items
                           item.style.display = 'table-row'; 
-                    
+                          
                           // Apply filter based on the selected value
                           if (filterValue == 'Show Checked-Out' && !item.classList.contains('checked-out')) {
                             item.style.display = 'none';  // Hide non-checked-out items
@@ -490,6 +457,8 @@
                             item.style.display = 'none';  // Hide checked-out and non-room items
                           } else if (filterValue == 'Clear Filter' && item) {
                             item.style.display = 'table-row';  // Show all items again
+                          }else if (filterValue == 'Show ExtendRoom-In' && (item.classList.contains('extend-out') || !item.classList.contains('is-extendroom-item'))) {
+                            item.style.display = 'none';  // Hide checked-out and non-room items
                           }
                         });
                       });
@@ -533,7 +502,12 @@
                                             <td>{{payment.payment_date}}
                                                 
                                             </td>
-                                            <td><span class="text w-50">{{payment.payment_amount}}</span></td>
+                                            <td><span class="text w-50">
+                                              <a class="btn w-100 m-2"    data-bs-toggle="modal"
+                        data-bs-target="#editpaymnent" onClick="setpaymentedit('{{payment.id}}','{{payment.payment_amount}}','{{payment.payment_mode}}','{{payment.transaction_id}}','{{payment.descriptions}}')">
+                        {{payment.payment_amount}}
+                                                </a>
+                                            </span></td>
                                             <td><span class="text w-50">{{payment.payment_mode}}</span>
                                             
                                                 {%if payment.transaction_id%}
@@ -549,6 +523,8 @@
                                 </table>
                             </div>
                         </div>
+
+                       
                         
                     </div> 
 
@@ -601,6 +577,41 @@
                     <span class="mt-2 mb-2 text " style="font-size:9px"><i class='bx bxs-info-circle'></i>Rooms have discount, so their tax calculation are done after applying the discount.</span>
                 
                 </div>
+
+
+                 <!--tax slab working here-->
+                 <div class="container mt-2">
+                  <div class="table-responsive">
+                      <table class="table table-bordered">
+                        Tax Descriptions
+                          <thead class="thead-light">
+                              <tr>
+                                  <th>Tax </th>
+                                  <th>CGST</th>
+                                  <th>SGST</th>
+                                  <th>CGST Amount</th>
+                                  <th>SGST Amount</th>
+                                  <th> Total Amount</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              {%for data in taxelab%}
+                              <tr>
+                                  <td>{{data.tax_rate_name}}
+                                      
+                                  </td>
+                                  <td><span class="text w-50">{{data.cgst}} %</span></td>
+                                  <td><span class="text w-50">{{data.sgst}}%</span></td>
+                                  <td><span class="text w-50">₹ {{data.sgst_amount}} </span></td>
+                                  <td><span class="text w-50">₹ {{data.sgst_amount}}</span></td>
+                                  <td><span class="text w-50">₹ {{data.total_amount}}</span></td>
+                              </tr>
+                              {%endfor%}
+                              
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
                   
                 
             </div>
@@ -704,6 +715,7 @@
             button.addEventListener("click", function () {
                 // Extract single item's data
                 const description = this.getAttribute("data-description");
+                const mdescription = this.getAttribute("data-mdescription");
                 const quantity = parseInt(this.getAttribute("data-quantity"));
                 const price = parseFloat(this.getAttribute("data-price")).toFixed(2);
                 const total = parseFloat(this.getAttribute("data-total")).toFixed(2);
@@ -728,7 +740,7 @@
                 // Populate table with single item
                 kotTableBody.innerHTML = `
                     <tr>
-                        <td>${description}</td>
+                        <td>${description} ${mdescription}</td>
                         <td>${quantity}</td>
                         <td>₹${price}</td>
                         <td>${tax} %</td>
@@ -754,16 +766,24 @@
                 let grandTotal = 0;
     
                 invoiceItems.forEach(button => {
-                    const description = button.getAttribute("data-description");
-                    const quantity = parseInt(button.getAttribute("data-quantity"));
-                    const price = parseFloat(button.getAttribute("data-price")).toFixed(2);
-                    const total = parseFloat(button.getAttribute("data-total")).toFixed(2);
-                    const tax = parseFloat(button.getAttribute("data-tax")).toFixed(2); // Fixed this line
-                    grandTotal += parseFloat(total);
+                  const description = button.getAttribute("data-description");
+                  const mdescription = button.getAttribute("data-mdescription");
+                  const quantity = parseInt(button.getAttribute("data-quantity"));
+                  const price = parseFloat(button.getAttribute("data-price"));
+                  const total = parseFloat(button.getAttribute("data-total"));
+                  const tax = parseFloat(button.getAttribute("data-tax"));
+      
+                  // Validate that the required attributes are valid numbers
+                  if (isNaN(quantity) || isNaN(price) || isNaN(total) || isNaN(tax)) {
+                      console.error("Invalid data for item:", button); // Log an error for the problematic button
+                      return; // Skip this item if any value is invalid
+                  }grandTotal += parseFloat(total);
+
+                    
     
                     kotTableBody.innerHTML += `
                         <tr>
-                            <td>${description}</td>
+                            <td>${description} ${mdescription} </td>
                             <td>${quantity}</td>
                             <td>₹${price}</td>
                             <td>${tax} %</td>
@@ -1090,9 +1110,11 @@ function printOrDownload(action) {
               </div>
               {%endif%}
           
-  
+              {% if data.is_ota %}
+                <span class="text-primary">  This Is Prepaid Booking From OTA!</span>
+              {%else%}
               <div class="col mb-3">
-                <label for="nameBackdrop" class="form-label">Guest Gst Number(optional)</label>
+                <label for="nameBackdrop" class="form-label">Guest Gst Number</label>
                 <input
                   type="text"
                   name="gstnumber"
@@ -1103,6 +1125,20 @@ function printOrDownload(action) {
                   
                 />
               </div>
+
+              <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Company Name</label>
+                <input
+                  type="text"
+                  name="guestcompany"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder=""
+                  value="{{data.customer_company}}"
+                  
+                />
+              </div>
+              {%endif%}
               {%endfor%}
           </div>
           {%for data in invoice_data%}
@@ -1346,8 +1382,8 @@ function printOrDownload(action) {
                             {%for data in invoice_data%}
                 
                             <input type="hidden" value="{{data.customer.id}}" name="guestid" />
-                            
-                            <input type="hidden" value="{{ data.customer.checkoutdate|date:'Y-m-d' }}" id="checkoutdate"name="checkoutdate" />
+                            <input type="hidden" value= "{{data.customer.created_checkoutdate|date:'Y-m-d'}}" id="lastcheckoutdate" />
+                            <input type="hidden" value="{{ data.customer.checkoutdate|date:'Y-m-d' }}" id="checkoutdate" name="checkoutdate" />
                             <input type="hidden" value="{{data.id}}" name="invcid" />
                       {%endfor%}
 
@@ -1451,7 +1487,7 @@ function printOrDownload(action) {
                                     <option  value="">Select a Room</option>
                                     {%for iteams in invoiceitemdata%}
                                   {%if iteams.is_room %}
-                                    {%if iteams.is_checkout == False %}
+                                    {%if iteams.is_checkout == False and iteams.is_extend == False %}
                                     <option  value="{{iteams.id}}">Room No: {{iteams.description}}</option>
                                     {%endif%}
                                     {%endif%}
@@ -1477,5 +1513,273 @@ function printOrDownload(action) {
                
                 
             </div>
+
+
+
+
+              <!-- Modal -->
+              <div class="modal fade" id="basicModalextendsitem" tabindex="-1" aria-hidden="true">
+                <form action="{% url 'extendscheckonebyone' %}"  method="post" >
+                  {% csrf_token %}
+                  
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <input type="hidden" id="roombooknoidinput" name="roombookadvanceiddata" />
+                    <input type="hidden" id="roomnoidinput" name="roomnodata" />
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel1">Extends Room </h5>
+                      <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                      ></button>
+                    </div>
+                    {%for data in invoice_data%}
+        
+                    <input type="hidden" value="{{data.customer.id}}" name="guestid" />
+                    
+                    <input type="hidden" value="{{data.id}}" name="invcid" />
+              {%endfor%}
+
+              <input type="hidden" name="itemid" id="itemid" />
+
+                    <div class="modal-body">
+                      <div class="row">
+                        <div class="col mb-3">
+                          <label for="nameBasic" class="form-label">Check-Out Date</label>
+                          <input type="date" id="itemcheckoutdate" name="checkoutdate"  class="form-control" readonly  required/>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col mb-3">
+                          <label for="nameBasic" class="form-label">Extend Check-Out Date</label>
+                          <input type="date" id="fromdateitem"  class="form-control" name="fromdate" placeholder="Enter Name" required/>
+                        </div>
+                      </div>
+                      
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Close
+                      </button>
+                      <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                  </div>
+                </div>
+                
+                
+                <script>
+                  {% comment %} function setidanddate(id, date) {
+                    console.log("Function Called! ID:", id, "Date:", date); // Debugging ke liye
+                
+                    document.getElementById('itemid').value = id;
+
+                
+                    let formattedDate = new Date(date);
+                    
+                    if (!isNaN(formattedDate.getTime())) { 
+                        let isoDate = formattedDate.toISOString().split('T')[0];
+                        document.getElementById('itemcheckoutdate').value = isoDate;
+                      
+                        // 🔴 **Manually trigger change event** taaki `min` update ho
+                        document.getElementById('itemcheckoutdate').dispatchEvent(new Event("change"));
+                    } else {
+                        console.error("Invalid Date Format:", date);
+                    }
+                  } {% endcomment %}
+
+                  function setidanddate(id, date) {
+                    console.log("Function Called! ID:", id, "Date:", date); // Debugging ke liye
+                
+                    document.getElementById('itemid').value = id;
+                
+                    // 🔹 Direct date string ko new Date() me pass karna
+                    let formattedDate = new Date(date);
+                
+                    if (!isNaN(formattedDate.getTime())) { 
+                        // 🔹 YYYY-MM-DD format manually generate karna (without toISOString)
+                        let year = formattedDate.getFullYear();
+                        let month = String(formattedDate.getMonth() + 1).padStart(2, '0');
+                        let day = String(formattedDate.getDate()).padStart(2, '0');
+                        let isoDate = `${year}-${month}-${day}`; // ✅ India ke format me
+                        
+                        // 🔹 Date input me set karna
+                        document.getElementById('itemcheckoutdate').value = isoDate;
+                
+                        // 🔴 Ensure min date updates
+                        document.getElementById('itemcheckoutdate').dispatchEvent(new Event("change"));
+                
+                        console.log("Date set in input:", isoDate);
+                    } else {
+                        console.error("Invalid Date Format:", date);
+                    }
+                }
+                
+                
+                 
+                
+                document.addEventListener("DOMContentLoaded", function () {
+                  const checkoutdateInput = document.getElementById('itemcheckoutdate');
+                  const dateInput = document.getElementById('fromdateitem');
+              
+                  if (checkoutdateInput) {
+                      checkoutdateInput.addEventListener("change", function () {
+                          const checkoutdate = checkoutdateInput.value;
+              
+                          if (!checkoutdate) {
+                              console.error("Checkout date is empty!");
+                              return;
+                          }
+              
+                          // 🔹 Function to add 1 day (correcting midnight shift issue)
+                          function addOneDay(dateString) {
+                              let date = new Date(dateString + "T00:00:00"); // ✅ Midnight shift avoid
+                              if (isNaN(date.getTime())) {
+                                  console.error("Invalid Date Format:", dateString);
+                                  return null;
+                              }
+              
+                              date.setDate(date.getDate() + 1); // ✅ Corrected (no extra days)
+                              const year = date.getFullYear();
+                              const month = String(date.getMonth() + 1).padStart(2, '0');
+                              const day = String(date.getDate()).padStart(2, '0');
+              
+                              return `${year}-${month}-${day}`;
+                          }
+              
+                          const minDate = addOneDay(checkoutdate); // ✅ Fixed to only +1 day
+              
+                          if (dateInput && minDate) {
+                              dateInput.setAttribute('min', minDate);
+                              console.log("Min date set to:", minDate);
+                          }
+                      });
+                  }
+              });
+              
+
+                </script>
+                
+
+
+              </div>
+            </div>
+          </div>
+        </form>
+
+       
+        
+    </div>
+
+
+
+
+<!-- Modal aedit payment -->
+<div class="modal fade" id="editpaymnent" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog">
+      <form action="{% url 'invoicepaymentedit'  %}" method="POST" class="modal-content">
+          {% csrf_token %}
+
+        
+          <input type="hidden" name="invcids" value="" id="editinvcid">
+          
+      
+      <div class="modal-header">
+        <h5 class="modal-title" id="backDropModalTitle">Edit Payments</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <h6>This will always work with the lesser amount.!</h6>
+        <div class="row">
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">Amount</label>
+            <input
+              type="text"
+              name="amount"
+              id="editamount"
+              class="form-control"
+              placeholder="Enter Amount"
+              value="{{i.Due_amount}}"
+              required
+            />
+          </div>
+
+          
+
+          <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Payment Mode</label>
+              <select class="form-control" name="paymentmode" id="editpaymode" required placeholder="Select Category" required>
+                  
+                  <option  value="cash">Cash</option>
+                  <option  value="UPI">UPI</option>
+                  <option  value="Cheque">Cheque</option>
+                  <option  value="Card">Card</option>
+                  <option  value="BankTransfer">BankTransfer</option>
+                </select>
+            </div>
+            
+        </div>
+        <div class="row">
+          
+
+          
+          <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Payment Details</label>
+              <input
+                type="text"
+                name="paymntdetails"
+                id="paymentdetails"
+                class="form-control"
+                placeholder="utr,check no"
+                
+              />
+            </div>
+
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Comments</label>
+              <input
+                type="text"
+                name="comment"
+                id="Comments"
+                class="form-control"
+                placeholder=""
+                
+              />
+            </div>
+        </div>
+      </div>
+
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button  class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+<script>
+  function setpaymentedit(id,amount,mode,transection,description) {
+    document.getElementById('editinvcid').value=id;
+    document.getElementById('editamount').value=amount;
+    document.querySelector("select[id='editpaymode']").value = mode;
+    document.getElementById('paymentdetails').value=transection;
+    document.getElementById('Comments').value=description;
+  }
+</script>
+    
 
 {%endblock%}

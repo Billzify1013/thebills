@@ -48,7 +48,7 @@
         
 <div class="row"> 
     <div class="col-9">
-        <h5 class="card-title  ms-2 mt-1">Customer Credit Page</h5>
+        <h5 class="card-title  ms-2 mt-1">Customer Receivables / Credit Page</h5>
     </div> 
     <div class="col-3">
         <button class="btn btn-primary  w-100 "   data-bs-toggle="modal"
@@ -81,9 +81,9 @@
 
  <!-- Bootstrap Table with Header - Light -->
  <div class="card mt-3">
-    <h5 class="card-header">Credit Reports
+    <h5 class="card-header">Receivables / Credit Reports
       {% if total_amount%}
-      <span class="text float-end">Total Credit Amount: {{total_amount|floatformat:0 }}</span>
+      <span class="text float-end">Total Receivables / Credit Amount: {{total_amount|floatformat:0 }}</span>
       {%endif%}
     </h5>
     <div class="table-responsive text-nowrap">
@@ -92,7 +92,8 @@
           <tr>
             <th>Customer name</th>
             <th>Phone</th>
-            <th>Amount</th>
+            <th>GST/VAT</th>
+            <th>Total Outstanding Amount</th>
             <th>Due Date</th>
             <th>Status</th>
             <th>Actions</th>
@@ -103,11 +104,16 @@
           <tr>
             <td><strong>{{data.customer_name}}</strong></td>
             <td>{{data.phone}}</td>
+            {%if data.invoice %}
+            <td>{{data.invoice.customer_gst_number}}</td>
+            {%else%}
+            <td>{{data.gst_number}}</td>
+            {%endif%}
             <td>{{data.amount}}</td>
             <td>{{data.due_date}}</td>
             <td>
                 {%if data.invoice %}
-                <a href="{%url 'invoicepage' id=data.invoice.customer.id %}"  class="btn btn-primary">Invoice</a>
+                <a href="{%url 'invoicepage' id=data.invoice.id %}"  class="btn btn-primary">Invoice</a>
                 {%else%}
                 Admin-Create
                 {%endif%}
@@ -131,7 +137,7 @@
                       </button>
                       <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{% url 'saveinvoicetocredit' id=data.id %}"><i class='bx mb-1 text-success me-3 bx-happy-heart-eyes'></i>Paid & Settle</a></li>
-                        
+                        <li><a class="dropdown-item" href="{% url 'deletecreditdata' id=data.id %}"><i class='bx mb-1 text-danger me-3 bx bxs-trash'></i>Delete</a></li>
                       </ul>
                       {%endif%}
                     
@@ -211,6 +217,18 @@
                 class="form-control"
                 placeholder=""
               />
+              </div>
+
+              <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Customer GSTIN</label>
+                <input
+                  type="name"
+                  name="gstumber"
+                  maxlength="20"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Enter Customer name"
+                />
               </div>
           </div>
         </div>

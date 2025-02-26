@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+
+<div class="row mb-3">
+    <div class="col-9">
+        <a class="btn btn-warning text-white" onClick="javascript:history.go(-1);">Back</a>
+    </div>
+
+    
+
+    <div class="col-3 float-end">
+        <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#backDropModal">
+            <i class='bx bx-search-alt-2'></i> Search By Dates
+        </button>
+    </div>
+</div>
+
+<div class="card">
+    {% comment %} <h5 class="card-header">
+        Arrival Report<br><br>
+        <span>From: {{ startdate }} TO {{ enddate }}</span>
+    </h5>
+
+    
+
+    <div class="table-responsive text-nowrap">
+        
+  
+      <table class="table table-bordered" id="secondInvoiceTable">
+          <thead class="table-light">
+              <tr>
+                  <th>Sr No.</th>
+                  <th>Guest</th>
+                  <th>Check-In Date</th>
+                  <th>Check-Out Date</th>
+                  <th>Status</th>
+                  <th>Room </th>
+                  <th>Segment</th>
+              </tr>
+          </thead>
+           <!-- Add buttons for printing and downloading Excel -->
+  <div class="m-3 float-end">
+    <button class="btn btn-primary" onclick="printTable()">Print Table</button>
+    <button class="btn btn-success" onclick="downloadExcel()">Download Excel</button>
+</div>
+          <tbody class="table-border-bottom-0" id="tableBody">
+              {% for data in bookingdata %}
+              <tr >
+                  <td>{{ forloop.counter }} </td>
+                  <td>{{ data.guest_name }}</td>
+                  <td>{{ data.check_in_date }}</td>
+                  <td>{{ data.check_out_date }}</td>
+                  <td>{{ data.status }}</td>
+                  <td >{{data.room.room_name}}</td> 
+                  <td><strong >{{ data.segment }}</strong></td>
+                 
+              </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+  </div> {% endcomment %}
+  <!-- Card header with dynamic date range -->
+<h5 class="card-header">
+    Arrival Report<br><br>
+    <span>From: {{ startdate }} TO {{ enddate }}</span>
+</h5>
+
+<div class="table-responsive text-nowrap">
+    <!-- Add buttons for printing and downloading Excel -->
+    <div class="m-3 float-end">
+        <button class="btn btn-primary" onclick="printTable()">Print Table</button>
+        <button class="btn btn-success" onclick="downloadExcel()">Download Excel</button>
+    </div>
+
+    <table class="table table-bordered" id="secondInvoiceTable">
+        <thead class="table-light">
+            <tr>
+                <th>Sr No.</th>
+                <th>Guest</th>
+                <th>Check-In Date</th>
+                <th>Check-Out Date</th>
+                <th>Status</th>
+                <th>Room</th>
+                <th>Segment</th>
+            </tr>
+        </thead>
+        <tbody class="table-border-bottom-0" id="tableBody">
+            {% for data in bookingdata %}
+            <tr>
+                <td>{{ forloop.counter }} </td>
+                <td>{{ data.guest_name }}</td>
+                <td>{{ data.check_in_date }}</td>
+                <td>{{ data.check_out_date }}</td>
+                <td>{{ data.status }}</td>
+                <td>{{ data.room.room_name }}</td>
+                <td><strong>{{ data.segment }}</strong></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Include the XLSX library for Excel export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+
+<script>
+    // Function to print the table
+    function printTable() {
+        const printWindow = window.open('', '', 'height=400,width=800');
+        const tableContent = document.getElementById('secondInvoiceTable').outerHTML;
+        const summaryContent = `<div style="text-align: center; font-size: 16px;">
+                                    <h3>Arrival Report</h3>
+                                    <div>From: {{ startdate }} TO {{ enddate }}</div>
+                                  </div>`;
+
+        // Add custom styles for printing
+        const printStyles = `
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 20px;
+                }
+                .table {
+                    width: 100%;
+                    border-collapse: collapse;
+                }
+                .table th, .table td {
+                    border: 1px solid #000;
+                    padding: 8px;
+                    text-align: left;
+                }
+                .table th {
+                    background-color: #f8f9fa;
+                }
+                .table td, .table th {
+                    border: 1px solid black;
+                    font-size: 12px;
+                }
+                .table th {
+                    background-color: #f1f1f1;
+                }
+            </style>
+        `;
+
+        // Open the print window and write content
+        printWindow.document.write('<html><head><title>Arrival Report</title>');
+        printWindow.document.write(printStyles);
+        printWindow.document.write('</head><body>');
+        printWindow.document.write(summaryContent);  // Add the date range and title
+        printWindow.document.write(tableContent);    // Add the table content
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.print();
+    }
+
+    // Function to download the table as an Excel file
+    function downloadExcel() {
+        const wb = XLSX.utils.table_to_book(document.getElementById('secondInvoiceTable'), { sheet: "Arrival Report" });
+        XLSX.writeFile(wb, 'arrival_report.xlsx');
+    }
+</script>
+
+ 
+  
+
+</div>
+
+
+<!-- Modal add rooms -->
+<div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'searcharriwlasrpt'  %}" method="POST" class="modal-content">
+            {% csrf_token %}
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Search Data</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Start Date</label>
+              <input
+                type="date"
+                name="startdate"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter RoomName"
+                required
+              />
+            </div>
+
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">End Date</label>
+                <input
+                  type="date"
+                  name="enddate"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Enter RoomName"
+                  required
+                />
+              </div>
+
+            
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+{%endblock%}

@@ -54,7 +54,7 @@ class UserSessionMiddleware(MiddlewareMixin):
                         request.session['permissions'] = {
                             'TSel': True, 'Attd': True, 'cln': True, 'psle': True,
                             'si': True, 'saa': True, 'ext': True, 'emp': True,
-                            'pdt': True, 'set': True, 'ups': True, 'fce':True
+                            'pdt': True, 'set': True, 'ups': True, 'fce':True , 'acc' : True ,
                         }
                     if 'notification' not in request.session:
                         request.session['notification'] = False

@@ -52,7 +52,7 @@
 <form action="{% url 'searchguestdata' %}" method="post">
   {% csrf_token %}
   <div class="row m-2">
-    <div class="mb-3 ms-4 col-md-2">
+    <div class=" ms-4 col-md-2">
       <label for="firstName" class="form-label">Guest Name</label>
       <input
         class="form-control"
@@ -120,15 +120,15 @@
       <a href=""  data-bs-toggle="modal"  data-bs-target="#backDropModalsearchdate" class="btn btn-outline-primary float-end" style=>Export Data</a>
     </h5>
     <div class="table-responsive text-nowrap">
-      <table class="table">
+      <table class="table" style="cursor: grabbing;">
         <thead class="table-light">
           <tr>
             <th>Guest name</th>
             <th>Phone</th>
-            <th>Room</th>
             <th>checkindate</th>
             <th>checkoutdate</th>
             <th>Invoice</th>
+            <th>F&B Invoice</th>
             <th>Details</th>
           </tr>
         </thead>
@@ -138,15 +138,45 @@
           <tr>
             <td><strong>{{data.guestname}}</strong></td>
             <td>{{data.guestphome}}</td>
-            {% if data.noofrooms == 1%}
-            <td><i class='bx bx-home-heart mb-1 text-warning'></i> {{data.roomno}}</td>
-            {%else%}
-            <td>Multiple</td>
-            {%endif%}
+            
            
-            <td><span class="badge bg-label-primary me-1">{{data.checkindate}}</span></td>
+            <td><span class="badge bg-label-primary me-1">{{data.checkindate}} </span></td>
             <td><span class="badge bg-label-primary me-1">{{data.checkoutdate}}</span></td>
-            <td><a class="btn btn-primary" href="{% url 'invoicepage' id=data.id %}">Invoice</a></td>
+            <td>  <button
+                        type="button"
+                        class="btn  dropdown-toggle hide-arrow"
+                        data-bs-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false"
+                        
+                      >
+                      <span class="badge bg-label-primary"><i class='bx bx-paperclip'></i></span>
+                      </button>
+                      <ul class="dropdown-menu">
+                    
+               <a href="{% url 'invoicepage' id=data.id %}" class="btn text-white btn-primary w-75 m-2">Show Invoice</a>
+               <a href="{% url 'editminvc' id=data.id %}" class="btn text-white btn-primary w-75 m-2">Edit Details</a>
+                  </ul>
+             </td>
+            <td>{% if data.fandbinvoiceid and data.fandbinvoiceid|slugify != 'true'  %}
+              <button
+              type="button"
+              class="btn  dropdown-toggle hide-arrow"
+              data-bs-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+              
+            >
+            <span class="badge bg-label-primary"><i class='bx bxs-drink'></i></span>
+            </button>
+            <ul class="dropdown-menu">
+          
+              <a href="{% url 'invoicepage' id=data.fandbinvoiceid %}" class="btn text-white btn-primary w-75 m-2">F&B Invoice</a>
+              <a href="{% url 'geditfbinvc' id=data.id %}" class="btn text-white btn-primary w-75 m-2">Edit Details</a>
+        </ul>
+              
+          {% endif %}
+        </td>
             <td>
                 
                       <button
@@ -161,18 +191,23 @@
                       </button>
                       <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{% url 'guestdetails' id=data.id %}"><i class="bx bx-edit-alt me-1"></i> Details</a></li>
-                        <li><a class="dropdown-item" data-bs-toggle="modal"
-                          data-bs-target="#backDropModal"
-                          onclick="getidonform('{{ data.id }}', '{{data.guestphome}}')">
-                          Edit Customer Details
-                      </a>
-                      
-              </li>
-                
+
+                        <li><a class="btn dropdown-item " href="{% url 'guest_logs' id=data.id %}"><i class='bx bxl-blogger'></i> logs</a></li>
+                        
+              {% if data.fandbinvoiceid == 'True'   %} 
+              
+              <li><a class="dropdown-item" href="#"  data-bs-toggle="modal"
+                data-bs-target="#splitinvoicemodel" onclick="putvaluesonmodel('{{data.id}}')"><i class="bx bx-edit-alt me-1"></i> Make 2-Bills F&B and Rooms </a></li>
+               
+              {%else%}
+            
+                  
+                {%endif%}
                         
                       </ul>
                     
             </td>
+            
           </tr>
           {%endfor%}
    
@@ -224,83 +259,8 @@
 </nav>
 
 
-<!-- JavaScript to populate the form when modal is triggered -->
-<script>
-  function getidonform(id, phone) {
-    // Populate the hidden input with the customer ID
-    document.querySelector("input[name='invcid']").value = id;
 
-    // Populate the phone input field with the customer's phone number
-    document.querySelector("input[name='customerphone']").value = phone;
-}
 
-  </script>
-
-<!-- Modal add rooms -->
-<div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1">
-  <div class="modal-dialog">
-      <form action="{% url 'editcustomergstnumber'  %}" method="POST" class="modal-content">
-          {% csrf_token %}
-      
-      <div class="modal-header">
-        <h5 class="modal-title" id="backDropModalTitle">Edit Customer Information </h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"
-        ></button>
-      </div>
-    
-      <input type="hidden" name="invcid" value="{{data.customer.id}}" >
-      
-      <div class="modal-body">
-        <div class="row">
-          <div class="col mb-3">
-              <label for="nameBackdrop" class="form-label">Customer Mobile Number </label>
-              <input
-                type="tel"
-                  pattern="[6-9][0-9]{9}"
-                name="customerphone"
-                maxlength="15"
-                value="{{data.customer.guestphome}}"
-                id="nameBackdrop"
-                class="form-control"
-                placeholder="Enter  Mobile Number"
-                required
-                
-              />
-            </div>
-          <div class="col mb-3">
-            <label for="nameBackdrop" class="form-label">Customer Gst Number </label>
-            <input
-              type="text"
-              name="gstnumber"
-              maxlength="15"
-              id="nameBackdrop"
-              class="form-control"
-              placeholder="Enter Full Gst Number"
-              value='{{data.customer_gst_number}}'
-              required
-            />
-          </div>
-         
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-          Close
-        </button>
-        <button  class="btn btn-primary">Update</button>
-      </div>
-    </form>
-  </div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<!--/ Bootstrap modals -->
 
 
 
@@ -424,6 +384,72 @@
 </div>
 </div>
 <!--/ Bootstrap modals -->
+
+
+
+
+
+
+  <!-- Modal -->
+  <div class="modal fade" id="splitinvoicemodel" tabindex="-1" aria-hidden="true">
+    <form action="{% url 'makeseprateinvoice' %}"  method="post" >
+      {% csrf_token %}
+      
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <input type="hidden" id="roombooknoidinput" name="roombookadvanceiddata" />
+        <input type="hidden" id="roomnoidinput" name="roomnodata" />
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel1">Make Seprate invoice Rooms & Service</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+       
+
+        <input type="hidden"  name="guestid" id="guestidfromtable"/>
+       
+
+
+
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-12 ">
+             <h6 class="text p-2">Customer Gst Same On Both Bills.</h6>
+              
+              <select class="form-control" name="selectvalue"   required >
+                <option value="" disabled selected>-- Please Select an Option --</option>
+                <option  value="no">NO</option>
+                <option  value="yes">YES</option>
+              </select>
+             
+              
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</form>
+
+
+
+</div>
+<script>
+  function putvaluesonmodel(gid) {
+    document.getElementById('guestidfromtable').value=gid;
+  }
+</script>
 
 {% endblock %}
 

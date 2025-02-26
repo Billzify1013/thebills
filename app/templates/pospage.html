@@ -90,8 +90,10 @@
                         <div class="option list-group-item">No items available</div>
                     {% endfor %}
                 </div>
+                
                 <input type="hidden" name="iteamid" id="selectedItemId"> <!-- Hidden input for selected item ID -->
             </div>
+            
         </div>
         
 
@@ -108,6 +110,11 @@
             <span class="text"><i class='bx bx-unite'></i>Enter Quantity</span>
             <input  type="number" class="form-control mt-2 " name="qty" required>
         </div>
+
+        <div class="col-12 mt-3">
+            <span class="text"><i class='bx bx-unite'></i>Extra Descriptions</span>
+            <input  type="text" class="form-control mt-2 " placeholder="like : Another Room No " name="description" >
+        </div>
     </div></div>
 </div>
 
@@ -120,7 +127,7 @@
     </div>
 </div>
 
-
+{% comment %} 
 <!--laundry biling-->
 <div class="col-6 " style="width:49%">
     <!-- Bootstrap Table with Header - Light -->
@@ -132,7 +139,7 @@
         <span class="text ms-3 mt-2"><i class='bx bx-receipt'></i>Laundry Billing</span>
         <h5 class="ms-3 mt-2">Room NO:{{roomno}}</h5>
             <input type="hidden" name="foliocustomer" value="{{invoiceid}}">
-<div class="col-11 m-4 mb-4">
+<div class="col-11 m-4 mb-4"> {% endcomment %}
 
   
     {% comment %} <span class="text "><i class='bx bx-receipt'></i> Folio Bill</span>
@@ -142,7 +149,7 @@
       <option  value="{{t.id}}">Room:{{t.room_no}}</option>
       {%endfor%}
     </select> {% endcomment %}
-    <div>
+    {% comment %} <div>
 
       <div class="col-12 mt-4">
         <span class="text mb-2"><i class='bx bxs-cart-alt'></i> Search and Select Laundry Items</span>
@@ -159,7 +166,7 @@
             </div>
             <input type="hidden" name="iteamid" id="selectedLaundryItemId"> <!-- Hidden input for selected laundry item ID -->
         </div>
-    </div>
+    </div> {% endcomment %}
 
         {% comment %} <div class="mt-4">
             <span class="text mb-2"><i class='bx bxs-cart-alt'></i> Select Product</span>
@@ -170,7 +177,7 @@
           {%endfor%}
         </select>
     </div> {% endcomment %}
-    <div class="col-12 mt-3">
+    {% comment %} <div class="col-12 mt-3">
         <span class="text"><i class='bx bx-unite'></i>Enter Quantity</span>
         <input  type="number" class="form-control mt-2 " name="qty" required>
     </div>
@@ -183,7 +190,7 @@
    
 
  
-</div>
+</div> {% endcomment %}
 </div></div>  
 
 

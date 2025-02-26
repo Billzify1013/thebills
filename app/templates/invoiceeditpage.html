@@ -1,0 +1,1135 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+
+{% load static %}
+<html
+  lang="en"
+  class="light-style layout-menu-fixed"
+  dir="ltr"
+  data-theme="theme-default"
+  data-assets-path="{% static 'undercss/assets/'%}"
+  data-template="vertical-menu-template-free"
+>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+
+    <title>Dashboard - Analytics | Sneat - Bootstrap 5 HTML Admin Template - Pro</title>
+
+    <meta name="description" content="" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'undercss/assets/img/favicon/favicon.ico'%}" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Icons. Uncomment required icon fonts -->
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/fonts/boxicons.css'%}" />
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/css/core.css'%}" class="template-customizer-core-css'%}" />
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/css/theme-default.css'%}" class="template-customizer-theme-css'%}" />
+    <link rel="stylesheet" href="{% static 'undercss/assets/css/demo.css'%}" />
+
+    <!-- Vendors CSS -->
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css'%}" />
+
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/libs/apex-charts/apex-charts.css'%}" />
+
+    {% comment %} <link rel="stylesheet" href="{% static 'undercss/assets/vendor/libs/spinkit/spinkit.css'%}" /> {% endcomment %}
+
+    <!-- Page donwload link to pdf -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+    <!-- Helpers -->
+    <script src="{% static 'undercss/assets/vendor/js/helpers.js'%}"></script>
+
+    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+    <script src="{% static 'undercss/assets/js/config.js'%}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <style type="text/css">
+        body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+.invoice-container {
+    width: 100%;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+}
+
+.header img,
+.footer img {
+    width: 100%;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.invoice-details {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.left h1 {
+    color: #333;
+    margin-top: 0;
+}
+
+.client-details h2,
+.invoice-items h2,
+.totals p {
+    margin-top: 0;
+}
+
+.right p {
+    margin: 2px 0;
+}
+
+.invoice-items,
+.totals {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 0px;
+    margin-bottom: 10px;
+}
+
+.item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1px;
+}
+
+.item p {
+    margin: 0;
+}
+
+.totals {
+    display: flex;
+    justify-content: space-between;
+}
+
+.footer img {
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+    </style>
+</head>
+  </head>
+    
+
+<body>
+
+    
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-5">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <div id="success-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%endif%}
+</div>
+{%endfor%}
+
+<script>
+    $(document).ready(function() {
+        // Fade out the alert after 5 seconds (5000 milliseconds)
+        setTimeout(function() {
+            $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+                $(this).remove(); 
+            });
+        }, 2000);
+    });
+</script>
+{%endif%}
+
+    
+    <h5>Edit Invoice/ Page</h5>
+    <div class=" row">
+        <div class="col-2">
+        <input type=button value="Back" class="btn btn-outline-warning" onClick="javascript:history.go(-1);">
+        </div>
+        
+        
+   
+        
+    </div>
+        <div class="invoice-container mt-3" id="invoice" >
+            <div class="header" style="margin-top:-30px">
+                <div class="row">
+                    
+                    <div class="col-10">
+                      
+               
+            </div>
+            <div class="col-2 pt-4">
+              <div class="dropdown  ms-2">
+                <button
+                  class="btn btn-light shadow"
+                  type="button"
+                  id="cardOpt3"
+                  data-bs-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                <b><i class='bx bxs-edit'></i> edit</b>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt3">
+                  
+                  <a class="btn dropdown-item " data-bs-toggle="modal"
+                    data-bs-target="#modeladditems">Add Items</a>
+                  
+                  <hr class="mt-0 mb-0">
+                  
+                  <a class="btn dropdown-item " data-bs-toggle="modal" data-bs-target="#backDropModal"><i class='bx bxl-paypal'></i> Add Payment</a>
+                  
+                  <hr class="mt-0 mb-0">
+                    <a class="btn dropdown-item " data-bs-toggle="modal"
+                    data-bs-target="#backDropModaleditcustomer">Edit Customer  Details</a>
+                    
+                    <hr class="mt-0 mb-0">
+                    {%for data in invoice_data%}
+                    <a class="btn dropdown-item " href="{% url 'guest_logs' id=data.customer.id %}"><i class='bx bxl-blogger'></i> logs</a>
+                    {%endfor%}
+                  
+                
+               </div>
+
+                  
+              </div>
+            </div>
+            
+          </div>
+        
+        </div>
+            <div class="invoice-details">{%for data in invoice_data%}
+                
+                <div class="center m-4 mb-0">
+                  <h6>Guest Information</h6>
+                  <div class="row">
+                    <div class="col-6">
+                      <input type="hidden" value="{{data.customer.guestname}}" id="guestsnames">
+                      <input type="hidden" value="{{data.customer.guestphome}}" id="guestsphon">
+                      <input type="hidden" value="{{data.customer.roomno}}" id="guestroom">
+                <p>Invoice Number: <b>{{data.invoice_number}}</b>  </p>      
+                <p>Invoice Date: <b>{{data.invoice_date}}</b>  </p>
+                <p>Name: {{data.customer.guestname}}  </p>
+                <p>Phone: {{data.customer.guestphome}}</p>
+                <p>Room NO: {{data.customer.roomno}}</p>
+                    </div>
+                    <div class="col-6">
+                      <p>Primary-Meal_plan: {{data.customer.rate_plan}}</p>
+                <p>Source: {{data.customer.channel}}</p>
+                <p>Guests: T:{{data.customer.noofguest}},A:{{data.customer.adults}},C:{{data.customer.children}}</p>
+                    </div>
+                  </div>
+                    
+                <p>Check-In Date : {{data.customer.checkindate}}</p>
+                <p>Check-Out Date: {{data.customer.checkoutdate}} <span style="font-size:10px">Checkout time not update please check it</span></p>
+                
+                {%if data.customer.extend%}
+                <p class="text-warning">Room Extend</p>
+                <p>{{data.customer.extend_decription}}</p>
+                {%endif%}
+                {%if data.customer_gst_number%}
+                <p>gstin: {{data.customer_gst_number}}</p>
+                <p>Company: {{data.customer_company}}</p>
+                {%endif%}
+                </div>
+                {%endfor%}
+                
+            </div>
+            
+           
+            
+        
+           
+            <div class="invoice-items" >
+                <div class="table-responsive text-nowrap" >
+                   
+                    <div class="cool-3 float-end">
+                      <!-- Filter Dropdown -->
+                      <select class="form-control" name="invoiceitemid" required>
+                        <option value="">Apply Filters</option>
+                        <option id="showCheckedOutBtn">Show Checked-Out</option>
+                        <option id="showCheckedInBtn">Show Checked-In</option>
+                        <option id="showCheckOut">Show ExtendRoom-In</option>
+                        <option id="clearFilterBtn">Clear Filter</option>
+                      </select>
+                    </div>
+                    
+                    <table class="table">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Services</th>
+                          {% for data in invoice_data %}
+                            {% if data.taxtype == 'GST' %}
+                              <th>Cgst</th>
+                              <th>Sgst</th>
+                            {% else %}
+                              <th>Igst</th>
+                            {% endif %}
+                          {% endfor %}
+                          <th>HSN/SAC</th>
+                          <th>Price</th>
+                          <th>Qty/Day</th>
+                          <th>Total<br>(incl/Qty,tax,discount)</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody id="invoiceItemsList">
+                        {% for iteams in invoiceitemdata %}
+                          <tr class="invoice-item {% if iteams.is_checkout == True %} checked-out {% else %} not-checked-out {% endif %} {% if iteams.is_room == False %} not-room-item {% else %} is-room-item {% endif %}  {% if iteams.is_extend == False %} not-room-item {% else %} is-extendroom-item {% endif %}">
+                            <td style="font-size:18px">
+                              {{ iteams.description }}<br>
+                              <p style="font-size:12px">{{ iteams.mdescription }}</p>
+                            </td>
+                            {% for data in invoice_data %}
+                              {% if data.taxtype == 'GST' %}
+                                <td style="font-size:18px">{{ iteams.sgst_rate }} % </td>
+                                <td style="font-size:18px">{{ iteams.sgst_rate }} % </td>
+                              {% else %}
+                                {% if iteams.sgst_rate == 2.50 %}
+                                  <td style="font-size:18px"> 5% </td>
+                                {% else %}
+                                  <td style="font-size:18px">{{ iteams.sgst_rate|add:iteams.sgst_rate }}% </td>
+                                {% endif %}
+                              {% endif %}
+                            {% endfor %}
+                            <td style="font-size:18px">{{ iteams.hsncode }}</td>
+                            <td style="font-size:18px">{{ iteams.price }}</td>
+                            <td style="font-size:18px">{{ iteams.quantity_likedays }}</td>
+                            <td style="font-size:18px">{{ iteams.total_amount }}</td>
+                            <td>
+                              
+
+                                  <div class="dropdown">
+                                    <button
+                                      class="btn "
+                                      type="button"
+                                      id="cardOpt6"
+                                      data-bs-toggle="dropdown"
+                                      aria-haspopup="true"
+                                      aria-expanded="false"
+                                    >
+                                    <span class="badge bg-label-danger"><i class='bx bxs-trash'></i></span>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="cardOpt6">
+                                      <form action="{% url 'deleteitemstofolioedit' %}" method="post" style="float:left">
+                                      {% csrf_token %}
+                                        <div>
+                                        {% for data in invoice_data %}
+                                    <input type="hidden" name="invoiceid" value="{{ data.id }}" />
+                                  {% endfor %}
+                                  <input type="hidden" name="invoiceitemsid" value="{{ iteams.id }}" />
+                                        <span class="p-2">Item Quantity</span>
+                                      <input type="number" name="qty" value={{ iteams.quantity_likedays }} required  class="form-control mt-2 ms-2 w-75" /></div>
+                                      <button type="submit" class="btn btn-primary w-75 m-2">delete</button>
+                                    </div>
+                                  </form>
+                                  </div>
+                                {% comment %} </form> {% endcomment %}
+                              
+                              {% if iteams.is_checkout == True %}
+                                <span class="badge bg-label-success"><i class='bx bxs-check-shield'></i> Check-Out</span>
+                              {% endif %}
+
+                              {% if iteams.is_extend == True %}
+                                <span class="badge bg-label-warning"><i class='bx bxs-check-shield'></i> Extend Room</span>
+                              {% endif %}
+                              
+                            </td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                    
+                    <!-- JS to handle filtering using the dropdown -->
+                    <script>
+                      // Get the dropdown and add event listener
+                      document.querySelector('select[name="invoiceitemid"]').addEventListener('change', function() {
+                        let filterValue = this.value;  // Get selected filter option
+                    
+                        // Get all invoice item rows
+                        let items = document.querySelectorAll('.invoice-item');
+                        
+                        // Loop through all items and hide or show based on the selected filter
+                        items.forEach(function(item) {
+                          // By default show all items
+                          item.style.display = 'table-row'; 
+                          
+                          // Apply filter based on the selected value
+                          if (filterValue == 'Show Checked-Out' && !item.classList.contains('checked-out')) {
+                            item.style.display = 'none';  // Hide non-checked-out items
+                          } else if (filterValue == 'Show Checked-In' && (item.classList.contains('checked-out') || !item.classList.contains('is-room-item'))) {
+                            item.style.display = 'none';  // Hide checked-out and non-room items
+                          } else if (filterValue == 'Clear Filter' && item) {
+                            item.style.display = 'table-row';  // Show all items again
+                          }else if (filterValue == 'Show ExtendRoom-In' && (item.classList.contains('extend-out') || !item.classList.contains('is-extendroom-item'))) {
+                            item.style.display = 'none';  // Hide checked-out and non-room items
+                          }
+                        });
+                      });
+                    </script>
+                    
+                    
+                </div>
+                <div class="row">
+                    <div class="col-5">
+                        
+                        
+                      
+
+                        <button class="btn btn-primary w-100 m-2"    data-bs-toggle="modal"
+                        data-bs-target="#backDropModal"><i class='bx bxl-paypal'></i> Add Payment</button>
+                     
+                     
+                        
+                        <div class="container mt-2">
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                  Payments
+                                    <thead class="thead-light">
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Amount</th>
+                                            <th> Mode</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {%for payment in invcpayments%}
+                                        <tr>
+                                            <td>{{payment.payment_date}}
+                                                
+                                            </td>
+                                            <td><span class="text w-50">{{payment.payment_amount}}</span></td>
+                                            <td><span class="text w-50">{{payment.payment_mode}}</span>
+                                            
+                                                {%if payment.transaction_id%}
+                                                <span class="text w-25" style="font-size:12px">D:{{payment.transaction_id}}<br>
+                                                    
+                                                  {%elif payment.descriptions%}
+                                                  C:{{payment.descriptions}}</span>
+                                                {%endif%}</td>
+                                                <td>
+                                                  <button class="btn btn-primary w-100 m-2"    data-bs-toggle="modal"
+                        data-bs-target="#editpaymnent" onClick="setpaymentedit('{{payment.id}}','{{payment.payment_amount}}','{{payment.payment_mode}}','{{payment.transaction_id}}','{{payment.descriptions}}')">
+                        <i class='bx bx-edit-alt'></i>
+                                                </button>
+                                            <a href="{% url 'deletepayment' id=payment.id %}" class="btn btn-bx-outline"><i class='bx bxs-trash'></i></a>
+                                              </td>
+                                        </tr>
+                                        {%endfor%}
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                       
+                        
+                    </div> 
+                    <script>
+                      function setpaymentedit(id,amount,mode,transection,description) {
+                        document.getElementById('editinvcid').value=id;
+                        document.getElementById('editamount').value=amount;
+                        document.querySelector("select[id='editpaymode']").value = mode;
+                        document.getElementById('paymentdetails').value=transection;
+                        document.getElementById('Comments').value=description;
+                      }
+                    </script>
+
+                    <div class="col-1"></div>
+
+                <div class="card col-6 shadow-none mb-0 w-50  " style="margin-top:0px">
+                  <a class="btn btn-primary float-end w-25 text-white" data-bs-toggle="modal"
+                  data-bs-target="#dueamountmodel" >Edit</a>
+                    {%for data in invoice_data%}
+                    <span>Payment Status</span>
+                    <span class="badge bg-label-success me-1 col-2">Paid</span>
+                    <span>Total Paid Amount:₹ <b>{{data.accepted_amount}}</b> </span>
+                    <hr>
+                    <span class="badge bg-label-warning me-1 float-end col-2">Due</span>
+                        <span>Overall Due Amount:₹ <b>{{data.Due_amount}}</b> </span>
+                    <hr>
+                        
+                    
+                    
+                      
+                      <li class="list-group-item" style="font-size:13px">
+                        <span class="text w-50">Total</span> 
+                        <span class="text float-end">₹{{data.total_item_amount}}</span><br>
+                        <span class="text w-50">Discount</span> 
+                        <span class="text float-end">₹ {{data.discount_amount}}</span><br>
+                        <span class="text w-50">Subtotal</span> 
+                        <span class="text float-end">₹ {{data.subtotal_amount}}</span><br>
+
+                        {%for data in invoice_data%}
+                                {%if data.taxtype == 'GST'%}
+                                    <span class="text w-50">Cgst Total</span> 
+                                    <span class="text float-end">₹ {{sstamounts}}</span><br>
+                                    <span class="text w-50">Sgst Total</span> 
+                                    <span class="text float-end">₹ {{gstamounts}}</span>
+                                {%else%}
+                                <span class="text w-50">Igst Total</span> 
+                                    <span class="text float-end">₹ {{istamts}}</span>
+
+                                {%endif%}
+                        {%endfor%}
+                        
+                      </li> 
+                      
+                      
+                       
+                      <li class="list-group-item">
+                        <span class="text w-50"><b>Grand Total</b></span> 
+                        <span class="text float-end"><b>₹ {{data.grand_total_amount}}</b></span>
+                      </li> 
+                      {%endfor%}
+                    </ul>
+                    <span class="mt-2 mb-2 text " style="font-size:9px"><i class='bx bxs-info-circle'></i>Rooms have discount, so their tax calculation are done after applying the discount.</span>
+                
+                </div>
+
+
+                 <!--tax slab working here-->
+                 <div class="container mt-2">
+                  <div class="table-responsive">
+                      <table class="table table-bordered">
+                        Tax Descriptions
+                          <thead class="thead-light">
+                              <tr>
+                                  <th>Tax </th>
+                                  <th>CGST</th>
+                                  <th>SGST</th>
+                                  <th>CGST Amount</th>
+                                  <th>SGST Amount</th>
+                                  <th> Total Amount</th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              {%for data in taxelab%}
+                              <tr>
+                                  <td>{{data.tax_rate_name}}
+                                      
+                                  </td>
+                                  <td><span class="text w-50">{{data.cgst}} %</span></td>
+                                  <td><span class="text w-50">{{data.sgst}}%</span></td>
+                                  <td><span class="text w-50">₹ {{data.sgst_amount}} </span></td>
+                                  <td><span class="text w-50">₹ {{data.sgst_amount}}</span></td>
+                                  <td><span class="text w-50">₹ {{data.total_amount}}</span></td>
+                              </tr>
+                              {%endfor%}
+                              
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
+                  
+                
+            </div>
+            </div>
+       
+            </div>
+           
+            
+      
+           
+    
+        
+
+   
+</body>
+
+
+    </html>
+
+    
+  
+  
+  
+
+
+
+
+<!-- Modal add Payments -->
+<div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'editaddpaymentfolio'  %}" method="POST" class="modal-content">
+            {% csrf_token %}
+
+            {%for i in invoice_data%}
+            <input type="hidden" name="invcids" value="{{i.id}}">
+            
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Add Payments</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Amount</label>
+              <input
+                type="text"
+                name="amount"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter Amount"
+                value="{{i.Due_amount}}"
+                required
+              />
+            </div>{%endfor%}
+
+            
+
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Payment Mode</label>
+                <select class="form-control" name="paymentmode" required placeholder="Select Category" required>
+                    
+                    <option  value="cash">Cash</option>
+                    <option  value="UPI">UPI</option>
+                    <option  value="Cheque">Cheque</option>
+                    <option  value="Card">Card</option>
+                    <option  value="BankTransfer">BankTransfer</option>
+                  </select>
+              </div>
+              
+          </div>
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Date</label>
+              <input
+                type="date"
+                name="dates"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter Amount"
+                value="{{i.Due_amount}}"
+                required
+              />
+            </div>
+
+            
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Payment Details</label>
+                <input
+                  type="text"
+                  name="paymntdetails"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="utr,check no"
+                  
+                />
+              </div>
+  
+              <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">Comments</label>
+                <input
+                  type="text"
+                  name="comment"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder=""
+                  
+                />
+              </div>
+          </div>
+        </div>
+
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+
+
+<!-- Modal aedit payment -->
+<div class="modal fade" id="editpaymnent" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog">
+      <form action="{% url 'editinvoicepayment'  %}" method="POST" class="modal-content">
+          {% csrf_token %}
+
+        
+          <input type="hidden" name="invcids" value="" id="editinvcid">
+          
+      
+      <div class="modal-header">
+        <h5 class="modal-title" id="backDropModalTitle">Edit Payments</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">Amount</label>
+            <input
+              type="text"
+              name="amount"
+              id="editamount"
+              class="form-control"
+              placeholder="Enter Amount"
+              value="{{i.Due_amount}}"
+              required
+            />
+          </div>
+
+          
+
+          <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Payment Mode</label>
+              <select class="form-control" name="paymentmode" id="editpaymode" required placeholder="Select Category" required>
+                  
+                  <option  value="cash">Cash</option>
+                  <option  value="UPI">UPI</option>
+                  <option  value="Cheque">Cheque</option>
+                  <option  value="Card">Card</option>
+                  <option  value="BankTransfer">BankTransfer</option>
+                </select>
+            </div>
+            
+        </div>
+        <div class="row">
+          
+
+          
+          <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Payment Details</label>
+              <input
+                type="text"
+                name="paymntdetails"
+                id="paymentdetails"
+                class="form-control"
+                placeholder="utr,check no"
+                
+              />
+            </div>
+
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Comments</label>
+              <input
+                type="text"
+                name="comment"
+                id="Comments"
+                class="form-control"
+                placeholder=""
+                
+              />
+            </div>
+        </div>
+      </div>
+
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button  class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+
+<!-- Modal edit customer details  -->
+<div class="modal fade" id="backDropModaleditcustomer" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog">
+      <form action="{% url 'editcustomergstnumberbyedit'  %}" method="POST" class="modal-content">
+          {% csrf_token %}
+      
+      <div class="modal-header">
+        <h5 class="modal-title" id="backDropModalTitle">Edit Customer Information Room</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      {%for data in invoice_data%}
+      <input type="hidden" name="invcid" value="{{data.id}}" >
+      
+      <div class="modal-body">
+        <div class="row">
+          <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Customer Mobile Number </label>
+              <input
+                type="tel"
+                  pattern="[6-9][0-9]{9}"
+                name="customerphone"
+                maxlength="15"
+                value="{{data.customer.guestphome}}"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter  Mobile Number"
+                required
+                
+              />
+            </div>
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">Customer Gst Number </label>
+            <input
+              type="text"
+              name="gstnumber"
+              maxlength="15"
+              id="nameBackdrop"
+              class="form-control"
+              placeholder="Enter Full Gst Number"
+              value='{{data.customer_gst_number}}'
+              required
+            />
+          </div>
+
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">Customer Comapny Name  </label>
+            <input
+              type="text"
+              name="customercompany"
+              maxlength="15"
+              id="nameBackdrop"
+              class="form-control"
+              placeholder="Enter Full Gst Number"
+              value='{{data.customer_company}}'
+              required
+            />
+          </div>
+          {%endfor%}
+         
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button  class="btn btn-primary">Update</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+
+
+<!-- Modal add more items   -->
+<div class="modal fade" id="modeladditems" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog">
+      <form action="{% url 'addproductonedit'  %}" method="POST" class="modal-content">
+          {% csrf_token %}
+      
+      <div class="modal-header">
+        <h5 class="modal-title" id="backDropModalTitle">Add More Items  </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      {%for data in invoice_data%}
+      <input type="hidden" name="invcid" value="{{data.id}}" >
+      {%endfor%}
+      <div class="modal-body">
+        <div class="row">
+          <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Product Name </label>
+              <input
+                type="text"
+                  
+                name="pname"
+                maxlength="15"
+                value=""
+                id="nameBackdrop"
+                class="form-control"
+                required
+                
+              />
+            </div>
+
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Product Price </label>
+              <input
+                type="text"
+                  oninput="calculateTotal()"
+                name="pprice"
+                maxlength="15"
+                value=""
+                id="pprice"
+                class="form-control"
+                required
+                
+              />
+            </div>
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">Priduct Quantity</label>
+            <input
+              type="number"
+              name="pqty"
+              maxlength="15"
+              id="pqty"
+              class="form-control"
+             oninput="calculateTotal()"
+              required
+            />
+          </div>
+
+         
+         
+      </div>
+
+      <div class="row">
+        
+        <div class="col mb-3">
+          <label for="nameBackdrop" class="form-label">Priduct Gst Rate (TOTAL LIKE: 12%,5%) </label>
+          <input
+            type="number"
+            name="gstrate"
+            maxlength="15"
+            id="gstrate"
+            class="form-control"
+           oninput="calculateTotal()"
+            required
+          />
+        </div>
+
+        <div class="col mb-3">
+          <label for="nameBackdrop" class="form-label">Product HSN Code   </label>
+          <input
+            type="number"
+            name="producthsn"
+            maxlength="15"
+            id="nameBackdrop"
+            class="form-control"
+            value=''
+            required
+          />
+        </div>
+        
+
+        <div class="col mb-3">
+          <label for="nameBackdrop" class="form-label">Grand Total   </label>
+          <input
+            type="text"
+            name="grandtotal"
+            maxlength="15"
+            id="grandtotal"
+            class="form-control"
+            value=''
+            readonly
+            required
+          />
+        </div>
+
+        
+
+        <input type="hidden" name="totalamountwithouttax" id="subtotalwithouttax" />
+        <input type="hidden" name="totaltax" id="totaltaxamount" />
+        
+       
+    </div>
+    <div class="row">
+      <div class="col mb-3">
+        <label for="nameBackdrop" class="form-label">Adjustable Total Amount </label>
+        <input
+          type="text"
+          name=""
+          maxlength="15"
+          id="acceptamount"
+          class="form-control"
+          value=''
+          oninput="calculateTotal()"
+          required
+        />
+      </div>
+    </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button  class="btn btn-primary">Update</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+{% comment %} <script>
+  function calculateTotal() {
+      let price = parseFloat(document.getElementById("pprice").value) || 0;
+      let qty = parseInt(document.getElementById("pqty").value) || 0;
+      let gstRate = parseFloat(document.getElementById("gstrate").value) || 0;
+
+      let totalAmount = price * qty;
+      let taxAmount = (totalAmount * gstRate) / 100;
+      let grandTotal = totalAmount + taxAmount;
+      
+      document.getElementById("totaltaxamount").value = taxAmount.toFixed(2);
+      document.getElementById("subtotalwithouttax").value = totalAmount.toFixed(2);
+      document.getElementById("grandtotal").value = grandTotal.toFixed(2);
+  }
+</script> {% endcomment %}
+
+<script>
+  function calculateTotal() {
+      let price = parseFloat(document.getElementById("pprice").value) || 0;
+      let qty = parseInt(document.getElementById("pqty").value) || 0;
+      let gstRate = parseFloat(document.getElementById("gstrate").value) || 0;
+      let acceptAmount = parseFloat(document.getElementById("acceptamount").value) || null;
+
+      let totalAmount = price * qty;
+      let taxAmount = (totalAmount * gstRate) / 100;
+      let grandTotal = totalAmount + taxAmount;
+
+      if (acceptAmount) {
+          grandTotal = acceptAmount;  // Grand Total user input ke mutaabik hoga
+          totalAmount = (acceptAmount * 100) / (100 + gstRate); // Tax hata kar subtotal
+          taxAmount = acceptAmount - totalAmount; // Naya Tax Amount
+          
+          // Naya Price calculate hoga
+          price = totalAmount / qty;
+          document.getElementById("pprice").value = price.toFixed(2);
+      }
+
+      document.getElementById("totaltaxamount").value = taxAmount.toFixed(2);
+      document.getElementById("subtotalwithouttax").value = totalAmount.toFixed(2);
+      document.getElementById("grandtotal").value = grandTotal.toFixed(2);
+  }
+</script>
+
+
+
+<!-- Modal edit amount details  -->
+<div class="modal fade" id="dueamountmodel" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog">
+      <form action="{% url 'editdueamount'  %}" method="POST" class="modal-content">
+          {% csrf_token %}
+      
+      <div class="modal-header">
+        <h5 class="modal-title" id="backDropModalTitle">Edit Due And Recived Amounts </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      
+      {%for data in invoice_data%}
+      <input type="hidden" name="invcid" value="{{data.id}}" >
+      
+      <div class="modal-body">
+        <div class="row">
+          <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Recived Amount </label>
+              <input
+                type="text"
+                name="Recivedamount"
+                maxlength="15"
+                value="{{data.accepted_amount}}"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter  Mobile Number"
+                required
+                
+              />
+            </div>
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">Due Amount  </label>
+            <input
+              type="text"
+              name="dueamount"
+              maxlength="15"
+              id="nameBackdrop"
+              class="form-control"
+              placeholder="Enter Full Gst Number"
+              value='{{data.Due_amount}}'
+              required
+            />
+          </div>
+
+          
+          {%endfor%}
+         
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button  class="btn btn-primary">Update</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+{%endblock%}

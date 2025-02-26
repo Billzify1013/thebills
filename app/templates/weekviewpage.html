@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-
+{%load static %}
 
 
  <!DOCTYPE html>
@@ -111,7 +111,7 @@
 
     </div>
     
- 
+
  <div class="container">
      <div class="navigation-buttons">
          <button onclick="changeDate(-1)" class="btn btn-primary"><i class='bx bxs-left-arrow'></i></button>
@@ -125,6 +125,10 @@
              <div class="card header-day">{{ i }}</div>
          {% endfor %}
      </div>
+
+
+     
+     
  
      {% for category in categories %}
          <div class="card date-row">
@@ -149,22 +153,45 @@
                                      {% if date == booking_checkin %}
                                          <div class="booking-card checkin {% if booking.status == 'CHECK IN' %}checkin-status{% endif %} {% if booking.status == 'CHECK OUT' %}checkout-status{% endif %}" 
                                               style="width: {{ booking.check_in_width }}%; right: 0;"
-                                              onclick="showBookingInfo('{{ booking.guest_name }}', '{{ room.room_name }}', '{{ booking.check_in_date }}',
-                                               '{{ booking.check_out_date }}','{{ booking.checkintime }}' ,'{{ booking.checkouttime }}' ,'{{ booking.segment }}','{{ booking.totalroom }}','{{ booking.totalamount }}','{{ booking.status }}')">
-                                             <div class="guest-name">{{ booking.guest_name }}</div>
+                                              onclick="showBookingInfo('{{ booking.id }}','{{ booking.guest_name }}', '{{ room.room_name }}', '{{ booking.check_in_date }}',
+                                               '{{ booking.check_out_date }}','{{ booking.checkintime }}' ,'{{ booking.checkouttime }}' ,'{{ booking.segment }}','{{ booking.totalroom }}','{{ booking.totalamount }}','{{ booking.status }}','{{booking.fnbid}}')">
+                                             <div class="guest-name">
+                                                {%if booking.segment == 'MakeMyTrip' %}
+                                                <img src="{% static 'undercss/assets/img/icons/unicons/mmtshort.png'%}"  alt="Credit Card" class="rounded" height='20px'   />
+                                                {%endif%}
+                                                {%if booking.segment == 'BOOKING-ENGINE' %}
+                                                <img src="{% static 'undercss/assets/img/icons/unicons/billzify.png'%}"  alt="Credit Card" class="rounded" height='20px'   />
+                                                {%endif%}
+                                                {%if booking.segment == 'Booking.com' %}
+                                                <img src="{% static 'undercss/assets/img/icons/unicons/bcom.png'%}"  alt="Credit Card" class="rounded" height='20px'   />
+                                                {%endif%}
+                                                {%if booking.segment == 'Agoda' %}
+                                                <img src="{% static 'undercss/assets/img/icons/unicons/agoda.png'%}"  alt="Credit Card" class="rounded" height='25px'   />
+                                                {%endif%}
+                                                {%if booking.segment == 'Goibibo' %}
+                                                <img src="{% static 'undercss/assets/img/icons/unicons/goibibos.png'%}"  alt="Credit Card" class="rounded" height='25px'   />
+                                                {%endif%}
+
+                                                                                               
+
+                                                
+                                                {{ booking.guest_name }}</div>
+
+                                                
+                                                
                                          </div>
                                      {% elif date == booking_checkout %}
                                          <div class="booking-card checkout {% if booking.status == 'CHECK IN' %}checkin-status{% endif %} {% if booking.status == 'CHECK OUT' %}checkout-status{% endif %}" 
                                               style="width: {{ booking.check_out_width }}%; left: 0;"
-                                              onclick="showBookingInfo('{{ booking.guest_name }}', '{{ room.room_name }}', '{{ booking.check_in_date }}',
-                                               '{{ booking.check_out_date }}','{{ booking.checkintime }}' ,'{{ booking.checkouttime }}' ,'{{ booking.segment }}','{{ booking.totalroom }}','{{ booking.totalamount }}','{{ booking.status }}')">
+                                              onclick="showBookingInfo('{{ booking.id }}','{{ booking.guest_name }}', '{{ room.room_name }}', '{{ booking.check_in_date }}',
+                                               '{{ booking.check_out_date }}','{{ booking.checkintime }}' ,'{{ booking.checkouttime }}' ,'{{ booking.segment }}','{{ booking.totalroom }}','{{ booking.totalamount }}','{{ booking.status }}','{{booking.fnbid}}')">
                                              {{ booking.guest_name }}
                                          </div>
                                      {% elif date > booking_checkin and date < booking_checkout %}
                                          <div class="booking-card {% if booking.status == 'CHECK IN' %}checkin-status{% endif %} {% if booking.status == 'CHECK OUT' %}checkout-status{% endif %}" 
                                               style="width: 100%; left: 0;"
-                                              onclick="showBookingInfo('{{ booking.guest_name }}', '{{ room.room_name }}', '{{ booking.check_in_date }}',
-                                               '{{ booking.check_out_date }}','{{ booking.checkintime }}' ,'{{ booking.checkouttime }}' ,'{{ booking.segment }}','{{ booking.totalroom }}','{{ booking.totalamount }}','{{ booking.status }}')">
+                                              onclick="showBookingInfo('{{ booking.id }}','{{ booking.guest_name }}', '{{ room.room_name }}', '{{ booking.check_in_date }}',
+                                               '{{ booking.check_out_date }}','{{ booking.checkintime }}' ,'{{ booking.checkouttime }}' ,'{{ booking.segment }}','{{ booking.totalroom }}','{{ booking.totalamount }}','{{ booking.status }}','{{booking.fnbid}}')">
                                              {% if not forloop.first %}
                                                  <div class="guest-name">{{ booking.guest_name }}</div>
                                              {% endif %}
@@ -177,10 +204,186 @@
                  {% endfor %}
              </div>
          {% endfor %}
-     {% endfor %}
+     {% endfor %} 
+
+    
+     
  </div>
+
+
+
  
  
+ <!-- Modal -->
+<div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Booking Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          
+          <div class="row">
+            <form action="{% url 'showlogsbook' %}" method="post" class="float-end">
+                {% csrf_token %}
+              <input type="hidden" id="bookingmodelidlogs3" name="bookingmodelidlogs" />
+              <button class=" text-end mb-2" style="background:none;border:none" type="submit">
+                <i class='bx bxl-blogger'></i> logs</button>
+              </form>
+            <div class="col-8">
+                Guest:<span id="guestsname"></span><br>
+                Room:<span id="mrids"></span><br>
+                Check-In:<span id="checkins"></span><br>
+                Check-Out:<span id="checkouts"></span><br>
+                Segment:<span id="segmetss"></span><br>
+                Total Room:<span id="trooms"></span><br>
+                Total Amount:<span id="totalamtss"></span><br>
+                Status:<span id="statuss"></span><br>
+            </div>
+            <div class="col-4">
+                <!-- Modal Content Goes Here -->
+          <form action="{% url 'changeroomadvance' %}" method="post">
+            {% csrf_token %}
+          <input type="hidden" id="bookingmodelid" name="bookingmodelid" />
+          <button class="btn btn-primary" type="submit">Change Room</button>
+          
+          </form>
+            </div>
+          </div>
+          
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+  
+  <!-- Modal -->
+  <div class="modal fade" id="bookingModalcheckin" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Booking Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Modal Content Goes Here -->
+          
+            <div class="row">
+                <form action="{% url 'showlogs' %}" method="post" class="float-end">
+                    {% csrf_token %}
+                  <input type="hidden" id="bookingmodelidlogs1" name="bookingmodelidlogs" />
+                  <button class=" text-end mb-2" style="background:none;border:none" type="submit">
+                    <i class='bx bxl-blogger'></i> logs</button>
+                  </form>
+                
+                <div class="col-8">Guest:<span id="guestsname1"></span><br>
+                    Room:<span id="mrids1"></span><br>
+                    Check-In:<span id="checkins1"></span><br>
+                    Check-Out:<span id="checkouts1"></span><br>
+                    Segment:<span id="segmetss1"></span><br>
+                    Total Room:<span id="trooms1"></span><br>
+                    Total Amount:<span id="totalamtss1"></span><br>
+                    Status:<span id="statuss1"></span><br></div>
+                <div class="col-4">
+                    
+                    <form action="{% url 'weekwiewfromfolio' %}" method="post">
+                    {% csrf_token %}
+                  <input type="hidden" id="bookingmodelid1" name="bookingmodelid" />
+                  <button class="btn btn-primary" type="submit">GO TO FOLIO</button>
+                  </form>
+        
+                  </div>
+            </div>
+          
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  
+  <!-- Modal -->
+  <div class="modal fade" id="bookingModalcheckout" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Booking Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          
+          <div class="row">
+            <form action="{% url 'showlogs' %}" method="post" class="float-end">
+                {% csrf_token %}
+              <input type="hidden" id="bookingmodelidlogs2" name="bookingmodelidlogs" />
+              <button class=" text-end mb-2" style="background:none;border:none" type="submit">
+                <i class='bx bxl-blogger'></i> logs</button>
+              </form>
+
+            <div class="col-8">
+                Guest:<span id="guestsname2"></span><br>
+                Room:<span id="mrids2"></span><br>
+                Check-In:<span id="checkins2"></span><br>
+                Check-Out:<span id="checkouts2"></span><br>
+                Segment:<span id="segmetss2"></span><br>
+                Total Room:<span id="trooms2"></span><br>
+                Total Amount:<span id="totalamtss2"></span><br>
+                Status:<span id="statuss2"></span><br>
+            </div>
+            <div class="col-4">
+                <!-- Modal Content Goes Here -->
+                <form action="{% url 'weekwiewfromfolio' %}" method="post">
+                    {% csrf_token %}
+                <input type="hidden" id="bookingmodelid2" name="bookingmodelid" />
+                <button class="btn btn-primary" type="submit">Invoice</button>
+                
+                </form>
+
+                <form action="{% url 'guesthistorysearchview' %}" method="post" class="mt-3">
+                    {% csrf_token %}
+                  <input type="hidden" id="bookingmodelid3" name="bookingmodelid" />
+                  <button class="btn btn-primary" type="submit">Guest History</button>
+                  
+                  </form>
+
+                 <a class="btn btn-primary text-white"   href="{% url 'invoicepage' id=0 %}" id="invoiceLink" >
+                    F&B Invoice 
+                </a>
+                   
+               
+
+            </div>
+          </div>
+          
+          
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
  
  <script>
     function changeDate(offset) {
@@ -191,15 +394,75 @@
     }
 
     function refreshToCurrent() {
-        window.location.href = '?index=0';  
+        window.location.href = '?index=-1';  
     }
 
-    function showBookingInfo(guestName, roomName, checkInDate, checkOutDate, checkIntime, checkouttime, segment, totalroom, totalamount, status) {
+    function showBookingInfo(id, guestName, roomName, checkInDate, checkOutDate, checkIntime, checkouttime, segment, totalroom, totalamount, status, fnbid) {
         console.log("Segment:", segment);
         console.log("Total Room:", totalroom);
         console.log("Total Amount:", totalamount);
+        console.log("this is id",id);
+        console.log("guest id",fnbid)
+        if (status=="BOOKING"){
+            var myModal = new bootstrap.Modal(document.getElementById('bookingModal'));
+            document.getElementById('bookingmodelid').value=id;
+            document.getElementById('guestsname').innerText=guestName;
+            document.getElementById('mrids').innerText=roomName;
+            document.getElementById('checkins').innerText=checkInDate;
+            document.getElementById('checkouts').innerText=checkOutDate;
+            document.getElementById('segmetss').innerText=segment;
+            document.getElementById('trooms').innerText=totalroom;
+            document.getElementById('totalamtss').innerText=parseFloat(totalamount).toFixed(2);
+            document.getElementById('statuss').innerText=status;
+            document.getElementById('bookingmodelidlogs3').value=id;
+            myModal.show();
+        }
+
+        else if (status=="CHECK IN"){
+            var myModalS = new bootstrap.Modal(document.getElementById('bookingModalcheckin'));
+            document.getElementById('bookingmodelid1').value=id;
+            document.getElementById('bookingmodelidlogs1').value=id;
+            document.getElementById('guestsname1').innerText=guestName;
+            document.getElementById('mrids1').innerText=roomName;
+            document.getElementById('checkins1').innerText=checkInDate;
+            document.getElementById('checkouts1').innerText=checkOutDate;
+            document.getElementById('segmetss1').innerText=segment;
+            document.getElementById('trooms1').innerText=totalroom;
+            document.getElementById('totalamtss1').innerText=parseFloat(totalamount).toFixed(2);
+            document.getElementById('statuss1').innerText=status;
+            myModalS.show();
+        }
+
+        else if (status=="CHECK OUT"){
+            var myModalS = new bootstrap.Modal(document.getElementById('bookingModalcheckout'));
+            document.getElementById('bookingmodelid2').value=id;
+            document.getElementById('bookingmodelid3').value=id;
+            document.getElementById('bookingmodelidlogs2').value=id;
+            document.getElementById('guestsname2').innerText=guestName;
+            document.getElementById('mrids2').innerText=roomName;
+            document.getElementById('checkins2').innerText=checkInDate;
+            document.getElementById('checkouts2').innerText=checkOutDate;
+            document.getElementById('segmetss2').innerText=segment;
+            document.getElementById('trooms2').innerText=totalroom;
+            document.getElementById('totalamtss2').innerText=parseFloat(totalamount).toFixed(2);
+            document.getElementById('statuss2').innerText=status;
+            //document.getElementById('guestidfromtable').value=fnbid;
+            var fandbinvoiceid = fnbid;  // Example dynamic value
+            
+
+            if (fandbinvoiceid === 'default_value') {
+                invoiceLink.style.display = 'none';  // Hide the button
+            } else {
+                invoiceLink.style.display = 'inline-block';  // Show the button
+                // Update the href dynamically by setting the ID
+                invoiceLink.href = "{% url 'invoicepage' id='0' %}".replace('0', fandbinvoiceid);
+            }
+
+            myModalS.show();
+        }
+
+        else {alert(`Guest: ${guestName}\nRoom: ${roomName}\nCheck-In: ${checkInDate}\nCheck-In Time: ${checkIntime}\nCheck-Out: ${checkOutDate}\nCheck-Out Time: ${checkouttime}\nSegment: ${segment}\nTotal Room: ${totalroom}\nTotal Amount: ${totalamount}\nStatus: ${status}`);}
         
-        alert(`Guest: ${guestName}\nRoom: ${roomName}\nCheck-In: ${checkInDate}\nCheck-In Time: ${checkIntime}\nCheck-Out: ${checkOutDate}\nCheck-Out Time: ${checkouttime}\nSegment: ${segment}\nTotal Room: ${totalroom}\nTotal Amount: ${totalamount}\nStatus: ${status}`);
     }
 
     function handleDateBoxClick(element, roomName, date, roomNumber) {
@@ -247,9 +510,15 @@
 </script>
 
 
+
  
  </body>
  </html>
+
+
+
+ 
+
  
 
      

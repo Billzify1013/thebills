@@ -1147,9 +1147,12 @@ def invtransection(request,id):
                 print(amtdata,"amt data")
                 combined_data = list(invcselldata) + list(amtdata)
                 print(invcselldata)
+
+                moreaddedmainitms = itempurchasehistorlocal.objects.filter(vendor=user,items_id=id,date__range=[lastday,today])
                 
                 return render(request,'invtran.html',{'itemdata':itemdata,'today':today,
-                                'active_page':'Product','lastday':lastday,'maindata':maindata,'invcselldata':combined_data })
+                                'active_page':'Product','lastday':lastday,'maindata':maindata,'invcselldata':combined_data,
+                                 'moreaddedmainitms':moreaddedmainitms })
             else:
                 messages.error(request,'Somthing Went Wrong!')
                 return redirect('Product')
@@ -1190,9 +1193,12 @@ def fininvtransectiondata(request):
                 print(amtdata,"amt data")
                 combined_data = list(invcselldata) + list(amtdata)
                 print(invcselldata)
+
+                moreaddedmainitms = itempurchasehistorlocal.objects.filter(vendor=user,items_id=id,date__range=[lastday,today])
+                
                 
                 return render(request,'invtran.html',{'itemdata':itemdata,'today':today,
-                                'active_page':'Product','lastday':lastday,'maindata':maindata,'invcselldata':combined_data })
+                                'active_page':'Product','lastday':lastday,'maindata':maindata,'invcselldata':combined_data,'moreaddedmainitms':moreaddedmainitms })
             
             else:
                 messages.error(request,'Somthing Went Wrong!')
@@ -1243,6 +1249,8 @@ def additemstofolio(request):
             foliocustomer = request.POST.get('invoiceid')
             qty = request.POST.get('qty')
             itemid = request.POST.get('iteamid')
+            description = request.POST.get('description')
+            print(description,'p description')
             if Invoice.objects.filter(vendor=user,id=foliocustomer).exists():
                 if qty==0:
                     qty = 1
@@ -1256,19 +1264,28 @@ def additemstofolio(request):
                 Items.objects.filter(vendor=user,id=itemid).update(
                     available_qty=F('available_qty')-qty,
                 )
+                print("function is running")
+                current_date = datetime.now().date()
+                current_date = str(current_date)
+                mdescription = current_date + " " + description
                 if taxes is not None:
                     taxrate = iteams.category_tax.taxrate
                     taxamt = total * taxrate /100
                     totalamt = taxamt + total
                     hsccode = iteams.hsncode
+                    if hsccode == '':
+                        hsccode=0
+                    else:
+                        pass
                     individualtax = taxrate / 2
                     inditaxamt = taxamt/2
-               
-                    current_date = datetime.now().date()
-                    current_date = str(current_date)
-                    InvoiceItem.objects.create(vendor=user,invoice_id=foliocustomer,description=iteams.description,mdescription=current_date,price=iteams.price,
+                    print(inditaxamt,"tax amount individual")
+                    print(int(individualtax),'individual taxrate by chandan')
+                    
+                    InvoiceItem.objects.create(vendor=user,invoice_id=foliocustomer,description=iteams.description,mdescription=mdescription,price=iteams.price,
                                         quantity_likedays=qty,cgst_rate=individualtax,sgst_rate=individualtax,
-                                        hsncode=hsccode,total_amount=totalamt,is_room=False)
+                                        hsncode=hsccode,total_amount=totalamt,is_room=False,
+                                    cgst_rate_amount=inditaxamt,sgst_rate_amount=inditaxamt,totalwithouttax=total)
                     invc = Invoice.objects.get(vendor=user,id=foliocustomer)
                     totalamtinvc = invc.total_item_amount + total
                     subtotalinvc = total + invc.subtotal_amount
@@ -1278,18 +1295,39 @@ def additemstofolio(request):
                     dueamount = float(invc.Due_amount) + totalamt
                     Invoice.objects.filter(vendor=user,id=foliocustomer).update(total_item_amount=totalamtinvc,subtotal_amount=subtotalinvc,
                                                                                 grand_total_amount =grandtotal,sgst_amount=sgsttotal,gst_amount=gsttotal,
-                                                                                Due_amount=dueamount)
+                                                                                Due_amount=dueamount,
+                                                                                taxable_amount=F('taxable_amount')+total)
                     
+                    testtaxrate = float(individualtax)
+                    totaltaxamts = inditaxamt * 2 
+                    if taxSlab.objects.filter(vendor=user,invoice_id=foliocustomer,cgst=testtaxrate).exists():
+                        
+                        taxSlab.objects.filter(vendor=user,invoice_id=foliocustomer,cgst=testtaxrate).update(
+                                cgst_amount=F('cgst_amount') + inditaxamt,
+                                sgst_amount=F('sgst_amount') + inditaxamt,
+                                total_amount=F('total_amount') + totaltaxamts
+                        )
+                    else:
+                        taxname = "GST"+str(int(testtaxrate*2))
+                     
+                        taxSlab.objects.create(vendor=user,invoice_id=foliocustomer,
+                                tax_rate_name=taxname,
+                                cgst=testtaxrate,
+                                sgst=testtaxrate,
+                                cgst_amount=inditaxamt,
+                                sgst_amount=inditaxamt,
+                                total_amount=totaltaxamts
+                        )                   
                     messages.success(request,'Invoice Item added succesfully')
                     # return redirect('pos')
                     userid = invc.customer.id
                     url = reverse('invoicepage', args=[userid])
                     return redirect(url)
                 else:
-                    current_date = datetime.now().date()
-                    current_date = str(current_date)
-                    InvoiceItem.objects.create(vendor=user,invoice_id=foliocustomer,description=iteams.description,mdescription=current_date,price=iteams.price,
-                                        quantity_likedays=qty,total_amount=total,cgst_rate=0.0,sgst_rate=0.0,is_room=False)
+                    InvoiceItem.objects.create(vendor=user,invoice_id=foliocustomer,description=iteams.description,mdescription=mdescription,price=iteams.price,
+                                        quantity_likedays=qty,total_amount=total,cgst_rate=0.0,sgst_rate=0.0,is_room=False,
+                                        cgst_rate_amount=0.0,sgst_rate_amount=0.0,totalwithouttax=total
+                                        )
                     invc = Invoice.objects.get(vendor=user,id=foliocustomer)
                     totalamtinvc = invc.total_item_amount + total
                     subtotalinvc = total + invc.subtotal_amount
@@ -1297,6 +1335,32 @@ def additemstofolio(request):
                     dueamount = float(invc.Due_amount) + total
                     Invoice.objects.filter(vendor=user,id=foliocustomer).update(total_item_amount=totalamtinvc,subtotal_amount=subtotalinvc,
                                                                                 grand_total_amount =grandtotal,Due_amount=dueamount)
+                    
+                    if taxSlab.objects.filter(vendor=user,invoice_id=foliocustomer,tax_rate_name="GST0").exists():
+                        
+                        taxSlab.objects.filter(vendor=user,invoice_id=foliocustomer,cgst=0.0).update(
+                                cgst_amount=F('cgst_amount') + 0.00,
+                                sgst_amount=F('sgst_amount') + 0.00,
+                                total_amount=F('total_amount') + 0.00
+                        )
+                    else:
+                        taxname = "GST0"
+                     
+                        taxSlab.objects.create(vendor=user,invoice_id=foliocustomer,
+                                tax_rate_name=taxname,
+                                cgst=0.0,
+                                sgst=0.0,
+                                cgst_amount=0.0,
+                                sgst_amount=0.0,
+                                total_amount=0.0
+                        )
+
+                    actionss = 'Create Service'
+                    descss = str(iteams.description) + " " + str(qty) + " Added"
+                    CustomGuestLog.objects.create(vendor=user,customer=invc.customer,by=request.user,action=actionss,
+                            description=descss)
+
+                    
                     messages.success(request,'Invoice Item added succesfully')
                     # return redirect('pos')
                     userid = invc.customer.id
@@ -1329,12 +1393,13 @@ def addlaundryitems(request):
                 price = laundry.price
                 current_date = datetime.now().date()
                 current_date = str(current_date)
-                name = laundry.gencategory + " " + laundry.name +" "+ laundry.sercategory+" "+current_date
+                name = laundry.gencategory + " " + laundry.name +" "+ laundry.sercategory+" "
                 total = price * int(qty)
                 
                 
-                InvoiceItem.objects.create(vendor=user,invoice_id=foliocustomer,description=name,price=price,
-                                        quantity_likedays=qty,total_amount=total,cgst_rate=0.0,sgst_rate=0.0,is_room=False)
+                InvoiceItem.objects.create(vendor=user,invoice_id=foliocustomer,description=name,mdescription=current_date,price=price,
+                                        quantity_likedays=qty,total_amount=total,cgst_rate=0.0,sgst_rate=0.0,is_room=False,
+                                        cgst_rate_amount=0.0,sgst_rate_amount=0.0,totalwithouttax=total)
                 invc = Invoice.objects.get(vendor=user,id=foliocustomer)
                 totalamtinvc = invc.total_item_amount + total
                 subtotalinvc = total + invc.subtotal_amount
@@ -1394,6 +1459,77 @@ def finddatevisesales(request):
             startdate = request.POST.get('startdate')
             enddate = request.POST.get('enddate')
 
+            from django.db.models import Q
+
+            booksdatacount = Booking.objects.filter(
+                vendor=user,
+                ).filter(
+                    Q(check_in_date__gte=startdate, check_in_date__lte=enddate) |  # check_in_date is within the range
+                    Q(check_out_date__gte=startdate, check_out_date__lte=enddate) |  # check_out_date is within the range
+                    Q(check_in_date__lte=startdate, check_out_date__gte=enddate)   # The booking spans across the range
+                ).count()
+
+            roomcount = Rooms.objects.filter(vendor=user).exclude(checkin=6).count()
+            Occupancy = int((booksdatacount / roomcount) * 100)
+
+
+
+
+
+            # Step 1: Filter bookings within the date range
+            booksdata = Booking.objects.filter(
+                vendor=user,
+            ).filter(
+                Q(check_in_date__gte=startdate, check_in_date__lte=enddate) |  # check_in_date is within the range
+                Q(check_out_date__gte=startdate, check_out_date__lte=enddate) |  # check_out_date is within the range
+                Q(check_in_date__lte=startdate, check_out_date__gte=enddate)   # The booking spans across the range
+            )
+
+            # Step 2: Annotate the bookings by 'gueststay' to ensure only unique gueststay records are considered
+            booksdata_annotated = booksdata.values('gueststay').annotate(
+                total_amount=Sum('totalamount')  # Sum the totalamount for each unique gueststay
+            )
+
+            # Step 3: Sum up the total_amount from the annotated records
+            total_amount = booksdata_annotated.aggregate(
+                total_sum=Sum('total_amount')
+            )['total_sum']
+
+            # Handle the case where no data is found
+            total_amount = total_amount if total_amount is not None else 0
+
+            print(f"Total Amount: {total_amount}")
+
+            # Convert the string dates to datetime objects
+            startdatecheck = datetime.strptime(startdate, '%Y-%m-%d')  # Format 'YYYY-MM-DD'
+            enddatecheck = datetime.strptime(enddate, '%Y-%m-%d')  # Format 'YYYY-MM-DD'
+
+            # Calculate the difference in days
+            difference = (enddatecheck - startdatecheck).days
+
+            # If the start and end dates are the same, we still want it to return 1 day
+            if difference == 0:
+                difference = 1
+
+            # Output the difference
+            print(f"The difference between the two dates is: {difference} days")
+            arr=0
+            if booksdatacount==0:
+                pass
+            else:
+                arr = total_amount / booksdatacount
+
+
+            
+            # ARR = Total Room Revenue / Number of Rooms Sold
+
+            print(booksdatacount)
+            print(Occupancy,'occupancy')
+
+            taxes = taxSlab.objects.filter(vendor=user,invoice__invoice_date__range=[startdate,enddate]).exclude(tax_rate_name='GST0').values('tax_rate_name', 'cgst').annotate(
+                total_amount=Sum('total_amount')
+            )
+
             if Invoice.objects.filter(vendor=user,invoice_date__range=[startdate,enddate]).exists():
 
                 total_grand_total_amount = Invoice.objects.filter(
@@ -1496,7 +1632,8 @@ def finddatevisesales(request):
                 # Filter payments based on the time range
                 payments = InvoicesPayment.objects.filter(
                     payment_date__gte=startdate,
-                    payment_date__lte=enddate
+                    payment_date__lte=enddate,
+                    invoice__isnull=False
                 )
 
                 # Calculate total amount and count per payment mode
@@ -1509,6 +1646,9 @@ def finddatevisesales(request):
                 total_amount = payments.aggregate(Sum('payment_amount'))['payment_amount__sum'] or 0.00
                 total_count = payments.count()
 
+                
+                
+
                 return render(request,'datewisesale.html',{'active_page':'index','sattle_total_amount':sattle_total_amount,
                                                     'channel_data': channel_data,
                                                     'total_grand_total_sum': total_grand_total_sum,
@@ -1517,10 +1657,12 @@ def finddatevisesales(request):
                                                     'mode_summary': mode_summary,
                                                     'total_amount': total_amount,
                                                     'total_count': total_count,
+                                                    'arr':arr,'taxes':taxes,
+                                                    'booksdatacount':booksdatacount,'Occupancy':Occupancy,
                                                     'total_invoices_count': total_invoices_count,'total_cash_amount':total_cash_amount,'total_online_amount':total_online_amount,'grand_total_amount':grand_total_amount,'startdate':startdate,'enddate':enddate,'folio_total_amount':folio_total_amount,'total_gst_amount':total_gst_amount})
             else:
                 return render(request,'datewisesale.html',{'active_page':'index','startdate':startdate,'enddate':enddate,
-                                        'erroe':"NO DATA FIND ON THIS DATES"})
+                                        'taxes':taxes,'arr':arr,'Occupancy':Occupancy,'booksdatacount':booksdatacount,'erroe':"NO DATA FIND ON THIS DATES"})
         else:
             return redirect('loginpage')
     except Exception as e:
@@ -1528,8 +1670,9 @@ def finddatevisesales(request):
 
 
 from django.utils import timezone
+
 def todaysales(request):
-    # try:
+    try:
         if request.user.is_authenticated  :
             user=request.user
             subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
@@ -1545,7 +1688,53 @@ def todaysales(request):
 
             startdate = yestarday
             enddate = today
+
+            booksdatacount = Booking.objects.filter(
+                vendor=user,
+                ).filter(
+                    Q(check_in_date__gte=startdate, check_in_date__lte=enddate) |  # check_in_date is within the range
+                    Q(check_out_date__gte=startdate, check_out_date__lte=enddate) |  # check_out_date is within the range
+                    Q(check_in_date__lte=startdate, check_out_date__gte=enddate)   # The booking spans across the range
+                ).count()
             
+            roomcount = Rooms.objects.filter(vendor=user).exclude(checkin=6).count()
+            Occupancy = int((booksdatacount / roomcount) * 100)
+
+            print(booksdatacount)
+            print(Occupancy,'occupancy')
+
+
+            # Step 1: Filter bookings within the date range
+            booksdata = Booking.objects.filter(
+                vendor=user,
+            ).filter(
+                Q(check_in_date__gte=startdate, check_in_date__lte=enddate) |  # check_in_date is within the range
+                Q(check_out_date__gte=startdate, check_out_date__lte=enddate) |  # check_out_date is within the range
+                Q(check_in_date__lte=startdate, check_out_date__gte=enddate)   # The booking spans across the range
+            )
+
+            # Step 2: Annotate the bookings by 'gueststay' to ensure only unique gueststay records are considered
+            booksdata_annotated = booksdata.values('gueststay').annotate(
+                total_amount=Sum('totalamount')  # Sum the totalamount for each unique gueststay
+            )
+
+            # Step 3: Sum up the total_amount from the annotated records
+            total_amount = booksdata_annotated.aggregate(
+                total_sum=Sum('total_amount')
+            )['total_sum']
+
+            # Handle the case where no data is found
+            total_amount = total_amount if total_amount is not None else 0
+
+            print(f"Total Amount: {total_amount}")
+            arr=0
+            if booksdatacount==0:
+                pass
+            else:
+                arr = total_amount / booksdatacount
+            taxes = taxSlab.objects.filter(vendor=user,invoice__invoice_date__range=[startdate,enddate]).exclude(tax_rate_name='GST0').values('tax_rate_name', 'cgst').annotate(
+                total_amount=Sum('total_amount')
+            )
             if Invoice.objects.filter(vendor=user,invoice_date__range=[startdate,enddate]).exists():
 
                 total_grand_total_amount = Invoice.objects.filter(
@@ -1604,7 +1793,7 @@ def todaysales(request):
 
                 # # Access the correct key 'total_cash_amount'
                 total_cash_amount =float( cash_amount_sum['total_cash_amount'])
-               
+                
 
                 online_amount_sum = Invoice.objects.filter(
                     vendor=user,
@@ -1638,10 +1827,7 @@ def todaysales(request):
                 total_invoices_count = sum(data['total_invoices'] for data in channel_data)
                 today
                 
-                bookingdata=SaveAdvanceBookGuestData.objects.filter(vendor=user,
-                                            bookingdate__lte=today,
-                                            checkoutdate__gt=today,
-                                            checkinstatus=False ).all()
+                
                 
                 # Manually adding static time to the date
                 startdate_str = f"{startdate} 00:00:00"  # Start at 00:00:00
@@ -1653,8 +1839,11 @@ def todaysales(request):
 
                 # Filter payments based on the time range
                 payments = InvoicesPayment.objects.filter(
+                    vendor=user,
+                  
                     payment_date__gte=startdate,
-                    payment_date__lte=enddate
+                    payment_date__lte=enddate,
+                    invoice__isnull=False
                 )
 
                 # Calculate total amount and count per payment mode
@@ -1673,20 +1862,22 @@ def todaysales(request):
                                                     'total_grand_total_sum': total_grand_total_sum,
                                                     'total_tax_amount_sum': total_tax_amount_sum,
                                                     'net_profit_sum': net_profit_sum,
-                                                    'bookingdata':bookingdata,'mode_summary': mode_summary,
+                                                    'mode_summary': mode_summary,
                                                     'total_amount': total_amount,
                                                     'total_count': total_count,
+                                                    'arr':arr,'taxes':taxes,
+                                                    'booksdatacount':booksdatacount,'Occupancy':Occupancy,
                                                     'total_invoices_count': total_invoices_count,'total_cash_amount':total_cash_amount,'total_online_amount':total_online_amount,'grand_total_amount':grand_total_amount,'startdate':startdate,'enddate':enddate,'folio_total_amount':folio_total_amount,'total_gst_amount':total_gst_amount})
             else:
                 today = datetime.now().date()
-                bookingdata=SaveAdvanceBookGuestData.objects.filter(vendor=user,
-                                            bookingdate=today).all()
-                return render(request,'datewisesale.html',{'bookingdata':bookingdata,'active_page':'todaysales','startdate':startdate,'enddate':enddate,
+                
+                return render(request,'datewisesale.html',{'active_page':'todaysales','startdate':startdate,'enddate':enddate,
+                                        'booksdatacount':booksdatacount,'arr':arr,'Occupancy':Occupancy,'taxes':taxes,
                                         'erroe':"NO DATA FIND ON THIS DATES"})
         else:
             return redirect('loginpage')
-    # except Exception as e:
-    #     return render(request, '404.html', {'error_message': str(e)}, status=500)  
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)  
 
 
 
@@ -1722,7 +1913,9 @@ def mobileview(request, user):
 
             profiledata = HotelProfile.objects.filter(vendor__username=user)
             imagedata = HoelImage.objects.filter(vendor__username=user)
-            rateplanmaxuser = RatePlan.objects.filter(vendor__username=user, max_persons__gte=1)
+            # apply filters here
+            default = 2
+            rateplanmaxuser = RatePlan.objects.filter(vendor__username=user, max_persons=default)
             offers = OfferBE.objects.filter(vendor__username=user).last()
 
             # Initialize cheapest room tracking
@@ -1802,7 +1995,8 @@ def mobileview(request, user):
                 'lowest_price': lowest_price,
                 'user':users.id,
                 'terms_lines':terms_lines,
-                'cpolicy':cpolicy
+                'cpolicy':cpolicy,
+                'default':default
             })
         
         else:
@@ -1836,7 +2030,9 @@ def searchwebsitedata(request):
             # Get check-in and check-out dates from the request
             checkin_date = request.POST.get('checkin_date')  # Example: '2024-12-04'
             checkout_date = request.POST.get('checkout_date')  # Example: '2024-12-06'
-
+            guestscountss = int(request.POST.get('guestscountss'))
+            default=guestscountss
+            print(default)
             # Parse the dates
             checkin_date = datetime.strptime(checkin_date, '%Y-%m-%d').date()
             checkout_date = datetime.strptime(checkout_date, '%Y-%m-%d').date()
@@ -1860,9 +2056,11 @@ def searchwebsitedata(request):
 
             profiledata = HotelProfile.objects.filter(vendor__username=user)
             imagedata = HoelImage.objects.filter(vendor__username=user)
-            rateplanmaxuser = RatePlan.objects.filter(vendor__username=user, max_persons__gte=1)
+            rateplanmaxuser = RatePlan.objects.filter(vendor__username=user, max_persons=guestscountss)
             offers = OfferBE.objects.filter(vendor__username=user).last()
 
+            if len(rateplanmaxuser) < 1:
+                rateplanmaxuser = RatePlan.objects.filter(vendor__username=user, max_persons__gte=1)
             # Initialize cheapest room tracking
             cheapest_room = None
             cheapest_rate_plan = None
@@ -1953,7 +2151,8 @@ def searchwebsitedata(request):
                 'lowest_price': lowest_price,
                 'user': users.id,
                 'terms_lines':terms_lines,
-                'cpolicy':cpolicy
+                'cpolicy':cpolicy,
+                'default':default
             })
         else:
             return render(request, '404.html', {'error_message': 'Opps Session Expired Please Go Back And Check!'}, status=500)
@@ -2314,3 +2513,7 @@ def bulkformprice(request):
             return render(request, 'login.html')
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)
+    
+
+
+    

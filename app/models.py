@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
 from django.core.validators import MinValueValidator
 from decimal import Decimal
+from datetime import date
 # Create your models here.
 
 from django.contrib.auth.models import AbstractUser, Group, Permission
@@ -94,8 +95,17 @@ class Gueststay(models.Model):
     male = models.CharField(max_length=50,default=True,blank=True)
     female = models.CharField(max_length=50,default=True,blank=True)
     transg = models.CharField(max_length=50,default=True,blank=True)
+    extend = models.BooleanField(default=False)
+    extend_decription = models.CharField(max_length=50,default=True,blank=True)
+    created_checkoutdate = models.DateTimeField(editable=False)
+    fandbinvoiceid = models.CharField(max_length=50,default=True,blank=True)
     def __str__(self) -> str:
         return self.guestname
+    
+    def save(self, *args, **kwargs):
+        if not self.pk:  # Means this is a new record (first time save)
+            self.created_checkoutdate = self.checkoutdate  
+        super().save(*args, **kwargs)
 
 
 class MoreGuestData(models.Model):
@@ -125,6 +135,7 @@ class Subscription(models.Model):
 class onlinechannls(models.Model):
     vendor = models.ForeignKey(User,on_delete=models.CASCADE)
     channalname = models.CharField(max_length=100)
+    company_gstin = models.CharField(max_length=15,blank=True,null=True)
     def __str__(self) -> str:
         return self.channalname
     
@@ -149,6 +160,7 @@ class Invoice(models.Model):
     vendor = models.ForeignKey(User,on_delete=models.CASCADE)
     customer = models.ForeignKey(Gueststay,on_delete=models.CASCADE)
     customer_gst_number = models.CharField(max_length=15,blank=True)  # GST Identification Number
+    customer_company = models.CharField(max_length=15,blank=True,null=True)
     invoice_number = models.CharField(max_length=20,blank=True)
     invoice_date = models.DateField(blank=True)
     total_item_amount = models.DecimalField(max_digits=10, decimal_places=2,blank=True)
@@ -157,6 +169,7 @@ class Invoice(models.Model):
     gst_amount = models.DecimalField(max_digits=10, decimal_places=2,blank=True)
     sgst_amount = models.DecimalField(max_digits=10, decimal_places=2,blank=True)
     grand_total_amount = models.DecimalField(max_digits=10, decimal_places=2,blank=True)
+    taxable_amount = models.DecimalField(max_digits=10, decimal_places=2,blank=True,null=True) 
     modeofpayment = models.CharField(max_length=20,blank=True)
     accepted_amount = models.DecimalField(max_digits=10, decimal_places=2,blank=True)
     Due_amount = models.DecimalField(max_digits=10, decimal_places=2,blank=True)
@@ -169,11 +182,13 @@ class Invoice(models.Model):
         # Add more categories as needed
     ]
     taxtype = models.CharField(max_length=5, choices=CATEGORY_CHOICES)
+    is_fandb = models.BooleanField(default=False)
+    is_ota = models.BooleanField(default=False)
 
 
 class InvoiceItem(models.Model):
     vendor = models.ForeignKey(User,on_delete=models.CASCADE)
-    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE,related_name='items')
     description = models.CharField(max_length=100)
     mdescription = models.CharField(max_length=100)
     hsncode = models.IntegerField(default=0,blank=True)
@@ -182,11 +197,27 @@ class InvoiceItem(models.Model):
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     cgst_rate = models.DecimalField(max_digits=5, decimal_places=2, validators=[MinValueValidator(0)])
     sgst_rate = models.DecimalField(max_digits=5, decimal_places=2, validators=[MinValueValidator(0)])
+    cgst_rate_amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)],blank=True, null=True)
+    sgst_rate_amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)],blank=True, null=True)
+    totalwithouttax = models.DecimalField(max_digits=10, decimal_places=2,blank=True, null=True)
     is_room = models.BooleanField(default=False)
     is_checkout = models.BooleanField(default=False)
     date = models.DateField(auto_now=True)
+    is_extend = models.BooleanField(default=False)
+    checkout_date = models.DateField(auto_now=False,blank=True, null=True)
+    is_room_extra = models.BooleanField(default=False)
 
    
+class taxSlab(models.Model):
+    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name='taxslab', null=True, blank=True)
+    tax_rate_name = models.CharField(max_length=15, blank=True, null=True)
+    cgst = models.FloatField()
+    sgst = models.FloatField()  # e.g., 'Credit Card', 'Cash'
+    cgst_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    sgst_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+
 class Items(models.Model):
     vendor = models.ForeignKey(User,on_delete=models.CASCADE)
     description = models.CharField(max_length=50)
@@ -195,6 +226,13 @@ class Items(models.Model):
     price = models.IntegerField()
     available_qty = models.BigIntegerField(default=0)
     total_qty = models.BigIntegerField(default=0)
+
+class itempurchasehistorlocal(models.Model):
+    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
+    items =  models.ForeignKey(Items,on_delete=models.CASCADE)
+    date = models.DateField(auto_now=True)
+    add_qty = models.IntegerField()
+    total_amount = models.FloatField()
     
 
 
@@ -367,6 +405,7 @@ class CustomerCredit(models.Model):
     )
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     due_date = models.DateField()
+    gst_number = models.CharField(max_length=20,blank=True,null=True)
 
     invoice =  models.ForeignKey(Invoice,on_delete=models.CASCADE,blank=True,null=True)
     def __str__(self):
@@ -519,7 +558,7 @@ class SaveAdvanceBookGuestData(models.Model):
     action = models.CharField(max_length=20, choices=ACTION_CHOICES,blank=True,null=True)
     booking_id = models.CharField(max_length=100,null=True, blank=True)
     cm_booking_id = models.CharField(max_length=100,null=True, blank=True)
-    checkin = models.DateField()
+    checkin = models.DateField() #ye mene asa boooking date li hai or booking date checkin date hai 
     segment = models.CharField(max_length=50)
     special_requests = models.TextField(blank=True, null=True)
     pah = models.BooleanField(default=False)
@@ -574,6 +613,16 @@ class RoomBookAdvance(models.Model):
     def __str__(self) -> str:
         return self.bookingguest
 
+class extraBookingAmount(models.Model):
+    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
+    bookdata = models.ForeignKey(RoomBookAdvance, on_delete=models.CASCADE)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    qty = models.IntegerField()
+    taxable_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    csgst_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    sgst_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    grand_total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+
 
 
 class Booking(models.Model):
@@ -590,6 +639,8 @@ class Booking(models.Model):
     gueststay = models.ForeignKey(Gueststay,on_delete=models.CASCADE, null=True, blank=True)
     advancebook = models.ForeignKey(SaveAdvanceBookGuestData, on_delete=models.CASCADE, null=True, blank=True)
     status = models.CharField(max_length=25, null=True, blank=True)
+    fnbinvoice = models.ForeignKey(Invoice,on_delete=models.CASCADE, null=True, blank=True)
+
     def __str__(self):
         return f"{self.guest_name} ({self.check_in_date} - {self.check_out_date})"
     
@@ -603,6 +654,7 @@ class InvoicesPayment(models.Model):
     payment_mode = models.CharField(max_length=50)  # e.g., 'Credit Card', 'Cash'
     transaction_id = models.CharField(max_length=100, blank=True, null=True)  # optional
     descriptions = models.CharField(max_length=50, blank=True, null=True) 
+    maindate = models.DateField(default=date.today, blank=True, null=True)
 
 
 
@@ -657,6 +709,10 @@ class Supplier(models.Model):
     cash_amount = models.DecimalField(max_digits=10, decimal_places=2,blank=True)
     online_amount = models.DecimalField(max_digits=10, decimal_places=2,blank=True)
     sattle =  models.BooleanField(default=False)
+    state = models.CharField(max_length=50,blank=True)
+    unpaid =  models.BooleanField(default=False)
+    reviced_amount = models.DecimalField(max_digits=10, decimal_places=2,blank=True,null=True)
+    due_amount = models.DecimalField(max_digits=10, decimal_places=2,blank=True,null=True)
 
 
 
@@ -677,22 +733,43 @@ class SupplierInvoiceItem(models.Model):
     is_intvntory = models.BooleanField(default=False)
     salerate = models.PositiveIntegerField()
     date=models.DateField(auto_now=True)
+    sellinghsn = models.CharField(max_length=8,blank=True)
 
 
 
+class taxSlabpurchase(models.Model):
+    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
+    invoice = models.ForeignKey(Supplier, on_delete=models.CASCADE,  null=True, blank=True)
+    tax_hsnsac_name = models.CharField(max_length=15, blank=True, null=True)
+    cgst = models.FloatField()
+    sgst = models.FloatField()  # e.g., 'Credit Card', 'Cash'
+    cgst_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    sgst_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    taxableamount = models.DecimalField(max_digits=10, decimal_places=2,blank=True)
 
+class PurchasePayment(models.Model):
+    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
+    invoice = models.ForeignKey(Supplier, on_delete=models.CASCADE, null=True, blank=True)
+    payment_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_date = models.DateTimeField(auto_now=False,null=True)
+    payment_mode = models.CharField(max_length=50)  # e.g., 'Credit Card', 'Cash'
+    transaction_id = models.CharField(max_length=100, blank=True, null=True)  # optional
+    descriptions = models.CharField(max_length=50, blank=True, null=True) 
+    maindate = models.DateField(default=date.today, blank=True, null=True)
 
 
 
 class Companies(models.Model):
     vendor = models.ForeignKey(User,on_delete=models.CASCADE)
     companyname = models.CharField(max_length=50)
-    contactpersonname = models.CharField(max_length=50)
-    contact = models.BigIntegerField(validators=[MaxValueValidator(9999999999)])
+    contactpersonname = models.CharField(max_length=50,blank=True,null=True)
+    contact = models.BigIntegerField(validators=[MaxValueValidator(9999999999)],blank=True,null=True)
     email = models.EmailField(max_length=100,blank=True)
-    address = models.CharField(max_length=300)
+    address = models.CharField(max_length=300,blank=True,null=True)
     customergst = models.CharField(max_length=15,blank=True)
-    values = models.CharField(max_length=10,default=0)
+    values = models.FloatField(default=0,blank=True,null=True)
+    
 
 
 class companyinvoice(models.Model):
@@ -800,3 +877,15 @@ class hand_overCash(models.Model):
 class googlereview(models.Model):
     vendor = models.ForeignKey(User, on_delete=models.CASCADE)
     googleurl = models.URLField(max_length=200, blank=True, null=True)
+
+
+from django.utils.timezone import now
+
+class CustomGuestLog(models.Model):
+    vendor = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    customer = models.ForeignKey(Gueststay,on_delete=models.CASCADE, null=True, blank=True)
+    by = models.CharField(max_length=100)  
+    action = models.CharField(max_length=30)  # Action type (Create, Update, Delete)
+    description = models.CharField(max_length=100,blank=True, null=True)  # Extra details
+    timestamp = models.DateTimeField(default=now)  # Action ka time
+    advancebook = models.ForeignKey(SaveAdvanceBookGuestData,on_delete=models.CASCADE, null=True, blank=True)

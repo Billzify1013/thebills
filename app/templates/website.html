@@ -315,6 +315,23 @@ html, body {
                               </div> 
                             </div>
 
+                            <div class="row p-2">
+                                <div class="col-12  ">
+                                    <label for="zipCode" class="form-label">Guests </label>
+                                  <select class="form-control" required name="guestscountss">
+                                    <option value="{{default}}">{{default}}</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">Group Booking</option>
+                                    
+
+                                  </select>
+                                </div>
                           
                             
                                 <div class="col-12 w-100 p-2 mb-2 mt-2">
@@ -409,28 +426,7 @@ html, body {
                     </div>
                     <div class="col-5">
                         <center>
-                            {% comment %} <button class="btn btn-dark w-100 mt-2"
-                                onclick="addToCart('{{ forloop.counter }}', '{{ room.category_name }}', '{{ plan.rate_plan_name }}', {{ plan.max_persons }}, {{ plan.childmaxallowed }}, {{ room.uprice|add:plan.base_price }}, {{ room.tax }}, {{ room.available_rooms }})">
-                                Add
-                            </button> {% endcomment %}
-                            {% comment %} <button class="btn btn-dark w-100 mt-2" id="add-to-cart-{{ forloop.counter }}"
-                            onclick="addToCart('{{ forloop.counter }}', '{{ room.category_name }}', '{{ plan.rate_plan_name }}', {{ plan.max_persons }}, {{ plan.childmaxallowed }}, {{ room.uprice|add:plan.base_price }}, {{ room.tax }}, {{ room.available_rooms }}, {{ room.offeramount }})">
-                            Add to Cart
-                          </button> {% endcomment %}
-
-                          {% comment %} <button class="btn btn-dark w-100 mt-2" 
-        id="add-to-cart-{{ forloop.counter }}" 
-        onclick="addToCart('{{ forloop.counter }}', 
-                          '{{ room.category_name }}', 
-                          '{{ plan.rate_plan_name }}', 
-                          {{ plan.max_persons }}, 
-                          {{ plan.childmaxallowed }}, 
-                          {{ room.uprice|add:plan.base_price }}, 
-                          {{ room.tax }}, 
-                          {{ room.available_rooms }}, 
-                          {{ room.offeramount }})">
-    Add to Cart
-</button> {% endcomment %}
+                            
 
 <button class="btn btn-dark w-100 mt-2 position-relative overflow-hidden" 
         id="add-to-cart-{{ forloop.counter }}" 
@@ -759,7 +755,11 @@ html, body {
     }
 
     // Add room to the cart
-    function addToCart(roomId, categoryName, ratePlanName,ratePlanCode ,adults, children, roomPrice, taxRate, availableRooms, offerAmount) {
+    function addToCart(roomId, categoryName, ratePlanName, ratePlanCode ,adults, children, roomPrice, taxRate, availableRooms, offerAmount) {
+        
+        if (parseInt(roomPrice)>7500){taxRate=18}
+        else if (parseInt(roomPrice)<=7500){taxRate=12}
+        
         if (!cart[roomId]) {
             cart[roomId] = {
                 count: 0,

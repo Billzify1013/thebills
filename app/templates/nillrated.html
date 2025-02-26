@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h5>Accounts / Nil Invoices</h5>
+<div class="card mt-4">
+    <div class="w-100 mt-4 mb-5">
+        
+        <div class="row w-100 mb-4">
+            
+                <div class="col-2">
+                    <div class="col ms-3">
+                        <label for="nameBackdrop" class="form-label">From Date :</label>
+                        <input type="date" readonly name="startdate" id="nameBackdrop" class="form-control" required value="{{ startdate|date:'Y-m-d' }}" />
+                    </div>
+                </div>
+                <div class="col-2">
+                    <div class="col ms-3">
+                        <label for="nameBackdrop" class="form-label">To Date :</label>
+                        <input type="date" readonly name="enddate" id="nameBackdrop" class="form-control" required value="{{ enddate|date:'Y-m-d' }}" />
+                    </div>
+                </div>
+
+                <div class="col-2"></div>
+                <div class="col-3"></div>
+                
+                <div class="col-2 mt-4">
+                    
+                      
+                </div>
+
+                
+
+                <div class="col-1">
+                    <div class="col  mt-4">
+                       <button class="btn btn-primary" onClick="javascript:history.go(-1);">Back</button>
+                    </div>
+                </div>
+
+            
+            
+        </div>
+
+
+<div class="card mt-5 m-1">
+    <h5 class="m-2"> Nil Invoices</h5>
+     <table class="table table-bordered W-100" style="background-color: white;">
+         <thead class="bg-dark">
+             <tr style="font-weight: bold;" >
+                 <th class="text-white">Guest Name</th>
+                 <th class="text-white">Source</th>
+                 <th class="text-white">Checkin</th>
+                 <th class="text-white">Checkout</th>
+                 <th class="text-white">Amount</th>
+                 <th class="text-white">Invoice num</th>
+             </tr>
+         </thead>
+         <tbody>
+             {% for data in nillrateamount %}
+             <tr>
+                <td>{{ data.invoice.customer.guestname }}</td>
+                <td>{{ data.invoice.customer.channel }}</td>
+                <td>{{ data.invoice.customer.checkindate }}</td>
+                <td>{{ data.invoice.customer.checkoutdate }}</td>
+                <td >{{ data.total_amount }}</td>  
+                <td>{{ data.invoice.invoice_number }}</td>
+            </tr>
+             {% endfor %}
+         </tbody>
+     </table>
+ </div>
+
+
+ <script>
+    // Select all rows and calculate GST Total for each row
+    document.addEventListener("DOMContentLoaded", function () {
+        let rows = document.querySelectorAll("tbody tr");
+
+        rows.forEach(row => {
+            let gstAmounts = row.querySelectorAll(".gst-amount");  // Select all GST amounts in row
+            let totalGST = 0;
+
+            gstAmounts.forEach(cell => {
+                totalGST += parseFloat(cell.innerText) || 0;  // Convert text to float and add
+            });
+
+            // Set calculated total in the last column
+            row.querySelector(".gst-total").innerText = totalGST.toFixed(2);
+        });
+    });
+</script>
+{%endblock%}

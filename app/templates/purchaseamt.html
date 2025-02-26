@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%endif%}
+</div>
+{%endfor%}
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 1000);
+      setTimeout(function() {
+        $("#danger-alert").fadeTo(500, 0).slideUp(500, function(){
+            $(this).remove(); 
+        });
+    }, 5000);
+      
+  });
+</script>
+{%endif%}
+
+<div class="row">
+    
+    <div class="col-10 ">
+        <!-- Bootstrap Table with Header - Light -->
+ 
+ <div class="card">
+    <form action="{% url 'addpaymenttopurchase' %}" method="post" >
+        {% csrf_token %}
+     
+        <input type="hidden" name="suppilerid" value="{{spdata.id}}" />
+        <div class="row">
+            <span class="text ms-3 mt-2"><i class='bx bx-receipt'></i> Add Payment To Purchase <br>
+                Supplier: {{spdata.customername}} 
+            </span>
+    <div class="col-11 m-4 mb-4">
+        <span class="text ">Due Amount</span>
+        <div class="col mb-3">
+            <input
+              type="text"
+              name="amount"
+              id="nameBackdrop"
+              value="{{spdata.due_amount}}"
+              class="form-control"
+              placeholder="Enter RoomName"
+              required
+            />
+          </div>
+        <div>
+            <div class="mt-4">
+                <span class="text mb-2">Payment Mode</span>
+                <select class="form-control" name="paymentmode" required placeholder="Select Category" required>
+                    
+                    <option  value="cash">Cash</option>
+                    <option  value="UPI">UPI</option>
+                    <option  value="Cheque">Cheque</option>
+                    <option  value="Card">Card</option>
+                    <option  value="BankTransfer">BankTransfer</option>
+                  </select>
+        </div>
+        <div class="col-12 mt-3">
+            <span class="text">Payment Details</span>
+            <div class="col mb-3">
+                <input
+                  type="text"
+                  name="paymntdetails"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder=""
+                  
+                />
+              </div>
+        </div>
+        <div class="col-12 mt-3">
+            <span class="text">Comments</span>
+            <div class="col mb-3">
+                <input
+                  type="text"
+                  name="comment"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder=""
+                  
+                />
+              </div>
+        </div>
+
+    </div></div>
+</div>
+
+    <button class="btn btn-primary mb-3 ms-4" type="submit" >Add Payment</button>
+
+        </form>
+       
+   
+     
+    </div>
+</div>
+
+</div>
+
+
+
+{%endblock%}

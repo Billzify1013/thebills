@@ -1,0 +1,367 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+
+{% comment %} 
+<div class="row">
+
+    <div class="col-9 ">
+        <a class="btn btn-warning text-white " onClick="javascript:history.go(-1);">Back</a>
+    </div>
+    
+    <div class="col-3 float-end">
+      <button class="btn btn-primary  w-100 "   data-bs-toggle="modal"
+      data-bs-target="#backDropModal"><i class='bx bx-search-alt-2'></i> Search By Dates</button>
+    </div> 
+    
+    </div>
+    
+    <div class="row">
+        
+     <!-- Bootstrap Table with Header - Light -->
+     <div class=" col-12 mt-5 ">
+        <!-- Display total sum below the second table -->
+        <p><strong>Total Collected Amount Amount: ₹<span id="grandTotal">0</span></strong></p>
+    
+        <!-- Add a print button for the second table -->
+        <button onclick="printSecondTable()" class="btn btn-primary mb-3 ">Print  Table</button>
+    
+      <div class="card">
+        <h5 class="card-header">Advance Amount Without Check-In Details<br>
+        <SPAN class="">From:{{first_day_of_month}} TO {{last_day_of_month}}</SPAN>
+        </h5>
+        <div class="table-responsive text-nowrap">
+          <table class="table" id="secondInvoiceTable">
+            <thead class="table-light">
+              <tr>
+                <th>Id</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Mode</th>
+                <th>Guest</th>
+                <th>Channel</th>
+                <th>Status</th>
+                <th>Booking</th>
+               
+              </tr>
+            </thead>
+            <tbody class="table-border-bottom-0">
+                {%for data in invcpayment%}
+              <tr>
+                <td>{{data.id}}</td>
+                <td> <strong>{{data.payment_date}}</strong></td>
+                
+                <td>{{data.payment_amount}}</td>
+                <td>{{data.payment_mode}}</td>
+                <td>{{data.advancebook.bookingguest}}</td>
+                <td>{{data.advancebook.channal.channalname}}</td>
+                <td>{{data.advancebook.action}}</td>
+                <td class="total-amount">
+                    <a class="dropdown-item" href="{% url 'advancebookingdetails' id=data.advancebook.id %}"><i class="bx bx-edit-alt me-1"></i>Booking</a>
+              </td>
+                
+              </tr>
+              {%endfor%}
+       
+            
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+      <!-- Bootstrap Table with Header - Light -->
+    
+    
+    
+     
+    </div> {% endcomment %}
+
+    <div class="row">
+        <div class="col-5">
+          <a class="btn btn-warning text-white" onClick="javascript:history.go(-1);">Back</a>
+        </div>
+
+        <div class="col-4 float-end">
+            <a href="{% url 'invoicepayment' %}" class="btn btn-primary w-100 text-white" >
+              ₹ Check-In & Invoice Payments 
+            </a>
+          </div>
+      
+        <div class="col-3 float-end">
+          <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#backDropModal">
+            <i class='bx bx-search-alt-2'></i> Search By Dates
+          </button>
+        </div>
+      </div>
+      
+      <div class="row">
+        <!-- Display Total Amount -->
+        <div class="col-12 mt-5">
+          <p><strong>Total Collected Amount: ₹<span id="grandTotal">0</span></strong></p>
+
+          <div class="row">
+            <div class="col-10">
+                 <!-- Filters -->
+      <div class="row ">
+        <div class="col-md-3 mb-3">
+          <select id="statusFilter" class="form-control" onchange="applyFilters()">
+            <option value="">All Statuses</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <select id="modeFilter" class="form-control" onchange="applyFilters()">
+            <option value="">All Modes</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <select id="channelFilter" class="form-control" onchange="applyFilters()">
+            <option value="">All Channels</option>
+          </select>
+        </div>
+      </div>
+            </div>
+            <div class="col-2">
+                <button onclick="printTable('secondInvoiceTable')" class="btn btn-primary mb-3">Print Table</button>
+      
+            </div>
+          </div>
+          
+          <div class="card">
+            <h5 class="card-header">
+              Advance Amount NOT Check-In Details<br><br>
+              <span>From: {{ first_day_of_month }} TO {{ last_day_of_month }}</span>
+            </h5>
+            <div class="table-responsive text-nowrap">
+              <table class="table" id="secondInvoiceTable">
+                <thead class="table-light">
+                  <tr>
+                    <th>Id</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Mode</th>
+                    <th>Guest</th>
+                    <th>Check-In Date</th>
+                    <th>Channel</th>
+                    <th>Status</th>
+                    <th>Booking</th>
+                  </tr>
+                </thead>
+                <tbody class="table-border-bottom-0" id="tableBody">
+                  {% for data in invcpayment %}
+                  <tr data-status="{{ data.advancebook.action }}" data-mode="{{ data.payment_mode }}" data-channel="{{ data.advancebook.channal.channalname }}">
+                    <td>{{ data.id }}</td>
+                    <td><strong>{{ data.payment_date }}</strong></td>
+                    <td class="amount">{{ data.payment_amount }}</td>
+                    
+                    <td>{{ data.payment_mode }}</td>
+                    <td>{{ data.advancebook.bookingguest }}</td>
+                    <td>{{data.advancebook.bookingdate}}</td>
+                    <td>{{ data.advancebook.channal.channalname }}</td>
+                    <td>{{ data.advancebook.action }}</td>
+                    <td>
+                      <a class="dropdown-item" href="{% url 'advancebookingdetails' id=data.advancebook.id %}">
+                        <i class="bx bx-edit-alt me-1"></i>Booking
+                      </a>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+     
+      
+      <script>
+        // Function to dynamically populate the filters with unique values
+        function populateFilters() {
+          const rows = document.querySelectorAll("#tableBody tr");
+          let statusSet = new Set();
+          let modeSet = new Set();
+          let channelSet = new Set();
+      
+          rows.forEach(row => {
+            statusSet.add(row.dataset.status);
+            modeSet.add(row.dataset.mode);
+            channelSet.add(row.dataset.channel);
+          });
+      
+          // Populate Status Filter
+          const statusFilter = document.getElementById("statusFilter");
+          statusSet.forEach(status => {
+            const option = document.createElement("option");
+            option.value = status;
+            option.textContent = status.charAt(0).toUpperCase() + status.slice(1); // Capitalize first letter
+            statusFilter.appendChild(option);
+          });
+      
+          // Populate Mode Filter
+          const modeFilter = document.getElementById("modeFilter");
+          modeSet.forEach(mode => {
+            const option = document.createElement("option");
+            option.value = mode;
+            option.textContent = mode.charAt(0).toUpperCase() + mode.slice(1);
+            modeFilter.appendChild(option);
+          });
+      
+          // Populate Channel Filter
+          const channelFilter = document.getElementById("channelFilter");
+          channelSet.forEach(channel => {
+            const option = document.createElement("option");
+            option.value = channel;
+            option.textContent = channel.charAt(0).toUpperCase() + channel.slice(1);
+            channelFilter.appendChild(option);
+          });
+        }
+      
+        // Function to apply filters
+        function applyFilters() {
+          const statusFilter = document.getElementById("statusFilter").value.toLowerCase();
+          const modeFilter = document.getElementById("modeFilter").value.toLowerCase();
+          const channelFilter = document.getElementById("channelFilter").value.toLowerCase();
+          const rows = document.querySelectorAll("#tableBody tr");
+          let totalAmount = 0;
+      
+          rows.forEach(row => {
+            const status = row.dataset.status.toLowerCase();
+            const mode = row.dataset.mode.toLowerCase();
+            const channel = row.dataset.channel.toLowerCase();
+            const amount = parseFloat(row.querySelector(".amount").textContent) || 0;
+      
+            // Show or hide the row based on the filters
+            if (
+              (statusFilter === "" || status === statusFilter) &&
+              (modeFilter === "" || mode === modeFilter) &&
+              (channelFilter === "" || channel === channelFilter)
+            ) {
+              row.style.display = ""; // Show row
+              totalAmount += amount; // Add amount
+            } else {
+              row.style.display = "none"; // Hide row
+            }
+          });
+      
+          // Update the total amount
+          document.getElementById("grandTotal").textContent = totalAmount.toFixed(2);
+        }
+      
+        // Function to print the table
+        function printTable(tableId) {
+          const table = document.getElementById(tableId);
+          const newWin = window.open("");
+          newWin.document.write(`
+            <html>
+            <head>
+              <style>
+                body {
+                  font-family: Arial, sans-serif;
+                  margin: 20px;
+                  padding: 10px;
+                }
+                table {
+                  width: 100%;
+                  border-collapse: collapse;
+                  margin-top: 20px;
+                }
+                th, td {
+                  padding: 8px;
+                  border: 1px solid #ddd;
+                  text-align: left;
+                }
+                th {
+                  background-color: #f4f4f4;
+                }
+                td {
+                  background-color: #fff;
+                }
+              </style>
+            </head>
+            <body>
+              <h2>Invoice Payment Report</h2>
+              ${table.outerHTML}
+            </body>
+            </html>
+          `);
+          newWin.print();
+          newWin.close();
+        }
+      
+        // Calculate the total on page load and populate filters
+        document.addEventListener("DOMContentLoaded", () => {
+          populateFilters();
+          applyFilters();
+        });
+      </script>
+      
+
+
+
+
+
+
+
+
+      <!-- Modal add rooms -->
+<div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'bookpaymentsearch'  %}" method="POST" class="modal-content">
+            {% csrf_token %}
+       
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Search Data</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Start Date</label>
+              <input
+                type="date"
+                name="startdate"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter RoomName"
+                required
+              />
+            </div>
+
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">End Date</label>
+                <input
+                  type="date"
+                  name="enddate"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Enter RoomName"
+                  required
+                />
+              </div>
+
+            
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+{%endblock%}
