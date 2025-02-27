@@ -1041,7 +1041,7 @@ def editdueamount(request):
 from django.db.models import Max
 from django.db.models import Q
 def makeseprateinvoice(request):
-    try:
+    # try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
             subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
@@ -1320,8 +1320,8 @@ def makeseprateinvoice(request):
             return guesthistorysearchview(new_request)
         else:
             return redirect('loginpage')
-    except Exception as e:
-        return render(request, '404.html', {'error_message': str(e)}, status=500)
+    # except Exception as e:
+    #     return render(request, '404.html', {'error_message': str(e)}, status=500)
 
 
 
@@ -1748,3 +1748,96 @@ def guestearch(request,id):
             return redirect('loginpage')
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)
+
+
+def invcshow(request, id):
+    # try:
+        if request.user.is_authenticated:
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            userid = id
+            
+            
+            if Invoice.objects.filter(vendor=user, id=userid).exists():
+                    testinvcdata  = Invoice.objects.get(vendor=user, id=userid)
+                    userid = testinvcdata.customer.id
+                
+
+            guestdata = Gueststay.objects.filter(vendor=user, id=userid)
+            invoice_data = Invoice.objects.get(vendor=user, id=id)
+            profiledata = HotelProfile.objects.filter(vendor=user)
+            itemid = invoice_data.id
+            status = invoice_data.foliostatus
+
+            invoice_datas = Invoice.objects.filter(vendor=user, id=id)
+            invoiceitemdata = InvoiceItem.objects.filter(vendor=user, invoice=itemid).order_by('id')
+            loyltydata = loylty_data.objects.filter(vendor=user, Is_active=True)
+            invcpayments = InvoicesPayment.objects.filter(vendor=user,invoice=itemid).all()
+            taxelab = taxSlab.objects.filter(vendor=user,invoice=itemid)
+            
+            if True:
+                creditdata = CustomerCredit.objects.filter(vendor=user,phone=invoice_data.customer.guestphome)
+                if invoice_data.taxtype == 'GST':
+                    gstamounts = invoice_data.gst_amount
+                    sstamounts = invoice_data.sgst_amount
+                    
+                    invcheck =  invoiceDesign.objects.get(vendor=user)
+                    if invcheck.guestinvcdesign==1:
+                        return render(request, 'invoicepage.html', {
+                            'profiledata': profiledata,
+                            'guestdata': guestdata,
+                            'invoice_data': invoice_datas,
+                            'invoiceitemdata': invoiceitemdata,
+                            'invcpayments':invcpayments,
+                            'gstamounts':gstamounts,
+                            'sstamounts':sstamounts,
+                            'creditdata':creditdata,
+                            'taxelab':taxelab
+                        })
+                    elif invcheck.guestinvcdesign==2:
+                        return render(request, 'invoicepage2.html', {
+                            'profiledata': profiledata,
+                            'guestdata': guestdata,
+                            'invoice_data': invoice_datas,
+                            'invoiceitemdata': invoiceitemdata,
+                            'invcpayments':invcpayments,
+                            'gstamounts':gstamounts,
+                            'sstamounts':sstamounts,
+                            'creditdata':creditdata,
+                            'taxelab':taxelab
+                        })
+                        
+                        
+                else:
+                    istamts = invoice_data.sgst_amount + invoice_data.gst_amount
+                    invcheck =  invoiceDesign.objects.get(vendor=user)
+                    if invcheck.guestinvcdesign==1:
+                        return render(request, 'invoicepage.html', {
+                            'profiledata': profiledata,
+                            'guestdata': guestdata,
+                            'invoice_data': invoice_datas,
+                            'invoiceitemdata': invoiceitemdata,
+                            'invcpayments':invcpayments,
+                            'creditdata':creditdata,
+                            'istamts':istamts,
+                            'taxelab':taxelab
+                        })
+                    elif invcheck.guestinvcdesign==2:
+                        print(invcpayments)
+                        return render(request, 'invoicepage2.html', {
+                            'profiledata': profiledata,
+                            'guestdata': guestdata,
+                            'invoice_data': invoice_datas,
+                            'invoiceitemdata': invoiceitemdata,
+                            'invcpayments':invcpayments,
+                            'creditdata':creditdata,
+                            'istamts':istamts,
+                            'taxelab':taxelab
+                        })
+             
+        else:
+            return render(request, 'login.html')
+    # except Exception as e:
+    #     return render(request, '404.html', {'error_message': str(e)}, status=500)

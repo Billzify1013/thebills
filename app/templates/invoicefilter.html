@@ -242,7 +242,9 @@
             <td class="tax">{{ data.gst_amount|add:data.sgst_amount }}</td>
             <td class="grandtotal">{{ data.grand_total_amount }}</td>
             <td>{{ data.customer.channel }}</td>
-            <td><a class="btn btn-primary" href="{% url 'invoicepage' id=data.id %}">Invoice</a></td>
+            {% comment %} <td><a class="btn btn-primary" href="{% url 'invoicepage' id=data.id %}">Invoice</a></td> {% endcomment %}
+            <td><a class="btn btn-primary" href="{% url 'invcshow' id=data.id %}">Invoice mn</a></td>
+           
             
            
           <td>

@@ -1317,7 +1317,12 @@ def additemstofolio(request):
                                 cgst_amount=inditaxamt,
                                 sgst_amount=inditaxamt,
                                 total_amount=totaltaxamts
-                        )                   
+                        )   
+
+                    actionss = 'Create Service'
+                    descss = str(iteams.description) + " " + str(qty) + " Added"
+                    CustomGuestLog.objects.create(vendor=user,customer=invc.customer,by=request.user,action=actionss,
+                            description=descss)                
                     messages.success(request,'Invoice Item added succesfully')
                     # return redirect('pos')
                     userid = invc.customer.id

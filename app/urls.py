@@ -79,6 +79,8 @@ urlpatterns = [
     path('guestaddfromfolio/',views.guestaddfromfolio,name="guestaddfromfolio"),
     path('opencheckinforadvanebooking/<int:pk>/',views.opencheckinforadvanebooking,name="opencheckinforadvanebooking"),
     path('invoicepage/<int:id>/',views.invoicepage,name="invoicepage"),
+    path('invcshow/<int:id>/',stayinvoices.invcshow,name="invcshow"),
+    
     path('fbinvoicepage/<int:id>/',views.fbinvoicepage,name="fbinvoicepage"),
     path('addpaymentfolio/',views.addpaymentfolio,name="addpaymentfolio"),
     path('addpaymentfoliocredit/',views.addpaymentfoliocredit,name="addpaymentfoliocredit"),

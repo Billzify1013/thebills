@@ -634,7 +634,7 @@ class Booking(models.Model):
     check_in_time = models.TimeField()  # New field for check-in time
     check_out_time = models.TimeField() 
     segment = models.CharField(max_length=40,blank=True,null=True)
-    totalamount = models.CharField(max_length=40,blank=True,null=True)
+    totalamount = models.FloatField(blank=True, null=True, default=0.0)
     totalroom = models.CharField(max_length=10,blank=True,null=True)
     gueststay = models.ForeignKey(Gueststay,on_delete=models.CASCADE, null=True, blank=True)
     advancebook = models.ForeignKey(SaveAdvanceBookGuestData, on_delete=models.CASCADE, null=True, blank=True)

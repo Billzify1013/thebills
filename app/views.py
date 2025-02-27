@@ -6161,7 +6161,7 @@ def addguestdata(request):
                     taxnames = Taxes.objects.filter(vendor=user,taxname=gstname).last()
                     HSNcode = taxnames.taxcode
                 else:
-                    HSNcode=''
+                    HSNcode=0
                 rateplandata=RatePlan.objects.filter(vendor=user,id=rateplan).first()
                
                 msecs = cat.category_name + " : " + rateplanname + " " + rateplandata.rate_plan_code  + " " + " for "+ str(adults) + " adults " + " " +   " and " + str(children) + " " + "Child"
@@ -6181,7 +6181,7 @@ def addguestdata(request):
                         taxnames = Taxes.objects.filter(vendor=user,taxname='GST18').last()
                         HSNcode18 = taxnames.taxcode
                     else:
-                        HSNcode18=''
+                        HSNcode18=0
                     
                     roomname = 'Room: ' + str(room_details)
                     InvoiceItem.objects.create(vendor=user,invoice=Invoiceid,description=roomname,quantity_likedays=staydays,
@@ -6312,7 +6312,7 @@ def addguestdata(request):
 
 
 def addguestdatafromadvanceroombook(request):
-    try:
+    # try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
             subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
@@ -6407,7 +6407,7 @@ def addguestdatafromadvanceroombook(request):
                                     hsn = taxesdata.taxcode
                                 else:
                                     Taxes.objects.create(vendor=user,taxrate=18,taxname='GST18',taxcode=18)
-                                    hsn = ''
+                                    hsn = 0
                                     gstrate = 9.00
                             elif selllprice <=7500 and gstrate == 9.00:
                                 gstrate = 6.00
@@ -6519,6 +6519,10 @@ def addguestdatafromadvanceroombook(request):
                     
                     if  saveguestdata.pah==False:
                         otagstin = saveguestdata.channal.company_gstin
+                        if otagstin:
+                            pass
+                        else:
+                            otagstin=''
                         companyname = saveguestdata.channal.channalname
                         Invoice.objects.filter(vendor=user,id=Invoiceid.id).update(
                             customer_gst_number=otagstin,customer_company=companyname,
@@ -6629,8 +6633,8 @@ def addguestdatafromadvanceroombook(request):
                 return redirect('todaybookingpage')
         else:
             return redirect('loginpage')
-    except Exception as e:
-        return render(request, '404.html', {'error_message': str(e)}, status=500)
+    # except Exception as e:
+    #     return render(request, '404.html', {'error_message': str(e)}, status=500)
 
 
 
