@@ -96,7 +96,7 @@ class Gueststay(models.Model):
     female = models.CharField(max_length=50,default=True,blank=True)
     transg = models.CharField(max_length=50,default=True,blank=True)
     extend = models.BooleanField(default=False)
-    extend_decription = models.CharField(max_length=50,default=True,blank=True)
+    extend_decription = models.CharField(max_length=500,default=True,blank=True)
     created_checkoutdate = models.DateTimeField(editable=False)
     fandbinvoiceid = models.CharField(max_length=50,default=True,blank=True)
     def __str__(self) -> str:
