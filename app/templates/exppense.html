@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+
+<div class="row mb-3">
+    <div class="col-9">
+        <a class="btn btn-warning text-white" onClick="javascript:history.go(-1);">Back</a>
+    </div>
+
+    
+
+    <div class="col-3 float-end">
+        <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#backDropModal">
+            <i class='bx bx-search-alt-2'></i> Search By Dates
+        </button>
+    </div>
+</div>
+<div class="card">
+<div class="table-responsive text-nowrap">
+    <h5 class="card-header">
+        Expenses Details<br><br>
+        <span>From: {{ startdate }} TO {{ enddate }}</span>
+    </h5>
+    <!-- Display total calculation at the top -->
+    <div class="m-3">
+        <div>Total Expenses (INR): <b>{{ total_cash_expense }}</b></div>
+    </div>
+    <!-- Print button -->
+    <div class="m-3 float-end">
+        <button class="btn btn-primary" onclick="printTable()">Print Table</button>
+    </div>
+
+    <table class="table table-bordered" id="secondInvoiceTable">
+        <thead class="table-light">
+            <tr>
+                <th>Sr No.</th>
+                <th>Amount</th>
+                <th>Comments</th>
+                <th>User</th>
+                <th>Date & Time</th>
+            </tr>
+        </thead>
+        <tbody class="table-border-bottom-0" id="tableBody">
+            {% for data in expanses %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ data.less_amount }}</td>
+                <td>{{ data.comments }}</td>
+                {% if data.subuser.user.username %}
+                    <td>{{ data.subuser.user.username }}</td>
+                {% else %}
+                    <td>{{ data.vendor.username }}</td>
+                {% endif %}
+                <td>{{ data.date_time }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    
+</div>
+</div>
+
+<script>
+    // Print Table Function
+    function printTable() {
+        // Get the HTML content of the table, start date, and end date sections
+        var printContents = document.getElementById('secondInvoiceTable').outerHTML;
+        var totalExpensesDiv = document.querySelector('.m-3').outerHTML;
+        var dateDiv = document.querySelector('.card-header').outerHTML;
+        
+        // Capture the original content of the body
+        var originalContents = document.body.innerHTML;
+
+        // Hide the print button and header for printing
+        document.querySelector('.float-end').style.display = 'none'; // Hide the print button
+
+        // Combine the start date, end date, total expenses div, and table content for printing
+        document.body.innerHTML = dateDiv + totalExpensesDiv + printContents;
+
+        // Trigger the print dialog
+        window.print();
+
+        // Restore the original content after printing
+        document.body.innerHTML = originalContents;
+    }
+</script>
+
+
+
+<!-- Modal add rooms -->
+<div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'searchexpenses'  %}" method="POST" class="modal-content">
+            {% csrf_token %}
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Search Data</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Start Date</label>
+              <input
+                type="date"
+                name="startdate"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter RoomName"
+                required
+              />
+            </div>
+
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">End Date</label>
+                <input
+                  type="date"
+                  name="enddate"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Enter RoomName"
+                  required
+                />
+              </div>
+
+            
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+{%endblock%}

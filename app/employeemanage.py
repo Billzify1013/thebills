@@ -1238,7 +1238,148 @@ def updateitems(request):
         return render(request, '404.html', {'error_message': str(e)}, status=500)    
     
 from django.urls import reverse
-# add items to pos 
+# # add items to pos 
+# def additemstofolio(request):
+#     try:
+#         if request.user.is_authenticated and request.method=="POST":
+#             user=request.user
+#             subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+#             if subuser:
+#                 user = subuser.vendor  
+#             foliocustomer = request.POST.get('invoiceid')
+#             qty = request.POST.get('qty')
+#             itemid = request.POST.get('iteamid')
+#             description = request.POST.get('description')
+#             grandtotalamountform = request.POST.get('grandtotalamountform')
+#             print(description,'p description')
+#             if Invoice.objects.filter(vendor=user,id=foliocustomer).exists():
+#                 if qty==0:
+#                     qty = 1
+#                 else:
+#                     pass
+#                 iteams = Items.objects.get(vendor=user,id=itemid)
+            
+#                 taxes = iteams.category_tax
+#                 price = iteams.price
+#                 total = price * int(qty)
+#                 Items.objects.filter(vendor=user,id=itemid).update(
+#                     available_qty=F('available_qty')-qty,
+#                 )
+#                 print("function is running")
+#                 current_date = datetime.now().date()
+#                 current_date = str(current_date)
+#                 mdescription = current_date + " " + description
+#                 if taxes is not None:
+#                     taxrate = iteams.category_tax.taxrate
+#                     taxamt = total * taxrate /100
+#                     totalamt = taxamt + total
+#                     hsccode = iteams.hsncode
+#                     if hsccode == '':
+#                         hsccode=0
+#                     else:
+#                         pass
+#                     individualtax = taxrate / 2
+#                     inditaxamt = taxamt/2
+#                     print(inditaxamt,"tax amount individual")
+#                     print(int(individualtax),'individual taxrate by chandan')
+                    
+#                     InvoiceItem.objects.create(vendor=user,invoice_id=foliocustomer,description=iteams.description,mdescription=mdescription,price=iteams.price,
+#                                         quantity_likedays=qty,cgst_rate=individualtax,sgst_rate=individualtax,
+#                                         hsncode=hsccode,total_amount=totalamt,is_room=False,
+#                                     cgst_rate_amount=inditaxamt,sgst_rate_amount=inditaxamt,totalwithouttax=total)
+#                     invc = Invoice.objects.get(vendor=user,id=foliocustomer)
+#                     totalamtinvc = invc.total_item_amount + total
+#                     subtotalinvc = total + invc.subtotal_amount
+#                     grandtotal = float(invc.grand_total_amount) + totalamt 
+#                     sgsttotal = float(invc.sgst_amount) + inditaxamt
+#                     gsttotal = float(invc.gst_amount) + inditaxamt
+#                     dueamount = float(invc.Due_amount) + totalamt
+#                     Invoice.objects.filter(vendor=user,id=foliocustomer).update(total_item_amount=totalamtinvc,subtotal_amount=subtotalinvc,
+#                                                                                 grand_total_amount =grandtotal,sgst_amount=sgsttotal,gst_amount=gsttotal,
+#                                                                                 Due_amount=dueamount,
+#                                                                                 taxable_amount=F('taxable_amount')+total)
+                    
+#                     testtaxrate = float(individualtax)
+#                     totaltaxamts = inditaxamt * 2 
+#                     if taxSlab.objects.filter(vendor=user,invoice_id=foliocustomer,cgst=testtaxrate).exists():
+                        
+#                         taxSlab.objects.filter(vendor=user,invoice_id=foliocustomer,cgst=testtaxrate).update(
+#                                 cgst_amount=F('cgst_amount') + inditaxamt,
+#                                 sgst_amount=F('sgst_amount') + inditaxamt,
+#                                 total_amount=F('total_amount') + totaltaxamts
+#                         )
+#                     else:
+#                         taxname = "GST"+str(int(testtaxrate*2))
+                     
+#                         taxSlab.objects.create(vendor=user,invoice_id=foliocustomer,
+#                                 tax_rate_name=taxname,
+#                                 cgst=testtaxrate,
+#                                 sgst=testtaxrate,
+#                                 cgst_amount=inditaxamt,
+#                                 sgst_amount=inditaxamt,
+#                                 total_amount=totaltaxamts
+#                         )   
+
+#                     actionss = 'Create Service'
+#                     descss = str(iteams.description) + " " + str(qty) + " Added"
+#                     CustomGuestLog.objects.create(vendor=user,customer=invc.customer,by=request.user,action=actionss,
+#                             description=descss)                
+#                     messages.success(request,'Invoice Item added succesfully')
+#                     # return redirect('pos')
+#                     userid = invc.customer.id
+#                     url = reverse('invoicepage', args=[userid])
+#                     return redirect(url)
+#                 else:
+#                     InvoiceItem.objects.create(vendor=user,invoice_id=foliocustomer,description=iteams.description,mdescription=mdescription,price=iteams.price,
+#                                         quantity_likedays=qty,total_amount=total,cgst_rate=0.0,sgst_rate=0.0,is_room=False,
+#                                         cgst_rate_amount=0.0,sgst_rate_amount=0.0,totalwithouttax=total
+#                                         )
+#                     invc = Invoice.objects.get(vendor=user,id=foliocustomer)
+#                     totalamtinvc = invc.total_item_amount + total
+#                     subtotalinvc = total + invc.subtotal_amount
+#                     grandtotal = invc.grand_total_amount + total
+#                     dueamount = float(invc.Due_amount) + total
+#                     Invoice.objects.filter(vendor=user,id=foliocustomer).update(total_item_amount=totalamtinvc,subtotal_amount=subtotalinvc,
+#                                                                                 grand_total_amount =grandtotal,Due_amount=dueamount)
+                    
+#                     if taxSlab.objects.filter(vendor=user,invoice_id=foliocustomer,tax_rate_name="GST0").exists():
+                        
+#                         taxSlab.objects.filter(vendor=user,invoice_id=foliocustomer,cgst=0.0).update(
+#                                 cgst_amount=F('cgst_amount') + 0.00,
+#                                 sgst_amount=F('sgst_amount') + 0.00,
+#                                 total_amount=F('total_amount') + 0.00
+#                         )
+#                     else:
+#                         taxname = "GST0"
+                     
+#                         taxSlab.objects.create(vendor=user,invoice_id=foliocustomer,
+#                                 tax_rate_name=taxname,
+#                                 cgst=0.0,
+#                                 sgst=0.0,
+#                                 cgst_amount=0.0,
+#                                 sgst_amount=0.0,
+#                                 total_amount=0.0
+#                         )
+
+#                     actionss = 'Create Service'
+#                     descss = str(iteams.description) + " " + str(qty) + " Added"
+#                     CustomGuestLog.objects.create(vendor=user,customer=invc.customer,by=request.user,action=actionss,
+#                             description=descss)
+
+                    
+#                     messages.success(request,'Invoice Item added succesfully')
+#                     # return redirect('pos')
+#                     userid = invc.customer.id
+#                     url = reverse('invoicepage', args=[userid])
+#                     return redirect(url)
+#             else:
+#                 return redirect('pos')
+#         else:
+#             return redirect('loginpage')
+#     except Exception as e:
+#         return render(request, '404.html', {'error_message': str(e)}, status=500)
+# 
+
 def additemstofolio(request):
     try:
         if request.user.is_authenticated and request.method=="POST":
@@ -1250,6 +1391,7 @@ def additemstofolio(request):
             qty = request.POST.get('qty')
             itemid = request.POST.get('iteamid')
             description = request.POST.get('description')
+            grandtotalamountform = float(request.POST.get('grandtotalamountform'))
             print(description,'p description')
             if Invoice.objects.filter(vendor=user,id=foliocustomer).exists():
                 if qty==0:
@@ -1269,7 +1411,17 @@ def additemstofolio(request):
                 current_date = str(current_date)
                 mdescription = current_date + " " + description
                 if taxes is not None:
+                    # new calculations here
                     taxrate = iteams.category_tax.taxrate
+                    totalamountwithputtax = grandtotalamountform / (1 + (taxrate / 100))
+                    # taxable_amount = price_per_item * (taxrate / 100)  # Calculate tax per item
+                    # price_with_tax = price_per_item + taxable_amount
+                    print(totalamountwithputtax,"total no price")
+                    print(totalamountwithputtax/int(qty),"one price")
+                    
+                    price = totalamountwithputtax/int(qty)
+                    total = totalamountwithputtax
+
                     taxamt = total * taxrate /100
                     totalamt = taxamt + total
                     hsccode = iteams.hsncode
@@ -1282,13 +1434,13 @@ def additemstofolio(request):
                     print(inditaxamt,"tax amount individual")
                     print(int(individualtax),'individual taxrate by chandan')
                     
-                    InvoiceItem.objects.create(vendor=user,invoice_id=foliocustomer,description=iteams.description,mdescription=mdescription,price=iteams.price,
+                    InvoiceItem.objects.create(vendor=user,invoice_id=foliocustomer,description=iteams.description,mdescription=mdescription,price=price,
                                         quantity_likedays=qty,cgst_rate=individualtax,sgst_rate=individualtax,
                                         hsncode=hsccode,total_amount=totalamt,is_room=False,
                                     cgst_rate_amount=inditaxamt,sgst_rate_amount=inditaxamt,totalwithouttax=total)
                     invc = Invoice.objects.get(vendor=user,id=foliocustomer)
-                    totalamtinvc = invc.total_item_amount + total
-                    subtotalinvc = total + invc.subtotal_amount
+                    totalamtinvc = float(invc.total_item_amount) + total
+                    subtotalinvc = total + float(invc.subtotal_amount)
                     grandtotal = float(invc.grand_total_amount) + totalamt 
                     sgsttotal = float(invc.sgst_amount) + inditaxamt
                     gsttotal = float(invc.gst_amount) + inditaxamt
@@ -1329,14 +1481,16 @@ def additemstofolio(request):
                     url = reverse('invoicepage', args=[userid])
                     return redirect(url)
                 else:
-                    InvoiceItem.objects.create(vendor=user,invoice_id=foliocustomer,description=iteams.description,mdescription=mdescription,price=iteams.price,
+                    price = grandtotalamountform / int(qty)
+                    total = price * int(qty)
+                    InvoiceItem.objects.create(vendor=user,invoice_id=foliocustomer,description=iteams.description,mdescription=mdescription,price=price,
                                         quantity_likedays=qty,total_amount=total,cgst_rate=0.0,sgst_rate=0.0,is_room=False,
                                         cgst_rate_amount=0.0,sgst_rate_amount=0.0,totalwithouttax=total
                                         )
                     invc = Invoice.objects.get(vendor=user,id=foliocustomer)
-                    totalamtinvc = invc.total_item_amount + total
-                    subtotalinvc = total + invc.subtotal_amount
-                    grandtotal = invc.grand_total_amount + total
+                    totalamtinvc = float(invc.total_item_amount) + total
+                    subtotalinvc = total + float(invc.subtotal_amount)
+                    grandtotal = float(invc.grand_total_amount) + total
                     dueamount = float(invc.Due_amount) + total
                     Invoice.objects.filter(vendor=user,id=foliocustomer).update(total_item_amount=totalamtinvc,subtotal_amount=subtotalinvc,
                                                                                 grand_total_amount =grandtotal,Due_amount=dueamount)
@@ -1503,7 +1657,7 @@ def finddatevisesales(request):
             # Handle the case where no data is found
             total_amount = total_amount if total_amount is not None else 0
 
-            print(f"Total Amount: {total_amount}")
+           
 
             # Convert the string dates to datetime objects
             startdatecheck = datetime.strptime(startdate, '%Y-%m-%d')  # Format 'YYYY-MM-DD'
@@ -1517,7 +1671,6 @@ def finddatevisesales(request):
                 difference = 1
 
             # Output the difference
-            print(f"The difference between the two dates is: {difference} days")
             arr=0
             if booksdatacount==0:
                 pass
@@ -1528,8 +1681,7 @@ def finddatevisesales(request):
             
             # ARR = Total Room Revenue / Number of Rooms Sold
 
-            print(booksdatacount)
-            print(Occupancy,'occupancy')
+            
 
             taxes = taxSlab.objects.filter(vendor=user,invoice__invoice_date__range=[startdate,enddate]).exclude(tax_rate_name='GST0').values('tax_rate_name', 'cgst').annotate(
                 total_amount=Sum('total_amount')
@@ -1705,8 +1857,7 @@ def todaysales(request):
             roomcount = Rooms.objects.filter(vendor=user).exclude(checkin=6).count()
             Occupancy = int((booksdatacount / roomcount) * 100)
 
-            print(booksdatacount)
-            print(Occupancy,'occupancy')
+            
 
 
             # Step 1: Filter bookings within the date range
@@ -1731,7 +1882,7 @@ def todaysales(request):
             # Handle the case where no data is found
             total_amount = total_amount if total_amount is not None else 0
 
-            print(f"Total Amount: {total_amount}")
+            
             arr=0
             if booksdatacount==0:
                 pass
@@ -2308,6 +2459,7 @@ def bulkinventoryform(request):
 
             # Prepare category_data with availability values
             category_data = {}
+            categoryogs = []
             for category_id in selected_categories:
                 # Check if availability input exists for this category
                 availability_key = f'catavaibility_{category_id.id}'
@@ -2315,6 +2467,7 @@ def bulkinventoryform(request):
 
                 if availability_value:  # Ensure value is not None or empty
                     category_data[category_id.id] = int(availability_value)  # Store as integer
+                    categoryogs.append(f"{category_id.category_name} {int(availability_value)} ")
 
             # अब category_data में IDs और उनकी availability वैल्यू हैं
       
@@ -2326,11 +2479,15 @@ def bulkinventoryform(request):
             # Generate the list of all dates between check-in and check-out (inclusive)
             all_dates = [checkindate + timedelta(days=x) for x in range((checkoutdate - checkindate).days + 1)]
 
+            
+
             for roomtype in selected_categories:  # Iterate through all selected categories
                 # Query the RoomsInventory model to check if records exist for all those dates
                 existing_inventory = RoomsInventory.objects.filter(
                     vendor=user, room_category_id=roomtype.id, date__in=all_dates
                 )
+
+                
 
                 # Get the list of dates that already exist in the inventory
                 existing_dates = set(existing_inventory.values_list('date', flat=True))
@@ -2381,6 +2538,10 @@ def bulkinventoryform(request):
             # Trigger background API tasks for the user
             start_date = str(checkindate)
             end_date = str(checkoutdate)
+            logsdesc = f"Update inventory For {categoryogs}, From {start_date} To {end_date}"
+            bulklogs.objects.create(vendor=user,by=request.user,action="Update Inventory",
+                    description = logsdesc)
+
             if VendorCM.objects.filter(vendor=user):
                 start_date = str(checkindate)
                 end_date = str(checkoutdate)
@@ -2427,6 +2588,7 @@ def bulkformprice(request):
 
             # Prepare category_data with availability values
             category_data = {}
+            categoryogs = []
             for category_id in selected_categories:
                 # Check if availability input exists for this category
                 availability_key = f'catavaibility_{category_id.id}'
@@ -2434,7 +2596,7 @@ def bulkformprice(request):
 
                 if availability_value:  # Ensure value is not None or empty
                     category_data[category_id.id] = int(availability_value)  # Store as integer
-
+                    categoryogs.append(f"{category_id.category_name} {int(availability_value)} ")
             # अब category_data में IDs और उनकी availability वैल्यू हैं
            
 
@@ -2445,12 +2607,14 @@ def bulkformprice(request):
             # Generate the list of all dates between check-in and check-out (inclusive)
             all_dates = [checkindate + timedelta(days=x) for x in range((checkoutdate - checkindate).days + 1)]
 
+
+            
             for roomtype in selected_categories:  # Iterate through all selected categories
                 # Query the RoomsInventory model to check if records exist for all those dates
                 existing_inventory = RoomsInventory.objects.filter(
                     vendor=user, room_category_id=roomtype.id, date__in=all_dates
                 )
-
+                
                 # Get the list of dates that already exist in the inventory
                 existing_dates = set(existing_inventory.values_list('date', flat=True))
                
@@ -2495,6 +2659,11 @@ def bulkformprice(request):
             # Trigger background API tasks for the user
             start_date = str(checkindate)
             end_date = str(checkoutdate)
+
+            logsdesc = f"Update Rates For {categoryogs}, From {start_date} To {end_date}"
+            bulklogs.objects.create(vendor=user,by=request.user,action="Update Rates",
+                    description = logsdesc)
+
             if VendorCM.objects.filter(vendor=user):
                 start_date = str(checkindate)
                 end_date = str(checkoutdate)
@@ -2521,4 +2690,20 @@ def bulkformprice(request):
     
 
 
+    
+def bulklogshow(request):
+    try:
+        if request.user.is_authenticated :
+            # Get the selected category IDs
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+
+            logs = bulklogs.objects.filter(vendor=user)
+            return render(request,'logs.html',{'logs':logs,'bulk':True})
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
     

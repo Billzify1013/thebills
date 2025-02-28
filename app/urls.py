@@ -40,6 +40,8 @@ urlpatterns = [
     path('guestdetails/<int:id>/',views.guestdetails,name="guestdetails"),
     path('openroomclickformpage/<str:id>/',views.openroomclickformpage,name="openroomclickformpage"),
     path('openroomclickformtodayarriwalspage/<str:id>/',views.openroomclickformtodayarriwalspage,name="openroomclickformtodayarriwalspage"),
+    path('weekviewcheckin/',views.weekviewcheckin,name="weekviewcheckin"),
+    
     path('roomcheckin/<int:id>/',views.roomcheckin,name="roomcheckin"),
     path('checkoutroom/',views.checkoutroom,name="checkoutroom"),
     path('cancelroom/',views.cancelroom,name="cancelroom"),
@@ -360,6 +362,8 @@ urlpatterns = [
     path('bulkupdate/',employeemanage.bulkupdate,name="bulkupdate"),
     path('bulkinventoryform/',employeemanage.bulkinventoryform,name="bulkinventoryform"),
     path('bulkformprice/',employeemanage.bulkformprice,name="bulkformprice"),
+    path('bulklogshow/',employeemanage.bulklogshow,name="bulklogshow"),
+    
 
 
     # booking payments 
@@ -376,8 +380,14 @@ urlpatterns = [
     path('searchitemsales/',bookingpayment.searchitemsales,name="searchitemsales"),
     path('departurerpt/',bookingpayment.departurerpt,name="departurerpt"),
     path('rvrpt/',bookingpayment.rvrpt,name="rvrpt"),
+    path('hotelplrpt/',bookingpayment.hotelplrpt,name="hotelplrpt"),
+    path('hotelpandlrpt/',bookingpayment.hotelpandlrpt,name="hotelpandlrpt"),
     path('searchdeparture/',bookingpayment.searchdeparture,name="searchdeparture"),
     path('salestablesearch/',bookingpayment.salestablesearch,name="salestablesearch"),
+    path('hotelplrptsearch/',bookingpayment.hotelplrptsearch,name="hotelplrptsearch"),
+    path('hotelpandlsearch/',bookingpayment.hotelpandlsearch,name="hotelpandlsearch"),
+    path('expensesrpt/',bookingpayment.expensesrpt,name="expensesrpt"),
+    path('searchexpenses/',bookingpayment.searchexpenses,name="searchexpenses"),
 
 
     # accounts working here 

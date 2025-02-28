@@ -3,6 +3,36 @@
 {%load static %}
 
 
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    
+    <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%endif%}
+</div>
+{%endfor%}
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 1000);
+  });
+</script>
+{%endif%} 
+
  <!DOCTYPE html>
  <html lang="en">
  <head>
@@ -85,8 +115,8 @@
          }
  
          .booking-card.checkout {
-             border-top-right-radius: 15px;
-             border-bottom-right-radius: 15px;
+             border-top-right-radius: 20px;
+             border-bottom-right-radius: 5px;
          }
  
          .guest-name {
@@ -112,7 +142,7 @@
     </div>
     
 
- <div class="container">
+ {% comment %} <div class="container">
      <div class="navigation-buttons">
          <button onclick="changeDate(-1)" class="btn btn-primary"><i class='bx bxs-left-arrow'></i></button>
          <button onclick="refreshToCurrent()" class="btn btn-primary"><b><i class='bx bx-refresh'></i></b></button>
@@ -208,8 +238,119 @@
 
     
      
- </div>
+ </div>  {% endcomment %}
 
+ 
+
+
+ <div class="container">
+    <div class="navigation-buttons">
+        <button onclick="changeDate(-1)" class="btn btn-primary"><i class='bx bxs-left-arrow'></i></button>
+        <button onclick="refreshToCurrent()" class="btn btn-primary"><b><i class='bx bx-refresh'></i></b></button>
+        <button onclick="changeDate(1)" class="btn btn-primary"><i class='bx bxs-right-arrow'></i></button>
+    </div>
+
+    <div class="header-row mb-2">
+        <div class="card header-room text-center" style="width:100px">Rooms</div>
+        {% for i in dates %}
+            <div class="card header-day">{{ i }}</div>
+        {% endfor %}
+    </div>
+
+    {% for category in categories %}
+        <div class="card date-row">
+            <div class="category">{{ category.category_name }}</div>
+        </div>
+        {% for room in category.rooms_set.all %}
+            <div class="date-row">
+                <div class="room-names" style="width:100px"><b>{{ room.room_name }}</b>
+                    {% if room.is_clean %}
+                        <a href="{% url 'cleanroombtnweek' id=room.room_name %}"><i class="bi bi-stars fs-5 text-end text-info float-end"></i></a>
+                    {% else %}
+                        <a href="{% url 'cleanroombtnweek' id=room.room_name %}"><i class="fa fa-broom text-danger fs-5 text-end float-end"></i></a>
+                    {% endif %}
+                </div>
+
+                {% for date in dates %}
+                    <div class="date-box" onclick="handleDateBoxClick(this, '{{ room.room_name }}', '{{ date }}', '{{ room.room_no }}')" style="position: relative; margin-top: -10px">
+                        <div class="booking-container" style="display: flex; flex-direction: column; gap: 15px;">
+                            {% for booking in bookings %}
+                                {% if booking.room == room %}
+                                    {% with booking_checkin=booking.check_in_date|date:"Y-m-d" booking_checkout=booking.check_out_date|date:"Y-m-d" %}
+                                        {% if date >= booking_checkin and date <= booking_checkout %}
+                                            {% if booking_checkin == booking_checkout %}
+                                                <!-- Same-day booking -->
+                                                <div class="booking-card {% if booking.status == 'CHECK IN' %}checkin-status{% endif %} {% if booking.status == 'CHECK OUT' %}checkout-status{% endif %}" 
+                                                     style="width: 10%;border-radius:0px 15px 0px 15px;"
+                                                     onclick="showBookingInfo('{{ booking.id }}','{{ booking.guest_name }}', '{{ room.room_name }}', '{{ booking.check_in_date }}',
+                                                      '{{ booking.check_out_date }}','{{ booking.checkintime }}' ,'{{ booking.checkouttime }}' ,'{{ booking.segment }}','{{ booking.totalroom }}','{{ booking.totalamount }}','{{ booking.status }}','{{booking.fnbid}}')">
+                                                    <div class="guest-name">
+                                                        {% if booking.segment == 'MakeMyTrip' %}
+                                                            <img src="{% static 'undercss/assets/img/icons/unicons/mmtshort.png'%}" alt="Credit Card" class="rounded" height='20px'/>
+                                                        {% elif booking.segment == 'BOOKING-ENGINE' %}
+                                                            <img src="{% static 'undercss/assets/img/icons/unicons/billzify.png'%}" alt="Credit Card" class="rounded" height='20px'/>
+                                                        {% elif booking.segment == 'Booking.com' %}
+                                                            <img src="{% static 'undercss/assets/img/icons/unicons/bcom.png'%}" alt="Credit Card" class="rounded" height='20px'/>
+                                                        {% elif booking.segment == 'Agoda' %}
+                                                            <img src="{% static 'undercss/assets/img/icons/unicons/agoda.png'%}" alt="Credit Card" class="rounded" height='25px'/>
+                                                        {% elif booking.segment == 'Goibibo' %}
+                                                            <img src="{% static 'undercss/assets/img/icons/unicons/goibibos.png'%}" alt="Credit Card" class="rounded" height='25px'/>
+                                                        {% endif %}
+                                                        {{ booking.guest_name }}
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                <!-- Multi-day booking -->
+                                                {% if date == booking_checkin %}
+                                                    <div class="booking-card checkin {% if booking.status == 'CHECK IN' %}checkin-status{% endif %} {% if booking.status == 'CHECK OUT' %}checkout-status{% endif %}" 
+                                                         style="width: {{ booking.check_in_width }}%; right: 0;"
+                                                         onclick="showBookingInfo('{{ booking.id }}','{{ booking.guest_name }}', '{{ room.room_name }}', '{{ booking.check_in_date }}',
+                                                          '{{ booking.check_out_date }}','{{ booking.checkintime }}' ,'{{ booking.checkouttime }}' ,'{{ booking.segment }}','{{ booking.totalroom }}','{{ booking.totalamount }}','{{ booking.status }}','{{booking.fnbid}}')">
+                                                        <div class="guest-name">
+                                                            {% if booking.segment == 'MakeMyTrip' %}
+                                                                <img src="{% static 'undercss/assets/img/icons/unicons/mmtshort.png'%}" alt="Credit Card" class="rounded" height='20px'/>
+                                                            {% elif booking.segment == 'BOOKING-ENGINE' %}
+                                                                <img src="{% static 'undercss/assets/img/icons/unicons/billzify.png'%}" alt="Credit Card" class="rounded" height='20px'/>
+                                                            {% elif booking.segment == 'Booking.com' %}
+                                                                <img src="{% static 'undercss/assets/img/icons/unicons/bcom.png'%}" alt="Credit Card" class="rounded" height='20px'/>
+                                                            {% elif booking.segment == 'Agoda' %}
+                                                                <img src="{% static 'undercss/assets/img/icons/unicons/agoda.png'%}" alt="Credit Card" class="rounded" height='25px'/>
+                                                            {% elif booking.segment == 'Goibibo' %}
+                                                                <img src="{% static 'undercss/assets/img/icons/unicons/goibibos.png'%}" alt="Credit Card" class="rounded" height='25px'/>
+                                                            {% endif %}
+                                                            {{ booking.guest_name }}
+                                                        </div>
+                                                    </div>
+                                                {% elif date == booking_checkout %}
+                                                    <div class="booking-card checkout {% if booking.status == 'CHECK IN' %}checkin-status{% endif %} {% if booking.status == 'CHECK OUT' %}checkout-status{% endif %}" 
+                                                         style="width: {{ booking.check_out_width }}%; left: 0;"
+                                                         onclick="showBookingInfo('{{ booking.id }}','{{ booking.guest_name }}', '{{ room.room_name }}', '{{ booking.check_in_date }}',
+                                                          '{{ booking.check_out_date }}','{{ booking.checkintime }}' ,'{{ booking.checkouttime }}' ,'{{ booking.segment }}','{{ booking.totalroom }}','{{ booking.totalamount }}','{{ booking.status }}','{{booking.fnbid}}')">
+                                                        {{ booking.guest_name }}
+                                                    </div>
+                                                {% else %}
+                                                    <div class="booking-card {% if booking.status == 'CHECK IN' %}checkin-status{% endif %} {% if booking.status == 'CHECK OUT' %}checkout-status{% endif %}" 
+                                                         style="width: 100%; left: 0;"
+                                                         onclick="showBookingInfo('{{ booking.id }}','{{ booking.guest_name }}', '{{ room.room_name }}', '{{ booking.check_in_date }}',
+                                                          '{{ booking.check_out_date }}','{{ booking.checkintime }}' ,'{{ booking.checkouttime }}' ,'{{ booking.segment }}','{{ booking.totalroom }}','{{ booking.totalamount }}','{{ booking.status }}','{{booking.fnbid}}')">
+                                                        
+                                                          {% if not forloop.first %}
+                                                            <div class="guest-name">{{ booking.guest_name }}</div>
+                                                        {% endif %}
+                                                    </div>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endwith %}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    {% endfor %}
+</div>
 
 
  
@@ -249,6 +390,14 @@
           <button class="btn btn-primary" type="submit">Change Room</button>
           
           </form>
+
+          <div id="checkinidsbook">
+          <form action="{% url 'weekviewcheckin' %}" method="post">
+            {% csrf_token %}
+          <input type="hidden" id="bookmodelidbook" name="bookidsmain" />
+          <button class="btn btn-primary" type="submit">Check-In</button>
+          
+          </form></div>
             </div>
           </div>
           
@@ -415,6 +564,31 @@
             document.getElementById('totalamtss').innerText=parseFloat(totalamount).toFixed(2);
             document.getElementById('statuss').innerText=status;
             document.getElementById('bookingmodelidlogs3').value=id;
+            console.log(checkInDate,checkOutDate)
+            const currentDate = new Date();
+            // Format current date in 'Feb. 28, 2025' format (short month and full year)
+    
+    
+    // Output the current date in desired format
+    // Convert the formatted dates to Date objects for comparison
+    const checkIn = new Date(checkInDate);
+    const checkOut = new Date(checkOutDate);
+    currentDate.setHours(0, 0, 0, 0);
+    checkIn.setHours(0, 0, 0, 0);
+    checkOut.setHours(0, 0, 0, 0);
+    
+    // Compare the current date with the range
+    if (currentDate >= checkIn && currentDate <= checkOut)
+
+    {
+        
+        document.getElementById('checkinidsbook').style.display='block';
+        document.getElementById('bookmodelidbook').value=id;
+        
+    } else {
+        document.getElementById('checkinidsbook').style.display='none';
+        document.getElementById('bookmodelidbook').value=id;
+    }
             myModal.show();
         }
 
@@ -495,11 +669,11 @@
             return;  // Booking info will be shown through its own click event
         }
 
-       
+       console.log(clickedDate,currentDate)
 
         // Construct the URL for Django with the room number dynamically passed
         if (roomNumber && clickedDate.getTime() === currentDate.getTime())   {
-            //const roomUrl = "{% url 'openroomclickformpage' id='ROOM_NO' %}".replace('ROOM_NO', roomNumber);
+            const roomUrl = "{% url 'openroomclickformpage' id='ROOM_NO' %}".replace('ROOM_NO', roomNumber);
             console.log('Generated URL:', roomUrl);  // Check the generated URL in the console
             window.location.href = roomUrl; // Navigate to the Django URL for the room
         } else {
@@ -520,6 +694,7 @@
  
 
  
+
 
      
 {%endblock%}

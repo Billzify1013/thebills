@@ -153,7 +153,9 @@
                       ><i class="bx bx-phone"></i
                           ></span>
                     <input
-                      type="tel"  pattern="[6-9][0-9]{9}"
+                       type="tel"  
+                       {% comment %} pattern="[6-9][0-9]{9}" {% endcomment %}
+                      pattern="0?[6-9][0-9]{9}"
                       name = "guestphone"
                       id="mobilenumber"
                       class="form-control"

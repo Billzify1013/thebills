@@ -47,7 +47,7 @@ def addroomtohourlyrooms(request):
                 pass
             else:
                 current_time = timezone.now() 
-                HourlyRoomsdata.objects.create(vendor=user,rooms_id=roomno,checkinstatus=False,checkoutstatus=False,
+                hrlydata = HourlyRoomsdata.objects.create(vendor=user,rooms_id=roomno,checkinstatus=False,checkoutstatus=False,
                                             checkIntime=current_time,checkottime=current_time,time="3hours")
                 Rooms.objects.filter(vendor=user,id=roomno).update(checkin=6)
                 rdata = Rooms.objects.get(vendor=user,id=roomno)
@@ -56,7 +56,7 @@ def addroomtohourlyrooms(request):
                 noon_time_str = "12:00 PM"
                 noon_time = datetime.strptime(noon_time_str, "%I:%M %p").time()
                 Booking.objects.create(vendor=user,room=rdata,guest_name="BLOCK",check_in_date=today,check_out_date=enddate,
-                                check_in_time=current_time,check_out_time=noon_time,    )
+                                check_in_time=current_time,check_out_time=noon_time ,hourly=hrlydata  )
                 for inventory in existing_inventory:
                     if inventory.total_availibility > 0:  # Ensure there's at least 1 room available
                         # Update room availability and booked rooms
@@ -97,16 +97,24 @@ def addroomtohourlyrooms(request):
     
          
 def removeroomfromhourly(request):
-    try:
+    # try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
             subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
             if subuser:
                 user = subuser.vendor  
             roomno = request.POST.get('roomno')
+            print(roomno,'print content')
             if HourlyRoomsdata.objects.filter(vendor=user,id=roomno).exists():
                 roomid = HourlyRoomsdata.objects.get(vendor=user,id=roomno)
                 Rooms.objects.filter(vendor=user,id=roomid.rooms.id).update(checkin=0)
+                if Booking.objects.filter(vendor=user,hourly=roomid).exists():
+                    ctime = datetime.now().time()
+                    cdte = datetime.now().date()
+                    Booking.objects.filter(vendor=user,hourly=roomid).update(
+                        check_out_time=ctime,check_out_date=cdte
+                    )
+
                 HourlyRoomsdata.objects.filter(vendor=user,id=roomno).delete()
                 today = datetime.now().date()
                 rdata = Rooms.objects.get(vendor=user,id=roomid.rooms.id)
@@ -149,8 +157,8 @@ def removeroomfromhourly(request):
             return redirect('hourlyhomepage') 
         else:
             return redirect('loginpage')
-    except Exception as e:
-        return render(request, '404.html', {'error_message': str(e)}, status=500)    
+    # except Exception as e:
+    #     return render(request, '404.html', {'error_message': str(e)}, status=500)    
     
      
 

@@ -206,6 +206,9 @@ class InvoiceItem(models.Model):
     is_extend = models.BooleanField(default=False)
     checkout_date = models.DateField(auto_now=False,blank=True, null=True)
     is_room_extra = models.BooleanField(default=False)
+    is_mealp = models.BooleanField(default=False)
+    mealpprice = models.FloatField(default=0.0,null=True,blank=True)
+    mealplanname = models.CharField(max_length=25,null=True,blank=True)
 
    
 class taxSlab(models.Model):
@@ -640,6 +643,7 @@ class Booking(models.Model):
     advancebook = models.ForeignKey(SaveAdvanceBookGuestData, on_delete=models.CASCADE, null=True, blank=True)
     status = models.CharField(max_length=25, null=True, blank=True)
     fnbinvoice = models.ForeignKey(Invoice,on_delete=models.CASCADE, null=True, blank=True)
+    hourly = models.ForeignKey(HourlyRoomsdata,on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return f"{self.guest_name} ({self.check_in_date} - {self.check_out_date})"
@@ -889,3 +893,11 @@ class CustomGuestLog(models.Model):
     description = models.CharField(max_length=100,blank=True, null=True)  # Extra details
     timestamp = models.DateTimeField(default=now)  # Action ka time
     advancebook = models.ForeignKey(SaveAdvanceBookGuestData,on_delete=models.CASCADE, null=True, blank=True)
+
+
+class bulklogs(models.Model):
+    vendor = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    by = models.CharField(max_length=100)  
+    action = models.CharField(max_length=30)  # Action type (Create, Update, Delete)
+    description = models.TextField(blank=True, null=True)  # Extra details
+    timestamp = models.DateTimeField(default=now)  

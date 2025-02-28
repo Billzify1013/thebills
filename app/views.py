@@ -1049,6 +1049,9 @@ def openroomclickformpage(request, id):
             roomno = id
             cat_data = Rooms.objects.get(vendor=user, room_name=id)
             today = datetime.now().date()
+            if Booking.objects.filter(vendor=user,room=cat_data,status="CHECK IN").last():
+                messages.error(request,"Guest Stay In This Room!")
+                return redirect('weekviews')
             bookingdates = Booking.objects.filter(vendor=user,room=cat_data,check_in_date__gt=today).first()
             
             roomscategory_id = cat_data.room_type.id
@@ -3680,6 +3683,67 @@ def openroomclickformtodayarriwalspage(request,id):
             return redirect('loginpage')
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)
+
+
+def weekviewcheckin(request):
+    try:
+        if request.user.is_authenticated and request.method=="POST":
+            user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            bookidsmain = int(request.POST.get('bookidsmain'))
+
+            if Booking.objects.filter(vendor=user,id=bookidsmain).exists():
+                bookingdata = Booking.objects.get(vendor=user,id=bookidsmain)
+                checkbookdata = Booking.objects.filter(vendor=user,advancebook=bookingdata.advancebook).all()
+                for i in checkbookdata:
+                    if Booking.objects.filter(vendor=user,room=i.room,status="CHECK IN").exclude(id=i.id).last():
+                        messages.error(request,"You need to check out from your current room before you can check in to the new one.")
+                        return redirect('weekviews')
+                    else:
+                        pass
+                
+                
+                
+                roomname  =   bookingdata.room.id
+                room_data = Rooms.objects.filter(vendor=user,id=roomname)
+                roomno = bookingdata.room.room_name
+                if RoomBookAdvance.objects.filter(vendor=user,saveguestdata=bookingdata.advancebook):
+                    
+                    roomsbookdata = RoomBookAdvance.objects.get(vendor=user,saveguestdata=bookingdata.advancebook,roomno=bookingdata.room)
+                    id = roomsbookdata.id
+                    roomguestdata = RoomBookAdvance.objects.filter(vendor=user,id=id).all()
+                    loyltydata = loylty_data.objects.filter(vendor=user,Is_active=True)
+                    today=datetime.now().date()
+                    saveguestdata = 0
+                    guestphone = 0
+                    for i in roomguestdata:
+                        guestphone=i.bookingguestphone
+                        saveguestdata = i.saveguestdata.id
+                    paymentdatauserfromsaveadvancedata = SaveAdvanceBookGuestData.objects.filter(vendor=user,id=saveguestdata).all()
+                    roomnumberdata = RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id=saveguestdata)
+                    countrooms = len(roomnumberdata)
+                    adults = 0
+                    child = 0
+                    for i in roomnumberdata:
+                        adults  = adults + i.adults
+                        child = child +i.children
+
+                    # return render(request,'advanceroomclickpage.html',{'id':roomno,'countrooms':countrooms,'roomnumberdata':roomnumberdata,'room_data':room_data,'roomguestdata':roomguestdata})
+                    return render(request,'advanceroomclickpage.html',{'loyltydata':loyltydata,'id':roomno,
+                                            'countrooms':countrooms,'roomnumberdata':roomnumberdata,
+                                            'room_data':room_data,'roomguestdata':roomguestdata,
+                                            'paymentdatauserfromsaveadvancedata':paymentdatauserfromsaveadvancedata,
+                                            'adults':adults,'child':child})
+            else:
+                messages.error(request,"Booking Id Not Found Please Check From Today Arrivals Page!")
+                return redirect('weekviews')
+            
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
     
 
     
@@ -5622,13 +5686,7 @@ def checkoutroom(request):
                         Invoice.objects.filter(vendor=user,id=invoice_id).update(invoice_status=True)
                         if companyinvoice.objects.filter(vendor=user,Invoicedata=GUESTIDs).exists():
                             companyinvoice.objects.filter(vendor=user,Invoicedata=GUESTIDs).update(is_paid=True)
-                            # cmpdats = companyinvoice.objects.get(vendor=user,Invoicedata=GUESTIDs)
-                            # orgcmp = Companies.objects.get(vendor=user,id=cmpdats.company.id)
-                            # values = int(orgcmp.values)
-                            # updateval = values + int(float(GUESTIDs.grand_total_amount))
-                            # Companies.objects.filter(vendor=user,id=cmpdats.company.id).update(
-                            #             values=updateval
-                            # )
+                            
 
                             
                         
@@ -5657,25 +5715,6 @@ def checkoutroom(request):
                     else:
                         pass
 
-                   
-                    # invoicenumberfind = Invoice.objects.filter(
-                    #     vendor=user, 
-                    #     invoice_status=True
-                    # ).exclude(
-                    #     invoice_number__in=['unpaid', '']
-                    # ).order_by('-invoice_number').first()
-
-
-                    
-                    # if invoicenumberfind==None:
-                    #     invoicenumberfind = 1
-                    # else:
-                    #     invoicenumberfind = int(invoicenumberfind.invoice_number ) + 1
-                    # print(invoicenumberfind,'check this')
-                    # invoice_number = invoicenumberfind
-                    # print(invoice_number,'check this')
-
-                    # new code for invoice number
 
                     latest_invoice = Invoice.objects.filter(
                         vendor=user, 
@@ -5694,10 +5733,7 @@ def checkoutroom(request):
 
 
 
-                    # # Check if the generated invoice number already exists
-                    # while Invoice.objects.filter(vendor=user,invoice_number=invoice_number).exists():
-                    #     next_invoice_number += 1
-                    #     invoice_number = f'INV-{invccurrentdate}-{next_invoice_number}'
+                    
 
                     Invoice.objects.filter(vendor=user,id=invoice_id).update(invoice_date=invccurrentdate)
                     
@@ -6165,10 +6201,20 @@ def addguestdata(request):
                 rateplandata=RatePlan.objects.filter(vendor=user,id=rateplan).first()
                
                 msecs = cat.category_name + " : " + rateplanname + " " + rateplandata.rate_plan_code  + " " + " for "+ str(adults) + " adults " + " " +   " and " + str(children) + " " + "Child"
+                if  rateplandata.rate_plan_name=="EP":
+                    ismealprice = 0.0
+                    ismeal=False
+                    plannm = "EP"
+                else:
+                    ismeal = True
+                    ismealprice = float(rateplandata.base_price) * staydays
+                    plannm = rateplandata.rate_plan_name
+                
                 invoiceitem = InvoiceItem.objects.create(vendor=user,invoice=Invoiceid,description=room_details,quantity_likedays=staydays,
                                         mdescription=msecs,is_room=True,price=onedayroomprice,cgst_rate=putrat,sgst_rate=putrat,hsncode=HSNcode,total_amount=grabd_total_amount,
                                         cgst_rate_amount=CGST_AMOUNT,sgst_rate_amount=Sgst_AMOUNT,totalwithouttax=invoicetotalamount,
-                                        checkout_date=checkoutdate)  
+                                        checkout_date=checkoutdate,is_mealp=ismeal,mealpprice=ismealprice,
+                                        mealplanname=plannm)  
                 
                 if Extracharge=='true':
                     extrachargeprice = withouttaxextracharge 
@@ -6312,7 +6358,7 @@ def addguestdata(request):
 
 
 def addguestdatafromadvanceroombook(request):
-    # try:
+    try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
             subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
@@ -6457,21 +6503,38 @@ def addguestdatafromadvanceroombook(request):
                                             max_persons=i.adults,childmaxallowed=i.children)
                                 base_price = ipbs.base_price + roomdata.price
                                 msecs = roomdata.room_type.category_name + " "+ ipbs.rate_plan_code + " : " + i.rateplan_code + " " + " for "+ str(i.adults) + " adults " + " " +   " and " + str(i.children) + " " + "Child"
+                                if  ipbs.rate_plan_name=="EP":
+                                    ismealprice = 0.0
+                                    ismeal=False
+                                    plnnm ="EP"
+                                else:
+                                    ismeal = True
+                                    ismealprice = float(ipbs.base_price) * staydays
+                                    plnnm=ipbs.rate_plan_name
                                 InvoiceItem.objects.create(vendor=user,invoice=Invoiceid,description=roomdata.room_name,
                                                         mdescription=msecs,hsncode=hsn,quantity_likedays=staydays,price=selllprice,
                                                         total_amount=toalamtitem,cgst_rate=gstrate,sgst_rate=gstrate,
                                                         is_room=True,cgst_rate_amount=bydaystaxamt,sgst_rate_amount=bydaystaxamt,totalwithouttax=daystotalprice,
-                                                        checkout_date=checkoutdate)
+                                                        checkout_date=checkoutdate,is_mealp=ismeal,mealpprice=ismealprice,mealplanname=plnnm)
                             else:
                                 if RatePlanforbooking.objects.filter(vendor=user,rate_plan_name=i.rateplan_code):
                                     pdatas= RatePlanforbooking.objects.get(vendor=user,rate_plan_name=i.rateplan_code)
                                     base_price = i.adults * (pdatas.base_price) + roomdata.price
                                     msecs = roomdata.room_type.category_name + " " + pdatas.rate_plan_code +" : " + i.rateplan_code + " " + " for "+ str(i.adults) + " adults " + " " +   " and " + str(i.children) + " " + "Child"
+                                    
+                                    if  pdatas.rate_plan_name=="EP":
+                                        ismealprice = 0.0
+                                        ismeal=False
+                                        plnnm="EP"
+                                    else:
+                                        ismeal = True
+                                        ismealprice = float(pdatas.base_price) * i.adults * staydays 
+                                        plnnm = pdatas.rate_plan_name
                                     InvoiceItem.objects.create(vendor=user,invoice=Invoiceid,description=roomdata.room_name,
                                                         mdescription=msecs,hsncode=hsn,quantity_likedays=staydays,price=selllprice,
                                                         total_amount=toalamtitem,cgst_rate=gstrate,sgst_rate=gstrate,
                                                         is_room=True,cgst_rate_amount=bydaystaxamt,sgst_rate_amount=bydaystaxamt,totalwithouttax=daystotalprice,
-                                                        checkout_date=checkoutdate)
+                                                        checkout_date=checkoutdate,is_mealp=ismeal,mealpprice=ismealprice,mealplanname=plnnm)
 
                                 else:
 
@@ -6633,8 +6696,8 @@ def addguestdatafromadvanceroombook(request):
                 return redirect('todaybookingpage')
         else:
             return redirect('loginpage')
-    # except Exception as e:
-    #     return render(request, '404.html', {'error_message': str(e)}, status=500)
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
 
 
 
@@ -6651,7 +6714,7 @@ def homepage(request):
             rooms = Rooms.objects.filter(vendor=user).order_by('id')
             # desired_date = datetime.now().date() + timedelta(days=1)
             desired_date = datetime.now().date()
-            print(desired_date)
+            
             if Roomcleancheck.objects.filter(vendor=user,current_date=desired_date).exists():
                 pass
             else:
@@ -6669,7 +6732,7 @@ def homepage(request):
             # print(booking_advance_yestarday_data,'booking yestarday data this')
 
             booking_checkin_data = Booking.objects.filter(vendor=user,check_in_date__lte=desired_date,check_out_date__gt=desired_date,status='CHECK IN')
-            print(booking_checkin_data,'checkin data this')
+            
 
 
             booking_checkout_data = Booking.objects.filter(vendor=user,check_out_date__lte=desired_date).filter(status='CHECK IN') 

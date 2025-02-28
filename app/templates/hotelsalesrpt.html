@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<div class="row mb-3">
+    <div class="col-9">
+        <a class="btn btn-warning text-white" onClick="javascript:history.go(-1);">Back</a>
+    </div>
+
+    
+
+    <div class="col-3 float-end">
+        <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#backDropModal">
+            <i class='bx bx-search-alt-2'></i> Search By Dates
+        </button>
+    </div>
+</div>
+
+<div class="table-responsive text-nowrap">
+    <!-- Add buttons for printing and downloading Excel -->
+    
+
+    <!-- Table displaying the aggregated data -->
+    <table class="table table-bordered" id="secondInvoiceTable">
+        <thead class="table-light">
+            <tr>
+                <th colspan="2" class="text-center">Room Night and Revenue Summary.<br><br><b> From: {{startdate}} To: {{enddate}}</b></th>
+            </tr>
+        </thead>
+        <tbody class="table-border-bottom-0 table-light" id="tableBody">
+            <tr>
+                <td><strong>Room Nights Sold</strong></td>
+                <td>{{ aggregated_data.room_nights_sold }} </td>
+            </tr>
+            <tr>
+                <td><strong>Total Revenues (INR)</strong></td>
+                <td>₹ {{ aggregated_data.total_revenues }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+
+<!-- Second table displaying items where is_room=False -->
+<div class="table-responsive text-nowrap mt-4">
+    <h5>Product Sales</h5>
+    <table class="table table-bordered" id="itemSummaryTable">
+        <thead class="table-light">
+            <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody class="table-border-bottom-0" id="itemSummaryBody">
+            {% for item in item_data %}
+            <tr>
+                <td>{{ item.description }}</td>
+                <td>{{ item.total_quantity }}</td>
+                <td>₹ {{ item.total_amount }}</td>
+            </tr>
+            {% endfor %}
+            <!-- Show total for all items -->
+            <tr class="table-light">
+                <td><strong>Total</strong></td>
+                <td>{{ total_quantity }}</td>
+                <td>₹ {{ total_amount }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+<!-- Second table displaying items where is_room=False -->
+<div class="table-responsive text-nowrap mt-4">
+    <h5>Source of Business {This Amount Include In Room Revenue}</h5>
+    <table class="table table-bordered" id="itemSummaryTable">
+        <thead class="table-light">
+            <tr>
+                <th>Meal Plan</th>
+            <th>Quantity</th>
+            <th>Total</th>
+            </tr>
+        </thead>
+        <tbody class="table-border-bottom-0" id="itemSummaryBody">
+            {% for plan in meal_plans %}
+            <tr>
+            <td>{{ plan.mealplanname }}</td>
+            <td>{{ plan.total_quantity }}</td>
+            <td>{{ plan.total_price }}</td>
+            </tr>
+            {% endfor %}
+            <!-- Show total for all items -->
+            <tr class="table-light">
+                <td><strong>Total</strong></td>
+                <td>{{ meal_total_quantity }}</td>
+                <td>₹ {{ meal_total_amount }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+
+<!-- Modal add rooms -->
+<div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'hotelpandlsearch'  %}" method="POST" class="modal-content">
+            {% csrf_token %}
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Search Data</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Start Date</label>
+              <input
+                type="date"
+                name="startdate"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter RoomName"
+                required
+              />
+            </div>
+
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">End Date</label>
+                <input
+                  type="date"
+                  name="enddate"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Enter RoomName"
+                  required
+                />
+              </div>
+
+            
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+{%endblock%}

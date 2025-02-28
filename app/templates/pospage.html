@@ -56,7 +56,7 @@
    <div class="row">
     <h5>Room POS/Room NO:{{roomno}}</h5>
     
-    <div class="col-6 ">
+    <div class="col-10 ">
         <!-- Bootstrap Table with Header - Light -->
  
  <div class="card">
@@ -83,8 +83,8 @@
                 <input type="text" class="form-control" placeholder="Search..." id="search" autocomplete="off">
                 <div class="options list-group" id="options">
                     {% for item in iteams %}
-                        <div class="option left-0 list-group-item list-group-item-action" data-value="{{ item.id }}">
-                            {{ item.description }} ₹{{ item.price }} <!-- Display description and price -->
+                        <div class="option left-0 list-group-item list-group-item-action" data-value="{{ item.id }}" data-price="{{ item.price }}" data-taxrate="{{ item.category_tax.taxrate }}">
+                            {{ item.description }} ₹{{ item.price }}   <!-- Display description and price -->
                         </div>
                     {% empty %}
                         <div class="option list-group-item">No items available</div>
@@ -108,13 +108,30 @@
         </div> {% endcomment %}
         <div class="col-12 mt-3">
             <span class="text"><i class='bx bx-unite'></i>Enter Quantity</span>
-            <input  type="number" class="form-control mt-2 " name="qty" required>
+            <input  type="number" class="form-control mt-2 " name="qty" id="quantity" required>
         </div>
 
         <div class="col-12 mt-3">
             <span class="text"><i class='bx bx-unite'></i>Extra Descriptions</span>
             <input  type="text" class="form-control mt-2 " placeholder="like : Another Room No " name="description" >
         </div>
+<div class="row">
+        <div class="col-5 mt-3">
+            <span class="text"><i class='bx bx-unite'></i>Final Amount</span>
+            <input type="text" class="form-control mt-2" name="grandtotalamountform" id="finalAmount" required>
+        </div>
+
+        <div class="col-4 mt-3">
+            <span class="text"><i class='bx bx-unite'></i>Total Amount Without Tax</span>
+            <input type="text" class="form-control mt-2" id="totalWithoutTax" readonly>
+        </div>
+        
+        <div class="col-3 mt-3">
+            <span class="text"><i class='bx bx-unite'></i>Tax Amount</span>
+            <input type="text" class="form-control mt-2" id="taxAmount" readonly>
+        </div>
+    </div>
+
     </div></div>
 </div>
 
@@ -126,6 +143,85 @@
      
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const options = document.getElementById('options');
+        const search = document.getElementById('search');
+        const selectedItemId = document.getElementById('selectedItemId');
+        const quantityInput = document.getElementById('quantity');
+        const finalAmountInput = document.getElementById('finalAmount');
+        const totalWithoutTaxInput = document.getElementById('totalWithoutTax');
+        const taxAmountInput = document.getElementById('taxAmount');
+    
+        let selectedPrice = 0;
+        let selectedTaxRate = 0;
+    
+        // Listen to search input to filter options
+        search.addEventListener('input', function () {
+            const searchTerm = search.value.toLowerCase();
+            const allOptions = options.querySelectorAll('.option');
+    
+            allOptions.forEach(option => {
+                const description = option.textContent.toLowerCase();
+                if (description.includes(searchTerm)) {
+                    option.style.display = 'block';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+        });
+    
+        // Item selection from the options
+        options.addEventListener('click', function (e) {
+            const selectedOption = e.target.closest('.option');
+            if (selectedOption) {
+                const price = parseFloat(selectedOption.getAttribute('data-price'));
+                const taxRate = parseFloat(selectedOption.getAttribute('data-taxrate')) || 0; // Default to 0 if NaN
+                const itemId = selectedOption.getAttribute('data-value');
+    
+                selectedItemId.value = itemId; // Set the selected item ID
+                selectedPrice = price;
+                selectedTaxRate = taxRate;
+    
+                // Update the displayed search value (for clarity, not mandatory)
+                search.value = selectedOption.textContent;
+                calculateFinalAmount();  // Recalculate based on the selected item
+            }
+        });
+    
+        // Listen for quantity input change and update final amount
+        quantityInput.addEventListener('input', function () {
+            calculateFinalAmount();  // Recalculate whenever the quantity changes
+        });
+    
+        // Function to calculate final amount, total without tax, and tax amount
+        function calculateFinalAmount() {
+            const quantity = parseInt(quantityInput.value) || 0;
+    
+            if (selectedPrice > 0 && quantity > 0) {
+                // Calculate the tax amount based on the price and tax rate
+                const taxAmount = (selectedPrice * selectedTaxRate) / 100;
+                const totalPriceWithoutTax = selectedPrice * quantity;  // Total price before tax
+                const totalPriceWithTax = totalPriceWithoutTax + (taxAmount * quantity);  // Total price after tax
+                const finalAmount = totalPriceWithTax;  // Final amount after tax
+    
+                // Display the final amounts
+                finalAmountInput.value =  finalAmount.toFixed(2);  // With tax
+                totalWithoutTaxInput.value = "₹" + totalPriceWithoutTax.toFixed(2);  // Without tax
+                taxAmountInput.value = "₹" + (taxAmount * quantity).toFixed(2);  // Total tax amount
+            } else {
+                // If no price or quantity, set all to 0
+                finalAmountInput.value = "₹0.00";
+                totalWithoutTaxInput.value = "₹0.00";
+                taxAmountInput.value = "₹0.00";
+            }
+        }
+    });
+    
+    
+    
+</script>
 
 {% comment %} 
 <!--laundry biling-->
@@ -315,5 +411,77 @@ $(document).ready(function() {
       left: 0; /* Align options to the left */
   }
   </style>
+
+
+
+{% comment %} old code  {% endcomment %}
+{% comment %} <div class="card">
+    <form action="{% url 'additemstofolio' %}" method="post" >
+        {% csrf_token %}
+        <div class="row">
+            <span class="text ms-3 mt-2"><i class='bx bx-receipt'></i>Product Billing</span>
+
+            <h5 class="ms-3 mt-2">Room NO:{{roomno}}</h5>
+            <input type="hidden" name="invoiceid" value="{{invoiceid}}">
+    <div class="col-11 m-4 mb-4"> {% endcomment %}
+        {% comment %} <span class="text "><i class='bx bx-receipt'></i> Folio Bill</span>
+        <select class="form-select mt-2 " name="foliocustomer" required placeholder="Select Category" id="inputGroupSelect01">
+            <option value="">Select Room No</option> 
+          {%for t in folio%}
+          <option  value="{{t.id}}">Room:{{t.room_no}}</option>
+          {%endfor%}
+        </select> {% endcomment %}
+        {% comment %} <div>
+
+          <div class="col-12 mt-4">
+            <span class="text mb-2"><i class='bx bxs-cart-alt'></i> Search and Select Product</span>
+            <div class="form-group position-relative"> <!-- Added position-relative -->
+                <input type="text" class="form-control" placeholder="Search..." id="search" autocomplete="off">
+                <div class="options list-group" id="options">
+                    {% for item in iteams %}
+                        <div class="option left-0 list-group-item list-group-item-action" data-value="{{ item.id }}">
+                            {{ item.description }} ₹{{ item.price }}  {{item.category_tax.taxrate}} <!-- Display description and price -->
+                        </div>
+                    {% empty %}
+                        <div class="option list-group-item">No items available</div>
+                    {% endfor %}
+                </div>
+                
+                <input type="hidden" name="iteamid" id="selectedItemId"> <!-- Hidden input for selected item ID -->
+            </div>
+            
+        </div>
+         {% endcomment %}
+
+            {% comment %} <div class="mt-4">
+                <span class="text mb-2"><i class='bx bxs-cart-alt'></i> Select Product</span>
+            <select class="form-select  mt-2 col-12" name="iteamid" required placeholder="Select Iteam" id="inputGroupSelect01">
+                <option value="">Select Product</option> 
+              {%for data in iteams%}
+              <option  value="{{data.id}}">{{data.description}} ₹{{data.price}}</option>
+              {%endfor%}
+            </select>
+        </div> {% endcomment %}
+        {% comment %} <div class="col-12 mt-3">
+            <span class="text"><i class='bx bx-unite'></i>Enter Quantity</span>
+            <input  type="number" class="form-control mt-2 " name="qty" required>
+        </div>
+
+        <div class="col-12 mt-3">
+            <span class="text"><i class='bx bx-unite'></i>Extra Descriptions</span>
+            <input  type="text" class="form-control mt-2 " placeholder="like : Another Room No " name="description" >
+        </div>
+    </div></div>
+</div>
+
+    <button class="btn btn-primary mb-3 ms-4" type="submit" >Add Folio Bill</button>
+
+        </form>
+       
+    
+     
+    </div>
+</div> {% endcomment %}
+  
    
 {%endblock%}

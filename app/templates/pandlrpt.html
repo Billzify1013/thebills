@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<div class="row mb-3">
+    <div class="col-9">
+        <a class="btn btn-warning text-white" onClick="javascript:history.go(-1);">Back</a>
+    </div>
+
+    
+
+    <div class="col-3 float-end">
+        <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#backDropModal">
+            <i class='bx bx-search-alt-2'></i> Search By Dates
+        </button>
+    </div>
+</div>
+
+<div class="table-responsive text-nowrap">
+    <!-- Add buttons for printing and downloading Excel -->
+    
+
+    <!-- Table displaying the aggregated data -->
+    <table class="table table-bordered" id="secondInvoiceTable">
+        <thead class="table-light">
+            <tr>
+                <th colspan="2" class="text-center">Hotel Profit And Loss Report.<br><br><b> From: {{startdate}} To: {{enddate}}</b></th>
+            </tr>
+        </thead>
+        <tbody class="table-border-bottom-0 table-light" id="tableBody">
+            <tr>
+                <td><strong>Hotel Revenues</strong></td>
+                <td>₹ {{ invc_grand_total|floatformat:2 }} </td>
+            </tr>
+            <tr>
+                <td><strong>Total Purchase (INR)</strong></td>
+                <td>₹ {{ supplier_grand_total|floatformat:2  }}</td>
+            </tr>
+
+            <tr>
+                <td><strong>Total Expenses (INR)</strong></td>
+                <td>₹ {{ total_cash_expense|floatformat:2  }}</td>
+            </tr>
+
+            <tr>
+                <td><strong>Total Employee Salary Given (INR)</strong></td>
+                <td>₹ {{ totalsalaryexpance|floatformat:2  }}</td>
+            </tr>
+
+            <tr>
+                <td><strong>Total </strong></td>
+                <td>₹ {{ completetotal|floatformat:2  }}</td>
+            </tr>
+
+            <tr>
+                <td><strong>Profit </strong></td>
+                <td><b>₹ {{ profit|floatformat:2  }}</b></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="text-center my-4">
+    <button class="btn btn-primary" onclick="printTable()">Print</button>
+    <button class="btn btn-success" onclick="downloadExcel()">Download Excel</button>
+</div>
+
+<script>
+    // Print Table Function
+    function printTable() {
+        var printContents = document.getElementById('secondInvoiceTable').outerHTML;
+        var originalContents = document.body.innerHTML;
+
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+    }
+
+    // Download Excel Function
+    // Download Excel Function
+    function downloadExcel() {
+        try {
+            var table = document.getElementById('secondInvoiceTable');
+            if (!table) {
+                alert("Table not found.");
+                return;
+            }
+
+            // Convert table to Excel format
+            var wb = XLSX.utils.table_to_book(table, { sheet: "Sheet 1" });
+
+            // Adjust column widths in the Excel file
+            var ws = wb.Sheets["Sheet 1"];
+            var columns = ws['!cols'] || [];
+
+            // Manually adjust the column widths (example: setting widths for the first 2 columns)
+            columns[0] = { wpx: 200 }; // Column 1 (Hotel Revenues) width
+            columns[1] = { wpx: 150 }; // Column 2 (Amount) width
+
+            // Save the changes
+            ws['!cols'] = columns;
+
+            // Trigger file download
+            XLSX.writeFile(wb, "hotel_profit_loss_report.xlsx");
+
+            console.log("Excel file created successfully!");
+        } catch (error) {
+            console.error("Error while exporting to Excel: ", error);
+            alert("An error occurred while exporting to Excel.");
+        }
+    }
+</script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+
+<!-- Modal add rooms -->
+<div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'hotelpandlsearch'  %}" method="POST" class="modal-content">
+            {% csrf_token %}
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Search Data</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Start Date</label>
+              <input
+                type="date"
+                name="startdate"
+                id="nameBackdrop"
+                class="form-control"
+                placeholder="Enter RoomName"
+                required
+              />
+            </div>
+
+            <div class="col mb-3">
+                <label for="nameBackdrop" class="form-label">End Date</label>
+                <input
+                  type="date"
+                  name="enddate"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Enter RoomName"
+                  required
+                />
+              </div>
+
+            
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+{%endblock%}

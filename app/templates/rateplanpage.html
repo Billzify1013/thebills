@@ -45,14 +45,22 @@
         <div class="col mb-3 card m-2">
             <h5 class="mt-3 mb-3">RatePlan For Advance Booking In PMS</h5>
           <label for="nameBackdrop" class="form-label mt-2">Rate Plan Name</label>
-          <input
+          {% comment %} <input
             type="text"
             name="planname"
             id="nameBackdrop"
             class="form-control mb-3"
             placeholder="Enter PlanName"
             required
-          />
+          /> {% endcomment %}
+          <select class="form-control" name="planname" required>
+            <option value="" disabled selected>-- Please Select an Option --</option>
+            <option value="EP">EP</option>
+            <option value="BB">BB</option>
+            <option value="BL">BL</option>
+            <option value="BD">BD</option>
+            <option value="BDL">BDL</option>
+          </select>
 
           <label for="nameBackdrop" class="form-label mb-2">Rate Plan Code</label>
             <input
@@ -100,14 +108,23 @@
           </select>
 
           <label for="nameBackdrop" class="form-label mb-2">Rate Plan Name</label>
-          <input
+          {% comment %} <input
             type="text"
             name="planname"
             id="nameBackdrop"
             class="form-control mb-3"
             placeholder="Enter RatePlanName"
             required
-          />
+          /> {% endcomment %}
+
+          <select class="form-control" name="planname" required>
+            <option value="" disabled selected>-- Please Select an Option --</option>
+            <option value="EP">EP</option>
+            <option value="BB">BB</option>
+            <option value="BL">BL</option>
+            <option value="BD">BD</option>
+            <option value="BDL">BDL</option>
+          </select>
 
           <label for="nameBackdrop" class="form-label mb-2">Rate Plan Code</label>
             <input

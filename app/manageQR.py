@@ -456,7 +456,7 @@ def change_rooms_book_week_url(request):
         invoice_id = data.get('invoice_id')
         current_rooms = data.get('current_rooms', [])
         available_rooms = data.get('available_rooms', [])
-        print(available_rooms,current_rooms,invoice_id)
+        # print(available_rooms,current_rooms,invoice_id)
 
         if len(current_rooms) != len(available_rooms):
             return JsonResponse({'success': False, 'message': 'Room count mismatch'})
@@ -467,16 +467,16 @@ def change_rooms_book_week_url(request):
                 for current_room, available_room in zip(current_rooms, available_rooms):
                     current__room_book_id = current_room['id']
                     available_room_id = available_room['id']
-                    print(current__room_book_id)
+                    # print(current__room_book_id)
                     # Fetch current RoomBookAdvance and room details
                     rbadvc = RoomBookAdvance.objects.select_related('roomno').get(id=current__room_book_id)
                     roomcsdata = rbadvc.roomno
-                    print("yaha tk chal gaya loop ke above if")
+                    # print("yaha tk chal gaya loop ke above if")
                     # Reset check-in status for the current room if necessary
                     today = datetime.today().date()
                     checkindatecheck = rbadvc.saveguestdata.bookingdate
                     checkoutdatecheck = rbadvc.saveguestdata.checkoutdate
-                    print(today,checkindatecheck,checkoutdatecheck)
+                    # print(today,checkindatecheck,checkoutdatecheck)
                     if checkindatecheck <= today <= checkoutdatecheck:
                         print("checkin dat erange me hai")
                         if roomcsdata.checkin in [0, 4]:
@@ -484,7 +484,7 @@ def change_rooms_book_week_url(request):
                     else:
                          print("checkin date range me nhi hai")
 
-                    print("yaha tk chal gaya loop ke below if")
+                    
                     # Update the new room in RoomBookAdvance
                     RoomBookAdvance.objects.filter(id=current__room_book_id).update(roomno_id=available_room_id)
                     print(current__room_book_id,'curent id',rbadvc.saveguestdata,'save guest',available_room_id,'avl id ')
@@ -492,11 +492,16 @@ def change_rooms_book_week_url(request):
                     # ye query nhi chal rhe sath hi same checkin date hoto handle rhne dena checkout before hoto kr dena handle 
                     data = Booking.objects.filter(advancebook=rbadvc.saveguestdata, room_id=roomcsdata.id).update(room_id=available_room_id)
                     print(data,"yaha tk chal gaya on update")
-                    print("yaha tk chal gaya loop ke upr")
+                    
                     # If room types are different, update inventory
                     avlblsrid = Rooms.objects.get(id=available_room_id)
+                    print("on cat change above")
                     if roomcsdata.room_type != avlblsrid.room_type:
-                        saveguestdata = SaveAdvanceBookGuestData.objects.get(id=invoice_id)
+                        print("enter the if ")
+                        # saveguestdata = SaveAdvanceBookGuestData.objects.get(id=invoice_id)
+                        saveguestdata = SaveAdvanceBookGuestData.objects.get(id=rbadvc.saveguestdata.id)
+                        
+                        print(saveguestdata)
                         checkindate = saveguestdata.bookingdate
                         checkoutdate = saveguestdata.checkoutdate
                         print("yaha tk chal gaya")

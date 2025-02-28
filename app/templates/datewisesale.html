@@ -20,7 +20,7 @@
     </div>
     <div class="col-3 p-2">
         <b><div class="card p-3">TOTAL SALES<br><br><br>
-           <center> <h5>₹ {{grand_total_amount|floatformat:2}}</h5> </center>
+           <center> <h5><b>₹ {{grand_total_amount|floatformat:2}}</h5></b> </center>
            <span class="badge bg-label-success">TOTAL-SALE</span>
         </div></b>
     </div>
@@ -266,7 +266,8 @@
       
 
 <div class="col-3">
-    <a class="btn btn-primary w-100" href="{% url 'roomsales' %}">Sales Per Invoice</a>
+        
+        <a class="btn btn-primary w-100" href="{% url 'roomsales' %}">Sales Per Invoice</a>
 
         <a class="btn btn-primary w-100 mt-3" href="{% url 'productssales' %}">Item Consumption Report</a>
 
@@ -275,7 +276,16 @@
         <a class="btn btn-primary w-100 mt-3" href="{% url 'departurerpt' %}"> Departure Report</a>
 
         <a class="btn btn-primary w-100 mt-3" href="{% url 'rvrpt' %}"> Room Wise Revenue Report</a>
+
+        
       
+</div>
+<div class="col-3">
+    <a class="btn btn-primary w-100 " href="{% url 'hotelplrpt' %}">Hotel Sales Report</a>
+
+    <a class="btn btn-primary w-100 mt-3" href="{% url 'hotelpandlrpt' %}">Hotel P&L Report</a>
+
+    <a class="btn btn-primary w-100 mt-3" href="{% url 'expensesrpt' %}">Expenses Report</a>
 </div>
 </div>
 

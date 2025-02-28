@@ -1,4 +1,8 @@
+{%if bulk%}
+
+{%else%}
 <h2>Logs for Gueststay #{{ gueststay.id }}</h2>
+{%endif%}
 <div class="col-2">
     <input type=button value="Back" class="btn btn-outline-warning" onClick="javascript:history.go(-1);">
     </div>
