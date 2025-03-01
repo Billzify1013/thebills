@@ -2941,7 +2941,6 @@ def bookingdate(request):
                 #     check_in_date__lte=newbookdateminus,
                 #     check_out_date__gt=startdate
                 # )
-                print(startdate,enddate,newbookdateminus)
                 booking_data = Booking.objects.filter(
                         Q(vendor=user) &
                         (
@@ -2952,7 +2951,6 @@ def bookingdate(request):
                         ~Q(check_out_date=startdate)  # Exclude bookings where check_out_date is exactly startdate
                     ).exclude(status='CHECK OUT')
 
-                print(booking_data,'check advance ')
 
                 bookinghavedata = set(booking.room for booking in booking_data)
 
@@ -5377,13 +5375,42 @@ def advncereciptbiew(request, booking_id):
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)
 
+    
+
+def voucherfind(request):
+    try:
+        if request.user.is_authenticated and request.method=="POST":
+            user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            bookidsmain = int(request.POST.get('bookidsmain'))
+            
+            hoteldata = HotelProfile.objects.filter(vendor=user)
+            
+            if Booking.objects.filter(vendor=user,id=bookidsmain).exists():
+                bookdata=Booking.objects.get(vendor=user,id=bookidsmain)
+                advancebookdata = SaveAdvanceBookGuestData.objects.filter(id=bookdata.advancebook.id)
+                advancebookingdatas = RoomBookAdvance.objects.filter(saveguestdata=bookdata.advancebook)
+
+                return render(request, 'bookingrecipt.html', {
+                    'advancebookdata': advancebookdata,
+                    'advancebookingdatas': advancebookingdatas,
+                    'hoteldata': hoteldata
+                })
+
+            return redirect('weekviews')
+        
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+
 
 
 
 
 # advance booking delete function
 def advancebookingdeletebe(request,id):
-    # try:
+    try:
         
             saveguestid=id
             savedata = SaveAdvanceBookGuestData.objects.get(id=saveguestid)
@@ -5438,8 +5465,8 @@ def advancebookingdeletebe(request,id):
         
             return redirect(url)
         
-    # except Exception as e:
-    #     return render(request, '404.html', {'error_message': str(e)}, status=500)
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
     
 
 

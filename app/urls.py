@@ -162,6 +162,8 @@ urlpatterns = [
 
     path('advncereciptbiew/<int:booking_id>/', views.advncereciptbiew, name='advncereciptbiew'),
     path('advancebookingdeletebe/<int:id>/',views.advancebookingdeletebe,name="advancebookingdeletebe"),
+    path('voucherfind/', views.voucherfind, name='voucherfind'),
+    
 
     # loylty.py data
     path('setting/',loyltys.setting,name="setting"),

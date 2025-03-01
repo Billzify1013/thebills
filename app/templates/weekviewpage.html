@@ -257,6 +257,8 @@
         {% endfor %}
     </div>
 
+    
+
     {% for category in categories %}
         <div class="card date-row">
             <div class="category">{{ category.category_name }}</div>
@@ -398,6 +400,14 @@
           <button class="btn btn-primary" type="submit">Check-In</button>
           
           </form></div>
+
+          <form action="{% url 'voucherfind' %}" method="post">
+            {% csrf_token %}
+          <input type="hidden" id="bookmodelidbookvoucher" name="bookidsmain" />
+          <button class="btn btn-primary" type="submit">Voucher</button>
+          
+          </form>
+
             </div>
           </div>
           
@@ -564,6 +574,8 @@
             document.getElementById('totalamtss').innerText=parseFloat(totalamount).toFixed(2);
             document.getElementById('statuss').innerText=status;
             document.getElementById('bookingmodelidlogs3').value=id;
+            document.getElementById('bookmodelidbookvoucher').value=id;
+            
             console.log(checkInDate,checkOutDate)
             const currentDate = new Date();
             // Format current date in 'Feb. 28, 2025' format (short month and full year)
