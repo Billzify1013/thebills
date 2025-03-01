@@ -380,6 +380,7 @@ urlpatterns = [
     path('searchitemsales/',bookingpayment.searchitemsales,name="searchitemsales"),
     path('departurerpt/',bookingpayment.departurerpt,name="departurerpt"),
     path('rvrpt/',bookingpayment.rvrpt,name="rvrpt"),
+    path('rvrptsearch/',bookingpayment.rvrptsearch,name="rvrptsearch"),
     path('hotelplrpt/',bookingpayment.hotelplrpt,name="hotelplrpt"),
     path('hotelpandlrpt/',bookingpayment.hotelpandlrpt,name="hotelpandlrpt"),
     path('searchdeparture/',bookingpayment.searchdeparture,name="searchdeparture"),

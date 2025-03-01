@@ -636,7 +636,7 @@ $(document).ready(function(){
         var l =selectedData.length;
         $('#totalamt').html(total_amount);
         $('#totalamountinput').val(total_amount);
-        $('#finalesamt').val(total_amount);
+        $('#finalesamt').val(parseInt(total_amount));
         var serializedArray = JSON.stringify(selectedData);
         $('#new').val(serializedArray);
         $('#totalroom').html(l);
@@ -713,7 +713,7 @@ function resetamountdata() {
         var l =selectedData.length;
         $('#totalamt').html(total_amount);
         $('#totalamountinput').val(total_amount);
-        $('#finalesamt').val(total_amount);
+        $('#finalesamt').val(parseInt(total_amount));
         var serializedArray = JSON.stringify(selectedData);
         $('#new').val(serializedArray);
         $('#totalroom').html(l);
@@ -833,7 +833,7 @@ function updaterateplanprice(mealpriceguest) {
         var l =selectedData.length;
         $('#totalamt').html(total_amount);
         $('#totalamountinput').val(total_amount);
-        $('#finalesamt').val(total_amount);
+        $('#finalesamt').val(parseInt(total_amount));
         var serializedArray = JSON.stringify(selectedData);
         $('#new').val(serializedArray);
         $('#totalroom').html(l);
@@ -931,7 +931,7 @@ console.log(mealprice)
 
   $('#totalamt').html(parseInt(totalAmount));
   $('#totalamountinput').val(totalAmount);
-  $('#finalesamt').val(totalAmount);
+  $('#finalesamt').val(parseInt(totalAmount));
   var serializedArray = JSON.stringify(selectedData);
   $('#new').val(serializedArray);
   $('#totalroom').html(selectedData.length);

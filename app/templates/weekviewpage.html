@@ -261,7 +261,7 @@
         <div class="card date-row">
             <div class="category">{{ category.category_name }}</div>
         </div>
-        {% for room in category.rooms_set.all %}
+        {% for room in category.rooms_set.all|dictsort:"room_name" %}
             <div class="date-row">
                 <div class="room-names" style="width:100px"><b>{{ room.room_name }}</b>
                     {% if room.is_clean %}
@@ -640,7 +640,7 @@
     }
 
     function handleDateBoxClick(element, roomName, date, roomNumber) {
-        console.log('Room Number:', roomName);  // Debugging: Check if roomNumber is correct
+        console.log('Room Number:check chandan', roomName);  // Debugging: Check if roomNumber is correct
         roomNumber = roomName
         // Get today's date without the time part (set to midnight)
         const currentDate = new Date();
@@ -649,12 +649,12 @@
         // Get the clicked date and convert it to Date object
         const clickedDate = new Date(date);
         clickedDate.setHours(0, 0, 0, 0); // Set clicked date to midnight (00:00:00)
-
+        
         // Get the next date (increment the current date by 1 day)
         const nextDate = new Date(currentDate);
         nextDate.setDate(currentDate.getDate() + 1);
         const formattedNextDate = nextDate.toISOString().slice(0, 10);  // Format next date to YYYY-MM-DD
-
+        
         // Highlight clicked date temporarily
         element.classList.add('active');
         setTimeout(() => {
@@ -663,7 +663,7 @@
 
         // Check if there's a booking card in the clicked date box
         const bookingCard = element.querySelector(".booking-card");
-
+        
         // If there's a booking, show its information
         if (bookingCard) {
             return;  // Booking info will be shown through its own click event

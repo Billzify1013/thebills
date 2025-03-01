@@ -4674,11 +4674,11 @@ def weekviews(request):
             # Generate the list of 7 dates based on the current start date
             dates = [(start_date + timedelta(days=i)).strftime("%Y-%m-%d") for i in range(7)]
 
-            rooms = Rooms.objects.filter(vendor=user)
+            rooms = Rooms.objects.filter(vendor=user).order_by('room_name')
             categories = RoomsCategory.objects.filter(vendor=user).order_by('id')
             yestarday = start_date - timedelta(days=1)
             enddays = start_date + timedelta(days=6)
-            bookings = Booking.objects.filter(vendor=user,check_in_date__range =[yestarday,enddays] )
+            bookings = Booking.objects.filter(vendor=user,check_in_date__range =[yestarday,enddays] ).order_by('room')
 
             # Prepare a list of booking data with calculated widths
             booking_data = []

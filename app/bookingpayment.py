@@ -446,6 +446,34 @@ def rvrpt(request):
             return redirect('loginpage')
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)
+    
+
+
+def rvrptsearch(request):
+    try:
+        if request.user.is_authenticated and request.method=="POST":
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor 
+
+            startdate = request.POST.get('startdate')
+            enddate = request.POST.get('enddate')
+
+           
+            
+
+            # invoicedata = Invoice.objects.filter(vendor=user,invoice_date__range=[startdate,enddate])
+            
+            bookingdata=InvoiceItem.objects.filter(vendor=user,date__range=[startdate, enddate],is_room=True)
+            
+            return render(request,'roomviserpt.html',{'bookingdata':bookingdata,'startdate':startdate,
+                            'enddate':enddate})
+
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
 
 
 
@@ -645,17 +673,11 @@ def hotelpandlrpt(request):
             totalsalaryexpance = SalaryManagement.objects.filter(vendor=user,
                         salary_date__range=[startdate,enddate]).aggregate(total_sales=Sum('basic_salary'))['total_sales'] or 0
             
-            print(totalsalaryexpance,'salary ')
-            print(total_cash_expense,"total cash expenses")
-            print(supplier_grand_total,'purchase')
-            print(invc_grand_total)
-
-            print("Start date (first day of the month):", startdate)
-            print("End date (last day of the month):", enddate)
-
-            completetotal = invc_grand_total + supplier_grand_total + total_cash_expense + totalsalaryexpance
             
-            profit =  invc_grand_total - (supplier_grand_total + total_cash_expense + totalsalaryexpance)
+
+            completetotal = float(invc_grand_total) + float(supplier_grand_total) + float(total_cash_expense) + float(totalsalaryexpance)
+            
+            profit =  float(invc_grand_total) - (float(supplier_grand_total) + float(total_cash_expense) + float(totalsalaryexpance))
             # return redirect('todaysales')
             return render(request,'pandlrpt.html',{'startdate':startdate,'enddate':enddate,
                             'invc_grand_total':invc_grand_total,'supplier_grand_total':supplier_grand_total,
@@ -706,17 +728,11 @@ def hotelpandlsearch(request):
             totalsalaryexpance = SalaryManagement.objects.filter(vendor=user,
                         salary_date__range=[startdate,enddate]).aggregate(total_sales=Sum('basic_salary'))['total_sales'] or 0
             
-            print(totalsalaryexpance,'salary ')
-            print(total_cash_expense,"total cash expenses")
-            print(supplier_grand_total,'purchase')
-            print(invc_grand_total)
-
-            print("Start date (first day of the month):", startdate)
-            print("End date (last day of the month):", enddate)
-
-            completetotal = invc_grand_total + supplier_grand_total + total_cash_expense + totalsalaryexpance
             
-            profit =  invc_grand_total - (supplier_grand_total + total_cash_expense + totalsalaryexpance)
+
+            completetotal = float(invc_grand_total) + float(supplier_grand_total) + float(total_cash_expense) + float(totalsalaryexpance)
+            
+            profit =  float(invc_grand_total) - (float(supplier_grand_total) + float(total_cash_expense) + float(totalsalaryexpance))
             # return redirect('todaysales')
             return render(request,'pandlrpt.html',{'startdate':startdate,'enddate':enddate,
                             'invc_grand_total':invc_grand_total,'supplier_grand_total':supplier_grand_total,
