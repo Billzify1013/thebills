@@ -2944,7 +2944,7 @@ def bookingdate(request):
                 booking_data = Booking.objects.filter(
                         Q(vendor=user) &
                         (
-                            Q(check_in_date__gte=startdate) & Q(check_in_date__lte=enddate) |  # Check-in date is within the range
+                            Q(check_in_date__gte=startdate) & Q(check_in_date__lt=enddate) |  # Check-in date is within the range
                             Q(check_out_date__gt=startdate) & Q(check_out_date__lte=enddate) |  # Check-out date is within the range (excluding startdate)
                             Q(check_in_date__lt=startdate) & Q(check_out_date__gt=enddate)  # Booking spans the entire range
                         ) &
@@ -3472,7 +3472,7 @@ def addadvancebooking(request):
 
                     
                     catdatas = RoomsCategory.objects.get(vendor=user,id=roomtype)
-                    totalrooms = Rooms.objects.filter(vendor=user,room_type_id=roomtype).exclude(checkin=6).count()
+                    totalrooms = Rooms.objects.filter(vendor=user,room_type=catdatas).exclude(checkin=6).count()
                     occupancccy = (1 *100 //totalrooms)
                     if missing_dates:
                         for missing_date in missing_dates:
@@ -3480,7 +3480,7 @@ def addadvancebooking(request):
                                 RoomsInventory.objects.create(
                                     vendor=user,
                                     date=missing_date,
-                                    room_category_id=roomtype,  # Use the appropriate `roomtype` or other identifier here
+                                    room_category=catdatas,  # Use the appropriate `roomtype` or other identifier here
                                     total_availibility=totalrooms-1,       # Set according to your logic
                                     booked_rooms=1,    
                                     occupancy=occupancccy,
