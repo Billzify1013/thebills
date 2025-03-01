@@ -603,12 +603,12 @@
               <span class="menu-header-text">Item Management</span>
             </li>
 
-            <li class="menu-item text-uppercase {% if active_page == 'rooms' %}active{% endif %} ">
+            {% comment %} <li class="menu-item text-uppercase {% if active_page == 'rooms' %}active{% endif %} ">
               <a href="{% url 'rooms'  %}" class="menu-link">
                 <i class='menu-icon bx bxs-building-house'></i>
                 <div data-i18n="Analytics">Rooms</div>
               </a>
-            </li>
+            </li> {% endcomment %}
 
             
             {% if request.session.permissions.pdt %}
@@ -627,7 +627,7 @@
               </a>
             </li> {% endcomment %}
 
-            {% if request.session.permissions.acc %}
+            {% comment %} {% if request.session.permissions.acc %}
             <li class="menu-item text-uppercase {% if active_page == 'accounts' %}active{% endif %} ">
               <a href="{% url 'accounts'  %}" class="menu-link">
                 <i class=' menu-icon bx bx-book-content'></i>
@@ -635,7 +635,7 @@
                 <div data-i18n="Analytics">Accounts</div>
               </a>
             </li>
-            {%endif%}
+            {%endif%} {% endcomment %}
             
             {% comment %} <li class="menu-item ">
               <a href="{% url 'signuppage'  %}" class="menu-link">
@@ -1346,7 +1346,7 @@
     </script>
 </body>
 
-{% comment %} <script type="text/javascript">
+<script type="text/javascript">
   // Disable right-click
   document.addEventListener('contextmenu', function(e) {
       e.preventDefault();
@@ -1367,5 +1367,5 @@
           e.preventDefault();
       }
   });
-</script> {% endcomment %}
+</script>
 </html>

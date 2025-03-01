@@ -163,6 +163,41 @@
               </li>
               {%endif%}
 
+              {% if request.session.permissions.acc %}
+
+              <li class="nav-item w-100 m-1">
+                <a
+                  type="button"
+                  class="nav-link"
+                  style="text-align:left"
+                 href="{% url 'accounts'  %}"
+                >
+                <i class=' menu-icon bx bx-book-content'></i> Accounts
+                </a>
+              </li>
+            {% comment %} <li class="menu-item text-uppercase {% if active_page == 'accounts' %}active{% endif %} ">
+              <a href="{% url 'accounts'  %}" class="menu-link">
+                <i class=' menu-icon bx bx-book-content'></i>
+                
+                <div data-i18n="Analytics">Accounts</div>
+              </a>
+            </li> {% endcomment %}
+            {%endif%}
+
+
+            <li class="nav-item w-100 m-1">
+              <a
+                type="button"
+                class="nav-link"
+                style="text-align:left"
+               href="{% url 'rooms'  %}"
+              >
+              <i class='bx bxs-category-alt'></i> Rooms
+              </a>
+            </li>
+
+           
+
             </ul>
             
           </div>
