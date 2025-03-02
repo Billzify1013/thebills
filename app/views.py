@@ -4664,7 +4664,7 @@ def weekviews(request):
             today = datetime.today()
 
             # Get the current index for the center 7 days from GET parameter, default to 0
-            current_index = int(request.GET.get('index', -1))
+            current_index = int(request.GET.get('index', 0))
 
             # Calculate the starting date based on the current index
             start_date = today + timedelta(days=current_index)
@@ -4676,7 +4676,13 @@ def weekviews(request):
             categories = RoomsCategory.objects.filter(vendor=user).order_by('id')
             yestarday = start_date - timedelta(days=1)
             enddays = start_date + timedelta(days=6)
-            bookings = Booking.objects.filter(vendor=user,check_in_date__range =[yestarday,enddays] ).order_by('room')
+            # bookings = Booking.objects.filter(vendor=user,check_in_date__range =[yestarday,enddays] )
+
+            bookings = Booking.objects.filter(
+                    vendor=user
+                ).filter(
+                    Q(check_in_date__lte=enddays) & Q(check_out_date__gte=yestarday)
+                )
 
             # Prepare a list of booking data with calculated widths
             booking_data = []
@@ -4716,6 +4722,7 @@ def weekviews(request):
 
                     
                 })
+
 
             return render(request, 'weekviewpage.html', {
                 'dates': dates,

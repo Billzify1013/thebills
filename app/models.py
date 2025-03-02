@@ -890,7 +890,7 @@ class CustomGuestLog(models.Model):
     customer = models.ForeignKey(Gueststay,on_delete=models.CASCADE, null=True, blank=True)
     by = models.CharField(max_length=100)  
     action = models.CharField(max_length=30)  # Action type (Create, Update, Delete)
-    description = models.CharField(max_length=100,blank=True, null=True)  # Extra details
+    description = models.CharField(max_length=250,blank=True, null=True)  # Extra details
     timestamp = models.DateTimeField(default=now)  # Action ka time
     advancebook = models.ForeignKey(SaveAdvanceBookGuestData,on_delete=models.CASCADE, null=True, blank=True)
 

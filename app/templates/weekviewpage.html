@@ -142,7 +142,7 @@
     </div>
     
 
- {% comment %} <div class="container">
+{% comment %} <div class="container">
      <div class="navigation-buttons">
          <button onclick="changeDate(-1)" class="btn btn-primary"><i class='bx bxs-left-arrow'></i></button>
          <button onclick="refreshToCurrent()" class="btn btn-primary"><b><i class='bx bx-refresh'></i></b></button>
@@ -238,12 +238,12 @@
 
     
      
- </div>  {% endcomment %}
+ </div>   {% endcomment %}
 
  
 
 
- <div class="container">
+ {% comment %} <div class="container">
     <div class="navigation-buttons">
         <button onclick="changeDate(-1)" class="btn btn-primary"><i class='bx bxs-left-arrow'></i></button>
         <button onclick="refreshToCurrent()" class="btn btn-primary"><b><i class='bx bx-refresh'></i></b></button>
@@ -339,6 +339,117 @@
                                                           {% if not forloop.first %}
                                                             <div class="guest-name">{{ booking.guest_name }}</div>
                                                         {% endif %}
+                                                    </div>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endwith %}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    {% endfor %}
+</div> {% endcomment %}
+
+
+
+<div class="container">
+    <div class="navigation-buttons">
+        <button onclick="changeDate(-1)" class="btn btn-primary"><i class='bx bxs-left-arrow'></i></button>
+        <button onclick="refreshToCurrent()" class="btn btn-primary"><b><i class='bx bx-refresh'></i></b></button>
+        <button onclick="changeDate(1)" class="btn btn-primary"><i class='bx bxs-right-arrow'></i></button>
+    </div>
+
+    <div class="header-row mb-2">
+        <div class="card header-room text-center" style="width:100px">Rooms</div>
+        {% for i in dates %}
+            <div class="card header-day">{{ i }}</div>
+        {% endfor %}
+    </div>
+
+    {% for category in categories %}
+        <div class="card date-row">
+            <div class="category">{{ category.category_name }}</div>
+        </div>
+        {% for room in category.rooms_set.all|dictsort:"room_name" %}
+            <div class="date-row">
+                <div class="room-names" style="width:100px"><b>{{ room.room_name }}</b>
+                    {% if room.is_clean %}
+                        <a href="{% url 'cleanroombtnweek' id=room.room_name %}"><i class="bi bi-stars fs-5 text-end text-info float-end"></i></a>
+                    {% else %}
+                        <a href="{% url 'cleanroombtnweek' id=room.room_name %}"><i class="fa fa-broom text-danger fs-5 text-end float-end"></i></a>
+                    {% endif %}
+                </div>
+
+                {% for date in dates %}
+                    <div class="date-box" onclick="handleDateBoxClick(this, '{{ room.room_name }}', '{{ date }}', '{{ room.room_no }}')" style="position: relative; margin-top: -10px">
+                        <div class="booking-container" style="display: flex; flex-direction: column; gap: 15px;">
+                            {% for booking in bookings %}
+                                {% if booking.room == room %}
+                                    {% with booking_checkin=booking.check_in_date|date:"Y-m-d" booking_checkout=booking.check_out_date|date:"Y-m-d" %}
+                                        <!-- Check if the booking overlaps with the current date range -->
+                                        {% if booking_checkin <= date and booking_checkout >= date %}
+                                            {% if booking_checkin == booking_checkout %}
+                                                <!-- Same-day booking -->
+                                                <div class="booking-card {% if booking.status == 'CHECK IN' %}checkin-status{% endif %} {% if booking.status == 'CHECK OUT' %}checkout-status{% endif %}" 
+                                                     style="width: 10%;border-radius:0px 15px 0px 15px;"
+                                                     onclick="showBookingInfo('{{ booking.id }}','{{ booking.guest_name }}', '{{ room.room_name }}', '{{ booking.check_in_date }}',
+                                                      '{{ booking.check_out_date }}','{{ booking.checkintime }}' ,'{{ booking.checkouttime }}' ,'{{ booking.segment }}','{{ booking.totalroom }}','{{ booking.totalamount }}','{{ booking.status }}','{{booking.fnbid}}')">
+                                                    <div class="guest-name">
+                                                        {% if booking.segment == 'MakeMyTrip' %}
+                                                            <img src="{% static 'undercss/assets/img/icons/unicons/mmtshort.png'%}" alt="Credit Card" class="rounded" height='20px'/>
+                                                        {% elif booking.segment == 'BOOKING-ENGINE' %}
+                                                            <img src="{% static 'undercss/assets/img/icons/unicons/billzify.png'%}" alt="Credit Card" class="rounded" height='20px'/>
+                                                        {% elif booking.segment == 'Booking.com' %}
+                                                            <img src="{% static 'undercss/assets/img/icons/unicons/bcom.png'%}" alt="Credit Card" class="rounded" height='20px'/>
+                                                        {% elif booking.segment == 'Agoda' %}
+                                                            <img src="{% static 'undercss/assets/img/icons/unicons/agoda.png'%}" alt="Credit Card" class="rounded" height='25px'/>
+                                                        {% elif booking.segment == 'Goibibo' %}
+                                                            <img src="{% static 'undercss/assets/img/icons/unicons/goibibos.png'%}" alt="Credit Card" class="rounded" height='25px'/>
+                                                        {% endif %}
+                                                        {{ booking.guest_name }}
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                <!-- Multi-day booking -->
+                                                {% if date == booking_checkin %}
+                                                    <div class="booking-card checkin {% if booking.status == 'CHECK IN' %}checkin-status{% endif %} {% if booking.status == 'CHECK OUT' %}checkout-status{% endif %}" 
+                                                         style="width: {{ booking.check_in_width }}%; right: 0;"
+                                                         onclick="showBookingInfo('{{ booking.id }}','{{ booking.guest_name }}', '{{ room.room_name }}', '{{ booking.check_in_date }}',
+                                                          '{{ booking.check_out_date }}','{{ booking.checkintime }}' ,'{{ booking.checkouttime }}' ,'{{ booking.segment }}','{{ booking.totalroom }}','{{ booking.totalamount }}','{{ booking.status }}','{{booking.fnbid}}')">
+                                                        <div class="guest-name">
+                                                            {% if booking.segment == 'MakeMyTrip' %}
+                                                                <img src="{% static 'undercss/assets/img/icons/unicons/mmtshort.png'%}" alt="Credit Card" class="rounded" height='20px'/>
+                                                            {% elif booking.segment == 'BOOKING-ENGINE' %}
+                                                                <img src="{% static 'undercss/assets/img/icons/unicons/billzify.png'%}" alt="Credit Card" class="rounded" height='20px'/>
+                                                            {% elif booking.segment == 'Booking.com' %}
+                                                                <img src="{% static 'undercss/assets/img/icons/unicons/bcom.png'%}" alt="Credit Card" class="rounded" height='20px'/>
+                                                            {% elif booking.segment == 'Agoda' %}
+                                                                <img src="{% static 'undercss/assets/img/icons/unicons/agoda.png'%}" alt="Credit Card" class="rounded" height='25px'/>
+                                                            {% elif booking.segment == 'Goibibo' %}
+                                                                <img src="{% static 'undercss/assets/img/icons/unicons/goibibos.png'%}" alt="Credit Card" class="rounded" height='25px'/>
+                                                            {% endif %}
+                                                            {{ booking.guest_name }}
+                                                        </div>
+                                                    </div>
+                                                {% elif date == booking_checkout %}
+                                                    <div class="booking-card checkout {% if booking.status == 'CHECK IN' %}checkin-status{% endif %} {% if booking.status == 'CHECK OUT' %}checkout-status{% endif %}" 
+                                                         style="width: {{ booking.check_out_width }}%; left: 0;"
+                                                         onclick="showBookingInfo('{{ booking.id }}','{{ booking.guest_name }}', '{{ room.room_name }}', '{{ booking.check_in_date }}',
+                                                          '{{ booking.check_out_date }}','{{ booking.checkintime }}' ,'{{ booking.checkouttime }}' ,'{{ booking.segment }}','{{ booking.totalroom }}','{{ booking.totalamount }}','{{ booking.status }}','{{booking.fnbid}}')">
+                                                        {{ booking.guest_name }}
+                                                    </div>
+                                                {% else %}
+                                                    <div class="booking-card {% if booking.status == 'CHECK IN' %}checkin-status{% endif %} {% if booking.status == 'CHECK OUT' %}checkout-status{% endif %}" 
+                                                         style="width: 100%; left: 0;"
+                                                         onclick="showBookingInfo('{{ booking.id }}','{{ booking.guest_name }}', '{{ room.room_name }}', '{{ booking.check_in_date }}',
+                                                          '{{ booking.check_out_date }}','{{ booking.checkintime }}' ,'{{ booking.checkouttime }}' ,'{{ booking.segment }}','{{ booking.totalroom }}','{{ booking.totalamount }}','{{ booking.status }}','{{booking.fnbid}}')">
+                                                        {% comment %} {% if not forloop.first %} {% endcomment %}
+                                                            <div class="guest-name">{{ booking.guest_name }}</div>
+                                                        {% comment %} {% endif %} {% endcomment %}
                                                     </div>
                                                 {% endif %}
                                             {% endif %}
@@ -448,6 +559,8 @@
                     Room:<span id="mrids1"></span><br>
                     Check-In:<span id="checkins1"></span><br>
                     Check-Out:<span id="checkouts1"></span><br>
+                    Check-In Time:<span id="chekintime1"></span><br>
+                    Check-Out Time:<span id="checkouttime1"></span><br>
                     Segment:<span id="segmetss1"></span><br>
                     Total Room:<span id="trooms1"></span><br>
                     Total Amount:<span id="totalamtss1"></span><br>
@@ -499,6 +612,8 @@
                 Room:<span id="mrids2"></span><br>
                 Check-In:<span id="checkins2"></span><br>
                 Check-Out:<span id="checkouts2"></span><br>
+                Check-In Time:<span id="chekintime2"></span><br>
+                Check-Out Time:<span id="checkouttime2"></span><br>
                 Segment:<span id="segmetss2"></span><br>
                 Total Room:<span id="trooms2"></span><br>
                 Total Amount:<span id="totalamtss2"></span><br>
@@ -553,7 +668,7 @@
     }
 
     function refreshToCurrent() {
-        window.location.href = '?index=-1';  
+        window.location.href = '?index=0';  
     }
 
     function showBookingInfo(id, guestName, roomName, checkInDate, checkOutDate, checkIntime, checkouttime, segment, totalroom, totalamount, status, fnbid) {
@@ -609,6 +724,9 @@
             document.getElementById('bookingmodelid1').value=id;
             document.getElementById('bookingmodelidlogs1').value=id;
             document.getElementById('guestsname1').innerText=guestName;
+            document.getElementById('chekintime1').innerText=checkIntime;
+            document.getElementById('checkouttime1').innerText=checkouttime;
+            
             document.getElementById('mrids1').innerText=roomName;
             document.getElementById('checkins1').innerText=checkInDate;
             document.getElementById('checkouts1').innerText=checkOutDate;
@@ -625,6 +743,9 @@
             document.getElementById('bookingmodelid3').value=id;
             document.getElementById('bookingmodelidlogs2').value=id;
             document.getElementById('guestsname2').innerText=guestName;
+            
+            document.getElementById('chekintime2').innerText=checkIntime;
+            document.getElementById('checkouttime2').innerText=checkouttime;
             document.getElementById('mrids2').innerText=roomName;
             document.getElementById('checkins2').innerText=checkInDate;
             document.getElementById('checkouts2').innerText=checkOutDate;
