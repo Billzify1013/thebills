@@ -173,7 +173,7 @@
         <div class="col-6">SUBTOTAL AMOUNT:</div>
         <div class="col-6 text-end">INR {{data.amount_before_tax|floatformat:2}}</div>
         <div class="col-6">TOTAL TAX AMOUNT:</div>
-        <div class="col-6 text-end">INR {{data.tax}}</div>
+        <div class="col-6 text-end">INR {{data.tax|floatformat:2}}</div>
         <div class="col-6">GRAND TOTAL-AMOUNT:</div>
         <div class="col-6 text-end value-text">INR {{data.amount_after_tax|floatformat:2}} </div>
         <hr>

@@ -1841,3 +1841,34 @@ def invcshow(request, id):
             return render(request, 'login.html')
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)
+    
+
+def bookingsearchview(request):
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            
+            bookidsmain = request.POST.get('bookidsmain')
+            if Booking.objects.filter(vendor=user,id=bookidsmain):
+                bookdata=Booking.objects.get(vendor=user,id=bookidsmain)
+                advancersoomdata = SaveAdvanceBookGuestData.objects.filter(vendor=user,
+                                    id=bookdata.advancebook.id )
+
+            # If no results found
+            if not advancersoomdata.exists():
+                messages.error(request, "No matching guests found.")
+
+            # Return results
+            return render(request, 'advancebookinghistory.html', {
+                'monthbookdata': advancersoomdata,
+                'active_page': 'advancebookhistory',
+            })
+        else:
+            return redirect('loginpage')
+
+    except Exception as e:
+        # Handle unexpected errors
+        return render(request, '404.html', {'error_message': str(e)}, status=500)

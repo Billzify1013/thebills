@@ -3885,7 +3885,8 @@ def advancebookingdelete(request,id):
                 user = subuser.vendor  
             saveguestid=id
             checkdatas = SaveAdvanceBookGuestData.objects.get(vendor=user,id=saveguestid)
-            if not  checkdatas.booking_id :
+            # if not  checkdatas.booking_id :
+            if True:
                 roomdata = RoomBookAdvance.objects.filter(vendor=user,saveguestdata=saveguestid,partly_checkin=False,checkinstatus=False).all()
                 if roomdata: 
                     for data in roomdata:

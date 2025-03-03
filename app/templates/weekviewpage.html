@@ -519,6 +519,13 @@
           
           </form>
 
+          <form action="{% url 'bookingsearchview' %}" method="post">
+            {% csrf_token %}
+          <input type="hidden" id="bookidsearch" name="bookidsmain" />
+          <button class="btn btn-primary" type="submit">Booking-History</button>
+          
+          </form>
+
             </div>
           </div>
           
@@ -690,6 +697,7 @@
             document.getElementById('statuss').innerText=status;
             document.getElementById('bookingmodelidlogs3').value=id;
             document.getElementById('bookmodelidbookvoucher').value=id;
+            document.getElementById('bookidsearch').value=id;
             
             console.log(checkInDate,checkOutDate)
             const currentDate = new Date();
