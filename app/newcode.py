@@ -322,16 +322,16 @@ def update_inventory(user, start_date_str, end_date_str):
             }
             
             # Send the request to the external testing API
-            url = "https://live.aiosell.com/api/v2/cm/update/sample-pms"  # Update with the actual API endpoint
-            headers = {
-                "Content-Type": "application/json"
-            }
-
-            # main live url on aiosell
-            # url = "https://live.aiosell.com/api/v2/cm/update/billzify"  # Update with the actual API endpoint
+            # url = "https://live.aiosell.com/api/v2/cm/update/sample-pms"  # Update with the actual API endpoint
             # headers = {
             #     "Content-Type": "application/json"
             # }
+
+            # main live url on aiosell
+            url = "https://live.aiosell.com/api/v2/cm/update/billzify"  # Update with the actual API endpoint
+            headers = {
+                "Content-Type": "application/json"
+            }
 
             response = requests.post(url, headers=headers, data=json.dumps(data))
             response_data = response.json()

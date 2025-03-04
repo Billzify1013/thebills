@@ -406,7 +406,8 @@
                             <td>{{data.taxcode}}</td>
                             <td>{{data.taxrate}}</td>
                             <td>
-                                <a href="{% url 'deletetaxitem' id=data.id %}"><span class="badge bg-label-danger  "><i class='bx bxs-trash'></i></span></a>
+                              <!--taxes delete button-->
+                                {% comment %} <a href="{% url 'deletetaxitem' id=data.id %}"><span class="badge bg-label-danger  "><i class='bx bxs-trash'></i></span></a> {% endcomment %}
                             </td>
                           </tr>
                           {%endfor%}

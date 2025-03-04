@@ -270,16 +270,16 @@ def update_rates_cm(user, start_date, end_date):
         }
         
         # API request and its testing api
-        response = requests.post(
-            "https://live.aiosell.com/api/v2/cm/update-rates/sample-pms",
-            json=payload
-        )
-
-        # its workingon local thats why abhi band krde
         # response = requests.post(
-        #     "https://live.aiosell.com/api/v2/cm/update-rates/billzify",
+        #     "https://live.aiosell.com/api/v2/cm/update-rates/sample-pms",
         #     json=payload
         # )
+
+        # its workingon local thats why abhi band krde
+        response = requests.post(
+            "https://live.aiosell.com/api/v2/cm/update-rates/billzify",
+            json=payload
+        )
         
         if response.status_code == 200:
             print("Successfully sent rate update to API.")
