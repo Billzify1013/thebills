@@ -650,7 +650,7 @@
 
     </html>
 
-    
+{% comment %}     
 
     <div class="modal fade" id="kotModal" tabindex="-1" aria-labelledby="kotModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
@@ -927,6 +927,286 @@ function printOrDownload(action) {
 }
 
 
+    
+  </script> {% endcomment %}
+  
+
+
+  <div class="modal fade" id="kotModal" tabindex="-1" aria-labelledby="kotModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="kotModalLabel">Hotel Order Token (HOT)</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Guest Details Section -->
+          <div>
+            <p><strong>Guest Name:</strong> <span id="guestName"></span></p>
+            <p><strong>Guest Phone:</strong> <span id="guestPhone"></span></p>
+            <p><strong>Room:</strong> <span id="guestRoom"></span> (Primary Room)</p>
+          </div>
+          <!-- HOT Header -->
+          <div style="text-align: center;">
+            <h6>Hotel Name</h6>
+            <p>Hotel Order Token (HOT)</p>
+            <p>Order Date & Time: <span id="orderDate"></span></p>
+          </div>
+          <!-- HOT Table -->
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Tax%</th>
+                <th>Total</th>
+                <th>Select</th>
+              </tr>
+            </thead>
+            <tbody id="kotTableBody"></tbody>
+          </table>
+          <!-- Total Amount -->
+          <div style="text-align: right; margin-top: 10px;">
+            <strong>Grand Total: ₹<span id="grandTotal">0.00</span></strong>
+          </div>
+          <!-- Guest Signature Section -->
+          <div style="margin-top: 20px; text-align: left;">
+            <p><strong>Guest Signature:</strong></p>
+            <div style="border: 1px solid #ccc; width: 100%; height: 50px;"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" id="toggleDataBtn">Show Full Data</button>
+          <button type="button" class="btn btn-primary" onclick="printOrDownload('print')">Print</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    let showFullData = false; // Toggle state for full data
+    let selectedItems = []; // Store selected items for calculation and printing
+  
+    document.addEventListener("DOMContentLoaded", function () {
+      const kotTableBody = document.getElementById("kotTableBody");
+      const toggleDataBtn = document.getElementById("toggleDataBtn");
+  
+      // Function to validate data and return defaults if needed
+      function getValidData(attribute, defaultValue = 0) {
+        const value = parseFloat(attribute);
+        return isNaN(value) ? defaultValue : value;
+      }
+  
+      // Attach event listener to all HOT buttons
+      document.querySelectorAll(".kot-btn").forEach(button => {
+        button.addEventListener("click", function () {
+          // Extract single item's data
+          const description = this.getAttribute("data-description") || '';
+          const mdescription = this.getAttribute("data-mdescription") || '';
+          const quantity = getValidData(this.getAttribute("data-quantity"), 0);
+          const price = getValidData(this.getAttribute("data-price"), 0).toFixed(2);
+          const total = getValidData(this.getAttribute("data-total"), 0).toFixed(2);
+          const tax = getValidData(this.getAttribute("data-tax"), 0).toFixed(2);
+  
+          // Set guest details
+          const guestName = document.getElementById("guestsnames").value || 'Unknown Guest';
+          const guestPhone = document.getElementById("guestsphon").value || 'Unknown Phone';
+          const guestRoom = document.getElementById("guestroom").value || 'Unknown Room';
+  
+          // Set current date and time
+          const currentDate = new Date();
+          const formattedDate = currentDate.toLocaleDateString();
+          const formattedTime = currentDate.toLocaleTimeString();
+  
+          // Populate guest details
+          document.getElementById("guestName").textContent = guestName;
+          document.getElementById("guestPhone").textContent = guestPhone;
+          document.getElementById("guestRoom").textContent = guestRoom;
+  
+          document.getElementById("orderDate").textContent = `${formattedDate}, ${formattedTime}`;
+  
+          // Populate table with a single item
+          kotTableBody.innerHTML = ""; // Clear previous table data
+  
+          if (description) {
+            kotTableBody.innerHTML += `
+              <tr>
+                <td>${description} ${mdescription}</td>
+                <td>${quantity}</td>
+                <td>₹${price}</td>
+                <td>${tax} %</td>
+                <td>₹${total}</td>
+                <td><input type="checkbox" class="item-checkbox" checked data-description="${description}" data-price="${price}" data-total="${total}" data-quantity="${quantity}" data-tax="${tax}" /></td>
+              </tr>
+            `;
+            document.getElementById("grandTotal").textContent = total; // Update grand total
+          }
+  
+          showFullData = false; // Reset toggle
+          toggleDataBtn.textContent = "Show Full Data";
+        });
+      });
+  
+      // Toggle between single item and full data
+      toggleDataBtn.addEventListener("click", function () {
+        if (showFullData) {
+          // Revert to single item view
+          document.querySelector(".kot-btn").click(); // Simulate click to load single item data
+        } else {
+          // Populate table with full invoice data
+          const invoiceItems = document.querySelectorAll(".kot-btn");
+          kotTableBody.innerHTML = ""; // Clear table
+          let grandTotal = 0;
+  
+          invoiceItems.forEach(button => {
+            const description = button.getAttribute("data-description") || '';
+            const mdescription = button.getAttribute("data-mdescription") || '';
+            const quantity = getValidData(button.getAttribute("data-quantity"), 0);
+            const price = getValidData(button.getAttribute("data-price"), 0).toFixed(2);
+            const total = getValidData(button.getAttribute("data-total"), 0).toFixed(2);
+            const tax = getValidData(button.getAttribute("data-tax"), 0).toFixed(2);
+  
+            if (description) { // Skip items with no description
+              grandTotal += parseFloat(total);
+  
+              kotTableBody.innerHTML += `
+                <tr>
+                  <td>${description} ${mdescription}</td>
+                  <td>${quantity}</td>
+                  <td>₹${price}</td>
+                  <td>${tax} %</td>
+                  <td>₹${total}</td>
+                  <td><input type="checkbox" class="item-checkbox" data-description="${description}" data-price="${price}" data-total="${total}" data-quantity="${quantity}" data-tax="${tax}" /></td>
+                </tr>
+              `;
+            }
+          });
+  
+          document.getElementById("grandTotal").textContent = grandTotal.toFixed(2);
+        }
+  
+        showFullData = !showFullData; // Toggle state
+        toggleDataBtn.textContent = showFullData ? "Show Less Data" : "Show Full Data";
+      });
+  
+      // Event listener for checkboxes to select and calculate total for selected items
+      kotTableBody.addEventListener("change", function (e) {
+        if (e.target && e.target.matches(".item-checkbox")) {
+          const selectedCheckboxes = document.querySelectorAll(".item-checkbox:checked");
+          let total = 0;
+          selectedItems = []; // Clear previous selected items
+  
+          selectedCheckboxes.forEach(checkbox => {
+            const description = checkbox.getAttribute("data-description");
+            const price = parseFloat(checkbox.getAttribute("data-price"));
+            const quantity = parseInt(checkbox.getAttribute("data-quantity"));
+            const tax = parseFloat(checkbox.getAttribute("data-tax"));
+            const totalItem = parseFloat(checkbox.getAttribute("data-total"));
+  
+            selectedItems.push({
+              description,
+              price,
+              quantity,
+              tax,
+              total: totalItem
+            });
+  
+            total += totalItem; // Calculate total for selected items
+          });
+  
+          document.getElementById("grandTotal").textContent = total.toFixed(2); // Update grand total
+        }
+      });
+    });
+  
+    function printOrDownload(action) {
+      let printContent = '';
+      let grandTotal = 0;
+    
+      // Collect all checked checkboxes from the modal
+      const selectedCheckboxes = document.querySelectorAll(".item-checkbox:checked");
+      
+      // Loop through the selected checkboxes and create print content
+      selectedCheckboxes.forEach(checkbox => {
+        const description = checkbox.getAttribute("data-description");
+        const price = parseFloat(checkbox.getAttribute("data-price"));
+        const quantity = parseInt(checkbox.getAttribute("data-quantity"));
+        const tax = parseFloat(checkbox.getAttribute("data-tax"));
+        const total = parseFloat(checkbox.getAttribute("data-total"));
+    
+        printContent += `
+          <tr>
+            <td>${description}</td>
+            <td>${quantity}</td>
+            <td>₹${price.toFixed(2)}</td>
+            <td>${tax} %</td>
+            <td>₹${total.toFixed(2)}</td>
+          </tr>
+        `;
+        grandTotal += total;
+      });
+    
+      const content = `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h5>Hotel Order Token (HOT)</h5>
+                <p><strong>Guest Name:</strong> ${document.getElementById("guestName").textContent}</p>
+                <p><strong>Guest Phone:</strong> ${document.getElementById("guestPhone").textContent}</p>
+                <p><strong>Room:</strong> ${document.getElementById("guestRoom").textContent} (Primary Room)</p>
+                <hr />
+                <p>Hotel Order Token (HOT)</p>
+                <p>Order Date & Time: ${document.getElementById("orderDate").textContent}</p>
+                <hr />
+                <table style="width: 100%; border-collapse: collapse; margin-top: 20px; border: 1px solid #ccc;">
+                    <thead>
+                        <tr>
+                            <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Item</th>
+                            <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Qty</th>
+                            <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Price</th>
+                            <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Tax</th>
+                            <th style="padding: 8px; border: 1px solid #ccc; text-align: left;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${printContent}
+                    </tbody>
+                </table>
+                <div style="text-align: right; margin-top: 20px;">
+                    <strong>Grand Total: ₹${grandTotal.toFixed(2)}</strong>
+                </div>
+                <div style="margin-top: 20px; text-align: left;">
+                    <p><strong>Guest Signature:</strong></p>
+                    <div style="border: 1px solid #ccc; width: 100%; height: 50px;"></div>
+                </div>
+            </div>
+        </div>
+      `;
+    
+      if (action === 'print') {
+        const newWindow = window.open("", "_blank");
+        newWindow.document.write(`
+          <html>
+          <head>
+            <style>
+              @media print {
+                  @page { size: 4in auto; }
+                  body { margin: 0; font-family: Arial, sans-serif; }
+                  .modal-content { width: 4in; padding: 20px; }
+                  table { width: 100%; border-collapse: collapse; }
+                  th, td { padding: 8px; border: 1px solid #ccc; }
+              }
+            </style>
+          </head>
+          <body>
+              <div class="print-content">${content}</div>
+          </body>
+          </html>
+        `);
+        newWindow.document.close();
+        newWindow.print();
+      }
+    }
     
   </script>
   
