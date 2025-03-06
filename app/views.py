@@ -4952,7 +4952,7 @@ from django.contrib.sessions.backends.db import SessionStore
 @csrf_protect
 def cart_processing(request):
     if request.method == "POST":
-        try:
+        # try:
             # Parse JSON data
             data = json.loads(request.body)
 
@@ -4969,8 +4969,11 @@ def cart_processing(request):
             ttal_gt_amont = total_price + total_tax
        
             # Convert dates to proper format
-            check_in_date = datetime.strptime(check_in, '%b. %d, %Y').date()
-            check_out_date = datetime.strptime(check_out, '%b. %d, %Y').date()
+            # check_in_date = datetime.strptime(check_in, '%b. %d, %Y').date()
+            check_in_date = datetime.strptime(check_in, '%B %d, %Y').date()
+
+            # check_out_date = datetime.strptime(check_out, '%b. %d, %Y').date()
+            check_out_date = datetime.strptime(check_out, '%B %d, %Y').date()
 
             # Consolidate cart items by category
             total_guests = 0
@@ -5300,11 +5303,11 @@ def cart_processing(request):
 
             return JsonResponse({'success': True, 'message': 'Booking successful','id':Saveadvancebookdata.id})
 
-        except Exception as e:
+    #     except Exception as e:
             
-            return JsonResponse({'success': False, 'message': str(e)}, status=500)
+    #         return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
-    return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=400)
+    # return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=400)
 
 
 

@@ -657,7 +657,7 @@ class InvoicesPayment(models.Model):
     payment_date = models.DateTimeField(auto_now=False,null=True)
     payment_mode = models.CharField(max_length=50)  # e.g., 'Credit Card', 'Cash'
     transaction_id = models.CharField(max_length=100, blank=True, null=True)  # optional
-    descriptions = models.CharField(max_length=50, blank=True, null=True) 
+    descriptions = models.CharField(max_length=350, blank=True, null=True) 
     maindate = models.DateField(default=date.today, blank=True, null=True)
 
 

@@ -1041,7 +1041,7 @@ def editdueamount(request):
 from django.db.models import Max
 from django.db.models import Q
 def makeseprateinvoice(request):
-    # try:
+    try:
         if request.user.is_authenticated and request.method == "POST":
             user = request.user
             subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
@@ -1320,8 +1320,8 @@ def makeseprateinvoice(request):
             return guesthistorysearchview(new_request)
         else:
             return redirect('loginpage')
-    # except Exception as e:
-    #     return render(request, '404.html', {'error_message': str(e)}, status=500)
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
 
 
 
