@@ -60,12 +60,12 @@
                 Phone: {{i.bookingguestphone}}<br>
                 Check-IN Date: {{i.bookingdate}}<br>
                 Check-Out Date: {{i.checkoutdate}}<br>
-                Advance amount: {{i.advance_amount}}<br>
-                Reamaining amount: {{i.reamaining_amount}}<br>
-                Discount amount: {{i.discount}}<br>
-                TOTAL amount (incl discount): {{i.total_amount}}<br>
-                TOTAL Tax amount: {{i.tax}}<br>
-                Without Tax Total amount: {{i.amount_before_tax}}<br>
+                Advance amount: {{i.advance_amount|floatformat:2}}<br>
+                Reamaining amount: {{i.reamaining_amount|floatformat:2}}<br>
+                Discount amount: {{i.discount|floatformat:2}}<br>
+               <b> Grand Total amount : {{i.total_amount|floatformat:2}}</b><br>
+                TOTAL Tax amount: {{i.tax|floatformat:2}}<br>
+                Without Tax Total amount: {{i.amount_before_tax|floatformat:2}}<br>
                 Stay Days: {{i.staydays}}<br>
                 Booking From: {{i.channal.channalname}}<br>
                 Stay Days: {{i.staydays}}<br>
@@ -91,6 +91,48 @@
                 {%endif%}
             
                     </div>
+    </div>
+    <div class="col-6">
+        <div class="card">
+            <div class="container mt-2 mb-3">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                      Payments
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th> Mode</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {%for payment in advancepayment%}
+                            <tr>
+                                <td>{{payment.payment_date}}
+                                    
+                                </td>
+                                <td><span class="text w-50">
+                                  <a class="btn w-100 m-2"    data-bs-toggle="modal"
+            data-bs-target="#editpaymnent" onClick="setpaymentedit('{{payment.id}}','{{payment.payment_amount}}','{{payment.payment_mode}}','{{payment.transaction_id}}','{{payment.descriptions}}')">
+            {{payment.payment_amount}}
+                                    </a>
+                                </span></td>
+                                <td><span class="text w-50">{{payment.payment_mode}}</span>
+                                
+                                    {%if payment.transaction_id%}
+                                    <span class="text w-25" style="font-size:12px">D:{{payment.transaction_id}}<br>
+                                        
+                                      {%elif payment.descriptions%}
+                                      C:{{payment.descriptions}}</span>
+                                    {%endif%}</td>
+                            </tr>
+                            {%endfor%}
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

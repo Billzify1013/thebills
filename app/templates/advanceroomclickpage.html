@@ -97,6 +97,7 @@
                     <h6 class="mb-1">Guest Name : <span class="text-success">{{i.bookingguest}}</span></h6>
                     <h6 class="mb-1">Guest Phone : <span class="text-success">{{i.bookingguestphone}}</span></h6>
                     <h6 class="mb-1">CheckIn-date : <span class="text-success">{{i.bookingdate}}</span> CheckOut-Date : <span class="text-success">{{i.checkoutdate}}</span></h6>
+                    <p>Source : {{i.saveguestdata.channal}}</p>
                     {%endfor%}
                     <h6 class="mb-1">No Of Rooms : <span class="text-success">{{countrooms}}</span></h6>
                    
@@ -532,7 +533,7 @@
 
         <div class="col-2">
           <div class="mb-3 mt-3">
-            KIDS <span class="text-danger">* </span>
+            KIDS <span class="text-danger">* </span><span class="text text-success"> C: {{child}}</span>
               <div class="input-group input-group-merge">
                 <span id="basic-icon-default-company2" class="input-group-text"
                   ><i class='bx bxs-baby-carriage' ></i></span>
@@ -543,7 +544,6 @@
                   id="childinp"
                   value="{{child}}"
                   class="form-control"
-                  VALUE="{{i.saveguestdata.children}}"
                   placeholder="Total Kids"
                   aria-label="ACME Inc."
                   aria-describedby="basic-icon-default-company2"
@@ -554,7 +554,7 @@
 
       <div class="col-2">
         <div class="mb-3 mt-3">
-          TOTAL ADULTS <span class="text-danger">*</span>
+          TOTAL ADULTS <span class="text-danger">*</span><span class="text text-success"> A: {{adults}}</span>
             <div class="input-group input-group-merge">
               <span id="basic-icon-default-company2" class="input-group-text"
                 ><i class='bx bxs-user'></i></span>
@@ -575,7 +575,7 @@
 
           <div class="col-2">
               <div class="mb-3 mt-3">
-                TOTAL GUEST <span class="text-danger">*</span>
+                TOTAL GUEST <span class="text-danger">*</span><span class="text text-success"> T: {{i.saveguestdata.totalguest}}</span>
                   <div class="input-group input-group-merge">
                     <span id="basic-icon-default-company2" class="input-group-text"
                       ><i class='bx bxs-group'></i></span>
@@ -594,6 +594,39 @@
                 </div>
           </div>
           
+          <script>
+            // Function to update total guest count and total adults count dynamically
+            function calculateTotals() {
+                // Get values from input fields (defaults to 0 if empty or invalid)
+                let male = parseInt(document.querySelector("[name='male']").value) || 0;
+                let female = parseInt(document.querySelector("[name='female']").value) || 0;
+                let other = parseInt(document.querySelector("[name='other']").value) || 0;
+                let kids = parseInt(document.querySelector("[name='guestchildren']").value) || 0;
+    
+                // Calculate total guests and total adults
+                let totalGuests = male + female + other + kids;
+                let totalAdults = male + female + other;
+    
+                // Set the calculated values to hidden fields (these fields should not be manually edited)
+                document.querySelector("[name='noofguest']").value = totalGuests;
+                document.querySelector("[name='guestadults']").value = totalAdults;
+                document.getElementById('totalguestcounts').innerHTML=totalAdults;
+            }
+    
+            // Event listener to trigger calculation on input change
+            document.addEventListener('DOMContentLoaded', function() {
+                // Set initial values of Total Guest and Total Adults to 0
+                document.querySelector("[name='noofguest']").value = 0;
+                document.querySelector("[name='guestadults']").value = 0;
+    
+                // Ensure all input fields default to 0 if empty when page loads
+                const inputs = document.querySelectorAll("[name='male'], [name='female'], [name='other'], [name='guestchildren']");
+                inputs.forEach(input => {
+                    if (input.value === "") input.value = 0;
+                    input.addEventListener('input', calculateTotals);
+                });
+            });
+        </script>
 
          
       

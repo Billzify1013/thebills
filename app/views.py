@@ -420,6 +420,19 @@ def invoicepage(request, id):
                             'creditdata':creditdata,
                             'taxelab':taxelab
                         })
+                    
+                    elif invcheck.guestinvcdesign==3:
+                        return render(request, 'invoicepage3.html', {
+                            'profiledata': profiledata,
+                            'guestdata': guestdata,
+                            'invoice_data': invoice_datas,
+                            'invoiceitemdata': invoiceitemdata,
+                            'invcpayments':invcpayments,
+                            'gstamounts':gstamounts,
+                            'sstamounts':sstamounts,
+                            'creditdata':creditdata,
+                            'taxelab':taxelab
+                        })
                         
                         
                 else:
@@ -439,6 +452,18 @@ def invoicepage(request, id):
                     elif invcheck.guestinvcdesign==2:
                         print(invcpayments)
                         return render(request, 'invoicepage2.html', {
+                            'profiledata': profiledata,
+                            'guestdata': guestdata,
+                            'invoice_data': invoice_datas,
+                            'invoiceitemdata': invoiceitemdata,
+                            'invcpayments':invcpayments,
+                            'creditdata':creditdata,
+                            'istamts':istamts,
+                            'taxelab':taxelab
+                        })
+                    elif invcheck.guestinvcdesign==3:
+                        print(invcpayments)
+                        return render(request, 'invoicepage3.html', {
                             'profiledata': profiledata,
                             'guestdata': guestdata,
                             'invoice_data': invoice_datas,
@@ -544,6 +569,21 @@ def fbinvoicepage(request, id):
                             'creditdata':creditdata,
                             'taxelab':taxelab
                         })
+                    
+                    elif invcheck.guestinvcdesign==3:
+                        return render(request, 'invoicepage3.html', {
+                            'profiledata': profiledata,
+                            'guestdata': guestdata,
+                            'invoice_data': invoice_datas,
+                            'invoiceitemdata': invoiceitemdata,
+                            'invcpayments':invcpayments,
+                            'gstamounts':gstamounts,
+                            'sstamounts':sstamounts,
+                            'creditdata':creditdata,
+                            'taxelab':taxelab
+                        })
+                        
+
                         
                         
                 else:
@@ -563,6 +603,19 @@ def fbinvoicepage(request, id):
                     elif invcheck.guestinvcdesign==2:
                         print(invcpayments)
                         return render(request, 'invoicepage2.html', {
+                            'profiledata': profiledata,
+                            'guestdata': guestdata,
+                            'invoice_data': invoice_datas,
+                            'invoiceitemdata': invoiceitemdata,
+                            'invcpayments':invcpayments,
+                            'creditdata':creditdata,
+                            'istamts':istamts,
+                            'taxelab':taxelab
+                        })
+                    
+                    elif invcheck.guestinvcdesign==3:
+                        print(invcpayments)
+                        return render(request, 'invoicepage3.html', {
                             'profiledata': profiledata,
                             'guestdata': guestdata,
                             'invoice_data': invoice_datas,
@@ -3868,7 +3921,9 @@ def advancebookingdetails(request,id):
                 user = subuser.vendor  
             guestdata = SaveAdvanceBookGuestData.objects.filter(vendor=user,id=id)
             roomdata = RoomBookAdvance.objects.filter(vendor=user,saveguestdata=id).all()
-            return render(request,'advancebookingdetailspage.html',{'roomdata':roomdata,'guestdata':guestdata,'active_page': 'advancebookhistory'})
+            advancepayment = InvoicesPayment.objects.filter(vendor=user,advancebook_id=id).all()
+            return render(request,'advancebookingdetailspage.html',{'roomdata':roomdata,'guestdata':guestdata,'active_page': 'advancebookhistory',
+                        'advancepayment':advancepayment})
         else:
             return redirect('loginpage')
     except Exception as e:
@@ -4614,8 +4669,9 @@ def addpaymentfoliocredit(request):
                         
                 else:
                     pass
-                url = reverse('invoicepage', args=[invoicedata.id])
-                return redirect(url)
+                # url = reverse('invoicepage', args=[invoicedata.id])
+                # return redirect(url)
+                return redirect('guestearch', id=invoicedata.customer.id)
      
         else:
             return render(request, 'login.html')
@@ -5041,7 +5097,7 @@ def cart_processing(request):
                 advance_amount=0.00,
                 reamaining_amount=ttal_gt_amont*days,
                 discount=0.00,
-                total_amount=total_price*days,
+                total_amount=ttal_gt_amont*days,
                 channal=channal,
                 checkoutdate=check_out_date,
                 email='',

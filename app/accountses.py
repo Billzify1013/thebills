@@ -503,6 +503,19 @@ def proformainvoice(request,id):
                             'taxelab':taxelab,
                             'checkproforma':checkproforma
                         })
+                    
+                    elif invcheck.guestinvcdesign==3:
+                        return render(request, 'invoicepage3.html', {
+                            'profiledata': profiledata,
+                            'guestdata': guestdata,
+                            'invoice_data': invoice_datas,
+                            'invoiceitemdata': invoiceitemdata,
+                            'invcpayments':invcpayments,
+                            'gstamounts':gstamounts,
+                            'sstamounts':sstamounts,
+                            'taxelab':taxelab,
+                            'checkproforma':checkproforma
+                        })
                         
               
         else:
