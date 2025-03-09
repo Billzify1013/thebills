@@ -615,6 +615,13 @@ class RoomBookAdvance(models.Model):
     
     def __str__(self) -> str:
         return self.bookingguest
+    
+class bookpricesdates(models.Model):
+    roombook = models.ForeignKey(RoomBookAdvance,on_delete=models.CASCADE,blank=True,null=True)
+    date = models.CharField(max_length=250,blank=True,null=True)
+    price = models.FloatField(default=0.0,blank=True,null=True)
+
+
 
 class extraBookingAmount(models.Model):
     vendor = models.ForeignKey(User,on_delete=models.CASCADE)

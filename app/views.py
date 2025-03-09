@@ -3921,9 +3921,11 @@ def advancebookingdetails(request,id):
                 user = subuser.vendor  
             guestdata = SaveAdvanceBookGuestData.objects.filter(vendor=user,id=id)
             roomdata = RoomBookAdvance.objects.filter(vendor=user,saveguestdata=id).all()
+            bookdatesdata = bookpricesdates.objects.filter(roombook__saveguestdata__id=id).all()
+            print(bookdatesdata)
             advancepayment = InvoicesPayment.objects.filter(vendor=user,advancebook_id=id).all()
             return render(request,'advancebookingdetailspage.html',{'roomdata':roomdata,'guestdata':guestdata,'active_page': 'advancebookhistory',
-                        'advancepayment':advancepayment})
+                        'advancepayment':advancepayment,'bookdatesdata':bookdatesdata})
         else:
             return redirect('loginpage')
     except Exception as e:

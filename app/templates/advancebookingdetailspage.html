@@ -133,7 +133,46 @@
                 </div>
             </div>
         </div>
+
+
+        {%if bookdatesdata%}
+        <div class="card mt-4">
+            <div class="container mt-2 mb-3">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                      Roooms Booking More Details
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th> Rooms</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {%for payment in bookdatesdata%}
+                            <tr>
+                                <td>{{payment.date}}
+                                    
+                                </td>
+                                <td> {{payment.price}}
+                                    
+                                </span></td>
+                                <td><span class="text w-50">{{payment.roombook.roomno.room_name}}</span>
+                                
+                                    
+                            </tr>
+                            {%endfor%}
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {%endif%}
+
     </div>
 </div>
+
+
 
 {%endblock%}

@@ -116,8 +116,8 @@ def aiosell_new_reservation(request):
                         totalguest = totalguest + int(room['occupancy']['adults']) +  int(room['occupancy']['children'])
 
                         # print("  Prices:")
-                        for price in room['prices']:
-                            print("    Date:", price['date'], "| Rate:", price['sellRate'])
+                        # for price in room['prices']:
+                        #     print("    Date:", price['date'], "| Rate:", price['sellRate'])
 
                         roomcount = roomcount + 1
                         
@@ -201,7 +201,11 @@ def aiosell_new_reservation(request):
 
                                 totalsell = 0.0
                                 for price in room['prices']:
-                                    totalsell =  price['sellRate']
+                                    totalsell =  totalsell + price['sellRate']
+
+
+
+                                totalsell = totalsell / int(day_difference)
 
                                 if  Rooms.objects.filter(vendor=vendordata.vendor,room_type__category_name=roomcatname).exclude(checkin=6).exists():
                                     available_rooms = Rooms.objects.filter(
@@ -218,7 +222,7 @@ def aiosell_new_reservation(request):
                                         room = Rooms.objects.filter(vendor=vendordata.vendor,room_type__category_name=roomcatname,checkin=0).exclude(checkin=6).first()
                                     else:
                                         pass
-                                    RoomBookAdvance.objects.create(
+                                    rbk = RoomBookAdvance.objects.create(
                                                 vendor=vendordata.vendor,
                                                 saveguestdata=Saveadvancebookdata,
                                                 bookingdate=checkindate,
@@ -236,8 +240,19 @@ def aiosell_new_reservation(request):
                                                 children=children,
                                                 sell_rate=totalsell
                                             )
+                                    
+                                    for checknew in data['rooms']:
+                                        for ckprice in checknew['prices']:
+                                            date = ckprice['date']
+                                            bookpricesdates.objects.create(
+                                                roombook=rbk,date=str(ckprice['date']),
+                                                price = float(ckprice['sellRate'])
+                                            )
 
-                                                # Handling check-in and check-out times
+                                    
+
+
+                                    # Handling check-in and check-out times
                                     noon_time_str = "12:00 PM"
                                     noon_time = datetime.strptime(noon_time_str, "%I:%M %p").time()
 
@@ -456,9 +471,17 @@ def aiosell_new_reservation(request):
                                         pass
                                 
                                 # print("  Prices:")
+                                # totalsell = 0.0
+                                # for price in room['prices']:
+                                #     totalsell =  price['sellRate']
+
                                 totalsell = 0.0
                                 for price in room['prices']:
-                                    totalsell =  price['sellRate']
+                                    totalsell =  totalsell + price['sellRate']
+
+
+
+                                totalsell = totalsell / int(day_difference)
                                 
                                 if  Rooms.objects.filter(vendor=vendordata.vendor,room_type__category_name=roomcatname).exclude(checkin=6).exists():
                                     available_rooms = Rooms.objects.filter(
@@ -501,8 +524,10 @@ def aiosell_new_reservation(request):
                                                 children=children,
                                                 sell_rate=totalsell
                                             )
+                                    
+                                   
 
-                                                # Handling check-in and check-out times
+                                    # Handling check-in and check-out times
                                     noon_time_str = "12:00 PM"
                                     noon_time = datetime.strptime(noon_time_str, "%I:%M %p").time()
 
