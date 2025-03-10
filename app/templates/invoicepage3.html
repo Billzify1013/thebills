@@ -1,25 +1,28 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Printable Invoice</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Playfair+Display:wght@400&family=Lora:wght@400&display=swap" rel="stylesheet">
+
     <style>
         body {
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
+            font-family: "Arial", sans-serif;
             background-size: cover;
             width: 210mm;
             height: auto;
             box-sizing: border-box;
+            
         }
 
         .container {
             position: absolute;
             top: 0;
             left: 0;
-            width: 210mm;
+            width: 250mm;
             height: auto;
             padding: 10mm 20mm 20mm;
             box-sizing: border-box;
@@ -29,10 +32,10 @@
             text-align: center;
             margin-bottom: 10mm;
             font-size: 24px;
-            font-weight: bold;
+            font-weight: normal;
             color: #333;
             padding: 10px;
-            border-bottom: 2px solid #000;
+            border-bottom: 1px solid #000;
         }
 
         .invoice-details {
@@ -65,7 +68,8 @@
         }
 
         table, th, td {
-            border: 1px solid #000;
+            border: 0px solid #000;
+            border-bottom:1px solid gray
         }
 
         th, td {
@@ -209,67 +213,40 @@
            
             <div class="">
                 {%for i in profiledata%}
-                {% comment %} <p><strong>INVOICE</p> {% endcomment %}
                 <img src="{{i.profile_image.url}}" height="100px"/>
                 <p><strong>{{i.name}}</p>
-                <p><strong>{{iaddress}},{{i.zipcode}},{{i.counrty}}</p>
+                <p><strong>{{i.address}},{{i.zipcode}},{{i.counrty}}</p>
                 <p><strong>PH: </strong>{{i.contact}}</p>
                 {%endfor%}
             </div>
         </div></center>
-
+<hr>
      
 
         <!-- Invoice Details -->
         <div class="invoice-details">
-            <div class="left">{%for data in invoice_data%}
+            <div class="left" style="width:70%,float:left">{%for data in invoice_data%}
                 <p>Invoice #: {{data.invoice_number}} {{checkproforma}}</p>
                 <p>Date: {{data.invoice_date}}</p>
                 <p>Check-In: {{data.customer.checkindate}}</p>
                 <p>Check-Out: {{data.customer.checkoutdate}}</p>
                 <p>Source: {{data.customer.channel}}</p>
             </div>
-            <div class="right">
+            <div class="right" style="width:30%">
                 <p>Name: {{data.customer.guestname}}</p>
                 <p>Phone: {{data.customer.guestphome}}</p>
                 <p>City: {{data.customer.guestcity}}</p>
                 <p>Guests: {{data.customer.noofguest}}</p>
                 {%if data.customer_gst_number%}
-                <p>GST : {{data.customer_gst_number}}</p>
+                <p>Guest GST : {{data.customer_gst_number}}</p>
                 {%endif%}
             </div>{%endfor%}
         </div>
 
-        <!-- Invoice Items -->
-        {% comment %} <div class="invoice-items">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Service</th>
-                        <th>Description</th>
-                        <th>Price</th>
-                        <th>Qty/Day</th>
-                        <th>Total </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {%for iteams in invoiceitemdata%}
-                    <tr>
-                        <td>{{iteams.description}}
-                        </td>
-
-                        <td><p>{{iteams.mdescription}}</p></td>
-                        
-                        <td>{{iteams.quantity_likedays}}</td>
-                        <td>{{iteams.total_amount}}</td>
-                    </tr>
-                    {%endfor%}
-                </tbody>
-            </table>
-        </div> {% endcomment %}
+       
         <div class="invoice-items">
             <table>
-                <thead>
+                <thead style="background:rgb(237, 242, 247)">
                     <tr>
                         <th>Service</th>
                         <th>Description</th>
@@ -308,7 +285,7 @@
         <div class="payment-summary">
             <div class="payments-table">
                 <table>
-                    <thead>
+                    <thead style="background:rgb(237, 242, 247)">
                         <tr>
                             <th>Date</th>
                             <th>Amount</th>
@@ -335,11 +312,12 @@
                 {%for data in invoice_data%}
                 {%if data.Due_amount == 0 %}
                 {%else%}
-                    <span>Payment Status</span>
-                    <span class="badge bg-label-success me-1 col-2">Paid</span>
+                    <span>Payment Status</span><br>
+                    <span style="display: inline-block; padding: 3px 10px; font-size: 13px; font-weight: 500; color:rgb(34, 199, 1); background-color:rgb(146, 255, 146); border: 1px solidrgb(102, 248, 4); border-radius: 4px; height: 12px; line-height: 12px;" >PAID</span><br>
                     <span>Total Paid Amount:₹ <b>{{data.accepted_amount}}</b> </span>
                     <hr>
-                    <span class="badge bg-label-warning me-1 float-end col-2">Due</span>
+                    <span style="display: inline-block; padding: 3px 10px; font-size: 13px; font-weight: 500; color: #856404; background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 4px; height: 12px; line-height: 12px;" >DUE</span>
+<br>
                         <span>Overall Due Amount:₹ <b>{{data.Due_amount}}</b> </span>
                     <hr>
                     {%endif%}
@@ -397,3 +375,5 @@
 
 
 
+
+ 
