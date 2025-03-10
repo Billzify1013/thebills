@@ -399,13 +399,13 @@
                                                      onclick="showBookingInfo('{{ booking.id }}','{{ booking.guest_name }}', '{{ room.room_name }}', '{{ booking.check_in_date }}',
                                                       '{{ booking.check_out_date }}','{{ booking.checkintime }}' ,'{{ booking.checkouttime }}' ,'{{ booking.segment }}','{{ booking.totalroom }}','{{ booking.totalamount }}','{{ booking.status }}','{{booking.fnbid}}')">
                                                     <div class="guest-name">
-                                                        {% if booking.segment == 'MakeMyTrip' %}
+                                                        {% if booking.segment == 'MakeMyTrip' %}  
                                                             <img src="{% static 'undercss/assets/img/icons/unicons/mmtshort.png'%}" alt="Credit Card" class="rounded" height='20px'/>
                                                         {% elif booking.segment == 'BOOKING-ENGINE' %}
                                                             <img src="{% static 'undercss/assets/img/icons/unicons/billzify.png'%}" alt="Credit Card" class="rounded" height='20px'/>
-                                                        {% elif booking.segment == 'Booking.com' %}
+                                                        {% elif booking.segment == 'booking.com' %}
                                                             <img src="{% static 'undercss/assets/img/icons/unicons/bcom.png'%}" alt="Credit Card" class="rounded" height='20px'/>
-                                                        {% elif booking.segment == 'Agoda' %}
+                                                        {% elif booking.segment == 'agoda' %}
                                                             <img src="{% static 'undercss/assets/img/icons/unicons/agoda.png'%}" alt="Credit Card" class="rounded" height='25px'/>
                                                         {% elif booking.segment == 'Goibibo' %}
                                                             <img src="{% static 'undercss/assets/img/icons/unicons/goibibos.png'%}" alt="Credit Card" class="rounded" height='25px'/>
