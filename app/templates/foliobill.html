@@ -256,6 +256,13 @@
                   </a>
                   <hr class="mt-0 mb-0">
                   <a class="btn dropdown-item " href="{% url 'proformainvoice' id=data.customer.id %}"><i class='bx bx-id-card mb-1'></i> Pro Forma Invoice</a>
+                  
+                  {%if data.customer.saveguestid%}
+                  <hr class="mt-0 mb-0">
+                  <a class="btn dropdown-item " href="{% url 'searchbooking' id=data.customer.id %}"><i class='bx bxl-blogger'></i> Booking Details</a>
+                  {%endif%}
+
+
                   <hr class="mt-0 mb-0">
                   <a class="btn dropdown-item " href="{% url 'guest_logs' id=data.customer.id %}"><i class='bx bxl-blogger'></i> logs</a>
                   

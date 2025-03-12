@@ -53,10 +53,15 @@ def aiosell_new_reservation(request):
                     checkindate = data['checkin']
                     checkoutdate = data['checkout']
                     segment = data['segment']
+                    if segment is None:
+                         segment ='OTA'
+                    else:
+                         pass
                     specialRequests = data['specialRequests']
                     pah = str(data['pah'])
                     checkpah = pah.lower()
                     mcheckoutdate=checkoutdate
+                    print(segment,'this is segment')
 
                     # Convert string dates to datetime objects
                     checkin_date = datetime.strptime(data['checkin'], '%Y-%m-%d')
@@ -70,7 +75,7 @@ def aiosell_new_reservation(request):
                     amountbeforetax = amount_details['amountBeforeTax']
                     amountaftertax =  amount_details['amountAfterTax']
                     taxamount = amount_details['tax']
-                    currency = amount_details['currency']
+                    currency = amount_details['currency']        
 
                     # Example 3: Access guest details
                     guest = data['guest']
@@ -120,7 +125,7 @@ def aiosell_new_reservation(request):
                         #     print("    Date:", price['date'], "| Rate:", price['sellRate'])
 
                         roomcount = roomcount + 1
-                        
+     
 
 
                     # if VendorCM.objects.filter(hotelcode=hotelCode).exists():
@@ -206,6 +211,31 @@ def aiosell_new_reservation(request):
 
 
                                 totalsell = totalsell / int(day_difference)
+
+                                if taxamount == 0.0:
+                                    if totalsell >8851:
+                                        totalsell = float(totalsell) / (1 + (18) / 100)
+
+                                    elif totalsell <=8400:
+                                        totalsell = float(totalsell) / (1 + (12) / 100)
+                                    
+                                    newtaxamount = 0.0
+                                    if totalsell >7500:
+                                        newtaxamount = totalsell*18/100
+                                        # totalsell = totalsell - newtaxamount
+                                    else:
+                                        newtaxamount = totalsell*12/100
+                                        # totalsell = totalsell - newtaxamount
+
+                                    
+                                         
+
+                                    newtotaltaxamount = newtaxamount * int(day_difference)
+                                    amountbeforetax = amountbeforetax - newtotaltaxamount
+                                    SaveAdvanceBookGuestData.objects.filter(id=Saveadvancebookdata.id).update(tax=newtotaltaxamount
+                                                    ,amount_before_tax=amountbeforetax)
+                                else:
+                                    pass
 
                                 if  Rooms.objects.filter(vendor=vendordata.vendor,room_type__category_name=roomcatname).exclude(checkin=6).exists():
                                     available_rooms = Rooms.objects.filter(
@@ -329,11 +359,12 @@ def aiosell_new_reservation(request):
                                     else:
                                         print("All dates already exist in the inventory.")
                                             
-                                    
+                            print("yaha tk chal gaya hai code")
                             userids = vendordata.vendor.id
                             if VendorCM.objects.filter(vendor=vendordata.vendor,):
                                         start_date = str(checkindate)
                                         end_date = str(checkoutdates)
+                                        print(end_date)
                                         thread = threading.Thread(target=update_inventory_task, args=(userids, start_date, end_date))
                                         thread.start()
                                         # for dynamic pricing
@@ -482,6 +513,31 @@ def aiosell_new_reservation(request):
 
 
                                 totalsell = totalsell / int(day_difference)
+
+                                if taxamount == 0.0:
+                                    if totalsell >8851:
+                                        totalsell = float(totalsell) / (1 + (18) / 100)
+
+                                    elif totalsell <=8400:
+                                        totalsell = float(totalsell) / (1 + (12) / 100)
+                                    
+                                    newtaxamount = 0.0
+                                    if totalsell >7500:
+                                        newtaxamount = totalsell*18/100
+                                        # totalsell = totalsell - newtaxamount
+                                    else:
+                                        newtaxamount = totalsell*12/100
+                                        # totalsell = totalsell - newtaxamount
+
+                                    
+                                         
+
+                                    newtotaltaxamount = newtaxamount * int(day_difference)
+                                    amountbeforetax = amountbeforetax - newtotaltaxamount
+                                    SaveAdvanceBookGuestData.objects.filter(id=Saveadvancebookdata.id).update(tax=newtotaltaxamount
+                                                    ,amount_before_tax=amountbeforetax)
+                                else:
+                                    pass
                                 
                                 if  Rooms.objects.filter(vendor=vendordata.vendor,room_type__category_name=roomcatname).exclude(checkin=6).exists():
                                     available_rooms = Rooms.objects.filter(

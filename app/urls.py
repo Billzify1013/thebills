@@ -447,6 +447,8 @@ urlpatterns = [
     path("showlogsbook", stayinvoices.showlogsbook, name="showlogsbook"),
     path("showbooklog/<int:id>/", stayinvoices.showbooklog, name="showbooklog"),
     path("bookingsearchview", stayinvoices.bookingsearchview, name="bookingsearchview"),
+    path("searchbooking/<int:id>/", stayinvoices.searchbooking, name="searchbooking"),
+    
     
     
     

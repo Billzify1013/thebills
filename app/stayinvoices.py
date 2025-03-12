@@ -1872,3 +1872,33 @@ def bookingsearchview(request):
     except Exception as e:
         # Handle unexpected errors
         return render(request, '404.html', {'error_message': str(e)}, status=500)
+
+
+def searchbooking(request,id):
+    try:
+        if request.user.is_authenticated :
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            
+            boookid=id
+            
+            advancersoomdata = SaveAdvanceBookGuestData.objects.filter(vendor=user,
+                                    id=boookid )
+
+            # If no results found
+            if not advancersoomdata.exists():
+                messages.error(request, "No matching guests found.")
+
+            # Return results
+            return render(request, 'advancebookinghistory.html', {
+                'monthbookdata': advancersoomdata,
+                'active_page': 'advancebookhistory',
+            })
+        else:
+            return redirect('loginpage')
+
+    except Exception as e:
+        # Handle unexpected errors
+        return render(request, '404.html', {'error_message': str(e)}, status=500)

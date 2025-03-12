@@ -83,7 +83,7 @@
                     <td><strong>{{ data.bookingguest }}<br>{{ data.bookingguestphone }}</strong></td>
                     {% endif %}
                     <td>{{ data.channal.channalname }}<br>{{ data.booking_id }}</td>
-                    <td><span class="badge bg-label-primary">{{ data.bookingdate }} - {{ data.checkoutdate }}</span></td>
+                    <td><span class="badge bg-label-primary">{{ data.bookingdate }} - {{ data.checkoutdate }} {D: {{data.staydays}} }</span></td>
                     <td>{{ data.total_amount }}</td>
                     <td>
                         {% if data.Payment_types == 'prepaid' %}

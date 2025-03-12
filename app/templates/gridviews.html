@@ -192,10 +192,11 @@
                 </div>
                 <div class="card-body" style="margin-top:-25px">
                     {% if inventory.available_rooms is not None %}
-                        <p class="availability" style="margin-left:-10px">Available:<b> {{ inventory.available_rooms }}</b> <br> 
+                        <p class="availability" style="margin-left:-10px">
+                            Available:<b> {{ inventory.available_rooms }}</b> <br> 
                             Booked: <b>{{ inventory.booked_rooms }}</b> <br> 
                             Price:₹ {{ inventory.price }}<br>
-                            Occupancy: {{ inventory.occupancy }} %<br>
+                            {% comment %} Occupancy: {{ inventory.occupancy }} %<br> {% endcomment %}
                             
                             
                         </p> 
