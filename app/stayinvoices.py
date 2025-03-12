@@ -1902,3 +1902,26 @@ def searchbooking(request,id):
     except Exception as e:
         # Handle unexpected errors
         return render(request, '404.html', {'error_message': str(e)}, status=500)
+
+
+def deletecancelbokings(request):
+    try:
+        if request.user.is_authenticated :
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            
+            boookid=id
+            
+            data=SaveAdvanceBookGuestData.objects.filter(vendor=user,
+                                    action='cancel').all().delete()
+            
+            messages.success(request,'Delete All Cancel Bookins!')
+            return redirect('advanceroomhistory')
+        else:
+            return redirect('loginpage')
+
+    except Exception as e:
+        # Handle unexpected errors
+        return render(request, '404.html', {'error_message': str(e)}, status=500)

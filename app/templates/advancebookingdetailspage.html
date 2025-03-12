@@ -82,7 +82,7 @@
 
                     {{forloop.counter}}<br>
                     Room {{i.roomno.room_name}}<br>
-                    Room Sell-price {{i.sell_rate}} (For All Days Exclude Tax)<br>
+                    Room Sell-price {{i.sell_rate|floatformat:2}} (For All Days Exclude Tax)<br>
                     Room Meal-Plan {{i.rateplan_code}}<br>
                     Room Rate-Plan {{i.rateplan_code_main}}<br>
                     Adults:{{i.adults}}<br>
@@ -115,7 +115,7 @@
                                 <td><span class="text w-50">
                                   <a class="btn w-100 m-2"    data-bs-toggle="modal"
             data-bs-target="#editpaymnent" onClick="setpaymentedit('{{payment.id}}','{{payment.payment_amount}}','{{payment.payment_mode}}','{{payment.transaction_id}}','{{payment.descriptions}}')">
-            {{payment.payment_amount}}
+            {{payment.payment_amount|floatformat:2}}
                                     </a>
                                 </span></td>
                                 <td><span class="text w-50">{{payment.payment_mode}}</span>
@@ -155,7 +155,7 @@
                                 <td>{{payment.date}}
                                     
                                 </td>
-                                <td> {{payment.price}}
+                                <td> {{payment.price|floatformat:2}}
                                     
                                 </span></td>
                                 <td><span class="text w-50">{{payment.roombook.roomno.room_name}}</span>

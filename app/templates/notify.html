@@ -121,6 +121,33 @@
     </div>
 </div>
 
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const tableContainer = document.querySelector('.table-responsive');
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+  
+        tableContainer.addEventListener('mousedown', (e) => {
+            isDown = true;
+            startX = e.pageX - tableContainer.offsetLeft;
+            scrollLeft = tableContainer.scrollLeft;
+        });
+  
+        tableContainer.addEventListener('mouseleave', () => isDown = false);
+        tableContainer.addEventListener('mouseup', () => isDown = false);
+  
+        tableContainer.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - tableContainer.offsetLeft;
+            const walk = (x - startX) * 2;
+            tableContainer.scrollLeft = scrollLeft - walk;
+        });
+    });
+  </script>
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const searchFilter = document.getElementById("searchFilter");
