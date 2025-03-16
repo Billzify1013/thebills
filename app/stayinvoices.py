@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect,HttpResponse 
+from django.shortcuts import render, redirect,HttpResponse , get_object_or_404
 from . models import *
 from django.contrib import messages
 from django.utils import timezone
@@ -648,8 +648,21 @@ def invoicepaymentedit(request):
             paymntdetails = request.POST.get('paymntdetails')
             comment = request.POST.get('comment')
             today = datetime.now()
-            if invoicepaydata.payment_amount <= amount:
-                messages.error(request,"amount grater then or equal to billing  amount!")
+            if invoicepaydata.payment_amount < amount:
+                messages.error(request,"amount grater then to Current Payment  amount!")
+
+            elif invoicepaydata.payment_amount == amount:
+                InvoicesPayment.objects.filter(vendor=user,
+                    id=payid).update(payment_amount=amount,
+                    payment_mode=paymentmode,transaction_id=paymntdetails,descriptions=comment,
+                    advancebook=None)
+
+                actionss = 'Edit Payment Details'
+                CustomGuestLog.objects.create(vendor=user,customer=invoicepaydata.invoice.customer,
+                            by=request.user,action=actionss,
+                            description=f'Edit Payment Details, Not Amount.')
+                messages.success(request,'Details edit succesfully!')
+
 
             elif invoicepaydata.payment_amount > amount:
                 finddue = float(invoicepaydata.payment_amount-amount)
@@ -675,6 +688,68 @@ def invoicepaymentedit(request):
         
     except Exception as e:
             return render(request, '404.html', {'error_message': str(e)}, status=500)
+
+
+def editbookingpayment(request):
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            payid = request.POST.get('invcids')
+            invoicepaydata = InvoicesPayment.objects.get(vendor=user,id=payid)
+            if invoicepaydata.advancebook:
+                invoiceid = invoicepaydata.advancebook.id
+                amount = int(float(request.POST.get('amount')))
+                paymentmode = request.POST.get('paymentmode')
+                paymntdetails = request.POST.get('paymntdetails')
+                comment = request.POST.get('comment')
+                today = datetime.now()
+                if invoicepaydata.payment_amount < amount:
+                    messages.error(request,"amount grater then to Current Payment  amount!")
+
+                elif invoicepaydata.payment_amount == amount:
+                    InvoicesPayment.objects.filter(vendor=user,
+                        id=payid).update(payment_amount=amount,
+                        payment_mode=paymentmode,transaction_id=paymntdetails,descriptions=comment,
+                       )
+
+                    actionss = 'Edit Booking Details'
+                    CustomGuestLog.objects.create(vendor=user,advancebook=invoicepaydata.advancebook,
+                                by=request.user,action=actionss,
+                                description=f'Edit Payment Details, Not Amount.')
+                    messages.success(request,'Details edit succesfully!')
+
+
+                elif invoicepaydata.payment_amount > amount:
+                    finddue = float(invoicepaydata.payment_amount-amount)
+                    SaveAdvanceBookGuestData.objects.filter(vendor=user,id=invoiceid).update(reamaining_amount=F('reamaining_amount') + finddue,
+                                        advance_amount=F('advance_amount') - finddue )
+                    
+                    InvoicesPayment.objects.filter(vendor=user,
+                        id=payid).update(payment_amount=amount,
+                        payment_mode=paymentmode,transaction_id=paymntdetails,descriptions=comment,
+                        )
+
+                    actionss = 'Edit Booking Payment'
+                    CustomGuestLog.objects.create(vendor=user,advancebook=invoicepaydata.advancebook,
+                                by=request.user,action=actionss,
+                                description=f'Payment Edited {str(invoicepaydata.payment_amount)} To {str(amount)}')
+                    messages.success(request,'payment edit succesfully!')
+            else:
+                messages.error(request,'Booking Not Found!')
+            
+            url = reverse('advancebookingdetails', args=[invoicepaydata.advancebook.id])
+            return redirect(url)
+
+        else:
+            return redirect('loginpage')
+        
+    except Exception as e:
+            return render(request, '404.html', {'error_message': str(e)}, status=500)
+
+
 
 def deletepayment(request,id):
     try:
@@ -1919,6 +1994,133 @@ def deletecancelbokings(request):
             
             messages.success(request,'Delete All Cancel Bookins!')
             return redirect('advanceroomhistory')
+        else:
+            return redirect('loginpage')
+
+    except Exception as e:
+        # Handle unexpected errors
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+
+
+
+def editbookingdetails(request):
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            
+            id = request.POST.get('id')
+            guestname = request.POST.get('guestname')
+            phone = request.POST.get('phone')
+            sprequest = request.POST.get('sprequest')
+            if SaveAdvanceBookGuestData.objects.filter(vendor=user,id=id).exists():
+                SaveAdvanceBookGuestData.objects.filter(vendor=user,id=id).update(
+                    bookingguest=guestname,
+                    bookingguestphone=phone,
+                    special_requests=sprequest,
+                 )
+                Saveadvancebookdata = SaveAdvanceBookGuestData.objects.get(vendor=user,id=id)
+                actionss = 'Edit Booking'
+                CustomGuestLog.objects.create(vendor=user,by=request.user,action=actionss,
+                    advancebook=Saveadvancebookdata,description=f'Edit Guest Details Name And Number ')
+
+                messages.success(request,"Succesfully Edited!")
+            else:
+                messages.error(request,"Id Not Found")
+
+            return redirect('advancebookingdetails',id)
+            
+        else:
+            return redirect('loginpage')
+
+    except Exception as e:
+        # Handle unexpected errors
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+
+
+
+def editamountdetailsbooking(request):
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            
+            id = request.POST.get('id')
+            checkindate = request.POST.get('checkindate')
+            checkoutdate = request.POST.get('checkoutdate')
+            advanceamount = int(request.POST.get('advanceamount'))
+            remainamount = int(request.POST.get('remainamount'))
+            taxamount = float(request.POST.get('taxamount'))
+            grandtotalamount = int(request.POST.get('grandtotalamount'))
+            amtaftertax = float(request.POST.get('amtaftertax'))
+            amtbeforetax = float(request.POST.get('amtbeforetax'))
+            bookingid = request.POST.get('bookingid')
+            
+            
+            if SaveAdvanceBookGuestData.objects.filter(vendor=user,id=id).exists():
+                SaveAdvanceBookGuestData.objects.filter(vendor=user,id=id).update(
+                    bookingdate=checkindate,
+                    checkoutdate=checkoutdate,
+                    advance_amount=advanceamount,
+                    reamaining_amount=remainamount,
+                    tax=taxamount,
+                    total_amount=grandtotalamount,
+                    amount_after_tax=amtaftertax,
+                    amount_before_tax=amtbeforetax,
+                    booking_id=bookingid,
+                 )
+                Saveadvancebookdata = SaveAdvanceBookGuestData.objects.get(vendor=user,id=id)
+                actionss = 'Edit Booking'
+                CustomGuestLog.objects.create(vendor=user,by=request.user,action=actionss,
+                    advancebook=Saveadvancebookdata,description=f'Edit Amount Details ')
+
+                messages.success(request,"Succesfully Edited!")
+            else:
+                messages.error(request,"Id Not Found")
+
+            return redirect('advancebookingdetails',id)
+            
+        else:
+            return redirect('loginpage')
+
+    except Exception as e:
+        # Handle unexpected errors
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+
+
+def editroomsdata(request):
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            
+            id = request.POST.get('id')
+            if SaveAdvanceBookGuestData.objects.filter(vendor=user,id=id).exists():
+                room_id = request.POST.getlist("roomid")  # सभी roomid लेंगे
+                sell_rates = request.POST.getlist("sellrateamt")  # सभी sell rates लेंगे
+
+                for r_id, rate in zip(room_id, sell_rates):
+                    room = get_object_or_404(RoomBookAdvance, id=r_id)
+                    room.sell_rate = float(rate)  # नया rate सेट करें
+                    room.save() 
+                
+                Saveadvancebookdata = SaveAdvanceBookGuestData.objects.get(vendor=user,id=id)
+                actionss = 'Edit Rooms Rates'
+                CustomGuestLog.objects.create(vendor=user,by=request.user,action=actionss,
+                    advancebook=Saveadvancebookdata,description=f'Edit Amount Details In Rooms')
+
+                messages.success(request,"Succesfully Edited!")
+            else:
+                messages.error(request,"Id Not Found")
+
+            return redirect('advancebookingdetails',id)
+            
         else:
             return redirect('loginpage')
 

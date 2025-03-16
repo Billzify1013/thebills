@@ -77,6 +77,8 @@ def gridview(request):
             # Get room categories for the dropdown or other purposes
             room_categorys = RoomsCategory.objects.filter(vendor=user)
 
+            roomcount = Rooms.objects.filter(vendor=user,room_type=room_cat).exclude(checkin=6).count()
+
             # Prepare context for the template
             context = {
                 'active_page':'gridview',
@@ -86,7 +88,8 @@ def gridview(request):
                 'current_month': calendar.month_name[current_month],  # Display selected month name
                 'current_year': current_year,
                 'weekdays': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-                'room_categorys': room_categorys
+                'room_categorys': room_categorys,
+                'roomcount':roomcount
             }
 
             return render(request, 'gridviews.html', context)
@@ -118,6 +121,8 @@ def gridviewviasearch(request):
             room_cat = RoomsCategory.objects.get(vendor=user, id=categry)
             room_type = room_cat.id
             cat_name = room_cat.category_name
+
+            roomcount = Rooms.objects.filter(vendor=user,room_type=room_cat).exclude(checkin=6).count()
 
             # Get number of days and first weekday of the selected month and year
             num_days_in_month = calendar.monthrange(current_year, current_month)[1]
@@ -174,7 +179,8 @@ def gridviewviasearch(request):
                 'current_month': calendar.month_name[current_month],  # Display selected month name
                 'current_year': current_year,
                 'weekdays': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-                'room_categorys': room_categorys
+                'room_categorys': room_categorys,
+                'roomcount':roomcount
             }
 
             return render(request, 'gridviews.html', context)

@@ -67,12 +67,14 @@
 <div class="row">
 
     <div class="col-3 p-3">
+        <button class="btn btn-primary" onclick="ratebulkupdate()">₹ Rate Bulk Update</button>
+    </div>
+    
+    <div class="col-3 p-3">
         <button class="btn btn-primary" onclick="inventoryform()">Inventory Bulk Update</button>
     </div>
 
-    <div class="col-3 p-3">
-        <button class="btn btn-primary" onclick="ratebulkupdate()">Rate Bulk Update</button>
-    </div>
+    
 {% comment %} 
     <div class="col-3 p-3">
         <button class="btn btn-primary" onclick="showsellform()">Sell Stop Bulk Update</button>
@@ -114,7 +116,7 @@
 <a class="float-end m-2" href="{% url 'bulklogshow' %}">Logs</a>
 
 
-<div id="inventorybulkupdate" style="display:">
+<div id="inventorybulkupdate" style="display:none">
     <div class="card " >
         <h3 class="text m-2 mt-3 ms-4">Inventory Edits</h3>
         <form action="{% url 'bulkinventoryform' %}" method="post">

@@ -432,6 +432,7 @@ urlpatterns = [
     path('editaddpaymentfolio/',stayinvoices.editaddpaymentfolio,name="editaddpaymentfolio"),
     path('editinvoicepayment/',stayinvoices.editinvoicepayment,name="editinvoicepayment"),
     path('invoicepaymentedit/',stayinvoices.invoicepaymentedit,name="invoicepaymentedit"),
+    path('editbookingpayment/',stayinvoices.editbookingpayment,name="editbookingpayment"),
     
     path('deletepayment/<int:id>/',stayinvoices.deletepayment,name="deletepayment"),
     
@@ -449,7 +450,9 @@ urlpatterns = [
     path("bookingsearchview", stayinvoices.bookingsearchview, name="bookingsearchview"),
     path("searchbooking/<int:id>/", stayinvoices.searchbooking, name="searchbooking"),
     path("deletecancelbokings", stayinvoices.deletecancelbokings, name="deletecancelbokings"),
-    
+    path("editbookingdetails", stayinvoices.editbookingdetails, name="editbookingdetails"),
+    path("editamountdetailsbooking", stayinvoices.editamountdetailsbooking, name="editamountdetailsbooking"),
+    path("editroomsdata", stayinvoices.editroomsdata, name="editroomsdata"),
     
     
     # path("logs/gueststay/<int:gueststay_id>/", loggers.get_logs_by_gueststay, name="gueststay_logs"),

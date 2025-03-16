@@ -2952,6 +2952,10 @@ def bookingdate(request):
             checkoutdate = datetime.strptime(enddate, '%Y-%m-%d').date()
             newbookdateminus = bookingdate + timedelta(days=1)
 
+            if checkoutdate<bookingdate:
+                messages.error(request, 'Please select correct dates!')
+                return redirect('advanceroombookpage')
+
             if checkoutdate == bookingdate:
                 messages.error(request, 'Same-Day Checkout Booking Are Not Allowed Here Book To Hourly Room Booking')
                 return redirect('advanceroombookpage')
@@ -3330,6 +3334,9 @@ def addadvancebooking(request):
             mealplan = request.POST.get('mealplan')
             guestcount = request.POST.get('guestcount')
             paymentmode = request.POST.get('paymentmode')
+
+            sprequest = request.POST.get('sprequest')
+
             serialized_array = request.POST['news']
             channal=onlinechannls.objects.get(id=channal)
             my_array = json.loads(serialized_array)
@@ -3408,7 +3415,7 @@ def addadvancebooking(request):
             Saveadvancebookdata = SaveAdvanceBookGuestData.objects.create(vendor=user,bookingdate=bookingdate,noofrooms=noofrooms,bookingguest=guestname,
                 bookingguestphone=phone,staydays=totalstaydays,advance_amount=advanceamount,reamaining_amount=reaminingamount,discount=0.00,
                 total_amount=totalamount,channal=channal,checkoutdate=bookenddate,email='',address_city='',state='',country='',totalguest=guestcount,
-                action='book',booking_id=None,cm_booking_id=None,segment='PMS',special_requests='',pah=True,amount_after_tax=totalamount,amount_before_tax=0.00,
+                action='book',booking_id=None,cm_booking_id=None,segment='PMS',special_requests=sprequest,pah=True,amount_after_tax=totalamount,amount_before_tax=0.00,
                   tax=0.00,currency="INR",checkin=current_date,Payment_types='postpaid',is_selfbook=True)
             paymenttypes = 'postpaid'
             pah=True

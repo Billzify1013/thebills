@@ -55,7 +55,7 @@
   </div></div>
      </form>
 
-     <script>
+     {% comment %} <script>
       document.addEventListener("DOMContentLoaded", function() {
           const dateInput = document.getElementById("dateInput");
           const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
@@ -68,7 +68,7 @@
         const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
         dateInput.setAttribute("min", today); // Set minimum date to today
     });
-</script>
+</script> {% endcomment %}
 
 {%if availableroomdata%}
      
@@ -145,7 +145,10 @@
   {%for i in bookedroomsdata%}
           
   <div class="col-2 col-outline-danger  " >
-      
+      <a href="#" data-bs-toggle="modal"
+      data-bs-target="#advancebookdetails" onclick="setpaymentedit('{{i.roomno.room_name}}','{{i.bookingdate}}',
+      '{{i.checkoutdate}}','{{i.room_type}}','{{i.saveguestdata.bookingguest}}','{{i.saveguestdata.bookingguestphone}}',
+      '{{i.saveguestdata.total_amount}}','{{i.saveguestdata.channal}}')">
     <div class="card mt-3">
     <div class="card-body text-muted">
         <center>
@@ -157,12 +160,19 @@
     
     </div>
     
-  </div>
+  </div></a>
   
   </div> 
   
   {%endfor%}
   </div>
+
+
+
+
+
+
+
 
 
 <!--guest stay data -->
@@ -190,6 +200,59 @@
 {%endfor%}
 </div>
 
+
+<script>
+  function setpaymentedit(roomno,checkin,checkout,roomtype,guest,guestphone,totalamount,Segment) {
+    console.log(roomno,checkin,checkout,roomtype)
+    document.getElementById('romno').innerHTML=roomno;
+    document.getElementById('checkin').innerHTML=checkin;
+    document.getElementById('checkout').innerHTML=checkout;
+    document.getElementById('guestname').innerHTML=guest;
+    document.getElementById('guestphone').innerHTML=guestphone;
+    document.getElementById('totalamount').innerHTML=totalamount;
+    document.getElementById('Segment').innerHTML=Segment;
+  }
+</script>
+
+<!-- Modal add rooms -->
+<div class="modal fade" id="advancebookdetails" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog">
+      <form action="{% url 'addroom'  %}" method="POST" class="modal-content">
+          {% csrf_token %}
+      
+      <div class="modal-header">
+        <h5 class="modal-title" id="backDropModalTitle">Booking Details </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p>Guest: <span id="guestname"></span><br>
+          Phone: <span id="guestphone"></span><br>
+          Amount: <span id="totalamount"></span><br>
+          Segment: <span id="Segment"></span><br>
+        Room Number: <span id="romno"></span><br>
+        Check-In Date: <span id="checkin"></span><br>
+        Check-Out Date: <span id="checkout"></span></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button  class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
 
 
 <!-- Enable backdrop (default) Offcanvas -->
@@ -470,7 +533,7 @@
 
 
               <div class="col-sm-6 mt-2" style="display:">
-                <label class="col-sm-12 col-form-label" for="basic-icon-default-fullname">Excepted Amount₹</label>
+                <label class="col-sm-12 col-form-label" for="basic-icon-default-fullname">Excepted Amount ₹</label>
                 <div class="input-group">
                     
                     <input
@@ -483,7 +546,26 @@
                       placeholder="Excepted amount"
                       aria-label="Recipient's username"
                       aria-describedby="button-addon2"
-                      {% comment %} onClick="calculateamount()" {% endcomment %}
+                      
+                    />
+                    
+                  </div>
+              </div>
+
+              <div class="col-sm-6 mt-2" style="display:">
+                <label class="col-sm-12 col-form-label" for="basic-icon-default-fullname">Special Request</label>
+                <div class="input-group">
+                    
+                    <input
+                      type="text"
+                      
+                      class="form-control"
+                      
+                      name="sprequest"
+                      placeholder="Enter Speacial Request "
+                      aria-label="Recipient's username"
+                      aria-describedby="button-addon2"
+                      
                     />
                     
                   </div>

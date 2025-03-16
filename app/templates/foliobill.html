@@ -259,7 +259,7 @@
                   
                   {%if data.customer.saveguestid%}
                   <hr class="mt-0 mb-0">
-                  <a class="btn dropdown-item " href="{% url 'searchbooking' id=data.customer.id %}"><i class='bx bxl-blogger'></i> Booking Details</a>
+                  <a class="btn dropdown-item " href="{% url 'searchbooking' id=data.customer.saveguestid %}"><i class='bx bxl-blogger'></i> Booking Details</a>
                   {%endif%}
 
 
@@ -1992,7 +1992,7 @@ function printOrDownload(action) {
               id="editamount"
               class="form-control"
               placeholder="Enter Amount"
-              value="{{i.Due_amount}}"
+              value=""
               required
             />
           </div>
