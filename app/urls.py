@@ -453,7 +453,9 @@ urlpatterns = [
     path("editbookingdetails", stayinvoices.editbookingdetails, name="editbookingdetails"),
     path("editamountdetailsbooking", stayinvoices.editamountdetailsbooking, name="editamountdetailsbooking"),
     path("editroomsdata", stayinvoices.editroomsdata, name="editroomsdata"),
-    
+    path("edittaxes", stayinvoices.edittaxes, name="edittaxes"),
+    path("editrateplanbooking", stayinvoices.editrateplanbooking, name="editrateplanbooking"),
+    path("editotarateplan", stayinvoices.editotarateplan, name="editotarateplan"),
     
     # path("logs/gueststay/<int:gueststay_id>/", loggers.get_logs_by_gueststay, name="gueststay_logs"),
 

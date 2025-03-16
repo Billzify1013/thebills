@@ -408,7 +408,13 @@
                             <td>
                               <!--taxes delete button-->
                                 {% comment %} <a href="{% url 'deletetaxitem' id=data.id %}"><span class="badge bg-label-danger  "><i class='bx bxs-trash'></i></span></a> {% endcomment %}
-                            </td>
+                           
+                                <a class="btn w-100 m-2"    data-bs-toggle="modal"
+            data-bs-target="#editpaymnent" onClick="setpaymentedit('{{data.taxname}}','{{data.taxcode}}','{{data.taxrate}}','{{data.id}}')">
+            
+                                   <span class="badge bg-label-info  "><i class='bx bx-edit'></i></span></a>
+                           
+                              </td>
                           </tr>
                           {%endfor%}
                    
@@ -701,6 +707,108 @@ Consider using concise language and abbreviations if appropriate.
 
 
 
+
+
+
+<!-- Modal aedit payment -->
+<div class="modal fade" id="editpaymnent" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog">
+      <form action="{% url 'edittaxes'  %}" method="POST" class="modal-content">
+          {% csrf_token %}
+          
+        
+          
+          
+      
+      <div class="modal-header">
+        <h5 class="modal-title" id="backDropModalTitle">Edit Taxes</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        
+        <div class="row">
+
+
+        <input type="hidden" id="taxids" name="maintaxid" />
+
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">Tax Name</label>
+            <input
+              type="text"
+              name="taxnames"
+              id="taxnames"
+              class="form-control"
+              placeholder="Enter Amount"
+              value=""
+              required
+            />
+          </div>
+
+          
+
+          
+            
+        </div>
+        <div class="row">
+          
+
+          
+          <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Hsn/Sac Code</label>
+              <input
+                type="text"
+                name="hsncodess"
+                id="hsncodes"
+                class="form-control"
+                placeholder="utr,check no"
+                required
+              />
+            </div>
+
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Tax Rate</label>
+              <input
+                type="number"
+                name="taxratez"
+                id="taxrates"
+                id="Comments"
+                class="form-control"
+                placeholder=""
+                required
+              />
+            </div>
+        </div>
+      </div>
+
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button  class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+<script>
+  function setpaymentedit(taxname,hsncode,taxrate,id) {
+    document.getElementById('taxnames').value=taxname;
+    document.getElementById('hsncodes').value=hsncode;
+    document.getElementById('taxrates').value=taxrate;
+    document.getElementById('taxids').value=id;
+  }
+</script>
 
 {%endblock%}
 

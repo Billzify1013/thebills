@@ -222,7 +222,15 @@
                       <td>{{data.base_price}}</td>
                       <td>
                           <a href="{% url 'deleteplanbookingcode' id=data.id %}"><span class="badge bg-label-danger  "><i class='bx bxs-trash'></i></span></a>
-                      </td>
+                      
+
+                      <a class="btn m-0 "    data-bs-toggle="modal"
+                      data-bs-target="#editpaymnent" onClick="setpaymentedit('{{data.rate_plan_name}}','{{data.rate_plan_code}}','{{data.base_price}}','{{data.id}}')">
+                      <span class="badge bg-label-info  "><i class='bx bx-edit'></i></span></a>
+                   
+                      
+                        </td>
+                     
                     </tr>
                     {%endfor%}
              
@@ -256,8 +264,19 @@
                       <td>{{data.rate_plan_code}}</td>
                       <td>{{data.base_price}}</td>
                       <td>
-                          <a href="{% url 'deleteplanratecode' id=data.id %}"><span class="badge bg-label-danger  "><i class='bx bxs-trash'></i></span></a>
-                      </td>
+                          
+                      
+                          <a class="btn p-0"    data-bs-toggle="modal"
+                          data-bs-target="#editotaplan" onClick="otaplaningrate('{{data.rate_plan_name}}','{{data.rate_plan_code}}','{{data.base_price}}','{{data.id}}',
+                          '{{data.rate_plan_description}}','{{data.additional_person_price}}','{{data.max_persons}}',{{data.childmaxallowed}})">
+                          <span class="badge bg-label-info  "><i class='bx bx-edit'></i></span></a>
+
+                          {% comment %} <a href="{% url 'deleteplanratecode' id=data.id %}"><span class="badge bg-label-danger  "><i class='bx bxs-trash'></i></span></a> {% endcomment %}
+                      
+                          
+                      
+                      
+                        </td>
                     </tr>
                     {%endfor%}
              
@@ -268,6 +287,284 @@
     </div>
 </div>
 
+
+
+</div>
+
+
+
+
+<!-- Modal aedit payment -->
+<div class="modal fade" id="editotaplan" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog">
+      <form action="{% url 'editotarateplan'  %}" method="POST" class="modal-content">
+          {% csrf_token %}
+          
+        
+          
+          
+      
+      <div class="modal-header">
+        <h5 class="modal-title" id="backDropModalTitle">Edit Ota Rate Plans</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        
+        <div class="row">
+
+
+        <input type="hidden" id="taxidsota" name="maintaxid" />
+
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">Plan Name</label>
+            <input
+              type="text"
+              name="planname"
+              id="taxnamesota"
+              class="form-control"
+              placeholder="Enter Amount"
+              value=""
+              required
+            />
+          </div>
+
+
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">Base Price</label>
+            <input
+              type="text"
+              name="planbasepriceota"
+              id="basepriceota"
+              class="form-control"
+              placeholder="Enter Amount"
+              value=""
+              required
+            />
+          </div>
+          
+
+          
+            
+        </div>
+        <div class="row">
+          
+
+          
+          <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Plan  Code</label>
+              <input
+                type="text"
+                name="plancode"
+                id="hsncodesota"
+                class="form-control"
+                placeholder="utr,check no"
+                required
+              />
+            </div>
+
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Description</label>
+              <input
+                type="text"
+                name="descptn"
+                id="otadescription"
+                id="Comments"
+                class="form-control"
+                placeholder=""
+                required
+              />
+            </div>
+        </div>
+
+        <div class="row">
+          
+
+          
+          <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Max Person</label>
+              <input
+                type="number"
+                name="maxprs"
+                id="maxpersns"
+                class="form-control"
+                placeholder="utr,check no"
+                required
+              />
+            </div>
+
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Additional Person Price</label>
+              <input
+                type="text"
+                name="addpersonprice"
+                id="addperprice"
+                id="Comments"
+                class="form-control"
+                placeholder=""
+                required
+              />
+            </div>
+        </div>
+
+
+        <div class="row">
+          
+
+          
+          <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Children </label>
+              <input
+                type="number"
+                name="childs"
+                id="childsalw"
+                class="form-control"
+                placeholder="utr,check no"
+                required
+              />
+            </div>
+
+            
+        </div>
+
+
+      </div>
+
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button  class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+<script>
+  function otaplaningrate(taxname,hsncode,basepriceota,id,description,addpprice,maxperson,childalw) {
+    document.getElementById('taxnamesota').value=taxname;
+    document.getElementById('basepriceota').value=basepriceota;
+    
+    document.getElementById('hsncodesota').value=hsncode;
+    document.getElementById('otadescription').value=description;
+    document.getElementById('taxidsota').value=id;
+    document.getElementById('addperprice').value=addpprice;
+    document.getElementById('maxpersns').value=maxperson;
+    document.getElementById('childsalw').value=childalw;
+  }
+</script>
+
+
+
+<!-- Modal aedit payment -->
+<div class="modal fade" id="editpaymnent" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog">
+      <form action="{% url 'editrateplanbooking'  %}" method="POST" class="modal-content">
+          {% csrf_token %}
+          
+        
+          
+          
+      
+      <div class="modal-header">
+        <h5 class="modal-title" id="backDropModalTitle">Edit Rate Plans</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        
+        <div class="row">
+
+
+        <input type="hidden" id="taxids" name="maintaxid" />
+
+          <div class="col mb-3">
+            <label for="nameBackdrop" class="form-label">Plan Name</label>
+            <input
+              type="text"
+              name="taxnames"
+              id="taxnames"
+              class="form-control"
+              placeholder="Enter Amount"
+              value=""
+              required
+            />
+          </div>
+
+          
+
+          
+            
+        </div>
+        <div class="row">
+          
+
+          
+          <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Plan Code</label>
+              <input
+                type="text"
+                name="hsncodess"
+                id="hsncodes"
+                class="form-control"
+                placeholder="utr,check no"
+                required
+              />
+            </div>
+
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Plan Price</label>
+              <input
+                type="text"
+                name="taxratez"
+                id="taxrates"
+                id="Comments"
+                class="form-control"
+                placeholder=""
+                required
+              />
+            </div>
+        </div>
+      </div>
+
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button  class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+<script>
+  function setpaymentedit(taxname,hsncode,taxrate,id) {
+    document.getElementById('taxnames').value=taxname;
+    document.getElementById('hsncodes').value=hsncode;
+    document.getElementById('taxrates').value=taxrate;
+    document.getElementById('taxids').value=id;
+  }
+</script>
 
 
 {%endblock%}

@@ -2127,3 +2127,108 @@ def editroomsdata(request):
     except Exception as e:
         # Handle unexpected errors
         return render(request, '404.html', {'error_message': str(e)}, status=500)
+
+
+
+def edittaxes(request):
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            
+            id = request.POST.get('maintaxid')
+            if Taxes.objects.filter(vendor=user,id=id).exists():
+                taxnames = request.POST.get("taxnames") 
+                hsncodess = request.POST.get("hsncodess")  
+                taxratez = request.POST.get("taxratez")  
+                Taxes.objects.filter(vendor=user,id=id).update(
+                        taxname=taxnames,taxcode=hsncodess,taxrate=taxratez
+                )
+
+                messages.success(request,"Succesfully Edited!")
+            else:
+                messages.error(request,"Id Not Found")
+
+            return redirect('setting')
+            
+        else:
+            return redirect('loginpage')
+
+    except Exception as e:
+        # Handle unexpected errors
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+
+
+def editrateplanbooking(request):
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            
+            id = request.POST.get('maintaxid')
+            if RatePlanforbooking.objects.filter(vendor=user,id=id).exists():
+                taxnames = request.POST.get("taxnames") 
+                hsncodess = request.POST.get("hsncodess")  
+                taxratez = request.POST.get("taxratez")  
+                RatePlanforbooking.objects.filter(vendor=user,id=id).update(
+                        rate_plan_name=taxnames,rate_plan_code=hsncodess,base_price=taxratez
+                )
+          
+
+                messages.success(request,"Succesfully Edited!")
+            else:
+                messages.error(request,"Id Not Found")
+
+            return redirect('rateplanpage')
+            
+        else:
+            return redirect('loginpage')
+
+    except Exception as e:
+        # Handle unexpected errors
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+
+
+
+def editotarateplan(request):
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            
+            id = request.POST.get('maintaxid')
+            if RatePlan.objects.filter(vendor=user,id=id).exists():
+                planname = request.POST.get("planname") 
+                planbasepriceota = request.POST.get("planbasepriceota")  
+                plancode = request.POST.get("plancode")
+                descptn = request.POST.get("descptn") 
+                maxprs = request.POST.get("maxprs")  
+                addperprice = request.POST.get("addpersonprice")  
+                childs = request.POST.get("childs")  
+
+                RatePlan.objects.filter(vendor=user,id=id).update(
+                        rate_plan_name=planname,rate_plan_code=plancode,base_price=planbasepriceota,
+                      rate_plan_description= descptn,additional_person_price=addperprice,max_persons=maxprs,
+                      childmaxallowed=childs
+                )
+
+              
+
+                messages.success(request,"Succesfully Edited!")
+            else:
+                messages.error(request,"Id Not Found")
+
+            return redirect('rateplanpage')
+            
+        else:
+            return redirect('loginpage')
+
+    except Exception as e:
+        # Handle unexpected errors
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
