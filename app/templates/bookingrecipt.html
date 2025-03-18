@@ -166,6 +166,11 @@
     <div class="section">
       <p class="section-title">Payment Details</p>
       <div class="row">
+        {%for hotel in hoteldata%}
+        {% if hotel.gstin == "UNREGISTERED" %}
+        <div class="col-6">GRAND TOTAL-AMOUNT:</div>
+        <div class="col-6 text-end value-text">INR {{data.amount_after_tax|floatformat:2}} </div>
+        {%else%}
         <div class="col-6">TOTAL AMOUNT:</div>
         <div class="col-6 text-end">INR {{data.amount_before_tax|add:data.discount|floatformat:2}}</div>
         <div class="col-6">Discounts AMOUNT:</div>
@@ -176,6 +181,8 @@
         <div class="col-6 text-end">INR {{data.tax|floatformat:2}}</div>
         <div class="col-6">GRAND TOTAL-AMOUNT:</div>
         <div class="col-6 text-end value-text">INR {{data.amount_after_tax|floatformat:2}} </div>
+        {%endif%}
+        {%endfor%}
         <hr>
         <div class="col-6">Advance Amount:</div>
         <div class="col-6 text-end">{{data.advance_amount|floatformat:2}}</div>

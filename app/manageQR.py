@@ -272,11 +272,29 @@ def changeroombooking(request,id):
                     saveguestid = rombokdata.saveguestdata.id
                     Bookedrooms = RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id=saveguestid)
 
+                    checkindatecheck =  rombokdata.saveguestdata.bookingdate
+                    checkoutdatecheck = rombokdata.saveguestdata.checkoutdate
+
+                    bookedrooms = Booking.objects.filter(
+                            vendor=user,
+                            check_in_date__lt=checkoutdatecheck,check_out_date__gt=checkindatecheck
+                        ).exclude(status="CHECK OUT")
+                    
+
+                    roomids = []
+                    for i in bookedrooms:
+                        roomids.append(i.room.id)
+
+                    avlrooms = Rooms.objects.filter(vendor=user).exclude(id__in=roomids)
+
+                    Bookedrooms = RoomBookAdvance.objects.filter(vendor=user,saveguestdata=rombokdata.saveguestdata)
+
+
 
                 
-                avlrooms = Rooms.objects.filter(vendor=user,checkin=0)
+                    # avlrooms = Rooms.objects.filter(vendor=user,checkin=0)
                 
-                return render(request,'changerombook.html',{'avlrooms':avlrooms,'invcitemdata':Bookedrooms,'invoice_id':saveguestid})
+                    return render(request,'changerombook.html',{'avlrooms':avlrooms,'invcitemdata':Bookedrooms,'invoice_id':saveguestid})
         else:
             return render(request, 'login.html')
     except Exception as e:
@@ -291,22 +309,21 @@ def changeroomadvance(request):
                 if subuser:
                     user = subuser.vendor  
                 bookingmodelid = request.POST.get('bookingmodelid')
-                print(bookingmodelid)
+                
                 if Booking.objects.filter(id=bookingmodelid).exists():
                     bookingdata =  Booking.objects.get(id=bookingmodelid)
                     checkindate = bookingdata.check_in_date
                     checkoutdate = bookingdata.check_out_date
-                    print(checkindate,checkoutdate)
+                    
 
                     bookedrooms = Booking.objects.filter(
                             vendor=user,
-                            check_in_date__lte=checkoutdate,check_out_date__gt=checkindate
+                            check_in_date__lt=checkoutdate,check_out_date__gt=checkindate
                         ).exclude(status="CHECK OUT")
-                    print(bookedrooms)
+                    
 
                     roomids = []
                     for i in bookedrooms:
-                        print(i.room.room_name)
                         roomids.append(i.room.id)
 
                     avlrooms = Rooms.objects.filter(vendor=user).exclude(id__in=roomids)
@@ -396,8 +413,11 @@ def change_rooms_book_url(request):
 
                     # If room types are different, update inventory
                     avlblsrid = Rooms.objects.get(id=available_room_id)
+                    
                     if roomcsdata.room_type != avlblsrid.room_type:
+                        
                         saveguestdata = SaveAdvanceBookGuestData.objects.get(id=invoice_id)
+                        
                         checkindate = saveguestdata.bookingdate
                         checkoutdate = saveguestdata.checkoutdate
 
@@ -405,10 +425,28 @@ def change_rooms_book_url(request):
                         while current_date < checkoutdate:
                             try:
                                 # Fetch and update inventory using atomic updates
-                                RoomsInventory.objects.filter(room_category=avlblsrid.room_type, date=current_date).update(
-                                    total_availibility=F('total_availibility') - 1,
-                                    booked_rooms=F('booked_rooms') + 1
-                                )
+                                if RoomsInventory.objects.filter(room_category=avlblsrid.room_type, date=current_date).exists():
+                                    RoomsInventory.objects.filter(room_category=avlblsrid.room_type, date=current_date).update(
+                                        total_availibility=F('total_availibility') - 1,
+                                        booked_rooms=F('booked_rooms') + 1
+                                    )
+                                else:
+                                    user = saveguestdata.vendor
+                                    roomcount = Rooms.objects.filter(vendor=user,room_type=avlblsrid.room_type).exclude(checkin=6).count()
+                                    occupancccy = (1 *100 //roomcount)
+                                    totalfinalavl = roomcount-1
+                                    catprice = avlblsrid.room_type.catprice
+                                    
+                                    RoomsInventory.objects.create(
+                                        vendor=user,
+                                        date=current_date,
+                                        room_category=avlblsrid.room_type,  # Use the appropriate `roomtype` or other identifier here
+                                        total_availibility=totalfinalavl,       # Set according to your logic
+                                        booked_rooms=1,                # Set according to your logic
+                                        price=catprice,
+                                        occupancy=occupancccy,
+                                        )
+                                    
 
                                 RoomsInventory.objects.filter(room_category=roomcsdata.room_type, date=current_date).update(
                                     total_availibility=F('total_availibility') + 1,
@@ -420,12 +458,24 @@ def change_rooms_book_url(request):
 
                             current_date += timedelta(days=1)
 
-                        # Start background tasks for inventory and pricing updates
                         user = saveguestdata.vendor
+                        actionss = 'Change Room'
+                        CustomGuestLog.objects.create(vendor=user,by=request.user,action=actionss,
+                                advancebook=saveguestdata,description=f'Change Room  for {saveguestdata.bookingguest}, This {roomcsdata.room_name} To This {avlblsrid.room_name}')
 
-                        if VendorCM.objects.filter(vendor=user):
+                    else:
+                        pass    
+                        
+                        # Start background tasks for inventory and pricing updates
+                user = request.user
+
+                if VendorCM.objects.filter(vendor=user):
+                                saveguestdata = SaveAdvanceBookGuestData.objects.get(id=invoice_id)
+                                checkindate = saveguestdata.bookingdate
+                                checkoutdate = saveguestdata.checkoutdate
                                 start_date = str(checkindate)
                                 end_date = str(checkoutdate)
+                                print(start_date,end_date)
                                 thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
                               
                                 thread.start()
@@ -436,7 +486,7 @@ def change_rooms_book_url(request):
                                     thread.start()
                                 else:
                                     pass
-                        else:
+                else:
                                 pass
             return JsonResponse({'success': True, 'message': 'Rooms changed successfully'})
         except Exception as e:
@@ -478,41 +528,59 @@ def change_rooms_book_week_url(request):
                     checkoutdatecheck = rbadvc.saveguestdata.checkoutdate
                     # print(today,checkindatecheck,checkoutdatecheck)
                     if checkindatecheck <= today <= checkoutdatecheck:
-                        print("checkin dat erange me hai")
                         if roomcsdata.checkin in [0, 4]:
                             Rooms.objects.filter(id=roomcsdata.id).update(checkin=0)
                     else:
-                         print("checkin date range me nhi hai")
+                        pass
 
                     
                     # Update the new room in RoomBookAdvance
                     RoomBookAdvance.objects.filter(id=current__room_book_id).update(roomno_id=available_room_id)
-                    print(current__room_book_id,'curent id',rbadvc.saveguestdata,'save guest',available_room_id,'avl id ')
                     # Update the Booking table with the new room
                     # ye query nhi chal rhe sath hi same checkin date hoto handle rhne dena checkout before hoto kr dena handle 
                     data = Booking.objects.filter(advancebook=rbadvc.saveguestdata, room_id=roomcsdata.id).update(room_id=available_room_id)
-                    print(data,"yaha tk chal gaya on update")
+                    
                     
                     # If room types are different, update inventory
                     avlblsrid = Rooms.objects.get(id=available_room_id)
-                    print("on cat change above")
+                    
                     if roomcsdata.room_type != avlblsrid.room_type:
-                        print("enter the if ")
+                        
                         # saveguestdata = SaveAdvanceBookGuestData.objects.get(id=invoice_id)
                         saveguestdata = SaveAdvanceBookGuestData.objects.get(id=rbadvc.saveguestdata.id)
                         
-                        print(saveguestdata)
                         checkindate = saveguestdata.bookingdate
                         checkoutdate = saveguestdata.checkoutdate
-                        print("yaha tk chal gaya")
                         current_date = checkindate
                         while current_date < checkoutdate:
                             try:
-                                # Fetch and update inventory using atomic updates
-                                RoomsInventory.objects.filter(room_category=avlblsrid.room_type, date=current_date).update(
-                                    total_availibility=F('total_availibility') - 1,
-                                    booked_rooms=F('booked_rooms') + 1
-                                )
+                                print("yaha tkcha gaya")
+                                if RoomsInventory.objects.filter(room_category=avlblsrid.room_type, date=current_date).exists():
+                                    # Fetch and update inventory using atomic updates
+                                    RoomsInventory.objects.filter(room_category=avlblsrid.room_type, date=current_date).update(
+                                        total_availibility=F('total_availibility') - 1,
+                                        booked_rooms=F('booked_rooms') + 1
+                                    )
+
+                                    print("yhaa tk chal gay if me ")
+                                
+                                else:
+                                    user = saveguestdata.vendor
+                                    roomcount = Rooms.objects.filter(vendor=user,room_type=avlblsrid.room_type).exclude(checkin=6).count()
+                                    occupancccy = (1 *100 //roomcount)
+                                    totalfinalavl = roomcount-1
+                                    catprice = avlblsrid.room_type.catprice
+                                    print("yaha tk bhi chala")
+                                    RoomsInventory.objects.create(
+                                        vendor=user,
+                                        date=current_date,
+                                        room_category=avlblsrid.room_type,  # Use the appropriate `roomtype` or other identifier here
+                                        total_availibility=totalfinalavl,       # Set according to your logic
+                                        booked_rooms=1,                # Set according to your logic
+                                        price=catprice,
+                                        occupancy=occupancccy,
+                                        )
+                                    print("ye code chal gay finaly")
 
                                 RoomsInventory.objects.filter(room_category=roomcsdata.room_type, date=current_date).update(
                                     total_availibility=F('total_availibility') + 1,
@@ -524,12 +592,24 @@ def change_rooms_book_week_url(request):
 
                             current_date += timedelta(days=1)
 
-                        # Start background tasks for inventory and pricing updates
-                        user = saveguestdata.vendor
-
-                        if VendorCM.objects.filter(vendor=user):
+                   
+                    # Start background tasks for inventory and pricing updates
+                    user = rbadvc.saveguestdata.vendor
+                    actionss = 'Change Room'
+                    CustomGuestLog.objects.create(vendor=user,by=request.user,action=actionss,
+                                advancebook=rbadvc.saveguestdata,description=f'Change Room  for {rbadvc.saveguestdata.bookingguest}, This {roomcsdata.room_name} To This {avlblsrid.room_name}')
+                    
+                
+                if VendorCM.objects.filter(vendor=user):
+                                
+                                saveguestdata = SaveAdvanceBookGuestData.objects.get(id=rbadvc.saveguestdata.id)
+                                # saveguestdata = SaveAdvanceBookGuestData.objects.get(id=invoice_id)
+                                
+                                checkindate = saveguestdata.bookingdate
+                                checkoutdate = saveguestdata.checkoutdate
                                 start_date = str(checkindate)
                                 end_date = str(checkoutdate)
+                                print(start_date,end_date)
                                 thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
                               
                                 thread.start()
@@ -540,7 +620,7 @@ def change_rooms_book_week_url(request):
                                     thread.start()
                                 else:
                                     pass
-                        else:
+                else:
                                 pass
             return JsonResponse({'success': True, 'message': 'Rooms changed successfully'})
         except Exception as e:

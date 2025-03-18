@@ -2050,8 +2050,8 @@ def editamountdetailsbooking(request):
                 user = subuser.vendor  
             
             id = request.POST.get('id')
-            checkindate = request.POST.get('checkindate')
-            checkoutdate = request.POST.get('checkoutdate')
+            # checkindate = request.POST.get('checkindate')
+            # checkoutdate = request.POST.get('checkoutdate')
             advanceamount = int(request.POST.get('advanceamount'))
             remainamount = int(request.POST.get('remainamount'))
             taxamount = float(request.POST.get('taxamount'))
@@ -2063,8 +2063,8 @@ def editamountdetailsbooking(request):
             
             if SaveAdvanceBookGuestData.objects.filter(vendor=user,id=id).exists():
                 SaveAdvanceBookGuestData.objects.filter(vendor=user,id=id).update(
-                    bookingdate=checkindate,
-                    checkoutdate=checkoutdate,
+                    # bookingdate=checkindate,
+                    # checkoutdate=checkoutdate,
                     advance_amount=advanceamount,
                     reamaining_amount=remainamount,
                     tax=taxamount,

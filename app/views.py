@@ -3761,6 +3761,11 @@ def weekviewcheckin(request):
                         return redirect('weekviews')
                     else:
                         pass
+
+                if checkbookdata.filter(room__checkin=5):
+                    messages.error(request,'Guests are already checked in. Please proceed with the check-in one by one from here.')
+                    return redirect('todaybookingpage')
+
                 
                 
                 
@@ -3958,23 +3963,26 @@ def advancebookingdelete(request,id):
                         checkindate = data.bookingdate
                         checkoutdate = data.checkoutdate
                         while checkindate < checkoutdate:
+                            
                             roomscat = Rooms.objects.get(vendor=user,id=data.roomno.id)
-                            invtdata = RoomsInventory.objects.get(vendor=user,date=checkindate,room_category=roomscat.room_type)
-                     
-                            invtavaible = invtdata.total_availibility + 1
-                            invtabook = invtdata.booked_rooms - 1
-                            total_rooms = Rooms.objects.filter(vendor=user, room_type=roomscat.room_type).exclude(checkin=6).count()
-                            occupancy = invtabook * 100//total_rooms
-                                                                    
+                            if RoomsInventory.objects.filter(vendor=user,date=checkindate,room_category=roomscat.room_type).exists():
+                                invtdata = RoomsInventory.objects.get(vendor=user,date=checkindate,room_category=roomscat.room_type)
+                        
+                                invtavaible = invtdata.total_availibility + 1
+                                invtabook = invtdata.booked_rooms - 1
+                                total_rooms = Rooms.objects.filter(vendor=user, room_type=roomscat.room_type).exclude(checkin=6).count()
+                                occupancy = invtabook * 100//total_rooms
+                                                                        
 
-                            RoomsInventory.objects.filter(vendor=user,date=checkindate,room_category=roomscat.room_type).update(booked_rooms=invtabook,
-                                        total_availibility=invtavaible,occupancy=occupancy)
+                                RoomsInventory.objects.filter(vendor=user,date=checkindate,room_category=roomscat.room_type).update(booked_rooms=invtabook,
+                                            total_availibility=invtavaible,occupancy=occupancy)
                 
                             checkindate += timedelta(days=1)
 
                     if VendorCM.objects.filter(vendor=user):
-                        start_date = str(data.bookingdate)
-                        end_date = str(data.checkoutdate)
+                        start_date = str(checkdatas.bookingdate)
+                        end_date = str(checkdatas.checkoutdate)
+                        
                         thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
                         thread.start()
 
