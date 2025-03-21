@@ -46,6 +46,12 @@
       margin-top: 20px;
       color: #888;
     }
+
+    @media print {
+      #backbtn {
+        display: none;
+      }
+    }
   </style>
 </head>
 <body>
@@ -90,7 +96,7 @@
 
   <center>
   {% if request.session.permissions or request.session.is_subuser%}
-  <a  value="Back" class="btn btn-outline-warning" href="{% url 'advanceroombookpage'  %}">Back To Page</a>
+  <a id="backbtn" value="Back" class="btn btn-outline-warning" href="{% url 'advanceroombookpage'  %}">Back To Page</a>
      {%endif%}
 
   </center>
