@@ -2701,7 +2701,7 @@ def bulklogshow(request):
             if subuser:
                 user = subuser.vendor  
 
-            logs = bulklogs.objects.filter(vendor=user)
+            logs = bulklogs.objects.filter(vendor=user).order_by('-id')
             return render(request,'logs.html',{'logs':logs,'bulk':True})
         else:
             return render(request, 'login.html')

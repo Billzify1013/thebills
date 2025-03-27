@@ -814,7 +814,7 @@ class becallemail(models.Model):
 
 class cancellationpolicy(models.Model):
     vendor = models.ForeignKey(User, on_delete=models.CASCADE)
-    cancellention_policy = models.CharField(max_length=50, null=True, blank=True)
+    cancellention_policy = models.TextField( null=True, blank=True)
 
 class bestatus(models.Model):
     vendor = models.ForeignKey(User, on_delete=models.CASCADE)

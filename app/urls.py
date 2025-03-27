@@ -7,7 +7,7 @@ from django.conf.urls.static import static
 from django.contrib.auth import views as auth_view
 from .newcode import *
 from . import dynamicrates
-from . import aiosellbook ,travelagancy,stayinvoices,purches,companyies
+from . import aiosellbook ,travelagancy,stayinvoices,purches,companyies,daterangeprice
 from django.urls import re_path
 from . import bookingpayment
 from . import accountses
@@ -458,6 +458,22 @@ urlpatterns = [
     path("editotarateplan", stayinvoices.editotarateplan, name="editotarateplan"),
     
     # path("logs/gueststay/<int:gueststay_id>/", loggers.get_logs_by_gueststay, name="gueststay_logs"),
+
+    # new date wise price work start here
+    # path("priceshow/", daterangeprice.priceshow, name="priceshow"),
+    # path('priceshow/', inventory_view, name='priceshow'),
+    path('priceshow-new/', daterangeprice.priceshow_new, name='priceshow_new'),
+    path('change-date-new/', daterangeprice.change_date_new, name='change_date_new'),
+    path('next-day-new/', daterangeprice.next_day_new, name='next_day_new'),
+    path('save_prices_new/', daterangeprice.save_prices_new, name='save_prices_new'),
+    path('bulklogshow/',employeemanage.bulklogshow,name="bulklogshow"),
+
+    # update inventory
+    path('inventory_view/', daterangeprice.inventory_view, name='inventory_view'),
+    path('next_day_inventory/', daterangeprice.next_day_inventory, name='next_day_inventory'),
+    path('change_date_inventory/', daterangeprice.change_date_inventory, name='change_date_inventory'),
+    path('save_inventory_new/', daterangeprice.save_inventory_new, name='save_inventory_new'),
+
 
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
