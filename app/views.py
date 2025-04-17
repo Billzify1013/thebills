@@ -3313,7 +3313,359 @@ from datetime import datetime, timedelta
 #     # except Exception as e:
 #     #     return render(request, '404.html', {'error_message': str(e)}, status=500)
 
+# ye last updated code hai isko abhi ke liye hide kr rha lekin same price ye de rha hia or running me ye chal rha
+# def addadvancebooking(request):
+#     try:
+#         if request.user.is_authenticated and request.method=="POST":
+#             user=request.user
+#             subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+#             if subuser:
+#                 user = subuser.vendor  
+#             bookingdate = request.POST.get('bookingdate')
+#             guestname = request.POST.get('guestname')
+#             totalstaydays = request.POST.get('totalstaydays')
+#             phone = request.POST.get('phone',0)
+#             channal = request.POST.get('channal')
+#             bookenddate = request.POST.get('bookenddate')
+#             totalamount = float(request.POST.get('finalesamount'))
+#             advanceamount = request.POST.get('advanceamount',0)
+#             discountamount = float(request.POST.get('discountamount',0))
+#             reaminingamount = request.POST.get('reaminingamount',0)
+#             mealplan = request.POST.get('mealplan')
+#             guestcount = request.POST.get('guestcount')
+#             paymentmode = request.POST.get('paymentmode')
 
+#             sprequest = request.POST.get('sprequest')
+
+#             serialized_array = request.POST['news']
+#             channal=onlinechannls.objects.get(id=channal)
+#             my_array = json.loads(serialized_array)
+#             noofrooms = len(my_array)
+#             bookenddate = str(bookenddate)
+#             # bookenddate = datetime.strptime(bookenddate, '%Y-%m-%d').date()
+#             bookingdate = datetime.strptime(bookingdate, '%Y-%m-%d').date()
+#             checkoutdate = datetime.strptime(bookenddate, '%Y-%m-%d').date()
+#             checkoutdate -= timedelta(days=1)
+#             # bookingdate -= timedelta(days=1)
+#             if advanceamount == "":
+#                 advanceamount = 0.0
+#             else:
+#                 pass
+#             if float(advanceamount) > float(totalamount):
+#                 messages.error(request,"Advance amount is greater than the booking amount!")
+#                 return redirect('advanceroombookpage')
+
+
+#             # delta = timedelta(days=1)
+#             # while bookingdate <= checkoutdate:
+           
+#             #         bookingdate += delta
+#             current_date = datetime.now()
+
+#             checktestamount = float(totalamount)
+#             onedayoneroomwithtax = checktestamount / int(totalstaydays) / int(noofrooms)
+#             print(checktestamount,"this is total amount")
+#             print(onedayoneroomwithtax,"one day room rate")
+           
+        
+#             permissions = 'false'
+#             if onedayoneroomwithtax > 8851:
+#                 findamtsonly = float(onedayoneroomwithtax) / (1 + (18) / 100)
+#                 taxamt = findamtsonly * 18/100
+#                 total = taxamt + findamtsonly
+#                 print("idhr 18 % ka tax rhega ")
+#                 findamtsonly = float(findamtsonly)
+#                 taxamt = float(taxamt)
+#                 total = float(total)
+#                 selltax = 18
+#                 print(findamtsonly,"find amount",taxamt,"tax amount",total,"total amount")
+#             elif onedayoneroomwithtax <= 8400:
+#                 findamtsonly = float(onedayoneroomwithtax) / (1 + (12) / 100)
+#                 taxamt = findamtsonly * 12/100
+#                 total = taxamt + findamtsonly
+#                 print("idhar 12 % hi lagega ")
+#                 findamtsonly = float(findamtsonly)
+#                 taxamt = float(taxamt)
+#                 total = float(total)
+#                 selltax = 12
+#                 print(findamtsonly,"find amount",taxamt,"tax amount",total,"total amount")
+
+#             else:
+#                 checkpricediffrance = onedayoneroomwithtax -8400
+#                 findamtsonly=7500
+#                 taxamt = findamtsonly * 12/100
+#                 total = taxamt + findamtsonly
+#                 print("idhar 12 % hi lagega ")
+#                 findamtsonly = float(findamtsonly)
+#                 taxamt = float(taxamt)
+#                 total = float(total)
+#                 selltax = 12
+#                 extraamountonedayprice = float(checkpricediffrance) / (1 + (18) / 100)
+#                 permissions = 'true'
+#                     # taxrate = 12 
+#                     # putrat = 6.0
+#                     # taxdata = Taxes.objects.get(vendor=user,taxrate=12)
+#                     # hsncode = taxdata.taxcode
+#                     # Extracharge='true'
+#                     # withouttaxextracharge = float(checkpricediffrance) / (1 + (18) / 100)
+
+             
+
+#             reaminingamount = checktestamount - float(advanceamount)
+#             Saveadvancebookdata = SaveAdvanceBookGuestData.objects.create(vendor=user,bookingdate=bookingdate,noofrooms=noofrooms,bookingguest=guestname,
+#                 bookingguestphone=phone,staydays=totalstaydays,advance_amount=advanceamount,reamaining_amount=reaminingamount,discount=0.00,
+#                 total_amount=totalamount,channal=channal,checkoutdate=bookenddate,email='',address_city='',state='',country='',totalguest=guestcount,
+#                 action='book',booking_id=None,cm_booking_id=None,segment='PMS',special_requests=sprequest,pah=True,amount_after_tax=totalamount,amount_before_tax=0.00,
+#                   tax=0.00,currency="INR",checkin=current_date,Payment_types='postpaid',is_selfbook=True)
+#             paymenttypes = 'postpaid'
+#             pah=True
+#             if int(advanceamount) > 0:
+                
+#                 InvoicesPayment.objects.create(vendor=user,invoice=None,payment_amount=advanceamount,payment_date=current_date,
+#                                                 payment_mode=paymentmode,transaction_id="ADVANCE AMOUNT",descriptions='ADVANCE',advancebook=Saveadvancebookdata)
+#                 if int(advanceamount) < int(totalamount):
+#                     paymenttypes = 'partially'
+#                     pah=True
+#                 else:
+#                     paymenttypes = 'prepaid'
+#                     pah=False
+#             else:
+#                 pass 
+#             sellingprices = 0    
+#             totaltax = 0   
+#             guestcountsstored = int(guestcount) 
+#             changedguestct = guestcountsstored
+
+            
+            
+#             for i in my_array:
+#                     roomid = int(i['id'])
+#                     roomsellprice = findamtsonly
+#                     roomselltax = selltax
+#                     befortselprice=roomsellprice
+#                     befortselprice = befortselprice / int(totalstaydays)
+#                     sellingprices = sellingprices + roomsellprice * int(totalstaydays)
+#                     totalsellprice = (roomsellprice * roomselltax //100) + roomsellprice
+#                     totaltax = totaltax + (roomsellprice * roomselltax /100) 
+#                     checktotaltax = totaltax * int(totalstaydays)
+#                     roomid = Rooms.objects.get(id=roomid)
+#                     roomtype = roomid.room_type.id
+
+#                     # # manage rate plan guests
+#                     maxperson = roomid.max_person
+#                     if changedguestct >= maxperson:
+            
+#                         changedguestct = changedguestct - maxperson
+                  
+#                         satteldcount = maxperson
+#                     else:
+                 
+#                         satteldcount = changedguestct
+
+                
+#                     bookdatas = RoomBookAdvance.objects.create(vendor=user,saveguestdata=Saveadvancebookdata,bookingdate=bookingdate,roomno=roomid,
+#                                                     bookingguest=guestname,bookingguestphone=phone
+#                                                 ,checkoutdate=bookenddate,bookingstatus=True,channal=channal,totalguest=satteldcount,
+#                                                rateplan_code=mealplan,guest_name='',adults=satteldcount,children=0,sell_rate=roomsellprice )
+                    
+#                     if permissions == 'true':
+#                         extraonedayprice = extraamountonedayprice
+#                         extra_total_amount_allday = extraamountonedayprice * int(totalstaydays)
+#                         extrataxamount = extra_total_amount_allday * 18 /100
+#                         extracgstamount = extrataxamount / 2
+#                         extragrandtotal  = extra_total_amount_allday + extrataxamount
+
+#                         totalamount = extragrandtotal + totalamount
+#                         extraBookingAmount.objects.create(vendor=user,bookdata=bookdatas,price=extraonedayprice,qty=int(totalstaydays),
+#                                         taxable_amount=extra_total_amount_allday,csgst_amount=extracgstamount,sgst_amount=extracgstamount,
+#                                         grand_total_amount=extragrandtotal)
+                    
+#                     noon_time_str = "12:00 PM"
+#                     noon_time = datetime.strptime(noon_time_str, "%I:%M %p").time()
+#                     Booking.objects.create(vendor=user,room=roomid,guest_name=guestname,check_in_date=bookingdate,check_out_date=bookenddate,
+#                                 check_in_time=noon_time,check_out_time=noon_time,segment=channal,totalamount=totalamount,totalroom=noofrooms,
+#                                 gueststay=None,advancebook=Saveadvancebookdata,status="BOOKING"           )
+#                     # inventory code
+#                     # Convert date strings to date objects
+#                     checkindate = str(bookingdate)
+#                     checkoutdate = str(bookenddate)
+#                     checkindate = datetime.strptime(checkindate, '%Y-%m-%d').date()
+#                     checkoutdate = (datetime.strptime(checkoutdate, '%Y-%m-%d').date() - timedelta(days=1))
+
+#                     # Generate the list of all dates between check-in and check-out (inclusive)
+#                     all_dates = [checkindate + timedelta(days=x) for x in range((checkoutdate - checkindate).days + 1)]
+
+#                     # Query the RoomsInventory model to check if records exist for all those dates
+#                     existing_inventory = RoomsInventory.objects.filter(vendor=user,room_category_id=roomtype, date__in=all_dates)
+
+#                     # Get the list of dates that already exist in the inventory
+#                     existing_dates = set(existing_inventory.values_list('date', flat=True))
+
+#                     # Identify the missing dates by comparing all_dates with existing_dates
+#                     missing_dates = [date for date in all_dates if date not in existing_dates]
+
+#                     # If there are missing dates, create new entries for those dates in the RoomsInventory model
+#                     roomcount = Rooms.objects.filter(vendor=user,room_type_id=roomtype).exclude(checkin=6).count()
+              
+#                     # occupancy = (1 * 100 // roomcount)
+                    
+#                     for inventory in existing_inventory:
+                        
+                       
+#                         if inventory.total_availibility > 0:  # Ensure there's at least 1 room available
+#                             # Update room availability and booked rooms
+#                             inventory.total_availibility -= 1
+#                             inventory.booked_rooms += 1
+
+#                             # Calculate total rooms
+#                             total_rooms = inventory.total_availibility + inventory.booked_rooms
+
+#                             # Recalculate the occupancy rate
+#                             if total_rooms > 0:
+#                                 # Directly calculate occupancy as the percentage of booked rooms
+#                                 inventory.occupancy = (inventory.booked_rooms / total_rooms) * 100
+#                             else:
+#                                 inventory.occupancy = 0  # Avoid division by zero if no rooms exist
+
+#                             # Save the updated inventory
+#                             inventory.save()
+
+                    
+#                     catdatas = RoomsCategory.objects.get(vendor=user,id=roomtype)
+#                     totalrooms = Rooms.objects.filter(vendor=user,room_type=catdatas).exclude(checkin=6).count()
+#                     occupancccy = (1 *100 //totalrooms)
+#                     if missing_dates:
+#                         for missing_date in missing_dates:
+                        
+#                                 RoomsInventory.objects.create(
+#                                     vendor=user,
+#                                     date=missing_date,
+#                                     room_category=catdatas,  # Use the appropriate `roomtype` or other identifier here
+#                                     total_availibility=totalrooms-1,       # Set according to your logic
+#                                     booked_rooms=1,    
+#                                     occupancy=occupancccy,
+#                                     price=catdatas.catprice
+#                                                             # Set according to your logic
+#                                 )
+                        
+#                     else:
+#                         pass
+
+#                     # api calling backend automatically
+#                                 # Start the long-running task in a separate thread
+#             if VendorCM.objects.filter(vendor=user):
+#                         start_date = str(checkindate)
+#                         end_date = str(checkoutdate)
+#                         thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
+#                         thread.start()
+#                         # for dynamic pricing
+#                         if  VendorCM.objects.filter(vendor=user,dynamic_price_active=True):
+#                             thread = threading.Thread(target=rate_hit_channalmanager, args=(user.id, start_date, end_date))
+#                             thread.start()
+#                         else:
+#                             pass
+#             else:
+#                         pass
+#             if TravelAgency.objects.filter(vendor=user,name=channal.channalname).exists():
+#                 traveldata = TravelAgency.objects.filter(vendor=user,name=channal.channalname).first()
+#                 curtdate = datetime.now().date()
+#                 if traveldata.commission_rate > 0:
+#                     agencydata = TravelAgency.objects.get(vendor=user,id=traveldata.id)
+#                     if agencydata.commission_rate >0:
+#                         commision = sellingprices*agencydata.commission_rate//100
+#                         Travelagencyhandling.objects.create(vendor=user,agency=agencydata,bookingdata=Saveadvancebookdata,
+#                                                 date=curtdate,commsion=commision)
+#                     else:
+#                         pass
+#             if permissions == 'true':
+#                 sellingprices = sellingprices + (extraamountonedayprice * int(totalstaydays))
+#                 extraamountsalldays = (extraamountonedayprice * int(totalstaydays))
+#                 extrataxfinalamount = extraamountsalldays*18/100
+#                 checktotaltax = checktotaltax + extrataxfinalamount
+#             SaveAdvanceBookGuestData.objects.filter(id=Saveadvancebookdata.id).update(amount_before_tax=sellingprices,
+#                                 tax=float(checktotaltax),Payment_types=paymenttypes,pah=pah)
+            
+#             actionss = 'Create Booking'
+#             CustomGuestLog.objects.create(vendor=user,by=request.user,action=actionss,
+#                     advancebook=Saveadvancebookdata,description=f'Booking Created for {Saveadvancebookdata.bookingguest}, in pms ')
+
+#             if Saveadvancebookdata:
+#                 usermsglimit = Messgesinfo.objects.get(vendor=user)
+#                 if channal.channalname== "self" :
+#                     if usermsglimit.defaultlimit > usermsglimit.changedlimit :
+#                         addmsg = usermsglimit.changedlimit + 2
+#                         Messgesinfo.objects.filter(vendor=user).update(changedlimit=addmsg)
+#                         profilename = HotelProfile.objects.get(vendor=user)
+#                         mobile_number = phone
+                        
+#                         # message_content = f"Dear guest, Your booking at {profilename.name} is confirmed. Advance payment of Rs.{advanceamount} received. Check-in date: {bookingdate}. We're thrilled to host you and make your stay unforgettable. For assistance, contact us at {profilename.contact}. -BILLZIFY"
+#                         oururl = 'https://live.billzify.com/receipt/88/'
+#                         # message_content = f"Hello {guestname}, Your reservation is confirmed. View your booking details here: {oururl}-BILLZIFY"
+#                         bids=Saveadvancebookdata.id
+#                         message_content = f"Hello {guestname}, Your hotel reservation is confirmed. View your booking details here: https://live.billzify.com/receipt/?cd={bids} -BILLZIFY"
+                        
+#                         base_url = "http://control.yourbulksms.com/api/sendhttp.php"
+#                         params = {
+#                             'authkey': settings.YOURBULKSMS_API_KEY,
+#                             'mobiles': mobile_number,
+#                             'sender':  'BILZFY',
+#                             'route': '2',
+#                             'country': '0',
+#                             'DLT_TE_ID': '1707173659916248212'
+#                         }
+#                         encoded_message = urllib.parse.urlencode({'message': message_content})
+#                         url = f"{base_url}?authkey={params['authkey']}&mobiles={params['mobiles']}&sender={params['sender']}&route={params['route']}&country={params['country']}&DLT_TE_ID={params['DLT_TE_ID']}&{encoded_message}"
+                        
+#                         try:
+#                             response = requests.get(url)
+#                             if response.status_code == 200:
+#                                 try:
+#                                     response_data = response.json()
+#                                     if response_data.get('Status') == 'success':
+#                                         messages.success(request, 'SMS sent successfully.')
+#                                     else:
+#                                         messages.success(request, response_data.get('Description', 'Failed to send SMS'))
+#                                 except ValueError:
+#                                     messages.success(request, 'Failed to parse JSON response')
+#                             else:
+#                                 messages.success(request, f'Failed to send SMS. Status code: {response.status_code}')
+#                         except requests.RequestException as e:
+#                             messages.success(request, f'Error: {str(e)}')
+#                     else:
+#                         messages.error(request,'Ooooops! Looks like your message balance is depleted. Please recharge to keep sending SMS notifications to your guests.CLICK HERE TO RECHARGE!')
+#             else:
+#                 messages.success(request, 'No data found matching the query')
+            
+        
+
+#             messages.success(request,"Booking Done")
+                
+#             url = f"{reverse('receipt_view')}?cd={Saveadvancebookdata.id}"
+
+#             if hasattr(user, 'subuser_profile'):
+#                 subuser = user.subuser_profile
+#                 if not subuser.is_cleaner:
+#                     # Update main user's notification (for subuser)
+#                     main_user = subuser.vendor
+#                     if main_user.is_authenticated:
+#                         request.session['notification'] = True  # Update main user's session
+#                         request.session.modified = True
+#                     # Update subuser's own notification
+#                     request.session['notification'] = True  # Update subuser's session
+#                     request.session.modified = True
+#             else:
+#                 # If it's a main user, update their notification
+#                 request.session['notification'] = True
+#                 request.session.modified = True
+#             return redirect(url)
+#             # return redirect('advanceroombookpage')
+#         else:
+#             return redirect('loginpage')
+#     except Exception as e:
+#         return render(request, '404.html', {'error_message': str(e)}, status=500)
+
+
+# ye new code bana rha me new amounts ke liye
 def addadvancebooking(request):
     try:
         if request.user.is_authenticated and request.method=="POST":
@@ -3363,54 +3715,7 @@ def addadvancebooking(request):
             current_date = datetime.now()
 
             checktestamount = float(totalamount)
-            onedayoneroomwithtax = checktestamount / int(totalstaydays) / int(noofrooms)
-            print(checktestamount,"this is total amount")
-            print(onedayoneroomwithtax,"one day room rate")
            
-        
-            permissions = 'false'
-            if onedayoneroomwithtax > 8851:
-                findamtsonly = float(onedayoneroomwithtax) / (1 + (18) / 100)
-                taxamt = findamtsonly * 18/100
-                total = taxamt + findamtsonly
-                print("idhr 18 % ka tax rhega ")
-                findamtsonly = float(findamtsonly)
-                taxamt = float(taxamt)
-                total = float(total)
-                selltax = 18
-                print(findamtsonly,"find amount",taxamt,"tax amount",total,"total amount")
-            elif onedayoneroomwithtax <= 8400:
-                findamtsonly = float(onedayoneroomwithtax) / (1 + (12) / 100)
-                taxamt = findamtsonly * 12/100
-                total = taxamt + findamtsonly
-                print("idhar 12 % hi lagega ")
-                findamtsonly = float(findamtsonly)
-                taxamt = float(taxamt)
-                total = float(total)
-                selltax = 12
-                print(findamtsonly,"find amount",taxamt,"tax amount",total,"total amount")
-
-            else:
-                checkpricediffrance = onedayoneroomwithtax -8400
-                findamtsonly=7500
-                taxamt = findamtsonly * 12/100
-                total = taxamt + findamtsonly
-                print("idhar 12 % hi lagega ")
-                findamtsonly = float(findamtsonly)
-                taxamt = float(taxamt)
-                total = float(total)
-                selltax = 12
-                extraamountonedayprice = float(checkpricediffrance) / (1 + (18) / 100)
-                permissions = 'true'
-                    # taxrate = 12 
-                    # putrat = 6.0
-                    # taxdata = Taxes.objects.get(vendor=user,taxrate=12)
-                    # hsncode = taxdata.taxcode
-                    # Extracharge='true'
-                    # withouttaxextracharge = float(checkpricediffrance) / (1 + (18) / 100)
-
-             
-
             reaminingamount = checktestamount - float(advanceamount)
             Saveadvancebookdata = SaveAdvanceBookGuestData.objects.create(vendor=user,bookingdate=bookingdate,noofrooms=noofrooms,bookingguest=guestname,
                 bookingguestphone=phone,staydays=totalstaydays,advance_amount=advanceamount,reamaining_amount=reaminingamount,discount=0.00,
@@ -3436,12 +3741,117 @@ def addadvancebooking(request):
             guestcountsstored = int(guestcount) 
             changedguestct = guestcountsstored
 
-            
+            # new code
+            settled_amount = float(totalamount)
+            system_total_amount = float(request.POST.get('totalamount'))
+            stay_days = int(totalstaydays)
+            adjustable_amount = settled_amount
+            actual_total_price = system_total_amount
+            total_actual_tax = 0
+
+            # Step 1: Proportional adjustment
+            adjusted_sum = 0
+            for idx, i in enumerate(my_array):
+                base_price = float(i['price'])
+                tax_percent = float(i['tax'])
+                final_price = base_price * (1 + tax_percent / 100)
+                i['original_final'] = final_price
+
+                i['adjust_ratio'] = final_price / actual_total_price
+
+                if idx < len(my_array) - 1:
+                    this_adjusted = round(adjustable_amount * i['adjust_ratio'], 2)
+                    adjusted_sum += this_adjusted
+                else:
+                    this_adjusted = round(adjustable_amount - adjusted_sum, 2)
+
+                per_day_adjusted_final = this_adjusted / stay_days
+                i['adjusted_final_per_day'] = round(per_day_adjusted_final, 2)
+
+            # Step 2: Tax logic on per-day price
+            for i in my_array:
+                per_day_final = i['adjusted_final_per_day']
+
+                if per_day_final <= 8400:
+                    base = per_day_final / 1.12
+                    tax = per_day_final - base
+                    tax_percent = 12
+
+                    i['adjusted_base_per_day'] = round(base, 2)
+                    i['adjusted_tax_per_day'] = round(tax, 2)
+                    i['adjusted_tax_percent'] = tax_percent
+                    i['multi_tax_permission'] = False
+                    i['is_split_tax'] = False
+
+                elif 8400 < per_day_final <= 8850:
+                    base_12 = 7500
+                    tax_12 = base_12 * 0.12
+                    limit_12_total = base_12 + tax_12
+
+                    extra_amt = per_day_final - limit_12_total
+                    base_18 = extra_amt / 1.18
+                    tax_18 = extra_amt - base_18
+
+                    final_tax = tax_12 + tax_18
+
+                    # ✅ Don't touch the base: Keep it 7500
+                    i['adjusted_base_per_day'] = round(base_12, 2)
+                    i['adjusted_tax_per_day'] = round(final_tax, 2)
+                    i['adjusted_tax_percent'] = 12
+                    i['multi_tax_permission'] = True
+                    i['is_split_tax'] = True
+
+                    # ✅ New vars for your model structure
+                    i['extra_split_tax_details'] = {
+                        'tax_12': round(tax_12, 2),
+                        'extra_tax_18': round(tax_18, 2),
+                        'base_18': round(base_18, 2)
+                    }
+
+                else:
+                    base = per_day_final / 1.18
+                    tax = per_day_final - base
+                    tax_percent = 18
+
+                    i['adjusted_base_per_day'] = round(base, 2)
+                    i['adjusted_tax_per_day'] = round(tax, 2)
+                    i['adjusted_tax_percent'] = tax_percent
+                    i['multi_tax_permission'] = False
+                    i['is_split_tax'] = False
+
+            # Step 3: Total for full stay
+            for i in my_array:
+                i['adjusted_base'] = round(i['adjusted_base_per_day'] * stay_days, 2)
+                i['adjusted_tax'] = round(i['adjusted_tax_per_day'] * stay_days, 2)
+                i['adjusted_final'] = round(i['adjusted_base'] + i['adjusted_tax'], 2)
+                total_actual_tax += i['adjusted_tax']
+
+            # Step 4: Overwrite for frontend
+            for i in my_array:
+                i['price'] = round(i['adjusted_base_per_day'], 2)
+                i['tax'] = i['adjusted_tax_percent']
+
+                if i['is_split_tax']:
+                    print(f"[SPLIT] Room ID {i['id']}  | Price: ₹{i['price']} | Tax: 12% + 18% (Base fixed: ₹7500, Extra Tax 18% on ₹{i['extra_split_tax_details']['base_18']})")
+                else:
+                    print(f"[REGULAR] Room ID {i['id']}  | Price: ₹{i['price']} | Tax: {i['tax']}%")
+
+            print(f"📦 Total Adjusted Tax from all rooms: ₹{round(total_actual_tax, 2)}")
+
+
+            # new code end
             
             for i in my_array:
                     roomid = int(i['id'])
-                    roomsellprice = findamtsonly
-                    roomselltax = selltax
+                    # start nre work
+                    roomsellprice = float(i['price'])
+                    roomselltax = int(float(i['tax']))
+                    print(roomsellprice,'price',roomselltax,'tax')
+                    
+
+                    # end here
+                    # roomsellprice = findamtsonly
+                    # roomselltax = selltax
                     befortselprice=roomsellprice
                     befortselprice = befortselprice / int(totalstaydays)
                     sellingprices = sellingprices + roomsellprice * int(totalstaydays)
@@ -3468,17 +3878,25 @@ def addadvancebooking(request):
                                                 ,checkoutdate=bookenddate,bookingstatus=True,channal=channal,totalguest=satteldcount,
                                                rateplan_code=mealplan,guest_name='',adults=satteldcount,children=0,sell_rate=roomsellprice )
                     
-                    if permissions == 'true':
-                        extraonedayprice = extraamountonedayprice
-                        extra_total_amount_allday = extraamountonedayprice * int(totalstaydays)
-                        extrataxamount = extra_total_amount_allday * 18 /100
-                        extracgstamount = extrataxamount / 2
-                        extragrandtotal  = extra_total_amount_allday + extrataxamount
+                    if i.get('multi_tax_permission'):
+                        extra_base = i.get('extra_split_tax_details', {}).get('base_18', 0)
+                        extra_tax = i.get('extra_split_tax_details', {}).get('extra_tax_18', 0)
+                        # extraonedayprice = extraamountonedayprice
+                        # extra_total_amount_allday = extraamountonedayprice * int(totalstaydays)
+                        # extrataxamount = extra_total_amount_allday * 18 /100
+                        # extracgstamount = extrataxamount / 2
+                        # extragrandtotal  = extra_total_amount_allday + extrataxamount
 
-                        totalamount = extragrandtotal + totalamount
-                        extraBookingAmount.objects.create(vendor=user,bookdata=bookdatas,price=extraonedayprice,qty=int(totalstaydays),
-                                        taxable_amount=extra_total_amount_allday,csgst_amount=extracgstamount,sgst_amount=extracgstamount,
-                                        grand_total_amount=extragrandtotal)
+                        # totalamount = extragrandtotal + totalamount
+                        # extraBookingAmount.objects.create(vendor=user,bookdata=bookdatas,price=extraonedayprice,qty=int(totalstaydays),
+                        #                 taxable_amount=extra_total_amount_allday,csgst_amount=extracgstamount,sgst_amount=extracgstamount,
+                        #                 grand_total_amount=extragrandtotal)
+                        totaltaxablesextramt = extra_base * int(totalstaydays)
+                        cgsttaxextraamt = (extra_tax /2 ) * int(totalstaydays)
+                        gtextramt = extra_tax *  int(totalstaydays) + totaltaxablesextramt
+                        extraBookingAmount.objects.create(vendor=user,bookdata=bookdatas,price=extra_base,qty=int(totalstaydays),
+                                        taxable_amount=totaltaxablesextramt,csgst_amount=cgsttaxextraamt,sgst_amount=cgsttaxextraamt,
+                                        grand_total_amount=gtextramt)
                     
                     noon_time_str = "12:00 PM"
                     noon_time = datetime.strptime(noon_time_str, "%I:%M %p").time()
@@ -3566,24 +3984,26 @@ def addadvancebooking(request):
                             pass
             else:
                         pass
-            if TravelAgency.objects.filter(vendor=user,name=channal.channalname).exists():
-                traveldata = TravelAgency.objects.filter(vendor=user,name=channal.channalname).first()
-                curtdate = datetime.now().date()
-                if traveldata.commission_rate > 0:
-                    agencydata = TravelAgency.objects.get(vendor=user,id=traveldata.id)
-                    if agencydata.commission_rate >0:
-                        commision = sellingprices*agencydata.commission_rate//100
-                        Travelagencyhandling.objects.create(vendor=user,agency=agencydata,bookingdata=Saveadvancebookdata,
-                                                date=curtdate,commsion=commision)
-                    else:
-                        pass
-            if permissions == 'true':
-                sellingprices = sellingprices + (extraamountonedayprice * int(totalstaydays))
-                extraamountsalldays = (extraamountonedayprice * int(totalstaydays))
-                extrataxfinalamount = extraamountsalldays*18/100
-                checktotaltax = checktotaltax + extrataxfinalamount
-            SaveAdvanceBookGuestData.objects.filter(id=Saveadvancebookdata.id).update(amount_before_tax=sellingprices,
-                                tax=float(checktotaltax),Payment_types=paymenttypes,pah=pah)
+            # if TravelAgency.objects.filter(vendor=user,name=channal.channalname).exists():
+            #     traveldata = TravelAgency.objects.filter(vendor=user,name=channal.channalname).first()
+            #     curtdate = datetime.now().date()
+            #     if traveldata.commission_rate > 0:
+            #         agencydata = TravelAgency.objects.get(vendor=user,id=traveldata.id)
+            #         if agencydata.commission_rate >0:
+            #             commision = sellingprices*agencydata.commission_rate//100
+            #             Travelagencyhandling.objects.create(vendor=user,agency=agencydata,bookingdata=Saveadvancebookdata,
+            #                                     date=curtdate,commsion=commision)
+            #         else:
+            #             pass
+            # # if permissions == 'true':
+            # #     sellingprices = sellingprices + (extraamountonedayprice * int(totalstaydays))
+            # #     extraamountsalldays = (extraamountonedayprice * int(totalstaydays))
+            # #     extrataxfinalamount = extraamountsalldays*18/100
+            # #     checktotaltax = checktotaltax + extrataxfinalamount
+            amtbeforetax = settled_amount - total_actual_tax
+            amtaftertax = settled_amount
+            SaveAdvanceBookGuestData.objects.filter(id=Saveadvancebookdata.id).update(amount_before_tax=amtbeforetax,
+                                tax=float(total_actual_tax),Payment_types=paymenttypes,pah=pah)
             
             actionss = 'Create Booking'
             CustomGuestLog.objects.create(vendor=user,by=request.user,action=actionss,
@@ -5431,6 +5851,7 @@ def receipt_view(request):
         'advancebookingdatas': advancebookingdatas,
         'hoteldata': hoteldata,
         'terms_lines': terms_lines,
+        'hoteldatas':hoteldatas,
         'booking_id': booking_id,  # Pass booking_id to the template if needed
     })
 
@@ -6665,10 +7086,10 @@ def addguestdatafromadvanceroombook(request):
                                                         total_amount=extradata.grand_total_amount,cgst_rate=9.0,sgst_rate=9.0,
                                                         is_room=False,cgst_rate_amount=extradata.sgst_amount,sgst_rate_amount=extradata.csgst_amount,
                                                         totalwithouttax=extradata.taxable_amount,is_room_extra=True)
-
+                                permission = 'false'
                                 if taxSlab.objects.filter(vendor=user,invoice=Invoiceid,cgst=9.0).exists():
                                 
-                                    taxSlab.objects.filter(vendor=user,invoice=Invoiceid,cgst=checktaxrate).update(
+                                    taxSlab.objects.filter(vendor=user,invoice=Invoiceid,cgst=9.0).update(
                                             cgst_amount=F('cgst_amount') + extradata.csgst_amount,
                                             sgst_amount=F('sgst_amount') + extradata.csgst_amount,
                                             total_amount=F('total_amount') + extradata.csgst_amount*2

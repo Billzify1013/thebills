@@ -178,7 +178,7 @@
         <div class="col-6 text-end value-text">INR {{data.amount_after_tax|floatformat:2}} </div>
         {%else%}
         <div class="col-6">TOTAL AMOUNT:</div>
-        <div class="col-6 text-end">INR {{data.amount_before_tax|add:data.discount|floatformat:2}}</div>
+        <div class="col-6 text-end">INR {{data.amount_before_tax|floatformat:2}}</div>
         <div class="col-6">Discounts AMOUNT:</div>
         <div class="col-6 text-end">INR {{data.discount|floatformat:2}}</div>
         <div class="col-6">SUBTOTAL AMOUNT:</div>
@@ -239,6 +239,21 @@
 {%endif%}
 {%endfor%}
 {%endfor%}
+
+<br>
+<hr>
+<br><br>
+
+<div class="form-group mb-5  ">
+  <label for="full-name"><b>Terms & Conditions</b><br><br>
+      Check-In Time: {{hoteldatas.checkintimes}} AND
+      Check-Out Time: {{hoteldatas.checkouttimes}}<br><br>
+  {% for line in terms_lines %}
+      <p>{{ line }}</p>
+  {% endfor %}
+
+  <div>
+</div>
 
 <!-- Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">

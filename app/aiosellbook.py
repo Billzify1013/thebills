@@ -189,6 +189,9 @@ def aiosell_new_reservation(request):
                                 GuestName = room['guestName']
                                 adults =  int(room['occupancy']['adults']) 
                                 children = int(room['occupancy']['children'])
+                                # new
+                                newtestroom=room
+                                # new end
                                 rateplanname=''
                                 if rateplanCode == 'null':
                                     rateplanCode=None
@@ -271,13 +274,17 @@ def aiosell_new_reservation(request):
                                                 sell_rate=totalsell
                                             )
                                     
-                                    for checknew in data['rooms']:
-                                        for ckprice in checknew['prices']:
+                                    # for checknew in data['rooms']:
+                                    for ckprice in newtestroom['prices']:
                                             date = ckprice['date']
-                                            bookpricesdates.objects.create(
-                                                roombook=rbk,date=str(ckprice['date']),
-                                                price = float(ckprice['sellRate'])
-                                            )
+                                            # new work here
+                                            if bookpricesdates.objects.filter(roombook=rbk,date=str(ckprice['date'])):
+                                                        pass
+                                            else:                      
+                                                bookpricesdates.objects.create(
+                                                    roombook=rbk,date=str(ckprice['date']),
+                                                    price = float(ckprice['sellRate'])
+                                                )
 
                                     
 

@@ -146,11 +146,7 @@ def save_prices_new(request):
         else:
             selected_date = datetime.now().date()
 
-        if VendorCM.objects.filter(vendor=user,admin_dynamic_active=True):
-            pass
-        else:
-            messages.error(request, "Your Permission is Denied via Admin")
-            return redirect(f"/priceshow-new/?start_date={selected_date.strftime('%Y-%m-%d')}")
+        
 
 
         # Generate date range (Fix: Use form-submitted date)
@@ -200,7 +196,7 @@ def save_prices_new(request):
 
                     # Debugging Output
                     # print(f"Updated: {date} | Category: {category.category_name} | Price: {price}")
-        if VendorCM.objects.filter(vendor=user):
+        if VendorCM.objects.filter(vendor=user,admin_dynamic_active=True):
                 start_date = str(selected_date)
                 end_date = str(enddate)
                     
@@ -210,9 +206,9 @@ def save_prices_new(request):
                         thread.start()
                 else:
                         pass
-
         else:
-                    pass
+            messages.error(request, "Your Permission is Denied via Admin,but booking Engine prices changed succesfully!")
+            return redirect(f"/priceshow-new/?start_date={selected_date.strftime('%Y-%m-%d')}")
         start_date = str(selected_date)
         end_date = str(enddate)
         logsdesc = f"Update Rates For All Category, From {start_date} To {end_date}"
