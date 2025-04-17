@@ -226,6 +226,8 @@
 
     <div class="form-group mb-5  ">
       <label for="full-name"><b>Terms & Conditions</b><br><br>
+        Check-In Time: {{hoteldatas.checkintimes}} AND
+        Check-Out Time: {{hoteldatas.checkouttimes}}<br><br>
       {% for line in terms_lines %}
           <span>{{ line }}</span><br>
       {% endfor %}
@@ -244,16 +246,7 @@
 <hr>
 <br><br>
 
-<div class="form-group mb-5  ">
-  <label for="full-name"><b>Terms & Conditions</b><br><br>
-      Check-In Time: {{hoteldatas.checkintimes}} AND
-      Check-Out Time: {{hoteldatas.checkouttimes}}<br><br>
-  {% for line in terms_lines %}
-      <p>{{ line }}</p>
-  {% endfor %}
 
-  <div>
-</div>
 
 <!-- Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
