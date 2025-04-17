@@ -1104,7 +1104,22 @@ def openroomclickformpage(request, id):
             today = datetime.now().date()
             if Booking.objects.filter(vendor=user,room=cat_data,status="CHECK IN").last():
                 messages.error(request,"Guest Stay In This Room!")
-                return redirect('weekviews')
+                bookmodeldata = Booking.objects.filter(vendor=user,room=cat_data,status="CHECK IN").last()
+                if bookmodeldata.check_out_date <= today:
+                    Rooms.objects.filter(vendor=user, id=cat_data.id).update(checkin=2)
+                else:
+                    Rooms.objects.filter(vendor=user, id=cat_data.id).update(checkin=1)
+                # return redirect('weekviews')
+                # Create a mutable copy of the request
+                new_request = request
+                new_request.method = "POST"  # Simulate a POST request
+                new_request.POST = QueryDict(mutable=True)
+                new_request.POST.update({
+                    'bookingmodelid': int(bookmodeldata.id),
+                })
+
+                # Call the bookingdate function with the modified request
+                return weekwiewfromfolioviews(new_request)
             bookingdates = Booking.objects.filter(vendor=user,room=cat_data,check_in_date__gt=today).first()
             
             roomscategory_id = cat_data.room_type.id
@@ -1129,6 +1144,33 @@ def openroomclickformpage(request, id):
     except Exception as e:
         messages.error(request, f'An error occurred: {str(e)}')
         return redirect('homepage')
+
+def weekwiewfromfolioviews(request):
+    try:
+        if request.user.is_authenticated and request.method == "POST":
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+                
+            bookingmodelid = request.POST.get('bookingmodelid')
+            if Booking.objects.filter(vendor=user,id=bookingmodelid).exists():
+                bookdata = Booking.objects.get(vendor=user,id=bookingmodelid)
+                guestid = bookdata.gueststay
+                print(guestid.id)
+
+                url = reverse('invoicepage', args=[guestid.id])
+
+        
+                return redirect(url)
+            else:
+            
+                return redirect('weekviews')
+        
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
 
 def roomcheckin(request,id):
     try:

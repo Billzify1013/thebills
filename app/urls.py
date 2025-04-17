@@ -420,8 +420,8 @@ urlpatterns = [
     path('createpurchasefromproduct/',accountses.createpurchasefromproduct,name="createpurchasefromproduct"),
     
     # new work from here weekview to folio
-    
     path('weekwiewfromfolio/',stayinvoices.weekwiewfromfolio,name="weekwiewfromfolio"),
+    path('weekwiewfromfolioviews/',views.weekwiewfromfolioviews,name="weekwiewfromfolioviews"),
 
 
     path('addpaymentpagepurchase/<int:id>/',purches.addpaymentpagepurchase,name="addpaymentpagepurchase"),
