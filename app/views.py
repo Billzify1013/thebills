@@ -7300,13 +7300,13 @@ def homepage(request):
 
             
             booking_advance_data = Booking.objects.filter(vendor=user,check_in_date__lte=desired_date,check_out_date__gt=desired_date,status='BOOKING')
-           
+
 
             booking_advance_yestarday_data = Booking.objects.filter(vendor=user,check_out_date__lt=desired_date,status='BOOKING')
             # print(booking_advance_yestarday_data,'booking yestarday data this')
 
             booking_checkin_data = Booking.objects.filter(vendor=user,check_in_date__lte=desired_date,check_out_date__gt=desired_date,status='CHECK IN')
-            
+            # print(booking_checkin_data,'check this')
 
 
             booking_checkout_data = Booking.objects.filter(vendor=user,check_out_date__lte=desired_date).filter(status='CHECK IN') 
@@ -7320,8 +7320,15 @@ def homepage(request):
                     Rooms.objects.filter(vendor=user,id=i.room.id).update(checkin=4)
 
             for i in booking_checkout_data:
-                if i.room and Rooms.objects.filter(vendor=user,id=i.room.id,checkin=1).exists():
+                if i.room and Rooms.objects.filter(vendor=user,id=i.room.id,checkin__in=[1,0]).exists():
                     Rooms.objects.filter(vendor=user,id=i.room.id).update(checkin=2)
+
+            for i in booking_checkin_data:
+                if i.room and Rooms.objects.filter(vendor=user,id=i.room.id,checkin__in=[1,4,5,6]).exists():
+                    pass
+                else:
+                    Rooms.objects.filter(vendor=user,id=i.room.id).update(checkin=1)
+                
 
                           
 
