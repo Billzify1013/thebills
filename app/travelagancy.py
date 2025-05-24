@@ -761,6 +761,7 @@ def ota_Commission(request):
         filter_range = {f"roombook__{filter_field}__range": (start_date, end_date)}
 
         commissions = tds_comm_model.objects.filter(
+            roombook__vendor=user,
             roombook__channal__isnull=False,
             **filter_range
         ).exclude(roombook__action='cancel').select_related('roombook__channal')
