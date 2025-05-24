@@ -2614,7 +2614,8 @@ def cancelroom(request):
                             pass
 
 
-                    SaveAdvanceBookGuestData.objects.filter(id=saveguestidfilter).delete()
+                    # SaveAdvanceBookGuestData.objects.filter(id=saveguestidfilter).delete()
+                    SaveAdvanceBookGuestData.objects.filter(id=saveguestidfilter).update(action='cancel')
                     Gueststay.objects.filter(vendor=user,id=guest_id).delete()
                 elif HourlyRoomsdata.objects.filter(vendor=user,rooms__room_name=guestdatas.roomno).exists():
                     HourlyRoomsdata.objects.filter(vendor=user,rooms__room_name=guestdatas.roomno).update(checkinstatus=False)
@@ -4396,10 +4397,11 @@ def advancebookingdetails(request,id):
             guestdata = SaveAdvanceBookGuestData.objects.filter(vendor=user,id=id)
             roomdata = RoomBookAdvance.objects.filter(vendor=user,saveguestdata=id).all()
             bookdatesdata = bookpricesdates.objects.filter(roombook__saveguestdata__id=id).all()
-            print(bookdatesdata)
+            tdscomm = tds_comm_model.objects.filter(roombook_id=id).first()
+            print(tdscomm)
             advancepayment = InvoicesPayment.objects.filter(vendor=user,advancebook_id=id).all()
             return render(request,'advancebookingdetailspage.html',{'roomdata':roomdata,'guestdata':guestdata,'active_page': 'advancebookhistory',
-                        'advancepayment':advancepayment,'bookdatesdata':bookdatesdata})
+                        'tdscomm':tdscomm,'advancepayment':advancepayment,'bookdatesdata':bookdatesdata})
         else:
             return redirect('loginpage')
     except Exception as e:
@@ -4417,8 +4419,8 @@ def advancebookingdelete(request,id):
             saveguestid=id
             checkdatas = SaveAdvanceBookGuestData.objects.get(vendor=user,id=saveguestid)
             # if not  checkdatas.booking_id :
-            if True:
-                roomdata = RoomBookAdvance.objects.filter(vendor=user,saveguestdata=saveguestid,partly_checkin=False,checkinstatus=False).all()
+            if checkdatas.checkinstatus==False:
+                roomdata = RoomBookAdvance.objects.filter(vendor=user,saveguestdata=saveguestid,partly_checkin=False).all()
                 if roomdata: 
                     for data in roomdata:
                         Rooms.objects.filter(vendor=user,id=data.roomno.id).update(checkin=0)
@@ -4462,7 +4464,7 @@ def advancebookingdelete(request,id):
                 # return render(request,'advancebookinghistory.html',{'advanceroomdata':advanceroomdata,'active_page': 'advancebookhistory'})
                 return redirect('advanceroomhistory')
             else:
-                messages.error(request,'This Booking From OTA SO You Cant Delete this!.')
+                messages.error(request,'Guest Is Stayed If You Want To Delete So cancel the folio room.')
                 return redirect('advanceroomhistory')
         else:
             return redirect('loginpage')
@@ -5995,7 +5997,6 @@ def advancebookingdeletebe(request,id):
                 CustomGuestLog.objects.create(vendor=user,by='by Guest Canceled',action=actionss,
                         advancebook=savedata,description=f'Booking Cancel for {savedata.bookingguest}, This Booking From Booking Engine ')
 
-                # SaveAdvanceBookGuestData.objects.filter(vendor=user,id=saveguestid).delete()
                 # roomchekinstatus = Rooms.objects.filter(vendor=user,id=roomid,checkin__range=[4,5]).exists()
                 # if roomchekinstatus is True:
                 #     Rooms.objects.filter(vendor=user,id=roomid).update(checkin=0)
@@ -6128,9 +6129,11 @@ def websettings(request):
                 hotelimgs = HoelImage.objects.filter(vendor=user)
                 ctdata = becallemail.objects.filter(vendor=user)
                 checkstatus = bestatus.objects.filter(vendor=user)
-                
+                pptdescription = property_description.objects.filter(vendor=user)
+                roomservicess = room_services.objects.filter(vendor=user)
+                chatwhatsaap = whatsaap_link.objects.filter(vendor__username=user)
                 return render(request,'websetings.html',{'active_page': 'websettings','amenities':amenities,'offers':offers,
-                                                        'checkstatus':checkstatus,'ctdata':ctdata,'cpdata':cpdata,'roomcat':roomcat,'gallary':gallary,'hotelimgs':hotelimgs})
+                                                        'chatwhatsaap':chatwhatsaap,'roomservicess':roomservicess,'pptdescription':pptdescription,'checkstatus':checkstatus,'ctdata':ctdata,'cpdata':cpdata,'roomcat':roomcat,'gallary':gallary,'hotelimgs':hotelimgs})
         else:
             return render(request, 'login.html')
     except Exception as e:
@@ -6363,7 +6366,7 @@ def checkoutroom(request):
                             
 
                     Invoice.objects.filter(vendor=user,id=invoice_id).update(foliostatus=True,invoice_number=invoice_number,modeofpayment=paymentstatus)
-                    # SaveAdvanceBookGuestData.objects.filter(id=saveguestid).delete()
+                    
                     if guestdatas.saveguestid:
                         pass
                         RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id=guestdatas.saveguestid).update(checkOutstatus=True)

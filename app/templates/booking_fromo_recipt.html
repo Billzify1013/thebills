@@ -197,88 +197,110 @@
 </head>
 <body>
 
-    {%if creditdata%}
-    {%for i in creditdata%}
-    <div id="warningcontent" class="alert alert-warning" style="background:yellow;position:relative">
-        The guest still has previous invoices pending. You can click here to view the details.
-        Please Check On Credit Page With Same Guest Phone Number
-    </div>
-    {%endfor%}
-    {%endif%}
+    
 
     <div class="container">
 
-<center>
-        <div class="invoice-hotel">
-           
-            <div class="">
-                {%for i in profiledata%}
-                <img src="{{i.profile_image.url}}" height="100px"/>
-                <p><strong>{{i.name}}</p>
-                <p><strong>{{i.address}},{{i.zipcode}},{{i.counrty}}</p>
-                <p><strong>PH: </strong>{{i.contact}}</p>
-                {%endfor%}
-            </div>
-        </div></center>
-<hr>
+        <center>
+                <div class="invoice-hotel">
+                
+                    <div class="">
+                        {%for i in profiledata%}
+                        <img src="{{i.profile_image.url}}" height="100px"/>
+                        <p><strong>{{i.name}}</p>
+                        <p><strong>{{i.address}},{{i.zipcode}},{{i.counrty}}</p>
+                        <p><strong>PH: </strong>{{i.contact}}</p>
+                        {%endfor%}
+                    </div>
+                </div></center>
+        <hr>
      
-
         <!-- Invoice Details -->
         <div class="invoice-details">
-            <div class="left" style="width:70%,float:left">{%for data in invoice_data%}
-                <p>Invoice #: {{data.invoice_number}} {{checkproforma}}</p>
-                <p>Date: {{data.invoice_date}}</p>
-                <p>Check-In: {{data.customer.checkindate}}</p>
-                <p>Check-Out: {{data.customer.checkoutdate}}</p>
-                <p>Source: {{data.customer.channel}}</p>
+            <div class="left" style="width:70%,float:left">{%for data in advancebookdata%}
+                <p>Pro Forma Booking Voucher</p>
+                {%if data.booking_id %}
+                <p>Booking Id #: {{data.booking_id}}</p>
+                {%endif%}
+                <p>Booking Date: {{data.checkin}}</p>
+                <p>Check-In: {{data.bookingdate}}</p>
+                <p>Check-Out: {{data.checkoutdate}}</p>
+                <p>Source: {{data.channal}}</p>
             </div>
             <div class="right" style="width:30%">
-                <p>Name: {{data.customer.guestname}}</p>
-                <p>Phone: {{data.customer.guestphome}}</p>
-                <p>City: {{data.customer.guestcity}}</p>
-                <p>Guests: {{data.customer.noofguest}}</p>
-                {%if data.customer_gst_number%}
-                <p>Guest GST : {{data.customer_gst_number}}</p>
-                {%endif%}
-            </div>{%endfor%}
+                <p>Guest Name: {{data.bookingguest}}</p>
+                <p>Guest Phone: {{data.bookingguestphone}}</p>
+                <p>Total Nights: {{ advancebookingmain.staydays }}</p>
+                <p>Number of Guests: {{data.totalguest}}</p>
+                <p>Number of Rooms: {{data.noofrooms}}</p>
+                
+                
+            </div>
         </div>
-
+        
+            {% comment %} <p>Special Request:{{data.special_requests}}</p> {% endcomment %}
+{%endfor%}
        
         <div class="invoice-items">
-            <table>
+           
+            <table id="bookingTable">
                 <thead style="background:rgb(237, 242, 247)">
                     <tr>
-                        <th>Service</th>
-                        <th>Description</th>
+                        <th>Qty</th>
+                        <th>Rooms</th>
                         <th>Price</th>
-                        <th>Qty/Day</th>
+                        <th>Nights</th>
                         <th>Total</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for iteams in invoiceitemdata %}
-                    <tr>
-                        <td>{{ iteams.description }}</td>
-                        <td><p>{{ iteams.mdescription }}</p></td>
-                        <td class="price"></td>  <!-- Price column -->
-                        <td class="qty">{{ iteams.quantity_likedays }}</td>
-                        <td class="total">{{ iteams.total_amount }}</td>
+                    {% for room_type, data in grouped_room_data %}
+                    <tr data-price="{{ data.sell_rate }}" data-count="{{ data.count }}">
+                        <td>{{ data.count }}</td> <!-- merged count -->
+                        <td>{{ room_type }}</td>
+                        <td class="price-cell">{{ data.sell_rate }}</td>
+                        <td class="qty-cell">{{ advancebookingmain.staydays }}</td>
+                        <td class="total-cell">0</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+
+
+                        
+            <script>
+                window.addEventListener('load', function () {
+                    const gstStatus = {{ gststatus|yesno:"true,false" }}; // this gives `true` or `false` in JS
+                    const table = document.getElementById("bookingTable");
+                    const rows = table.querySelectorAll("tbody tr");
+
+                    rows.forEach(row => {
+                        let price = parseFloat(row.dataset.price);        // base price
+                        const qty = parseInt(row.querySelector('.qty-cell').textContent); // number of days
+                        const count = parseInt(row.dataset.count);        // number of rooms
+
+                        let taxRate = price < 7500 ? 0.12 : 0.18;
+                        let taxAmount = price * taxRate;
+                        let total = 0;
+
+                        if (gstStatus === true) {
+                            // GST is added separately
+                            total = (price + taxAmount) * qty * count;
+                        } else {
+                            // GST is included in price
+                            price = price + taxAmount;
+                            row.querySelector('.price-cell').textContent = price.toFixed(2);  // overwrite shown price
+                            total = price * qty * count;
+                        }
+
+                        row.querySelector('.total-cell').textContent = total.toFixed(2);
+                    });
+                });
+            </script>
+
         </div>
         
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                document.querySelectorAll("tbody tr").forEach(row => {
-                    let qty = parseFloat(row.querySelector(".qty").innerText) || 1; // Default 1 to avoid division by zero
-                    let total = parseFloat(row.querySelector(".total").innerText) || 0;
-                    let price = total / qty;
-                    row.querySelector(".price").innerText = price.toFixed(2); // 2 decimal places
-                });
-            });
-        </script>
+       
         
 
         <!-- Payment Summary -->
@@ -295,7 +317,7 @@
                     <tbody>
                         {%for payment in invcpayments%}
                         <tr>
-                            <td>{{payment.payment_date}}</td>
+                            <td>{{ payment.payment_date|date:"d-m-Y" }}</td>
                             <td>{{payment.payment_amount}}</td>
                             <td>{{payment.payment_mode}}
                                 {%if payment.transaction_id%}
@@ -307,27 +329,35 @@
                         {%endfor%}
                     </tbody>
                 </table>
+                {%for data in advancebookdata%}
+                <p style="font-size:11px"><b>Special Request</b>: {{data.special_requests}}</p> 
+                {%endfor%}
             </div>
             <div class="breakdown">
-                {%for data in invoice_data%}
-                {%if data.Due_amount == 0 %}
-                {%else%}
+                {%for data in advancebookdata%}
+                
                     <span>Payment Status</span><br>
                     <span style="display: inline-block; padding: 3px 10px; font-size: 13px; font-weight: 500; color:rgb(34, 199, 1); background-color:rgb(146, 255, 146); border: 1px solidrgb(102, 248, 4); border-radius: 4px; height: 12px; line-height: 12px;" >PAID</span><br>
-                    <span>Total Paid Amount:₹ <b>{{data.accepted_amount}}</b> </span>
+                    <span>Total Paid Amount:₹ <b>{{data.advance_amount}}</b> </span>
                     <hr>
                     <span style="display: inline-block; padding: 3px 10px; font-size: 13px; font-weight: 500; color: #856404; background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 4px; height: 12px; line-height: 12px;" >DUE</span>
 <br>
-                        <span>Overall Due Amount:₹ <b>{{data.Due_amount}}</b> </span>
+                        <span>Overall Due Amount:₹ <b>{{data.reamaining_amount}}</b> </span>
                     <hr>
-                    {%endif%}
-                {%endfor%}
-                {%for data in invoice_data%}
+                    
+                
                 
                 <!-- Dashed line before Grand Total -->
+                {%if gststatus%}
+                    <span>SUBTOTAL :₹ <b>{{data.amount_before_tax}}</b> </span><br>
+                    <span>Tax Amount :₹ <b>{{data.tax|floatformat:2}}</b> </span> 
+                {%else%}
+                    
+                {%endif%}
+
                 <div class="dashed-line"></div>
                 <ul>
-                    <li><span><strong>Grand Total:</strong><span><b>₹{{data.grand_total_amount}}</b></span></span></li>
+                    <li><span><strong>Grand Total:</strong><span><b>₹{{data.amount_after_tax}}</b></span></span></li>
                 </ul>
                 {%endfor%}
 
@@ -335,9 +365,23 @@
 
             </div>
         </div>
+        <div style="text-align:center; margin-top: 40px; font-family: Arial, sans-serif;">
+    <h3 style="color: #2d3748;">Thank You for Booking With Us!</h3>
+    <p style="color: #4a5568;">We appreciate your trust and look forward to hosting you.</p>
+</div>
 
+<div class="form-group mt-5  "  style="font-size:12px">
+      <label for="full-name"><b>Terms & Conditions</b><br><br>
+        Check In Time: {{hoteldatas.checkintimes}} AND
+        Check Out Time: {{hoteldatas.checkouttimes}}<br><br>
+      {% for line in terms_lines %}
+          . <span>{{ line }}</span><br>
+      {% endfor %}
+
+      <div>
         
     </div>
+    
 
     <!-- Buttons -->
     <button id="download-btn" onclick="generatePDF()">Download as PDF</button>
@@ -364,6 +408,8 @@
             window.print();
         }
     </script> {% endcomment %}
+
+
     <div id="pdfLoader" style="display: none; text-align:center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.7); z-index: 9999;">
     <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
         <div class="spinner" style="border: 6px solid #f3f3f3; border-top: 6px solid #3498db; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite;"></div>
@@ -421,7 +467,6 @@
         window.print();
     }
 </script>
-
 <script>
     // Disable right-click
     document.addEventListener('contextmenu', event => event.preventDefault());
@@ -439,6 +484,8 @@
         }
     });
 </script>
+
+
 
 </body>
 </html>

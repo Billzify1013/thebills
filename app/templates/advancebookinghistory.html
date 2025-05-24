@@ -467,10 +467,11 @@
       <tbody id="bookingTableBody">
         {% for data in monthbookdata %}
         <tr data-channel="{{ data.channal.channalname }}" data-payment="{{ data.Payment_types }}" data-amount="{{ data.total_amount }}" data-status="{{ data.action }}">
+          
           {% if data.action == 'cancel' %}
-          <td><strong><del>{{ data.bookingguest }}</del></strong></td>
+          <td><a href="{% url 'advancebookingdetails' id=data.id %}"><strong><del>{{ data.bookingguest }}</del></strong></a></td>
           {%else%}
-          <td><strong>{{ data.bookingguest }}</strong>
+          <td><a href="{% url 'advancebookingdetails' id=data.id %}"><strong>{{ data.bookingguest }}</strong></a>
             
           </td>
           {%endif%}
@@ -522,6 +523,7 @@
             <li><a class="dropdown-item" href="{% url 'receipt_view' %}?cd={{ data.id  }}"><i class='bx bx-conversation'></i>Voucher</a></li>
             <li><a class="dropdown-item" href="{% url 'addpaymenttobooking' booking_id=data.id %}"><i class='bx bxl-paypal'></i>Add-Payment</a></li>
             <li><a class="dropdown-item" href="{% url 'showbooklog' id=data.id %}">Logs</a></li>
+            <li><a class="dropdown-item" href="{% url 'formo_view' %}?cd={{ data.id  }}"><i class='bx bx-id-card mb-1'></i> Formo Invoice</a></li>
             <li><a class="dropdown-item" href="{% url 'advancebookingdelete' id=data.id %}"><i class="bx bx-trash me-1"></i> Cancel</a></li>
             
             

@@ -744,7 +744,276 @@
         </div>
     </div>
 
+
+
+    <div class="row mb-3 mt-3">
+
+      <div class="col-3 ">
+          
+          <div class="nav-align-top mb-4">
+              <ul class="nav nav-pills mb-3 nav-fill text-right" role="tablist" style="text-align:left">
+                <li class="nav-item w-100 m-1 mt-3 " >
+                  <button
+                    type="button"
+                    class="nav-link active " 
+                   style="text-align:left"
+                    role="tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#navs-pills-justified-pptdes"
+                    aria-controls="navs-pills-justified-pptdes"
+                    aria-selected="true"
+                  >
+                  <i class='bx bx-shape-square'></i> property description
+                  </button>
+                </li>
+                <li class="nav-item w-100 m-1">
+                  <button
+                    type="button"
+                    class="nav-link"
+                    style="text-align:left"
+                    role="tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#navs-pills-justified-catservice"
+                    aria-controls="navs-pills-justified-catservice"
+                    aria-selected="false"
+                  >
+                  <i class='bx bxs-category-alt'></i> Category Services
+                  </button>
+                </li>
+                <li class="nav-item w-100 m-1">
+                  <button
+                    type="button"
+                    class="nav-link"
+                    style="text-align:left"
+                    role="tab"
+                    data-bs-toggle="tab"
+                    data-bs-target="#navs-pills-justified-whatchat"
+                    aria-controls="navs-pills-justified-whatchat"
+                    aria-selected="false"
+                  >
+                  <i class='bx bxs-category-alt'></i> Whatsapp links
+                  </button>
+                </li>
+              
+                
+               
+              </ul>
+              
+            </div>
+    
+          
+      </div>
+      <div class="col-9">
+          <div class="card ">
+              <div class="tab-content">
+                  <!--loylty div start-->
+                  <div class="tab-pane fade show active" id="navs-pills-justified-pptdes" role="tabpanel">
+                      <h5><i class='bx bx-shape-square'></i>property Description</h5>
+                     
+                      
+                      <div class="col-12 mt-3  mb-md-0">
+                                
+                      <form action="{% url 'updatepptdesc' %}" method="POST"  >
+                          {% csrf_token %}
+                      
+                        <div class="row">
+                         
+                          <div class="mb-3 col-md-12">
+                            <label for="zipCode" class="form-label">Property Description </label>
+                            <div class="input-group input-group-merge speech-to-text">
+                              <textarea class="form-control" placeholder="Property Description" name="description" rows="4"></textarea>
+                              <span class="input-group-text">
+                                <i class="bx bx-microphone cursor-pointer text-to-speech-toggle"></i>
+                              </span>
+                            </div>
+                          </div> 
+                          
+                      </div>
+                      <button type="submit" class="btn btn-primary mt-4 ms-1 w-25">
+                          Update
+                      </button>
+
+                      
+                      
+                  </form>
+    
+                  <p>{%for i in pptdescription%}
+
+                    {{i.description}}
+                    {%endfor%}
+                  </p>
+                  
+    
+              </div></div>
+                      
+                  <!--loylty div end-->
+    
+                 
+    
+                  <!--tax div start-->
+                  <div class="tab-pane fade show " id="navs-pills-justified-catservice" role="tabpanel">
+                      <h5><i class='bx bxs-category-alt'></i>  Rooms Category Services</h5>
+                      
+                      <div class="" id="">
+                                
+                          <form action="{% url 'addcatservice' %}" method="POST" >
+                              {% csrf_token %}
+                          
+                            <div class="row">
+
+                              <div class="col-6 mb-6">
+                                <label for="nameBackdrop" class="form-label">Select Room Category</label>
+                                  
+                                  <select class="form-control" name="roomcatids"  placeholder="Select Category" required>
+                                    {%for cat in roomcat%}
+                                    <option value="{{cat.id}}">{{cat.category_name}}</option>
+                                    {%endfor%}
+                                  </select>
+                                </div>
+    
+                              
+                              <div class="col-6 mb-6">
+                                <label for="nameBackdrop" class="form-label">Choose Image</label>
+                                <input
+                                  type="text"
+                                  name="servicenamecat"
+                                  maxlength="150"
+                               
+                                  id=""
+                                  class="form-control"
+                                  placeholder="Like Free Wifi,Swiming Pool!"
+                                  required
+                                />
+                              </div>
+                              
+                          </div>
+                          <button type="submit" class="btn btn-primary mt-4  w-25">
+                              Add
+                          </button>
+                          
+                      </form></div>
+      
+                      
+    
+    
+                      <table class="table mt-5">
+                          <thead class="table">
+                            <tr>
+                              <th>Category</th>
+                              <th>Service</th>
+                              <th>Action</th>
+                            </tr>
+                          </thead>
+                          <tbody class="table-border-bottom-0">
+                  
+                              {% for data in roomservicess%}
+                            <tr>
+                              <td> 
+                                {{data.category.category_name}}
+                              </td>
+
+                              <td> 
+                                {{data.service}}
+                              </td>
+                          
+                              <td>
+                                  <a href="{% url 'deletecatservice' id=data.id %}"><span class="badge bg-label-danger  "><i class='bx bxs-trash'></i></span></a>
+                              </td>
+                            </tr>
+                            {%endfor%}
+                     
+                          
+                          </tbody>
+                        </table>
+    
+                     
+    
+                  </div>
+                  <!--tax div end-->
+                  
+    
+                    <!--category div start-->
+                  <div class="tab-pane fade" id="navs-pills-justified-whatchat" role="tabpanel">
+                      <h5><i class='bx bxs-image mb-1'></i>Whatsapp Link</h5>
+                      <form action="{% url 'whatsaapchat' %}" method="POST"  >
+                          {% csrf_token %}
+                      
+                        <div class="row">
+                          
+                          <div class="col-6 mt-2 mb-6">
+                            <label for="nameBackdrop" class="form-label">Whatsapp Chat Link</label>
+                            <input
+                              type="url"
+                              name="whatsapurl"
+                              maxlength=""
+                              id="nameBackdrop"
+                              class="form-control"
+                              placeholder="Chat link"
+                              required
+                            />
+                          </div>
+    
+                        
+                          
+                      </div>
+                      <button type="submit" class="btn btn-primary mt-4  w-25">
+                          Add
+                      </button>
+                      
+                  </form>
+                    
+                  
+
+                  <table class="table mt-5">
+                    <thead class="table">
+                      <tr>
+                        <th>Url</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+            
+                        {% for data in chatwhatsaap%}
+                      <tr>
+                        <td> 
+                          {{data.link}}
+                        </td>
+
+                        
+                    
+                        <td>
+                            <a href="{% url 'deletewhatsapchat' id=data.id %}"><span class="badge bg-label-danger  "><i class='bx bxs-trash'></i></span></a>
+                        </td>
+                      </tr>
+                      {%endfor%}
+               
+                    
+                    </tbody>
+                  </table>
+    
+                  </div>
+                  <!--category div end-->
+                  
+               
+                
+    
+    
+               
+                
+                
+                </div>
+    
+                 
+          </div>
+      </div>
+    
+
+
+
+
 </div>
+
+
 
 
 <div class="col-xl-6">

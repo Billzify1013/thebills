@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<div class="card mt-4 p-4">
+  <!-- Form Row -->
+  <form method="get" class="row g-3 align-items-center mb-4">
+    <div class="row g-3 align-items-center mb-4">
+      <div class="col-auto">
+        <label for="startDate" class="col-form-label">Start Date:</label>
+        <input type="date" id="start_date" name="start_date" value="{{ start_date }}" class="form-control">
+      </div>
+
+      <div class="col-auto">
+        <label for="endDate" class="col-form-label">End Date:</label>
+        <input type="date" id="end_date" name="end_date" value="{{ end_date }}" class="form-control">
+      </div>
+
+      <div class="col-auto">
+        <label for="filter" class="col-form-label">Filter:</label>
+        <select id="filter" name="filter_type" class="form-select">
+          <option value="checkin" {% if filter_type == 'checkin' %}selected{% endif %}>Stay Date</option>
+          <option value="booking" {% if filter_type == 'booking' %}selected{% endif %}>Booking Date</option>
+          <option value="checkout" {% if filter_type == 'checkout' %}selected{% endif %}>Checkout Date</option>
+        </select>
+      </div>
+
+      <div class="col-auto">
+        <input type="submit" class="btn btn-primary mt-5 ms-4 mb-3">
+      </div>
+    </div>
+  </form>
+
+  <!-- Data Table -->
+  <div class="table-responsive w-75">
+    <table class="table table-bordered table-striped text-center align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th class="text-white">Channel</th>
+          <th class="text-white">Bookings</th>
+          <th class="text-white">Revenue</th>
+          <th class="text-white">Commission</th>
+          <th class="text-white">Commission % (AVG)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in channel_data %}
+        <tr>
+          <td>{{ row.channel }}</td>
+          <td>{{ row.rns }}</td>
+          <td>₹ {{ row.revenue }}</td>
+          <td>₹ {{ row.commission }}</td>
+          <td>{{ row.commission_percent }}%</td>
+          </td>
+        </tr>
+        {% endfor %}
+
+        <tr class="fw-bold table-secondary">
+          <td>Total</td>
+          <td>{{ total_rns }}</td>
+          <td>₹ {{ total_revenue }}</td>
+          <td>₹ {{ total_commission }}</td>
+          <td>{{ avg_comm_percent }}%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="text-muted fst-italic mt-5">
+    * The revenue values are calculated from booking data only and may differ slightly from actual PMS revenues.
+  </p>
+</div>
+
+
+
+
+
+{%endblock%}

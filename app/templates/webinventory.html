@@ -45,15 +45,24 @@
 
     <h2>Rooms Inventory Update</h2>
 
-    <div class="controls d-flex">
-        <!-- Date Picker -->
-        <input type="date" class="form-control " min="{{ today|date:'Y-m-d' }}" style="width:150px" id="datePicker" value="{{ selected_date|date:'Y-m-d' }}" onchange="changeDateNew()">
-        
-        <a href="{% url 'inventory_view' %}"  class="btn btn-primary ms-2"><b><i class='bx bx-refresh mt-1'></i></b></a>
+    <div class="row">
+        <div class="col-10">
+            <div class="controls d-flex">
+            <!-- Date Picker -->
+            <input type="date" class="form-control " min="{{ today|date:'Y-m-d' }}" style="width:150px" id="datePicker" value="{{ selected_date|date:'Y-m-d' }}" onchange="changeDateNew()">
+            
+            <a href="{% url 'inventory_view' %}"  class="btn btn-primary ms-2"><b><i class='bx bx-refresh mt-1'></i></b></a>
 
-        <!-- Next Day Button -->
-        <button class="btn btn-primary ms-2" onclick="nextDayNew()"><i class='bx bxs-right-arrow'></i></button>
+            <!-- Next Day Button -->
+            <button class="btn btn-primary ms-2" onclick="nextDayNew()"><i class='bx bxs-right-arrow'></i></button>
+        
+            </div>
+        </div>
+        <div class="col-2">
+            <a href="{% url 'sync_inventory' %}" class="btn  float-end">Sync Inventory</a>
+        </div>
     </div>
+    
 
     <div class="card mt-3">
     

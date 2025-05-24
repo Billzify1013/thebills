@@ -585,6 +585,9 @@ class SaveAdvanceBookGuestData(models.Model):
     ]
     Payment_types = models.CharField(max_length=20, choices=ACTION_CHOICES_payment,blank=True,null=True)
     is_selfbook = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.bookingguest} for {self.vendor.username} id {self.id}"
     
 
 class RoomBookAdvance(models.Model):
@@ -615,6 +618,12 @@ class RoomBookAdvance(models.Model):
     
     def __str__(self) -> str:
         return self.bookingguest
+
+class tds_comm_model(models.Model):
+    roombook = models.ForeignKey(SaveAdvanceBookGuestData,on_delete=models.CASCADE,blank=True,null=True)
+    commission = models.FloatField(default=0.0,null=True,blank=True)
+    tds = models.FloatField(default=0.0,null=True,blank=True)
+    tcs = models.FloatField(default=0.0,null=True,blank=True)
     
 class bookpricesdates(models.Model):
     roombook = models.ForeignKey(RoomBookAdvance,on_delete=models.CASCADE,blank=True,null=True)
@@ -908,3 +917,16 @@ class bulklogs(models.Model):
     action = models.CharField(max_length=30)  # Action type (Create, Update, Delete)
     description = models.TextField(blank=True, null=True)  # Extra details
     timestamp = models.DateTimeField(default=now)  
+
+class property_description(models.Model):
+    vendor = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    description = models.TextField(blank=True, null=True) 
+
+class room_services(models.Model):
+    vendor = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    category = models.ForeignKey(RoomsCategory,  on_delete=models.CASCADE)
+    service = models.CharField(max_length=150,blank=True, null=True)
+
+class whatsaap_link(models.Model):
+    vendor = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    link = models.URLField(blank=True, null=True) 

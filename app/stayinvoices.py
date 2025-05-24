@@ -53,7 +53,10 @@ def stayinvoice(request):
             ).order_by('-invoice_number_int')  # Order by integer field
 
             # Get distinct channels
-            channels = guesthistory.values_list('customer__channel', flat=True).distinct()
+            # channels = guesthistory.values_list('customer__channel', flat=True).distinct()
+            channels = guesthistory.values_list('customer__channel', flat=True)
+            channels = list(set(channels))
+            
 
             # Fetch payments related to the filtered invoices
             payments = InvoicesPayment.objects.filter(invoice__in=guesthistory)
@@ -122,7 +125,9 @@ def searchmonthinvoice(request):
                         vendor=user,
                         invoice_status=True,
                         invoice_date__range=(start_date, end_date)
-                    )
+                    ).annotate(
+                            invoice_number_int=Cast('invoice_number', IntegerField())  # Convert to Integer
+                        ).order_by('invoice_number_int') 
 
                     # Get distinct channels from the filtered guest history
                     channels = guesthistory.values_list('customer__channel', flat=True).distinct()
@@ -707,7 +712,7 @@ def editbookingpayment(request):
                 comment = request.POST.get('comment')
                 today = datetime.now()
                 if invoicepaydata.payment_amount < amount:
-                    messages.error(request,"amount grater then to Current Payment  amount!")
+                    messages.error(request,"amount grater then to Current Payment amount, Please Add Payment In Booking")
 
                 elif invoicepaydata.payment_amount == amount:
                     InvoicesPayment.objects.filter(vendor=user,
@@ -1992,7 +1997,7 @@ def deletecancelbokings(request):
             data=SaveAdvanceBookGuestData.objects.filter(vendor=user,
                                     action='cancel').all().delete()
             
-            messages.success(request,'Delete All Cancel Bookins!')
+            messages.success(request,'Delete All Cancel Bookings!')
             return redirect('advanceroomhistory')
         else:
             return redirect('loginpage')

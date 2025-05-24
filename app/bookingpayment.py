@@ -679,6 +679,9 @@ def hotelpandlrpt(request):
             
             profit =  float(invc_grand_total) - (float(supplier_grand_total) + float(total_cash_expense) + float(totalsalaryexpance))
             # return redirect('todaysales')
+            
+            
+            
             return render(request,'pandlrpt.html',{'startdate':startdate,'enddate':enddate,
                             'invc_grand_total':invc_grand_total,'supplier_grand_total':supplier_grand_total,
                             'total_cash_expense':total_cash_expense,'totalsalaryexpance':totalsalaryexpance,

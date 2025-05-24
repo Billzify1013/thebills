@@ -73,10 +73,18 @@
         transition: transform 0.5s ease-in-out;
     }
 
-    .carousel-images img {
+    {% comment %} .carousel-images img {
         width: 100%;
         border-right: 2px solid #ddd;
+    } {% endcomment %}
+
+    .carousel-images img {
+        width: 100%; /* Full width of the container */
+        height: 300px; /* Fixed height */
+        object-fit: cover; /* Ensures the image covers the area without distortion */
+        border-right: 2px solid #ddd; /* Optional: Border between images */
     }
+    
 
     /* Navigation Buttons */
     .carousel-btn {
@@ -157,6 +165,17 @@
     display: inline-block; /* Show all items */
 }
 
+
+/* Show only 3 list items by default */
+.responsive-dotted-list-mservice .expandable-item-mservice:nth-child(n+4) {
+    display: none; /* Hide items after the 3rd */
+}
+
+/* Expand list items when 'expanded' class is added */
+.responsive-dotted-list-mservice .expandable-item-mservice {
+    display: inline-block; /* Show all items */
+}
+
 /* Adjust 'More' link in UL to align with the list items */
 .responsive-dotted-list .more-link {
     display: inline-block;
@@ -218,7 +237,7 @@ html, body {
     <!-- Spinner End -->
 
 
-    <div style="height:60px;width:100%;box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px; position: fixed;
+    <div style="height:60px;width:100%;box-shadow: rgba(50, 50, 93, 0.25) 0px 7px 14px -5px, rgba(0, 0, 0, 0.3) 0px 4px 8px -8px; position: ;
     top: 0;
     left: 0;z-index: 1000;background-color: white;
     color: #fff;"  >
@@ -228,7 +247,7 @@ html, body {
    
 
     <!-- Header Start -->
-    <div class=" w-100 py-5 my-6 mt-5" id="navbarCollapse">
+    <div class=" w-100 py-4 my-6 mt-1" id="navbarCollapse">
         <div class="container">
             <div class="row g-1 align-items-center ">
                 {% comment %} hotel profile data  {% endcomment %}
@@ -344,6 +363,75 @@ html, body {
                      </div>
                 </div>
              
+
+
+                <div class="shadow rounded p-3 mt-4">
+                    {% if pptdescription %}
+                      <p style="font-size:13px">{{ pptdescription.description }}</p>
+                    {% endif %}
+                  
+                    <div class="amenities-wrapper position-relative">
+                      <div class="amenities-list" id="amenities-list-{{ forloop.counter }}">
+                        {% for ame in aminities %}
+                          <span class="amenity-item">✔ {{ ame.description }}</span>
+                        {% endfor %}
+                      </div>
+                      <button class="btn btn-link p-0 mt-2 d-none" id="more-btn-{{ forloop.counter }}" onclick="toggleAmenities(this)">
+                        Show More
+                      </button>
+                    </div>
+                  </div>
+            <style>
+                .amenities-list {
+                    display: flex;
+                    flex-wrap: wrap;
+                    max-height: 2.5em; /* ~2 lines */
+                    overflow: hidden;
+                    transition: max-height 0.3s ease;
+                  }
+                  
+                  .amenities-list.expanded {
+                    max-height: none;
+                  }
+                  
+                  .amenity-item {
+                    background-color: #f8f9fa;
+                    padding: 5px 10px;
+                    margin: 5px;
+                    border-radius: 20px;
+                    font-size: 14px;
+                    white-space: nowrap;
+                  }
+                  
+                  #more-btn {
+                    font-size: 14px;
+                  }
+                  
+            </style>           
+            <script>
+                function toggleAmenities(button) {
+                  const wrapper = button.closest(".amenities-wrapper");
+                  const list = wrapper.querySelector(".amenities-list");
+              
+                  list.classList.toggle("expanded");
+                  button.textContent = list.classList.contains("expanded") ? "Show Less" : "Show More";
+                }
+              
+                // Auto-show "More" button if content overflows
+                document.querySelectorAll(".amenities-wrapper").forEach(wrapper => {
+                  const list = wrapper.querySelector(".amenities-list");
+                  const button = wrapper.querySelector("button");
+              
+                  if (list.scrollHeight > list.clientHeight) {
+                    button.classList.remove("d-none");
+                  }
+                });
+              </script>
+                     
+
+
+
+
             <h5 class="text-gray  m-1  py-4"style="color:gray"   id="target-div">Choose your rooms</h5>
           
 
@@ -362,15 +450,16 @@ html, body {
             </div>
             
             <h5 class="text-gray m-3">{{ room.category_name }}</h5>
-            {%if forloop.counter == 1 %}
-            
+           
+
             <ul class="responsive-dotted-list ps-3 pt-0">
-                {%for ame in aminities%}
-                <li class="expandable-item">{{ame.description}}</li>
-                {%endfor%}
+                {% for service in roomserviceloop %}
+                  {% if service.category.id == room.id %}
+                    <li class="expandable-item">{{ service.service }}</li>
+                  {% endif %}
+                {% endfor %}
                 <a href="#" class="more-link text-primary">More</a>
-            </ul>
-            {%endif%}
+              </ul>
             
             <p class="text ms-3 m-1"><span class="text-danger">*</span>Hurry, Only {{ room.available_rooms }} Rooms Left!</p>
     
@@ -699,7 +788,7 @@ html, body {
 
 
 <!-- Bottom Cart View -->
-<div id="bottom-cart-view" class="fixed-bottom d-none px-3 py-2" style="height: auto; background: white; border-radius: 12px 12px 0 0; color: white; box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.2);">
+{% comment %} <div id="bottom-cart-view" class="fixed-bottom d-none px-3 py-2" style="height: auto; background: white; border-radius: 12px 12px 0 0; color: white; box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.2);">
     <div class="d-flex justify-content-between align-items-center">
         <div>
             <h6>Total: ₹<span id="fixed-total-price">0</span></h6>
@@ -707,8 +796,36 @@ html, body {
         </div>
         <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#cartModal" style="font-size: 16px;">View Cart</button>
     </div>
+</div> {% endcomment %}
+
+<div id="bottom-cart-view" class="fixed-bottom d-none px-3 py-2"
+     style="height: auto; background: white; border-radius: 12px 12px 0 0; color: white; box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.2); display: none;">
+  <div class="d-flex justify-content-between align-items-center">
+    <div>
+      <h6>Total: ₹<span id="fixed-total-price">0</span></h6>
+      <h6>Add-Rooms: <span id="total-rooms">0</span></h6>
+    </div>
+    <button class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#cartModal" style="font-size: 16px;">View Cart</button>
+  </div>
 </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const cartView = document.getElementById('bottom-cart-view');
+  
+      function toggleCartView() {
+        if (window.scrollY > 650) {
+          cartView.style.display = 'block';
+        } else {
+          cartView.style.display = 'none';
+        }
+      }
+  
+      // Trigger only on scroll
+      window.addEventListener('scroll', toggleCartView);
+    });
+  </script>
+  
 
 <script>
     const cart = {}; // Holds the cart items
@@ -1174,3 +1291,68 @@ function updateSecondCarousel(id) {
 
 
 
+             <script>
+                document.addEventListener('contextmenu', e => e.preventDefault());
+                document.onkeydown = function(e) {
+                  // F12, Ctrl+Shift+I/J/C, Ctrl+U
+                  if (
+                    e.keyCode == 123 || 
+                    (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || 
+                    (e.ctrlKey && e.keyCode == 85)
+                  ) {
+                    return false;
+                  }
+                };
+              </script>
+              
+
+
+
+
+              <!-- Floating Chat Icon -->
+               {%if chatwhatsaap%}
+               <a href="{{ chatwhatsaap.link }}" target="_blank" rel="noopener noreferrer">
+                <div id="chat-icon">
+                    <i class="fas fa-comments"></i>
+                </div></a>
+                {%endif%}
+
+<style>
+    #chat-icon {
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        background-color:rgb(255, 255, 255);
+        color: rgb(118, 123, 129);
+        border-radius: 50%;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        cursor: pointer;
+        animation: bounce 2s infinite;
+        transition: background-color 0.3s;
+      }
+      
+      #chat-icon:hover {
+        background-color:rgb(246, 236, 250);
+      }
+      
+      #chat-icon i {
+        font-size: 20px;
+      }
+      
+      /* Bounce Animation */
+      @keyframes bounce {
+        0%, 100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-6px);
+        }
+      }
+      
+</style>  

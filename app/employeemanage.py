@@ -2132,6 +2132,9 @@ def mobileview(request, user):
             aminities = beaminities.objects.filter(vendor__username=user)
             prfmcdata = becallemail.objects.filter(vendor__username=user)
             cpolicy = cancellationpolicy.objects.filter(vendor__username=user).last()
+            pptdescription = property_description.objects.filter(vendor__username=user).last()
+            roomserviceloop = room_services.objects.filter(vendor__username=user)
+            chatwhatsaap = whatsaap_link.objects.filter(vendor__username=user).first()
             return render(request, 'website.html', {
                 'aminities':aminities,
                 'prfmcdata':prfmcdata,
@@ -2152,7 +2155,10 @@ def mobileview(request, user):
                 'user':users.id,
                 'terms_lines':terms_lines,
                 'cpolicy':cpolicy,
-                'default':default
+                'default':default,
+                'pptdescription':pptdescription,
+                'roomserviceloop':roomserviceloop,
+                'chatwhatsaap':chatwhatsaap
             })
         
         else:
@@ -2289,6 +2295,9 @@ def searchwebsitedata(request):
             aminities = beaminities.objects.filter(vendor__username=user)
             prfmcdata = becallemail.objects.filter(vendor__username=user)
             cpolicy = cancellationpolicy.objects.filter(vendor__username=user).last()
+            pptdescription = property_description.objects.filter(vendor__username=user).last()
+            roomserviceloop = room_services.objects.filter(vendor__username=user)
+            chatwhatsaap = whatsaap_link.objects.filter(vendor__username=user).first()
             return render(request, 'website.html', {
                 'aminities':aminities,
                 'prfmcdata':prfmcdata,
@@ -2308,7 +2317,10 @@ def searchwebsitedata(request):
                 'user': users.id,
                 'terms_lines':terms_lines,
                 'cpolicy':cpolicy,
-                'default':default
+                'default':default,
+                'pptdescription':pptdescription,
+                'roomserviceloop':roomserviceloop,
+                'chatwhatsaap':chatwhatsaap
             })
         else:
             return render(request, '404.html', {'error_message': 'Opps Session Expired Please Go Back And Check!'}, status=500)

@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.conf import settings
 import urllib.parse
 from django.urls import reverse
+from collections import defaultdict
 
 def travelagancy(request):
     try:
@@ -610,3 +611,324 @@ def searchmonthbookingagent(request):
         
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)
+    
+
+def updatepptdesc(request):
+    try:
+        if request.user.is_authenticated and request.method=="POST":
+            user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            description = request.POST.get('description')
+            if property_description.objects.filter(vendor=user).exists():
+                property_description.objects.filter(vendor=user).update(
+                     description =description
+                 )
+            else:
+                property_description.objects.create(vendor=user,
+                     description =description
+                 )
+                
+            messages.success(request,'Description update Sucesfully! ')
+            return redirect('websettings')
+        else:
+            return redirect('loginpage')           
+
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+    
+
+def addcatservice(request):
+    try:
+        if request.user.is_authenticated and request.method=="POST":
+            user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            roomcatids = request.POST.get('roomcatids')
+            servicenamecat = request.POST.get('servicenamecat')
+            if RoomsCategory.objects.filter(vendor=user,id=roomcatids).exists():
+                categoryid = RoomsCategory.objects.get(vendor=user,id=roomcatids)
+                if room_services.objects.filter(vendor=user,category=categoryid,service=servicenamecat).exists():
+                    messages.error(request,'Already Exists! ')
+                else:
+                    room_services.objects.create(vendor=user,category=categoryid,service=servicenamecat)
+                    
+                    messages.success(request,'Service Created Sucesfully! ')
+            else:
+                messages.error(request,'Category Id Not Found! ')
+            return redirect('websettings')
+        else:
+            return redirect('loginpage')           
+
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+    
+def deletecatservice(request,id):
+    try:
+        if request.user.is_authenticated :
+            user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            
+            if room_services.objects.filter(vendor=user,id=id).exists():
+                room_services.objects.filter(vendor=user,id=id).delete()
+                messages.success(request,'Service Deleted Sucesfully! ')
+            else:
+                messages.error(request,' Id Not Found! ')
+
+            return redirect('websettings')  
+        else:
+            return redirect('loginpage')           
+
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+    
+
+def whatsaapchat(request):
+    try:
+        if request.user.is_authenticated and request.method=="POST":
+            user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            whatsapurl = request.POST.get('whatsapurl')
+            if whatsaap_link.objects.filter(vendor=user).exists():
+                whatsaap_link.objects.filter(vendor=user).update(
+                     link =whatsapurl
+                 )
+            else:
+                whatsaap_link.objects.create(vendor=user,
+                     link =whatsapurl
+                 )
+            messages.success(request,'Updated! ')
+            return redirect('websettings')
+        else:
+            return redirect('loginpage')           
+
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+
+
+def deletewhatsapchat(request,id):
+    try:
+        if request.user.is_authenticated :
+            user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            
+            if whatsaap_link.objects.filter(vendor=user,id=id).exists():
+                whatsaap_link.objects.filter(vendor=user,id=id).delete()
+                messages.success(request,'Service Deleted Sucesfully! ')
+            else:
+                messages.error(request,' Id Not Found! ')
+
+            return redirect('websettings')  
+        else:
+            return redirect('loginpage')           
+
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+    
+
+def ota_Commission(request):
+    try:
+        if not request.user.is_authenticated:
+            return render(request, 'login.html')
+
+        user = request.user
+        subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+        if subuser:
+            user = subuser.vendor
+
+        start_date_str = request.GET.get('start_date')
+        end_date_str = request.GET.get('end_date')
+        filter_type = request.GET.get('filter_type', 'checkin')
+
+        today = datetime.today().date()
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date() if start_date_str else today
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else today
+
+        filter_field = {
+            'checkin': 'bookingdate',
+            'booking': 'checkin',
+            'checkout': 'checkoutdate'
+        }.get(filter_type, 'bookingdate')
+
+        filter_range = {f"roombook__{filter_field}__range": (start_date, end_date)}
+
+        commissions = tds_comm_model.objects.filter(
+            roombook__channal__isnull=False,
+            **filter_range
+        ).exclude(roombook__action='cancel').select_related('roombook__channal')
+
+        data = {}
+
+        for comm in commissions:
+            booking = comm.roombook
+            channel = booking.channal.channalname
+
+            if channel not in data:
+                data[channel] = {'revenue': 0.0, 'commission': 0.0, 'rns': 0}
+
+            data[channel]['revenue'] += booking.amount_before_tax or 0.0
+            data[channel]['commission'] += comm.commission or 0.0
+            data[channel]['rns'] += 1
+
+        final_data = []
+        total_rns = total_revenue = total_commission = 0.0
+
+        for ch, values in data.items():
+            revenue = values['revenue']
+            commission = values['commission']
+            rns = values['rns']
+            commission_percent = round((commission / revenue) * 100, 2) if revenue > 0 else 0.0
+
+            final_data.append({
+                'channel': ch,
+                'rns': rns,
+                'revenue': round(revenue, 2),
+                'commission': round(commission, 2),
+                'commission_percent': commission_percent
+            })
+
+            total_rns += rns
+            total_revenue += revenue
+            total_commission += commission
+
+        avg_comm_percent = round((total_commission / total_revenue) * 100, 2) if total_revenue > 0 else 0.0
+
+        context = {
+            'active_page': 'ota_Commission',
+            'channel_data': final_data,
+            'total_rns': total_rns,
+            'total_revenue': round(total_revenue, 2),
+            'total_commission': round(total_commission, 2),
+            'avg_comm_percent': avg_comm_percent,
+            'start_date': start_date.strftime('%Y-%m-%d'),
+            'end_date': end_date.strftime('%Y-%m-%d'),
+            'filter_type': filter_type
+        }
+
+        return render(request, 'otacommisioon.html', context)
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+    
+
+
+# def formo_view(request):
+#     # Get the booking_id from the query parameter 'extra_param'
+#     booking_id = request.GET.get('cd')
+#     # If booking_id is not provided, return an error message
+#     if not booking_id:
+#         return HttpResponse("Error: Missing booking_id.")
+
+#     # Fetch the booking data using the booking_id
+#     advancebookdata = SaveAdvanceBookGuestData.objects.filter(id=booking_id)
+#     for i in advancebookdata:
+#         vid = i.vendor.id
+
+#     advancebookingmain = SaveAdvanceBookGuestData.objects.get(id=booking_id)
+#     advancebookingdatas = RoomBookAdvance.objects.filter(saveguestdata_id=booking_id)
+#     profiledata = HotelProfile.objects.filter(vendor_id=vid)
+#     hoteldatas = HotelProfile.objects.get(vendor_id=vid)
+#     invcpayments = InvoicesPayment.objects.filter(advancebook=advancebookingmain)
+#     terms_lines = hoteldatas.termscondition.splitlines() if hoteldatas else []
+#     if hoteldatas.gstin == "UNREGISTERED":
+#         gststatus = False
+#     else:
+#         gststatus = True
+#     # gststatus = False
+#     print(gststatus)
+#     # Return the template with the booking data and query parameter
+#     return render(request, 'booking_fromo_recipt.html', {
+#         'advancebookdata': advancebookdata,
+#         'advancebookingdatas': advancebookingdatas,
+#         'profiledata': profiledata,
+#         'terms_lines': terms_lines,
+#         'hoteldatas':hoteldatas,
+#         'booking_id': booking_id,  # Pass booking_id to the template if needed
+#         'gststatus':gststatus,
+#         'advancebookingmain':advancebookingmain,
+#         'invcpayments':invcpayments,
+#     })
+
+    
+
+
+def formo_view(request):
+    booking_id = request.GET.get('cd')
+    if not booking_id:
+        return HttpResponse("Error: Missing booking_id.")
+
+    advancebookdata = SaveAdvanceBookGuestData.objects.filter(id=booking_id)
+    for i in advancebookdata:
+        vid = i.vendor.id
+
+    advancebookingmain = SaveAdvanceBookGuestData.objects.get(id=booking_id)
+    advancebookingdatas = RoomBookAdvance.objects.filter(saveguestdata_id=booking_id)
+    profiledata = HotelProfile.objects.filter(vendor_id=vid)
+    hoteldatas = HotelProfile.objects.get(vendor_id=vid)
+    invcpayments = InvoicesPayment.objects.filter(advancebook=advancebookingmain)
+    terms_lines = hoteldatas.termscondition.splitlines() if hoteldatas else []
+
+    gststatus = hoteldatas.gstin != "UNREGISTERED"
+    print(gststatus)
+
+    # ✅ Group rooms by category_name
+    grouped_room_data = defaultdict(lambda: {'sell_rate': 0.0, 'count': 0})
+    for item in advancebookingdatas:
+        room_type = item.roomno.room_type.category_name
+        grouped_room_data[room_type]['sell_rate'] = item.sell_rate  # Assuming same rate for same room type
+        grouped_room_data[room_type]['count'] += 1
+
+    grouped_room_data = grouped_room_data.items()
+
+    return render(request, 'booking_fromo_recipt.html', {
+        'advancebookdata': advancebookdata,
+        'advancebookingdatas': advancebookingdatas,
+        'profiledata': profiledata,
+        'terms_lines': terms_lines,
+        'hoteldatas': hoteldatas,
+        'booking_id': booking_id,
+        'gststatus': gststatus,
+        'advancebookingmain': advancebookingmain,
+        'invcpayments': invcpayments,
+        'grouped_room_data': grouped_room_data,  # ✅ Pass grouped data to template
+    })
+
+    
+
+def sync_inventory(request):
+    try:
+        if request.user.is_authenticated :
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor
+            rinvdata = RoomsInventory.objects.filter(vendor=user).order_by('-date').first() 
+
+            if rinvdata:
+                start_date = datetime.now().date()
+                end_date = rinvdata.date
+                start_date=str(start_date)
+                end_date = str(end_date)
+                # Start the long-running task in a separate thread
+                thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
+                thread.start()
+                
+                # Add a success message
+                messages.success(request, "Inventory sync has been started successfully.") 
+                bulklogs.objects.create(vendor=user,by=request.user,action="sync inventory",
+                        description=f"Inventory Update From {start_date} to {end_date} ")
+                return redirect('inventory_view') 
+            else:
+                rinvdata=None
+            return redirect('inventory_view')
+        return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+    

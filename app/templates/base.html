@@ -32,6 +32,9 @@
       rel="stylesheet"
     />
 
+    <!-- Font Awesome 6 Free CDN -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
     <!-- Icons. Uncomment required icon fonts -->
     <link rel="stylesheet" href="{% static 'undercss/assets/vendor/fonts/boxicons.css'%}" />
 
@@ -625,7 +628,7 @@
             {% if request.session.permissions.pdt %}
             <li class="menu-item text-uppercase {% if active_page == 'priceshow_new' %}active{% endif %} ">
               <a href="{% url 'priceshow_new'  %}" class="menu-link">
-                ₹ &nbsp;
+                <i class="fa-solid fa-indian-rupee-sign ms-1"></i> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <div data-i18n="Analytics">rate updates</div>
               </a>
             </li>
@@ -637,6 +640,15 @@
               <a href="{% url 'inventory_view'  %}" class="menu-link">
                 <i class='menu-icon bx bx-unite'></i>
                 <div data-i18n="Analytics">Inventory updates</div>
+              </a>
+            </li>
+            {%endif%}
+
+            {% if request.session.permissions.pdt %}
+            <li class="menu-item text-uppercase {% if active_page == 'ota_Commission' %}active{% endif %} ">
+              <a href="{% url 'ota_Commission'  %}" class="menu-link">
+                <i class="fa-solid fa-coins ms-1"></i>&nbsp;&nbsp;&nbsp;&nbsp;
+                <div data-i18n="Analytics">OTA Commission</div>
               </a>
             </li>
             {%endif%}

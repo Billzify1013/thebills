@@ -474,7 +474,20 @@ urlpatterns = [
     path('change_date_inventory/', daterangeprice.change_date_inventory, name='change_date_inventory'),
     path('save_inventory_new/', daterangeprice.save_inventory_new, name='save_inventory_new'),
 
+    # new work here 
+    path('updatepptdesc/', travelagancy.updatepptdesc, name='updatepptdesc'),
+    path('addcatservice/', travelagancy.addcatservice, name='addcatservice'),
+    path('deletecatservice/<int:id>/', travelagancy.deletecatservice, name='deletecatservice'),
+    path('whatsaapchat/', travelagancy.whatsaapchat, name='whatsaapchat'),
+    path('deletewhatsapchat/<int:id>/', travelagancy.deletewhatsapchat, name='deletewhatsapchat'),
 
+
+    # ota commission
+    path('ota_Commission/', travelagancy.ota_Commission, name='ota_Commission'),
+
+    path('formo_view/', travelagancy.formo_view, name='formo_view'),
+    path('sync_inventory/', travelagancy.sync_inventory, name='sync_inventory'),
+    
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
