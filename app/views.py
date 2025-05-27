@@ -154,8 +154,49 @@ def index(request):
             total_cash_expense = expenseCash.objects.filter(vendor=user
                     ,date_time__year=current_year).aggregate(less_amount=Sum('less_amount'))['less_amount'] or 0
 
-            totalsalaryexcludedeductions = totalsalaryexcludedeductions - total_cash_expense - total_purches_settled
+            # totalsalaryexcludedeductions = totalsalaryexcludedeductions - total_cash_expense - total_purches_settled
             # Pass data to the template
+
+            # commisiion data calculations
+            check_invoices = Invoice.objects.filter(
+                    vendor=user,
+                    invoice_date__year=current_year
+                ).exclude(customer__saveguestid=None)
+
+            # Step 2: Extract guest IDs from each invoice
+            book_ids = [
+                    invoice.customer.saveguestid
+                    for invoice in check_invoices
+                    if hasattr(invoice.customer, 'saveguestid')
+                ]
+
+            print("Filtered Guest IDs from Invoices:", book_ids)
+
+            # ✅ Step 3: Correct filtering (no nested list)
+            commmodel = tds_comm_model.objects.filter(
+                    roombook__id__in=book_ids
+                )
+
+            totals = commmodel.aggregate(
+                    total_commission=Sum('commission'),
+                    total_tds=Sum('tds'),
+                    total_tcs=Sum('tcs')
+                )
+            totals = {
+                    'total_commission': totals['total_commission'] or 0,
+                    'total_tds': totals['total_tds'] or 0,
+                    'total_tcs': totals['total_tcs'] or 0,
+                }
+            # Print totals
+            print("Total Commission:", totals['total_commission'] or 0)
+            print("Total TDS:", totals['total_tds'] or 0)
+            print("Total TCS:", totals['total_tcs'] or 0)
+
+            print("Commission Models Found:", commmodel)
+            total_deduct_balace = totaltax + totalsalaryexpance  + total_cash_expense  + total_purches_settled + int(totals['total_commission']) + int(totals['total_tds']) + int(totals['total_tcs'])
+            
+            totalsalaryexcludedeductions = totalsalaryexcludedeductions - total_cash_expense - total_purches_settled - int(totals['total_commission']) - int(totals['total_tds']) - int(totals['total_tcs'])
+            print(total_deduct_balace,'check this')
             return render(request, 'index.html', {
                 'subtotalsale': subtotalsale,
                 'active_page': 'index',
@@ -170,6 +211,7 @@ def index(request):
                 'current_year': current_year,
                 'total_purches_settled':total_purches_settled,
                 'total_cash_expense':total_cash_expense,
+                'totals':totals,'total_deduct_balace':total_deduct_balace
             })
         else:
             return render(request, 'login.html')
@@ -4398,7 +4440,7 @@ def advancebookingdetails(request,id):
             roomdata = RoomBookAdvance.objects.filter(vendor=user,saveguestdata=id).all()
             bookdatesdata = bookpricesdates.objects.filter(roombook__saveguestdata__id=id).all()
             tdscomm = tds_comm_model.objects.filter(roombook_id=id).first()
-            print(tdscomm)
+
             advancepayment = InvoicesPayment.objects.filter(vendor=user,advancebook_id=id).all()
             return render(request,'advancebookingdetailspage.html',{'roomdata':roomdata,'guestdata':guestdata,'active_page': 'advancebookhistory',
                         'tdscomm':tdscomm,'advancepayment':advancepayment,'bookdatesdata':bookdatesdata})
@@ -5398,8 +5440,51 @@ def changeindexyear(request):
             total_cash_expense = expenseCash.objects.filter(vendor=user
                     ,date_time__year=selected_year).aggregate(less_amount=Sum('less_amount'))['less_amount'] or 0
 
-            totalsalaryexcludedeductions = totalsalaryexcludedeductions - total_cash_expense - total_purches_settled
+            # totalsalaryexcludedeductions = totalsalaryexcludedeductions - total_cash_expense - total_purches_settled
 
+            # commisiion data calculations
+            check_invoices = Invoice.objects.filter(
+                    vendor=user,
+                    invoice_date__year=selected_year
+                ).exclude(customer__saveguestid=None)
+
+            # Step 2: Extract guest IDs from each invoice
+            book_ids = [
+                    invoice.customer.saveguestid
+                    for invoice in check_invoices
+                    if hasattr(invoice.customer, 'saveguestid')
+                ]
+
+            print("Filtered Guest IDs from Invoices:", book_ids)
+
+            # ✅ Step 3: Correct filtering (no nested list)
+            commmodel = tds_comm_model.objects.filter(
+                    roombook__id__in=book_ids
+                )
+
+            totals = commmodel.aggregate(
+                    total_commission=Sum('commission') or 0,
+                    total_tds=Sum('tds') or 0,
+                    total_tcs=Sum('tcs') or 0
+                )
+
+            totals = {
+                    'total_commission': totals['total_commission'] or 0,
+                    'total_tds': totals['total_tds'] or 0,
+                    'total_tcs': totals['total_tcs'] or 0,
+                }
+
+
+            # Print totals
+            print("Total Commission:", totals['total_commission'] or 0)
+            print("Total TDS:", totals['total_tds'] or 0)
+            print("Total TCS:", totals['total_tcs'] or 0)
+
+            print("Commission Models Found:", commmodel)
+            total_deduct_balace = totaltax + totalsalaryexpance  + total_cash_expense  + total_purches_settled + int(totals['total_commission']) + int(totals['total_tds']) + int(totals['total_tcs'])
+            
+            totalsalaryexcludedeductions = totalsalaryexcludedeductions - total_cash_expense - total_purches_settled - int(totals['total_commission']) - int(totals['total_tds']) - int(totals['total_tcs'])
+            print(total_deduct_balace,'check this')
             return render(request, 'index.html', {
                 'subtotalsale': subtotalsale,
                 'totaltax': totaltax,
@@ -5413,6 +5498,7 @@ def changeindexyear(request):
                 'current_year': selected_year,
                 'total_purches_settled':total_purches_settled,
                 'total_cash_expense':total_cash_expense,
+                'totals':totals,'total_deduct_balace':total_deduct_balace
             })
         else:
             return render(request, 'login.html')

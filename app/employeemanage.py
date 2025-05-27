@@ -1804,7 +1804,43 @@ def finddatevisesales(request):
                 total_count = payments.count()
 
                 
-                
+                check_invoices = Invoice.objects.filter(
+                    vendor=user,
+                    invoice_date__range=[startdate, enddate]
+                ).exclude(customer__saveguestid=None)
+
+                # Step 2: Extract guest IDs from each invoice
+                book_ids = [
+                    invoice.customer.saveguestid
+                    for invoice in check_invoices
+                    if hasattr(invoice.customer, 'saveguestid')
+                ]
+
+                print("Filtered Guest IDs from Invoices:", book_ids)
+
+                # ✅ Step 3: Correct filtering (no nested list)
+                commmodel = tds_comm_model.objects.filter(
+                    roombook__id__in=book_ids
+                )
+
+                totals = commmodel.aggregate(
+                    total_commission=Sum('commission'),
+                    total_tds=Sum('tds'),
+                    total_tcs=Sum('tcs')
+                )
+
+                totals = {
+                    'total_commission': totals['total_commission'] or 0,
+                    'total_tds': totals['total_tds'] or 0,
+                    'total_tcs': totals['total_tcs'] or 0,
+                }
+
+                # Print totals
+                print("Total Commission:", totals['total_commission'] or 0)
+                print("Total TDS:", totals['total_tds'] or 0)
+                print("Total TCS:", totals['total_tcs'] or 0)
+
+                print("Commission Models Found:", commmodel)                
 
                 return render(request,'datewisesale.html',{'active_page':'index','sattle_total_amount':sattle_total_amount,
                                                     'channel_data': channel_data,
@@ -1814,7 +1850,7 @@ def finddatevisesales(request):
                                                     'mode_summary': mode_summary,
                                                     'total_amount': total_amount,
                                                     'total_count': total_count,
-                                                    'arr':arr,'taxes':taxes,
+                                                    'arr':arr,'taxes':taxes,'totals':totals,
                                                     'booksdatacount':booksdatacount,'Occupancy':Occupancy,
                                                     'total_invoices_count': total_invoices_count,'total_cash_amount':total_cash_amount,'total_online_amount':total_online_amount,'grand_total_amount':grand_total_amount,'startdate':startdate,'enddate':enddate,'folio_total_amount':folio_total_amount,'total_gst_amount':total_gst_amount})
             else:
@@ -1960,7 +1996,7 @@ def todaysales(request):
                 total_online_amount = float(online_amount_sum['total_online_amount'])
                 
                 
-            # Query to get the data with totals for each channel
+                # Query to get the data with totals for each channel
                 # Query to get the data with totals for each channel
                 channel_data = Invoice.objects.filter(
                     vendor=user,
@@ -2012,7 +2048,43 @@ def todaysales(request):
                 total_amount = payments.aggregate(Sum('payment_amount'))['payment_amount__sum'] or 0.00
                 total_count = payments.count()
 
-                
+                check_invoices = Invoice.objects.filter(
+                    vendor=user,
+                    invoice_date__range=[startdate, enddate]
+                ).exclude(customer__saveguestid=None)
+
+                # Step 2: Extract guest IDs from each invoice
+                book_ids = [
+                    invoice.customer.saveguestid
+                    for invoice in check_invoices
+                    if hasattr(invoice.customer, 'saveguestid')
+                ]
+
+                print("Filtered Guest IDs from Invoices:", book_ids)
+
+                # ✅ Step 3: Correct filtering (no nested list)
+                commmodel = tds_comm_model.objects.filter(
+                    roombook__id__in=book_ids
+                )
+
+                totals = commmodel.aggregate(
+                    total_commission=Sum('commission'),
+                    total_tds=Sum('tds'),
+                    total_tcs=Sum('tcs')
+                )
+
+                totals = {
+                    'total_commission': totals['total_commission'] or 0,
+                    'total_tds': totals['total_tds'] or 0,
+                    'total_tcs': totals['total_tcs'] or 0,
+                }
+
+                # Print totals
+                print("Total Commission:", totals['total_commission'] or 0)
+                print("Total TDS:", totals['total_tds'] or 0)
+                print("Total TCS:", totals['total_tcs'] or 0)
+
+                print("Commission Models Found:", commmodel)
                 return render(request,'datewisesale.html',{'active_page':'todaysales','sattle_total_amount':sattle_total_amount,
                                                     'channel_data': channel_data,
                                                     'total_grand_total_sum': total_grand_total_sum,
@@ -2022,6 +2094,8 @@ def todaysales(request):
                                                     'total_amount': total_amount,
                                                     'total_count': total_count,
                                                     'arr':arr,'taxes':taxes,
+                                                    'check_invoices':check_invoices,
+                                                    'totals':totals,
                                                     'booksdatacount':booksdatacount,'Occupancy':Occupancy,
                                                     'total_invoices_count': total_invoices_count,'total_cash_amount':total_cash_amount,'total_online_amount':total_online_amount,'grand_total_amount':grand_total_amount,'startdate':startdate,'enddate':enddate,'folio_total_amount':folio_total_amount,'total_gst_amount':total_gst_amount})
             else:

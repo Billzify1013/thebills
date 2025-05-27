@@ -933,3 +933,192 @@ def sync_inventory(request):
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)
     
+
+def edittotalbookingamount(request):
+    try:
+        if request.user.is_authenticated and request.method=="POST":
+            user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            total_amount = request.POST.get('total_amount')
+            bid = request.POST.get('id')
+            print(total_amount)
+            if SaveAdvanceBookGuestData.objects.filter(vendor=user,id=bid).exists():
+                main_guest = SaveAdvanceBookGuestData.objects.get(vendor=user,id=bid)
+                all_rooms = RoomBookAdvance.objects.filter(vendor=user,saveguestdata=main_guest)
+                rooms_count = all_rooms.count()
+                total_amount = float(total_amount)
+                if main_guest.amount_after_tax == total_amount:
+                    messages.error(request,'Old and new amount is equal')
+                from decimal import Decimal, ROUND_HALF_UP
+                check_total_amount =total_amount
+                check_old_totalamount = main_guest.amount_after_tax
+                if main_guest.amount_after_tax != total_amount:
+                    total_amount = Decimal(str(total_amount))
+                    stay_days = Decimal(main_guest.staydays)
+                    rooms = list(all_rooms)
+                    room_count = len(rooms)
+
+                    # ✅ Step 1: Sort rooms by sell_rate descending
+                    rooms.sort(key=lambda r: Decimal(str(r.sell_rate)), reverse=True)
+
+                    # ✅ Step 2: Per day total amount (with tax)
+                    total_per_day = (total_amount / stay_days).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+                    # ✅ Step 3: Calculate weights for room allocation
+                    weights = []
+                    total_weight = Decimal('0.00')
+                    for r in rooms:
+                        w = Decimal(str(r.sell_rate)) * stay_days
+                        weights.append(w)
+                        total_weight += w
+
+                    room_data = []
+                    tax_total = Decimal('0.00')
+                    base_total = Decimal('0.00')
+
+                    for i, r in enumerate(rooms):
+                        proportion = weights[i] / total_weight if total_weight > 0 else Decimal('1') / room_count
+                        room_amount_with_tax = (total_per_day * proportion).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+                        # ✅ GST slab selection based on room sell rate
+                        estimated_base = (room_amount_with_tax / Decimal('1.12')).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+                        if estimated_base <= 7500:
+                            gst_percent = Decimal('12')
+                            gst_multiplier = Decimal('1.12')
+                            base = estimated_base
+                        else:
+                            gst_percent = Decimal('18')
+                            gst_multiplier = Decimal('1.18')
+                            base = (room_amount_with_tax / gst_multiplier).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+                        tax = (room_amount_with_tax - base).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+                        room_data.append({
+                            'room': r,
+                            'base': base,
+                            'tax': tax,
+                            'gst_percent': gst_percent,
+                            'amount_with_tax': room_amount_with_tax
+                        })
+                        base_total += base
+                        tax_total += tax
+
+                    # ✅ Step 4: Fix rounding difference on last room
+                    final_total = base_total + tax_total
+                    difference = total_per_day - final_total
+                    if abs(difference) >= Decimal('0.01'):
+                        last = room_data[-1]
+                        last['base'] = (last['base'] + difference).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                        last['tax'] = (last['base'] * (last['gst_percent'] / Decimal('100'))).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+                    # ✅ Step 5: Save values to DB
+                    total_base_sum = Decimal('0.00')
+                    total_tax_sum = Decimal('0.00')
+                    for d in room_data:
+                        room = d['room']
+                        room.sell_rate = float(d['base'])  # base rate per day
+                        room.save()
+                        total_base_sum += d['base']
+                        total_tax_sum += d['tax']
+
+                    main_guest.amount_before_tax = float((total_base_sum * stay_days).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+                    main_guest.tax = float((total_tax_sum * stay_days).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP))
+                    main_guest.amount_after_tax = float(total_amount)
+                    main_guest.total_amount = int(total_amount)
+
+                    advance_amount = main_guest.advance_amount
+                    remainamt = check_total_amount - advance_amount
+                    main_guest.reamaining_amount =  remainamt
+                        
+
+                    main_guest.save()
+
+                    Booking.objects.filter(vendor=user, advancebook=main_guest).update(totalamount=int(total_amount))
+                    actionss = 'Change Booking Amount'
+                    CustomGuestLog.objects.create(vendor=user,by=request.user,action=actionss,
+                            advancebook=main_guest,description=f'Booking amount changed from {check_old_totalamount} to {check_total_amount}.')
+
+
+                    extraBookingAmount.objects.filter(vendor=user, bookdata__in=all_rooms).delete()
+                    messages.success(request,'Booking amount changed!')
+            else:
+                messages.error(request,'id not found!')
+            return redirect('advancebookingdetails',bid)
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+    
+
+def editbookingdate(request):
+    
+        if request.user.is_authenticated and request.method=="POST":
+            user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            check_indate_str = request.POST.get('check_indate')
+            check_outdate_str = request.POST.get('check_outdate')
+
+            # Convert strings to date objects
+            check_indate = datetime.strptime(check_indate_str, '%Y-%m-%d').date()
+            check_outdate = datetime.strptime(check_outdate_str, '%Y-%m-%d').date()
+            bid = request.POST.get('id')
+            print(check_indate,check_outdate)
+            if SaveAdvanceBookGuestData.objects.filter(id=bid).exists():
+                main_guest = SaveAdvanceBookGuestData.objects.get(vendor=user,id=bid)
+                if main_guest.checkinstatus == True:
+                    messages.error(request,"The guest has already checked in, so the dates cannot be updated anymore.")
+                else:
+                    if main_guest.bookingdate == check_indate and main_guest.checkoutdate == check_outdate:
+                        messages.error(request,'both dates are same')
+                    elif check_indate == check_outdate:
+                        messages.error(request,'both dates are same')
+                    # else:
+                        # rooms = RoomBookAdvance.objects.filter(vendor=user,saveguestdata=main_guest).all()
+                        # for room in rooms:
+                        #     room_category = room.roomno.room_type
+                        #     Booking.objects.filter(vendor=user,check_in_date__gte=check_indate,check_out_date__gt=check_outdate)
+                        
+
+            return redirect('advancebookingdetails',bid)
+        
+def editcommtdc(request):
+    # try:
+        if request.user.is_authenticated and request.method=="POST":
+            user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            id = request.POST.get('id')
+            commission = request.POST.get('commission')
+            tds = request.POST.get('tds')
+            tcs = request.POST.get('tcs')
+            if tds_comm_model.objects.filter(roombook__id=id).exists():
+                mainguest = SaveAdvanceBookGuestData.objects.get(id=id)
+                tdsdata = tds_comm_model.objects.get(roombook__id=id)
+                tds_comm_model.objects.filter(roombook__id=id).update(
+                    commission=commission,tds=tds,tcs=tcs
+                )
+                actionss = 'Update Commision Amount'
+                CustomGuestLog.objects.create(vendor=user,by=request.user,action=actionss,
+                                advancebook=mainguest,description=f'Booking Commission amount Updates, old commission: {tdsdata.commission}, tds :{tdsdata.tds}, tcs :{tdsdata.tcs}.  new = commission: {commission}, tds :{tcs}, tds :{tcs}.')
+            else:
+                mainguest = SaveAdvanceBookGuestData.objects.get(id=id)
+                tds_comm_model.objects.create(roombook=mainguest,
+                    commission=commission,tds=tds,tcs=tcs
+                )
+                actionss = 'Create Commision Amount'
+                CustomGuestLog.objects.create(vendor=user,by=request.user,action=actionss,
+                                advancebook=mainguest,description=f'Booking Commission amount Created, commission: {commission}, tds :{tds}, tcs :{tcs}.')
+
+            messages.success(request,'data saved!')
+            return redirect('advancebookingdetails',id)
+        else:
+            return render(request, 'login.html')
+    # except Exception as e:
+    #     return render(request, '404.html', {'error_message': str(e)}, status=500)
+    

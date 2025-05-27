@@ -48,6 +48,26 @@
             </tr>
 
             <tr>
+                <td><strong>Total Tax (INR)</strong></td>
+                <td>₹ {{ total_gst_amount|floatformat:2  }}</td>
+            </tr>
+
+            <tr>
+                <td><strong>Total Commission (INR)</strong></td>
+                <td>₹ {{ totals.total_commission|floatformat:2  }}</td>
+            </tr>
+
+            <tr>
+                <td><strong>Total Tds (INR)</strong></td>
+                <td>₹ {{ totals.total_tds|floatformat:2  }}</td>
+            </tr>
+
+            <tr>
+                <td><strong>Total Tcs (INR)</strong></td>
+                <td>₹ {{ totals.total_tcs|floatformat:2  }}</td>
+            </tr>
+
+            <tr>
                 <td><strong>Total </strong></td>
                 <td>₹ {{ completetotal|floatformat:2  }}</td>
             </tr>

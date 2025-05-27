@@ -680,12 +680,61 @@ def hotelpandlrpt(request):
             profit =  float(invc_grand_total) - (float(supplier_grand_total) + float(total_cash_expense) + float(totalsalaryexpance))
             # return redirect('todaysales')
             
+            check_invoices = Invoice.objects.filter(
+                    vendor=user,
+                    invoice_date__range=[startdate, enddate]
+                ).exclude(customer__saveguestid=None)
+
+            # Step 2: Extract guest IDs from each invoice
+            book_ids = [
+                    invoice.customer.saveguestid
+                    for invoice in check_invoices
+                    if hasattr(invoice.customer, 'saveguestid')
+                ]
+
+            print("Filtered Guest IDs from Invoices:", book_ids)
+
+            # ✅ Step 3: Correct filtering (no nested list)
+            commmodel = tds_comm_model.objects.filter(
+                    roombook__id__in=book_ids
+                )
+
+            totals = commmodel.aggregate(
+                    total_commission=Sum('commission'),
+                    total_tds=Sum('tds'),
+                    total_tcs=Sum('tcs')
+                )
             
-            
+            totals = {
+                    'total_commission': totals['total_commission'] or 0,
+                    'total_tds': totals['total_tds'] or 0,
+                    'total_tcs': totals['total_tcs'] or 0,
+                }
+
+            # Print totals
+            print("Total Commission:", totals['total_commission'] or 0)
+            print("Total TDS:", totals['total_tds'] or 0)
+            print("Total TCS:", totals['total_tcs'] or 0)
+
+            print("Commission Models Found:", commmodel)    
+
+            # Aggregate the sum of `gst_amount`
+            gst_amount_sum = Invoice.objects.filter(
+                    vendor=user,
+                    invoice_date__range=[startdate, enddate]
+                ).aggregate(total_gst_amount=Sum('gst_amount'))
+
+            total_gst_amount = float(gst_amount_sum['total_gst_amount'])
+            if total_gst_amount == None:
+                    pass
+            else:
+                    total_gst_amount = total_gst_amount * 2
+
+            profit = profit - totals['total_commission'] - totals['total_tds'] - totals['total_tcs'] - total_gst_amount
             return render(request,'pandlrpt.html',{'startdate':startdate,'enddate':enddate,
                             'invc_grand_total':invc_grand_total,'supplier_grand_total':supplier_grand_total,
                             'total_cash_expense':total_cash_expense,'totalsalaryexpance':totalsalaryexpance,
-                             'completetotal':completetotal,'profit':profit })
+                             'completetotal':completetotal,'profit':profit,'totals':totals,'total_gst_amount':total_gst_amount })
         else:
             return redirect('loginpage')
     except Exception as e:
@@ -695,7 +744,7 @@ def hotelpandlrpt(request):
 
 
 def hotelpandlsearch(request):
-    try:
+    # try:
         if request.user.is_authenticated and request.method=="POST":
             user = request.user
             subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
@@ -737,14 +786,65 @@ def hotelpandlsearch(request):
             
             profit =  float(invc_grand_total) - (float(supplier_grand_total) + float(total_cash_expense) + float(totalsalaryexpance))
             # return redirect('todaysales')
+
+            check_invoices = Invoice.objects.filter(
+                    vendor=user,
+                    invoice_date__range=[startdate, enddate]
+                ).exclude(customer__saveguestid=None)
+
+            # Step 2: Extract guest IDs from each invoice
+            book_ids = [
+                    invoice.customer.saveguestid
+                    for invoice in check_invoices
+                    if hasattr(invoice.customer, 'saveguestid')
+                ]
+
+            print("Filtered Guest IDs from Invoices:", book_ids)
+
+            # ✅ Step 3: Correct filtering (no nested list)
+            commmodel = tds_comm_model.objects.filter(
+                    roombook__id__in=book_ids
+                )
+
+            totals = commmodel.aggregate(
+                    total_commission=Sum('commission'),
+                    total_tds=Sum('tds'),
+                    total_tcs=Sum('tcs')
+                )
+            
+            totals = {
+                    'total_commission': totals['total_commission'] or 0,
+                    'total_tds': totals['total_tds'] or 0,
+                    'total_tcs': totals['total_tcs'] or 0,
+                }
+
+            # Print totals
+            print("Total Commission:", totals['total_commission'] or 0)
+            print("Total TDS:", totals['total_tds'] or 0)
+            print("Total TCS:", totals['total_tcs'] or 0)
+
+            print("Commission Models Found:", commmodel)    
+
+            # Aggregate the sum of `gst_amount`
+            gst_amount_sum = Invoice.objects.filter(
+                    vendor=user,
+                    invoice_date__range=[startdate, enddate]
+                ).aggregate(total_gst_amount=Sum('gst_amount'))
+
+            total_gst_amount = float(gst_amount_sum['total_gst_amount'] or 0)
+            if total_gst_amount == None:
+                    pass
+            else:
+                    total_gst_amount = total_gst_amount * 2
+            profit = profit - totals['total_commission'] - totals['total_tds'] - totals['total_tcs'] - total_gst_amount
             return render(request,'pandlrpt.html',{'startdate':startdate,'enddate':enddate,
                             'invc_grand_total':invc_grand_total,'supplier_grand_total':supplier_grand_total,
                             'total_cash_expense':total_cash_expense,'totalsalaryexpance':totalsalaryexpance,
-                             'completetotal':completetotal,'profit':profit })
+                             'completetotal':completetotal,'profit':profit,'totals':totals,'total_gst_amount':total_gst_amount })
         else:
             return redirect('loginpage')
-    except Exception as e:
-        return render(request, '404.html', {'error_message': str(e)}, status=500)
+    # except Exception as e:
+    #     return render(request, '404.html', {'error_message': str(e)}, status=500)
     
 
 

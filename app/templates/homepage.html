@@ -2,10 +2,22 @@
 {% block content %}
 {% load static %}
     
- 
+<style>
+  /* Scrollable but no scrollbar */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  overflow-y: hidden !important;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+#search-input, textarea, select {
+  font-size: 16px !important;
+}
+</style>
         <!--div body start-->
-        
-                <div class="row">
+                {% comment %} <div class="row ">
                   
                   <div class="col-2 mb-4 ">
                     <div class="card" style="height:126px;">
@@ -167,7 +179,139 @@
               </div>
 
                     
+                </div> {% endcomment %}
+                <!-- SCROLLABLE ROW START -->
+                <div class="overflow-x-auto hide-scrollbar" style="white-space: nowrap;">
+                  <div class="row flex-nowrap gx-3">
+
+                    <div class="col-6 col-md-2 mb-4">
+                      <div class="card" style="height:126px;">
+                        <div class="d-flex align-items-end row">
+                          <div class="col-sm-12">
+                            <div class="card-body">
+                              <h6 class="card-title"> Today Availability</h6>
+                              <div class="row pt-3">
+                                <div class="col-6 mb-1 ">
+                                  <i class='bx bxs-offer bx-md text-success'></i>
+                                </div>
+                                <div class="col-6">
+                                  <h6 class="card-title mt-1 text-center fs-xlarge">{{availablerooms}}</h6>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-6 col-md-2 mb-4">
+                      <div class="card" style="height:126px;">
+                        <div class="col-sm-12">
+                          <div class="card-body">
+                            <h6 class="card-title"> Today Stayover</h6>
+                            <div class="row pt-3">
+                              <div class="col-6 mb-1">
+                                <i class='bx bxs-bed fs-xlarge mt-2 me-5'></i>
+                              </div>
+                              <div class="col-6">
+                                <h6 class="card-title mt-2 text-center fs-xlarge">{{stayover}}</h6>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-6 col-md-2 mb-4">
+                      <div class="card" style="height:126px;">
+                        <div class="d-flex align-items-end row">
+                          <div class="col-sm-12">
+                            <div class="card-body">
+                              <h6 class="card-title"> Today Departure</h6>
+                              <div class="row pt-3">
+                                <div class="col-6 mb-1">
+                                  <i class='bx bxs-plane-take-off bx-md mt-1 mb-1 me-5'></i>
+                                </div>
+                                <div class="col-6">
+                                  <h6 class="card-title mt-2 text-center fs-xlarge">{{checkoutcount}}</h6>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-6 col-md-2 mb-4">
+                      <a href="{% url 'todaybookingpage' %}">
+                        <div class="card" style="height:126px;">
+                          <div class="d-flex align-items-end row">
+                            <div class="col-sm-12">
+                              <div class="card-body">
+                                <h6 class="card-title"> Today Arrivals </h6>
+                                <div class="row ">
+                                  <div class="col-6 mt-3">
+                                    <i class='bx bxs-plane-land bx-md text-gray'></i>
+                                  </div>
+                                  <div class="col-6 mt-3">
+                                    <h6 class="card-title mt-2 text-center fs-xlarge">{{arriwalcount}}</h6>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </a>
+                    </div>
+
+                    <div class="col-6 col-md-2 mb-4">
+                      <a id="filter-clean" style="cursor: pointer;">
+                        <div class="card" style="height:126px;">
+                          <div class="d-flex align-items-end row">
+                            <div class="col-sm-12">
+                              <div class="card-body">
+                                <h6 class="card-title">Total Clean Rooms</h6>
+                                <div class="row pt-3">
+                                  <div class="col-6 mt-2">
+                                    <i class="bi bi-stars fs-4 text-info"></i>
+                                  </div>
+                                  <div class="col-6 mt-0">
+                                    <h6 class="card-title mt-2 text-center fs-xlarge">{{cleanrooms}}</h6>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </a>
+                    </div>
+
+                    <div class="col-6 col-md-2 mb-4">
+                      <a id="filter-unclean" style="cursor: pointer;">
+                        <div class="card" style="height:126px;">
+                          <div class="d-flex align-items-end row">
+                            <div class="col-sm-12">
+                              <div class="card-body">
+                                <h6 class="card-title">Total Unclean <br>Rooms</h6>
+                                <div class="row ">
+                                  <div class="col-6 mt-1">
+                                    <i class="fa fa-broom text-danger fs-4 m-2 float-end"></i>
+                                  </div>
+                                  <div class="col-6 mt-0">
+                                    <h6 class="card-title mt-2 text-center fs-xlarge">{{uncleanrooms}}</h6>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </a>
+                    </div>
+
+                  </div>
                 </div>
+                <!-- SCROLLABLE ROW END -->
+
           
         
                 {% if messages%}
@@ -205,7 +349,7 @@
 <!-- Ensure you have Bootstrap CSS included in the <head> section -->
   <!-- Search Input: Add this at the top of your page, before your room display loop -->
 <div class="row mb-4 mt-4">
-  <div class="col-5 ">
+  <div class="col-8 col-md-5">
       <input type="text" id="search-input" class="form-control" placeholder="Search by room name...">
   </div>
   <div class="col-3 "></div>
@@ -222,6 +366,7 @@
     </a>
   </div> {% endcomment %}
 </div>
+
 
 
 

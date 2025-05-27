@@ -46,7 +46,7 @@
 <div class="row p-3">
     
 
-    <div class="col-6">
+    <div class="col-12 col-md-6 order-2 order-md-1">
         <div class="card p-3">
             <h5 class="text pt-3">Advance Booking Details</h5>
             <p class="text ">
@@ -81,8 +81,8 @@
                 {%for i in roomdata%}
 
                     {{forloop.counter}}<br>
-                    Room {{i.roomno.room_name}}<br>
-                    Room Sell-price {{i.sell_rate|floatformat:2}} (For All Days Exclude Tax)<br>
+                    Room {{i.roomno.room_name}}, {{i.roomno.room_type}}<br>
+                    Room Sell-price {{i.sell_rate|floatformat:2}} (For 1 Day Exclude Tax)<br>
                     Room Meal-Plan {{i.rateplan_code}}<br>
                     Room Rate-Plan {{i.rateplan_code_main}}<br>
                     Adults:{{i.adults}}<br>
@@ -133,12 +133,48 @@
 
 
     </div>
-    <div class="col-6">
+
+    <div class="col-12 col-md-6 order-1 order-md-2">
       
 
       <div class="card shadow-sm p-3 mb-4 rounded-4" style="max-width: 500px;">
-  <h5 class="mb-3"><i class="bi bi-receipt-cutoff"></i> Billing Details</h5>
+  <h5 class="mb-3"><i class="bi bi-receipt-cutoff"></i> Billing Details
   {%for i in guestdata%}
+  <span class="float-end">
+    <button
+            type="button"
+            class="btn  dropdown-toggle hide-arrow me-0 pt-0"
+            data-bs-toggle="dropdown"
+            aria-haspopup="true"
+            aria-expanded="false"
+            
+          >
+          <i class="bx bx-dots-vertical-rounded"></i>
+          </button>
+          <ul class="dropdown-menu">
+
+            <li><a class="dropdown-item" href="{% url 'addpaymenttobooking' booking_id=i.id %}"><i class='bx bxl-paypal'></i>Add-Payment</a>
+            </li>
+            <li><a class="dropdown-item" data-bs-toggle="modal"
+        data-bs-target="#backDropModal"><i class="bx bx-edit-alt me-1"></i>Guest Details</a></li>
+
+            <li><a class="dropdown-item" data-bs-toggle="modal"
+data-bs-target="#backDropModaleditfinalamount"><i class="bx bx-edit-alt me-1"></i>Total Rates</a></li>
+
+        <li><a class="dropdown-item" data-bs-toggle="modal"
+        data-bs-target="#backDropModaleditcommisionamount"><i class="bx bx-edit-alt me-1"></i>Commission</a></li>
+
+{% comment %} <li><a class="dropdown-item" data-bs-toggle="modal"
+data-bs-target="#backDropModaleditfinaldates"><i class="bx bx-edit-alt me-1"></i>Dates</a></li> {% endcomment %}
+            
+            
+            
+            <li><a class="dropdown-item" href="{% url 'showbooklog' id=i.id %}">Logs</a></li>
+            
+          </ul>
+  </span>
+  </h5>
+  
   <ul class="list-group list-group-flush">
     <li class="list-group-item d-flex justify-content-between">
       <span>Base Price</span>
@@ -175,6 +211,10 @@
       <span>₹ <span id="net-profit"></span></span>
     </li>
   </ul>
+  {%if i.channal.channalname == 'agoda'%}
+  <span>In Agoda bookings, TDS, TCS, and commission are all included within the commission amount itself.</span>
+  {%endif%}
+
   {%endfor%}
 </div>
 
@@ -204,7 +244,7 @@
 
 
 
-        <div class="card">
+        <div class="card mb-3">
             <div class="container mt-2 mb-3">
                 <div class="table-responsive">
                     <table class="table table-bordered">
@@ -248,8 +288,7 @@
 
         
 
-        <button class="btn btn-primary  w-25 float-end mt-5 "   data-bs-toggle="modal"
-        data-bs-target="#backDropModal"><i class="bx bx-edit-alt me-1"></i> Edit Details</button>
+
 
     </div>
 </div>
@@ -315,7 +354,7 @@ data-bs-target="#backDropModaleditrooms">..</a>
                   value='{{i.special_requests}}'
                   id="nameBackdrop"
                   class="form-control"
-                  placeholder="Enter max person"
+                  placeholder="Enter Special Request"
                   
                 />
               </div>
@@ -448,11 +487,11 @@ data-bs-target="#backDropModaleditrooms">..</a>
               </div>
 
               <div class="col-6 mb-3">
-                <label for="nameBackdrop" class="form-label">GrandTotal Amount</label>
+                <label for="nameBackdrop" class="form-label">Amount Before Tax</label>
                 <input
-                  type="number"
-                  name="grandtotalamount"
-                  value='{{i.total_amount}}'
+                  type="text"
+                  name="amtbeforetax"
+                  value='{{i.amount_before_tax|floatformat:2}}'
                   id="nameBackdrop"
                   class="form-control"
                   placeholder="Enter max person"
@@ -474,18 +513,23 @@ data-bs-target="#backDropModaleditrooms">..</a>
               </div>
 
 
+              
+
               <div class="col-6 mb-3">
-                <label for="nameBackdrop" class="form-label">Amount Before Tax</label>
+                <label for="nameBackdrop" class="form-label">GrandTotal Amount</label>
                 <input
-                  type="text"
-                  name="amtbeforetax"
-                  value='{{i.amount_before_tax|floatformat:2}}'
+                  type="number"
+                  name="grandtotalamount"
+                  value='{{i.total_amount}}'
                   id="nameBackdrop"
                   class="form-control"
                   placeholder="Enter max person"
                   required
                 />
               </div>
+
+
+             
 
           </div>
           {%endfor%}
@@ -510,7 +554,7 @@ data-bs-target="#backDropModaleditrooms">..</a>
 
 
 <!-- edit Room Details amounts -->
-<div class="modal fade" id="backDropModaleditrooms" data-bs-backdrop="static" tabindex="-1">
+<div class="modal fade " id="backDropModaleditrooms" data-bs-backdrop="static" tabindex="-1">
   <div class="modal-dialog">
       <form action="{% url 'editroomsdata'  %}" method="POST" class="modal-content">
           {% csrf_token %}
@@ -532,17 +576,17 @@ data-bs-target="#backDropModaleditrooms">..</a>
           {%for i in roomdata%}
 
           
-          Room {{i.roomno.room_name}}<br>
-          <input type="hidden" value="{{i.id}}" name="roomid" />
-          <input type="text" value='{{i.sell_rate|floatformat:2}}' name="sellrateamt" />
+          <span>Room:  {{i.roomno.room_type.category_name}} ,{{i.roomno.room_name}}</span><br>
+          <input type="hidden"  value="{{i.id}}" name="roomid" />
+          <input type="text" class="form-control mb-3 ms-3 w-50" value='{{i.sell_rate|floatformat:2}}' name="sellrateamt" />
 
           {%endfor%}
 
     
         
-      </div>
+      </div></div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+        <button type="button" class="btn btn-outline-secondary ms-4" data-bs-dismiss="modal">
           Close
         </button>
         <button  class="btn btn-primary">Save</button>
@@ -559,6 +603,180 @@ data-bs-target="#backDropModaleditrooms">..</a>
 
 
 
+
+<!-- edit Room Details amounts -->
+<div class="modal fade " id="backDropModaleditfinalamount" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog">
+      <form action="{% url 'edittotalbookingamount'  %}" method="POST" class="modal-content">
+          {% csrf_token %}
+      
+      <div class="modal-header">
+        <h5 class="modal-title" id="backDropModalTitle">Edit Total Price</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+      
+        {%for i in guestdata%}
+          <input type="hidden" name="id" value='{{i.id}}' />
+          
+
+          <label>Edit Total Amount</label><br>
+          <input type="number" class="form-control w-50" value="{{i.total_amount|floatformat:0}}" name="total_amount" required/>
+
+          {%endfor%}
+      
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary ms-4" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button  class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+
+
+
+<!-- edit Room Details amounts -->
+<div class="modal fade " id="backDropModaleditfinaldates" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog">
+      <form action="{% url 'editbookingdate'  %}" method="POST" class="modal-content">
+          {% csrf_token %}
+      
+      <div class="modal-header">
+        <h5 class="modal-title" id="backDropModalTitle">Edit Check In and Check Out Dates</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+      
+        {%for i in guestdata%}
+          <input type="hidden" name="id" value='{{i.id}}' />
+          
+          
+          <label>Check In Date</label><br>
+          <input type="date" class="form-control w-50 mb-3" value="{{ i.bookingdate|date:'Y-m-d' }}" name="check_indate" required />
+
+          <label>Check Out Date</label><br>
+          <input type="date" class="form-control w-50 " value="{{ i.checkoutdate|date:'Y-m-d' }}" name="check_outdate" required />
+
+
+          {%endfor%}
+      
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary ms-4" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button  class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+
+
+<!-- edit guest name number add rooms -->
+<div class="modal fade" id="backDropModaleditcommisionamount" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'editcommtdc'  %}" method="POST" class="modal-content">
+            {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Commission Data</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          {%for i in guestdata%}
+            <input type="hidden" name="id" value='{{i.id}}' />
+            {%endfor%}
+          <div class="row">
+            <div class="col mb-3">
+              <label for="nameBackdrop" class="form-label">Commission</label>
+              <input
+                type="number"
+                name="commission"
+                value='{{tdscomm.commission}}'
+                id="nameBackdrop"
+                class="form-control"
+                placeholder=""
+                required
+              />
+            </div>
+
+            
+              <div class="col-6 mb-3">
+                <label for="nameBackdrop" class="form-label">Tds</label>
+                <input
+                  type="number"
+                  name="tds"
+                  value='{{tdscomm.tds}}'
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder=""
+                  required
+                />
+              </div>
+
+              <div class="col-6 mb-3">
+                <label for="nameBackdrop" class="form-label">Tcs</label>
+                <input
+                  type="number"
+                  name="tcs"
+                  value='{{tdscomm.tcs}}'
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder=""
+                  
+                />
+              </div>
+          </div>
+          
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
 
 
 

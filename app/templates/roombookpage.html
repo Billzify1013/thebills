@@ -37,16 +37,16 @@
     {% csrf_token %}   
   <div class="card">
   <div class="row card-body">
-    <div class="col-3 " style="width:31%"> 
+    <div class="col-6 col-md-4 " style=""> 
       <labal>CheckIn Date</label>
       <input  type="date" name="startdate" placeholder="select CheckIn Date" class="form-control "   required id="dateInput" value="{{startdate}}"/>
     </div>
 
-    <div class="col-3" style="width:31%">
+    <div class="col-6 col-md-4" style="">
       <labal>CheckOut Date</label>
     <input type="date" name="enddate" placeholder="select CheckOut Date" id="dateInputs" class=" form-control" value="{{enddate}}" required/>
   </div>
-  <div class="col-3 mt-4" style="width:33%">
+  <div class="col-12 col-md-4 mt-4" style="">
     <input type="submit" class="btn mb-1 w-100 btn-primary "/>
   </div>
   {%if startdate%}
@@ -73,11 +73,11 @@
 {%if availableroomdata%}
      
       <div class="row">
-        <div class="col-10">
+        <div class="col-8 col-md-10">
             <h6 class="text mt-3">Select All Rooms and Book Full Hotel<input class="form-check-input " style="margin-top:-1px"  type="checkbox" onClick="toggle(this)" /></h6>
         </div>
 
-        <div class="col-2 " >
+        <div class="col-4 col-md-2" >
             <button class="btn btn-primary w-100" id="submitBtn" data-bs-toggle="offcanvas"
             data-bs-target="#offcanvasBackdrop"
             aria-controls="offcanvasBackdrop">Done</button>
@@ -88,7 +88,7 @@
       <h4 class="title mb-0 mt-4">Available Rooms</h4>
         {%for i in availableroomdata%} 
         
-  <div class="col-2 col-outline-danger  " >
+  <div class="col-6 col-md-2 col-outline-danger  " >
     
     <div class="card mt-3">
     <div class="card-body ">
@@ -144,7 +144,7 @@
   <h5 class="title mb-0 mt-4">Advance Booking</h5> 
   {%for i in bookedroomsdata%}
           
-  <div class="col-2 col-outline-danger  " >
+  <div class="col-6 col-md-2 col-outline-danger  " >
       <a href="#" data-bs-toggle="modal"
       data-bs-target="#advancebookdetails" onclick="setpaymentedit('{{i.roomno.room_name}}','{{i.bookingdate}}',
       '{{i.checkoutdate}}','{{i.room_type}}','{{i.saveguestdata.bookingguest}}','{{i.saveguestdata.bookingguestphone}}',
@@ -180,7 +180,7 @@
   <h5 class="title mb-0 mt-4">Guest-Stayed</h5> 
 {%for i in guestroomsdata%}
         
-<div class="col-2 col-outline-danger  " >
+<div class="col-6 col-md-2 col-outline-danger  " >
     
   <div class="card mt-3 ">
   <div class="card-body text-muted">

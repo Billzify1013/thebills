@@ -220,7 +220,7 @@
               <div class="col-lg-9 col-md-5 order-1">
                 <div class="row">
                   
-                  <div class="col-lg-4 col-md-8 col-5 mb-4">
+                  <div class="col-lg-4 col-md-8 col-12 mb-4">
                     <div class="card">
                       <div class="card-body">
                         <div class="card-title d-flex align-items-start justify-content-between">
@@ -254,10 +254,10 @@
                     </div>
                   </div>
 
-                  <div class="col-lg-4 col-md-8 col-5 mb-4">
+                  <div class="col-lg-5 col-md-8 col-12 mb-4">
                     <div class="card">
                       <div class="card-body">
-                        <div class="card-title d-flex align-items-start justify-content-between">
+                        {% comment %} <div class="card-title d-flex align-items-start justify-content-between">
                           <div class="avatar flex-shrink-0">
                             <img
                               src="{% static 'undercss/assets/img/icons/unicons/wallet-info.png'%}"
@@ -280,10 +280,29 @@
                               <a class="dropdown-item" href="javascript:void(0);">Its Total Tax Amount.</a>
                             </div>
                           </div>
+                        </div> {% endcomment %}
+                        <div class="row ">
+                          <div class="col-6 pt-0 mt-0">
+                            <span class="fw-semibold d-block mb-1">Taxes</span>
+                        <h6 class="card-title text-nowrap ">₹ {{totaltax}}</h6>
+                          </div>
+                          <div class="col-6">
+                            <span class="fw-semibold d-block mb-1">Commission</span>
+                        <h6 class="card-title text-nowrap ">₹ {{totals.total_commission|floatformat:0}}</h6>
+                          </div>
+
+                          <div class="col-6 mt-0 pt-0">
+                            <span class="fw-semibold d-block ">Tds</span>
+                        <h6 class="card-title text-nowrap ">₹ {{totals.total_tds|floatformat:0}}</h6>
+                          </div>
+                          <div class="col-6">
+                            <span class="fw-semibold d-block ">Tcs</span>
+                        <h6 class="card-title text-nowrap ">₹ {{totals.total_tcs|floatformat:0}}</h6>
+                          </div>
+
                         </div>
-                        <span class="fw-semibold d-block mb-1">Taxes</span>
-                        <h5 class="card-title text-nowrap mb-2">₹{{totaltax}}</h5>
-                        <small class="text-danger mb-2 fw-semibold"><i class="bx bx-up-arrow-alt"></i> Deduction</small>
+
+                        <small class="text-danger  fw-semibold"><i class="bx bx-up-arrow-alt"></i> Deduction</small>
                       </div>
                     </div>
                   </div>
@@ -291,7 +310,7 @@
 
                   
                   
-                  <div class="col-lg-4 col-md-12 col-7 mb-4">
+                  <div class="col-lg-3 col-md-12 col-12 mb-4">
                     <div class="card">
                       <div class="card-body">
                         <div class="card-title d-flex align-items-start justify-content-between">
@@ -462,13 +481,13 @@
                             <div>
                               <small class="text-muted d-block">Total Deduct Balance</small>
                               <div class="d-flex align-items-center">
-                                <h6 class="mb-0 me-1">₹{{totaltax|add:totalsalaryexpance|add:total_purches_settled|add:total_cash_expense}}</h6>
+                                <h6 class="mb-0 me-1">₹{{total_deduct_balace}}</h6>
                                 
                               </div>
                             </div>
                           </div>
                           <input type="hidden" id="totalsale" value="{{subtotalsale}}" />
-                          <input type="hidden" id="totalexpanse" value="{{totaltax|add:totalsalaryexpance|add:total_purches_settled|add:total_cash_expense}}" />
+                          <input type="hidden" id="totalexpanse" value="{{total_deduct_balace}}" />
                           <input type="hidden" id="totalprofit" value="{{totalsalaryexcludedeductions}}" />
                           <input type="hidden" id="totalonlineamount" value="{{total_online_amount}}" />
                           <input type="hidden" id="totalcash" value="{{total_cash_amount}}" />

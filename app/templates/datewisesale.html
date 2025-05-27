@@ -39,9 +39,13 @@
         </div></b>
     </div>
     <div class="col-3 p-2">
-        <b><div class="card p-3">Total Tax Amount <br><br>
-           <center> <h5>₹ {{total_gst_amount|floatformat:2}}</h5></center>
-           <span class="badge bg-label-DANGER">TAX-AMOUNT</span>
+        <b><div class="card p-3 pb-2">Total Charges Amount <br>
+           <center> <h6 class="TEXT-START pt-1 ">TAX = ₹ <b>{{total_gst_amount|floatformat:2}}</b><BR>
+            CO &nbsp;= ₹ <b>{{totals.total_commission|floatformat:2}}</b> {Commission}<BR>
+            TDS = ₹ <b>{{totals.total_tds|floatformat:2}}</b> <BR>
+            TCS = ₹ <b>{{totals.total_tcs|floatformat:2}}</b> <BR>
+        </h6></center>
+           {% comment %} <span class="badge bg-label-DANGER">TAX-AMOUNT</span> {% endcomment %}
         </div></b>
     </div>
     
@@ -60,7 +64,7 @@
     </div> 
 
     <div class="col-3 p-2">
-        <b><div class="card p-3">Total Amount After Tax<br><br>
+        <b><div class="card p-3">Total Amount Before Charges <br><br>
             <center><h5 id="final-profit">₹ </h5></center>
                 <span class="badge bg-label-success">PROFIT</span>
         </div></b>
@@ -174,8 +178,8 @@
     
         
     
-        <div class="card mt-5 m-3">
-            <h5 class="m-2">Tax Summary</h5>
+        <h5 class="m-2 mt-2">Tax Summary</h5>
+        <div class="card  ">
              <table class="table table-bordered" style="background-color: white;">
                  <thead>
                      <tr style="font-weight: bold;">
@@ -232,6 +236,65 @@
 
    
 </div>{% endif %} {% endcomment %}
+
+{%if check_invoices%}
+<h4 class="text mt-5 m-2">Invoices</h4>
+<div class="card ">
+<div class="table-responsive text-nowrap">
+        <table class="table table-bordered" id="secondInvoiceTable">
+            <thead class="table-light">
+                <tr>
+                    <th>Sr No.</th>
+                    <th>Guest</th>
+                    <th>Total Amount</th>
+                    <th style="width:220px">Rooms</th>
+                    <th>Service</th>
+                    <th>Status</th>
+                    <th>Invoices</th>
+                </tr>
+            </thead>
+            <tbody class="table-border-bottom-0" id="tableBody">
+                {% for data in check_invoices %}
+                <tr data-mode="{{ data.payment_mode }}" data-channel="{{ data.invoice.customer.channel }}">
+                    <td>{{ forloop.counter }} </td>
+                    <td>  {{ data.customer.guestname }}<br>
+                        <span style="font-size:11px">C-In: {{ data.customer.checkindate }}<br>
+                        C-Out: {{ data.customer.checkoutdate }}</span></td>
+                    <td><strong class="total-amount">{{ data.grand_total_amount }}</strong></td>
+                    <td><ul class="room-list">
+                        {% for item in data.items.all %}
+                        {% if item.is_room %}
+                        <li class="room-item " data-amount="{{ item.total_amount }}">[ {{ item.description }}, ₹{{ item.total_amount }} ]</li>
+                        {% endif %}
+                        {% endfor %}
+                    </ul></td>
+                    <td><ul class="service-list">
+                        {% for item in data.items.all %}
+                        {% if not item.is_room %}
+                        <li class="service-item" data-amount="{{ item.total_amount }}">[ {{ item.description }}, ₹{{ item.total_amount }} ]</li>
+                        {% endif %}
+                        {% endfor %}
+                    </ul></td>
+                    <td>
+                        {% if data.customer.checkoutdone %}
+                        Check-Out
+                        {% else %}
+                        Not Check-Out
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a class="dropdown-item" href="{% url 'invoicepage' id=data.customer.id %}">
+                            <i class="bx bx-edit-alt me-1"></i>Invoice
+                        </a> 
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{%endif%}
+
 </div>
 <div class="row">
 <div class="col-3">
@@ -313,16 +376,25 @@
 
 <div style="display:none">
     <span id="grand-total">{{ grand_total_amount|floatformat:2 }}</span>
-<span id="total-gst">{{ total_gst_amount|floatformat:2 }}</span></div>
+<span id="total-gst">{{ total_gst_amount|floatformat:2 }}</span>
+<span id="total-comm">{{ totals.total_commission|floatformat:2 }}</span>
+<span id="total-tds">{{ totals.total_tds|floatformat:2 }}</span>
+<span id="total-tcs">{{ totals.total_tcs|floatformat:2 }}</span>
+
+</div>
+
 
 
 <script>
     // Get the values from the DOM
     const grandTotal = parseFloat(document.getElementById('grand-total').textContent) || 0;
     const totalGst = parseFloat(document.getElementById('total-gst').textContent) || 0;
+    const totalComm = parseFloat(document.getElementById('total-comm').textContent) || 0;
+    const totalTds = parseFloat(document.getElementById('total-tds').textContent) || 0;
+    const totalTcs = parseFloat(document.getElementById('total-tcs').textContent) || 0;
 
     // Calculate the profit
-    const profit = grandTotal - totalGst;
+    const profit = grandTotal - totalGst - totalComm - totalTds - totalTcs;
 
     // Display the result
     document.getElementById('final-profit').textContent = "₹" +profit.toFixed(2);

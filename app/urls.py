@@ -487,7 +487,9 @@ urlpatterns = [
 
     path('formo_view/', travelagancy.formo_view, name='formo_view'),
     path('sync_inventory/', travelagancy.sync_inventory, name='sync_inventory'),
-    
+    path('edittotalbookingamount/', travelagancy.edittotalbookingamount, name='edittotalbookingamount'),
+    path('editbookingdate/', travelagancy.editbookingdate, name='editbookingdate'),
+    path('editcommtdc/', travelagancy.editcommtdc, name='editcommtdc'),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
