@@ -10,7 +10,7 @@
 
 <div class="row">
     
-    <div class="col-3 p-2">
+    <div class="col-12 col-md-3 p-2">
         <div class="card p-3">
             <center><h5 class="pt-2 pb-3"><b> {{startdate}}</b><br>
             <i class='bx bx-chevrons-down m-1' ></i> <br>
@@ -18,27 +18,27 @@
             <span class="badge bg-label-success">DATES</span>
         </div>
     </div>
-    <div class="col-3 p-2">
+    <div class="col-12 col-md-3 p-2">
         <b><div class="card p-3">TOTAL SALES<br><br><br>
            <center> <h5><b>₹ {{grand_total_amount|floatformat:2}}</h5></b> </center>
            <span class="badge bg-label-success">TOTAL-SALE</span>
         </div></b>
     </div>
 
-    <div class="col-3 p-2">
+    <div class="col-12 col-md-3 p-2">
         <div class="card p-3"><b>Total Amount of Settled Sales Invoices</b><br>
             <center>  <b><h5>₹ {{sattle_total_amount|floatformat:2}}</h5></b></center>
             <span class="badge bg-label-success">CHECK-OUT</span>
         </div>
 
     </div>
-    <div class="col-3 p-2">
+    <div class="col-12 col-md-3 p-2">
         <b><div class="card p-3">Unbilled Folio Sales Total Amount<br><br>
             <center><b><h5>₹ {{folio_total_amount|floatformat:2}}</h5></b></center>
             <span class="badge bg-label-warning">CHECK-IN</span>
         </div></b>
     </div>
-    <div class="col-3 p-2">
+    <div class="col-12 col-md-3 p-2">
         <b><div class="card p-3 pb-2">Total Charges Amount <br>
            <center> <h6 class="TEXT-START pt-1 ">TAX = ₹ <b>{{total_gst_amount|floatformat:2}}</b><BR>
             CO &nbsp;= ₹ <b>{{totals.total_commission|floatformat:2}}</b> {Commission}<BR>
@@ -50,33 +50,34 @@
     </div>
     
 
-    <div class="col-3 p-2">
+    <div class="col-12 col-md-3 p-2">
         <b><div class="card p-3">Total Amount Due <br><BR>
             <center><h5>₹ {{total_cash_amount|floatformat:2}}</h5></center>
             <span class="badge bg-label-DANGER">DUE</span>
         </div></b>
     </div>
-    <div class="col-3 p-2">
+    <div class="col-12 col-md-3 p-2">
         <b><div class="card p-3">Total Amount Collected<br><br>
             <center><h5>₹ {{total_online_amount|floatformat:2}}</h5></center>
                 <span class="badge bg-label-success">RECIVED</span>
         </div></b>
     </div> 
 
-    <div class="col-3 p-2">
+    <div class="col-12 col-md-3 p-2">
         <b><div class="card p-3">Total Amount Before Charges <br><br>
             <center><h5 id="final-profit">₹ </h5></center>
                 <span class="badge bg-label-success">PROFIT</span>
         </div></b>
     </div> 
 
+</div>
 
-
-
-    <div class="w-100  mt-4 mb-5">
+<div style="row">
+    <div class="col-12 col-md-12  mt-4 mb-5">
     
         <h4>Sales By All Channel</h4>
-        <div class="card mt-4">
+        <div class="card mt-4 ">
+            <div class="table-responsive">
             <table class="table table-bordered" style="background-color: white;">
                 <thead>
                     <tr style="font-weight: bold;">
@@ -109,9 +110,10 @@
                 </tfoot>
             </table>
         </div>
+        </div>
         
         <div class="row">
-    <div class="col-6  mt-4 mb-5">
+    <div class="col-12 col-md-6  mt-4 mb-5">
         
         
         <h4>Payments {Check-In}</h4>
@@ -236,7 +238,7 @@
 
    
 </div>{% endif %} {% endcomment %}
-
+        </div>
 {%if check_invoices%}
 <h4 class="text mt-5 m-2">Invoices</h4>
 <div class="card ">
@@ -297,7 +299,7 @@
 
 </div>
 <div class="row">
-<div class="col-3">
+<div class="col-12 col-md-3">
     
     <div class="card  p-1  mb-5">
              
@@ -328,7 +330,7 @@
       </div>
       
 
-<div class="col-3">
+<div class="col-12 col-md-3 mb-2">
         
         <a class="btn btn-primary w-100" href="{% url 'roomsales' %}">Sales Per Invoice</a>
 
@@ -343,7 +345,7 @@
         
       
 </div>
-<div class="col-3">
+<div class="col-12 col-md-3 ">
     <a class="btn btn-primary w-100 " href="{% url 'hotelplrpt' %}">Hotel Sales Report</a>
 
     <a class="btn btn-primary w-100 mt-3" href="{% url 'hotelpandlrpt' %}">Hotel P&L Report</a>

@@ -45,8 +45,9 @@
 
     <h2>Rooms Inventory Update</h2>
 
-    <div class="row">
-        <div class="col-10">
+    <div style="overflow-x: auto; white-space: nowrap;">
+        <div class="d-flex flex-row">
+        <div class="col">
             <div class="controls d-flex">
             <!-- Date Picker -->
             <input type="date" class="form-control " min="{{ today|date:'Y-m-d' }}" style="width:150px" id="datePicker" value="{{ selected_date|date:'Y-m-d' }}" onchange="changeDateNew()">
@@ -58,11 +59,11 @@
         
             </div>
         </div>
-        <div class="col-2">
+        <div class="col">
             <a href="{% url 'sync_inventory' %}" class="btn  float-end">Sync Inventory</a>
         </div>
     </div>
-    
+</div>
 
     <div class="card mt-3">
     
@@ -72,11 +73,16 @@
         <!-- Hidden input to keep track of the selected date -->
         <input type="hidden" name="selected_date" value="{{ selected_date|date:'Y-m-d' }}">
         
-        <table class="table-bordered-1 m-2">
-            <tr class="p-2 bg-white">
-                <th class="p-2">Category</th>
+        <div style="overflow-x: auto;scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: #ccc transparent;">
+            <table class="table-bordered-1 m-2" style="min-width: 1000px; table-layout: fixed; width: 100%;">
+              <tr class="p-2 bg-white">
+                <th class="p-2" style="min-width: 200px; width: 16.66%;">Category</th>
                 {% for date in date_range %}
-                    <th class="p-2">{{ date|date:"d F Y" }}</th>
+                    {% comment %} <th class="p-2">{{ date|date:"d F Y" }}</th> {% endcomment %}
+                    <th><center>{{ date|date:"D" }}<br>
+                    {{ date|date:"d M" }}</center></th>
+
                 {% endfor %}
             </tr>
     
@@ -96,7 +102,7 @@
             
             {% endfor %}
         </table>
-        
+    </div>
         <button type="submit" class="btn btn-primary mt-3 ms-2" id="showbtninp" style="display:none">Update Inventory</button>
     </form>
     

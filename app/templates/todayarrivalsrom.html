@@ -136,7 +136,7 @@
                       <!-- Advance Booking Data -->
                       {% for i in advancebookdata %}
                           {% if i.roomno.checkin == 1 or i.roomno.checkin == 2 %}
-                              <div class="col-2 booking-card"
+                              <div class="col-6 col-md-2 booking-card"
                                   data-guestname="{{ i.bookingguest }}"
                                   data-phone="{{ i.bookingguestphone }}"
                                   data-channel="{{ i.channal.channalname }}">
@@ -175,7 +175,7 @@
                                   
                               </div>
                           {% elif i.partly_checkin == True %}
-                              <div class="col-2 booking-card"
+                              <div class="col-6 col-md-2 booking-card"
                                   data-guestname="{{ i.bookingguest }}"
                                   data-phone="{{ i.bookingguestphone }}"
                                   data-channel="{{ i.channal.channalname }}">
@@ -215,7 +215,7 @@
                                   </a>
                               </div>
                           {% else %}
-                              <div class="col-2 booking-card"
+                              <div class="col-6 col-md-2 booking-card"
                                   data-guestname="{{ i.bookingguest }}"
                                   data-phone="{{ i.bookingguestphone }}"
                                   data-channel="{{ i.channal.channalname }}">

@@ -135,7 +135,14 @@
  </head>
  <body>
 
-    <div class="container mb-3">
+    <div style="
+  overflow-x: auto; 
+  white-space: nowrap; 
+  scrollbar-width: none;    /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+" 
+onmouseover="this.style.overflowX='auto'" 
+onmouseout="this.style.overflowX='auto'">
         <b>Hints:</b>&nbsp; <div style="display:inline-flex; align-items:center; margin-right:10px;"><div style="width:20px; height:20px; background:pink; border-radius:20%; margin-right:5px;"></div>CHECK-IN COLOUR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     </div><div style="display:inline-flex; align-items:center; margin-right:10px;"><div style="width:20px; height:20px; background:green; border-radius:20%; margin-right:5px;"></div>CHECK-OUT COLOUR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div><div style="display:inline-flex; align-items:center;"><div style="width:20px; height:20px; background:white; border-radius:20%; margin-right:5px;"></div>BOOKING COLOUR</div>
 
@@ -357,6 +364,8 @@
 
 
 <div class="container">
+    <div class="calendar-wrapper">
+  <div class="calendar-inner">
     <div class="navigation-buttons">
         <button onclick="changeDate(-1)" class="btn btn-primary"><i class='bx bxs-left-arrow'></i></button>
         <button onclick="refreshToCurrent()" class="btn btn-primary"><b><i class='bx bx-refresh'></i></b></button>
@@ -464,9 +473,44 @@
         {% endfor %}
     {% endfor %}
 </div>
+</div></div>
+
+<style>
+.calendar-wrapper {
+  height: auto;
+  overflow-y: auto;
+  overflow-x: auto; /* ✅ allow horizontal scroll */
+  padding: 5px;
+  scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: #ccc transparent; /* Show scrollbar thumb */
+}
+
+/* ✅ For Webkit-based browsers (Chrome, Edge, Safari) */
+.calendar-wrapper::-webkit-scrollbar {
+  height: 8px;   /* ✅ height for horizontal scrollbar */
+  width: 8px;    /* keep this for future vertical use, even if hidden */
+}
+
+.calendar-wrapper::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 5px;
+}
+
+.calendar-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.calendar-inner {
+  min-width: max-content;
+}
+</style>
 
 
- 
+
+
+
+
+
  
  <!-- Modal -->
 <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">

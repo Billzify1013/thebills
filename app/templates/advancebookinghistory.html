@@ -385,9 +385,10 @@
 <div class="container">
   <!-- Filters Section -->
    <div class="card p-3 mt-3">
-  <div class="d-flex mb-3">
+  <div class="">
     <!-- Channel Filter -->
-    <div class="me-3">
+     <div class="row">
+    <div class="col-6 col-md-3 ">
       <label for="channelFilter">Filter by Channel:</label>
       <select id="channelFilter" class="form-select">
         <option value="">All Channels</option>
@@ -395,25 +396,25 @@
     </div>
 
     <!-- Payment Type Filter -->
-    <div class="me-3">
-      <label for="paymentFilter">Filter by Payment Type:</label>
+    <div class="col-6 col-md-3 ">
+      <label for="paymentFilter">Payment Type:</label>
       <select id="paymentFilter" class="form-select">
         <option value="">All Payment Types</option>
       </select>
     </div>
 
     <!-- Booking Status Filter -->
-    <div>
-      <label for="statusFilter">Filter by Booking Status:</label>
+    <div class="col-6 col-md-3 mb-3">
+      <label for="statusFilter">Booking Status:</label>
       <select id="statusFilter" class="form-select">
         <option value="">All Status</option>
       </select>
     </div>
     
 
-    <div class=" ms-5 " style="padding-left:190px" >
-        <button id="printBtn" class="btn btn-primary mt-3 ms-4">Print Filterd Table</button>
-    </div>
+    <div class="col-6 col-md-3 d-flex  " style="" >
+        <button id="printBtn" class="btn btn-primary mt-4 h-50 ">Print  Table</button>
+    
 
     <button
             type="button"
@@ -429,8 +430,8 @@
             <li><a class="dropdown-item" href="{% url 'deletecancelbokings' %}"><i class="bx bx-trash me-1"></i>Delete All Cancel Bookings</a></li>
            
           </ul>
-    
-  </div>
+    </div>
+  </div></div>
 
   <!-- Summary Section -->
   <div id="summaryDiv" class="mb-3">
