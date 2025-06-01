@@ -120,6 +120,7 @@ urlpatterns = [
     path('searchuserdata/',employeemanage.searchuserdata,name="searchuserdata"),
     path('finddatevisesales/',employeemanage.finddatevisesales,name="finddatevisesales"),
     path('todaysales/',employeemanage.todaysales,name="todaysales"),
+    path('todamainsales/',employeemanage.todamainsales,name="todamainsales"),
     # aminityinvoice codes
     path('aminityinvoice/',loyltys.aminityinvoice,name="aminityinvoice"),
     path('addaminitiesinvoice/',loyltys.addaminitiesinvoice,name="addaminitiesinvoice"),
@@ -490,6 +491,8 @@ urlpatterns = [
     path('edittotalbookingamount/', travelagancy.edittotalbookingamount, name='edittotalbookingamount'),
     path('editbookingdate/', travelagancy.editbookingdate, name='editbookingdate'),
     path('editcommtdc/', travelagancy.editcommtdc, name='editcommtdc'),
+    path('bookingrevoke/<int:id>/', travelagancy.bookingrevoke, name='bookingrevoke'),
+    path('bookingrevokenot/<int:id>/', travelagancy.bookingrevokenot, name='bookingrevokenot'),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

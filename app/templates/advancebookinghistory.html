@@ -453,11 +453,9 @@
     <table class="table table-striped" style="cursor: grabbing;">
       <thead class="table-light">
         <tr>
-          <th>Guest Name</th>
-          <th>Phone</th>
-          <th>Booking-Id</th>
-          <th>Channel</th>
-          <th>Stay Dates</th>
+          <th>Guest Name/Phone</th>
+          <th>Channel/Booking-Id</th>
+          <th>Stay Dates & Rooms</th>
           <th>Total Amount</th>
           <th>Payment Type</th>
           <th>Status</th>
@@ -473,13 +471,14 @@
           <td><a href="{% url 'advancebookingdetails' id=data.id %}"><strong><del>{{ data.bookingguest }}</del></strong></a></td>
           {%else%}
           <td><a href="{% url 'advancebookingdetails' id=data.id %}"><strong>{{ data.bookingguest }}</strong></a>
-            
+            {{ data.bookingguestphone }}
           </td>
           {%endif%}
-          <td>{{ data.bookingguestphone }}</td>
-          <td>{{ data.booking_id}}</td>
-          <td>{{ data.channal.channalname }}</td>
-          <td><span class="badge bg-label-primary">{{ data.bookingdate }} - {{ data.checkoutdate }} {D: {{data.staydays}} }</span> </td>
+          <td>{{ data.channal.channalname }}<br>
+            {{ data.booking_id}}</td>
+          <td><span class="badge bg-label-primary mb-1">{{ data.bookingdate }} - {{ data.checkoutdate }} {D: {{data.staydays}} }</span>
+          <p style="font-size:12px;">{{ data.room_categories_summary  }}</p>
+          </td>
           <td>{{ data.total_amount }}</td>
           <td>
             {% if data.Payment_types == 'prepaid' %}
@@ -523,9 +522,15 @@
             {% comment %} <li><a class="dropdown-item" href="{% url 'receipt_view' %}?cd={{ data.id }}"><i class='bx bx-conversation'></i>Voucher</a></li> {% endcomment %}
             <li><a class="dropdown-item" href="{% url 'receipt_view' %}?cd={{ data.id  }}"><i class='bx bx-conversation'></i>Voucher</a></li>
             <li><a class="dropdown-item" href="{% url 'addpaymenttobooking' booking_id=data.id %}"><i class='bx bxl-paypal'></i>Add-Payment</a></li>
-            <li><a class="dropdown-item" href="{% url 'showbooklog' id=data.id %}">Logs</a></li>
             <li><a class="dropdown-item" href="{% url 'formo_view' %}?cd={{ data.id  }}"><i class='bx bx-id-card mb-1'></i> Formo Invoice</a></li>
+            {% if data.action == 'cancel' %}
+            <li><a class="dropdown-item" href="{% url 'bookingrevoke' id=data.id %}"><i class='bx  bx-repeat'  ></i>   Revoke</a></li>
+            {%else%}
             <li><a class="dropdown-item" href="{% url 'advancebookingdelete' id=data.id %}"><i class="bx bx-trash me-1"></i> Cancel</a></li>
+            
+            {%endif%}
+            
+            <li><a class="dropdown-item" href="{% url 'showbooklog' id=data.id %}">Logs</a></li>
             
             
             

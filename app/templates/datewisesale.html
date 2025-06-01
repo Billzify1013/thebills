@@ -7,6 +7,40 @@
 
 
 <span class="m-3 text-danger">{{erroe}}</span>
+<div class="container">
+<div class="row">
+    <div class="col-3 col-md-8 p-2">
+    </div>
+    <div class="col-6 col-md-3 ms-4 ms-md-0">
+        <div class="input-group ">
+  <input 
+    type="text" 
+    class="form-control" 
+    name="daterange" 
+    value="{{ startdate|date:"d M Y" }} - {{ enddate|date:"d M Y"  }}" 
+    readonly
+    onclick="scrollToTarget()"
+  >
+  <span class="input-group-text " onclick="scrollToTarget()"><i class="bi bi-calendar-range"></i></span>
+  <script>
+  function scrollToTarget() {
+    const target = document.getElementById("datepickerdivs");
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }
+</script>
+</div>
+
+    </div>
+    <div class="col-2 col-md-1 ">
+        <a href="{%url 'todamainsales' %}" class="btn btn-primary text-white">
+            Today
+        </a>
+    </div>
+</div>
+</div>
+
 
 <div class="row">
     
@@ -298,10 +332,10 @@
 {%endif%}
 
 </div>
-<div class="row">
+<div class="row mt-3" id="datepickerdivs">
 <div class="col-12 col-md-3">
     
-    <div class="card  p-1  mb-5">
+    <div class="card  p-1  mb-5" >
              
         <form action="{% url 'finddatevisesales'%}" method="post">
           {% csrf_token %}   

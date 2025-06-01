@@ -1087,7 +1087,7 @@ def editbookingdate(request):
             return redirect('advancebookingdetails',bid)
         
 def editcommtdc(request):
-    # try:
+    try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
             subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
@@ -1119,6 +1119,66 @@ def editcommtdc(request):
             return redirect('advancebookingdetails',id)
         else:
             return render(request, 'login.html')
-    # except Exception as e:
-    #     return render(request, '404.html', {'error_message': str(e)}, status=500)
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
     
+def bookingrevoke(request,id):
+    print(id)
+    if request.user.is_authenticated:
+        user=request.user
+        checkdatas = SaveAdvanceBookGuestData.objects.get(vendor=user,id=id)
+        today = datetime.now().date()
+        if checkdatas.checkoutdate >= today:
+            roomdata = RoomBookAdvance.objects.filter(vendor=user,saveguestdata=checkdatas).all()
+            checkindate = checkdatas.bookingdate
+            checkoutdate = checkdatas.checkoutdate - timedelta(days=1)
+            print(checkindate,checkoutdate)
+            # for check in roomdata:
+
+        else:
+            messages.error(request, "The guest's checkout date has already passed.")
+            print("date ja chuke hai ")
+        return redirect('advanceroomhistory')
+
+
+def bookingrevokenot(request,id):
+    print(id)
+    if request.user.is_authenticated:
+        user=request.user
+        checkdatas = SaveAdvanceBookGuestData.objects.get(vendor=user,id=id)
+        today = datetime.now().date()
+        if checkdatas.checkoutdate >= today:
+            roomdata = RoomBookAdvance.objects.filter(vendor=user,saveguestdata=checkdatas).all()
+            checkindate = checkdatas.bookingdate
+            checkoutdate = checkdatas.checkoutdate 
+            print(checkindate,checkoutdate)
+            status = True
+            rooms_list = []
+            for check in roomdata:
+                roomcatname = check.roomno.room_type.category_name
+                if  Rooms.objects.filter(vendor=user,room_type__category_name=roomcatname).exclude(checkin=6).exists():
+                    available_rooms = Rooms.objects.filter(
+                                vendor=user,
+                                room_type__category_name=roomcatname
+                                ).exclude(
+                                    id__in=Booking.objects.filter(
+                                    Q(check_in_date__lt=checkoutdate) &
+                                    Q(check_out_date__gt=checkindate)
+                                ).values_list('room_id', flat=True)
+                                )
+                    room = available_rooms.first()
+                                    
+                    if not room:
+                        status=False
+
+                    print(room)
+            if status == True:
+                print(rooms_list)
+            else:
+                messages.error(request, "Some rooms are not available in guest selected rooms category!")
+
+
+        else:
+            messages.error(request, "The guest's checkout date has already passed.")
+            print("date ja chuke hai ")
+        return redirect('notification')

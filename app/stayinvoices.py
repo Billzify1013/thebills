@@ -205,8 +205,38 @@ def notification(request):
 
             
             # advanceroomdata = RoomBookAdvance.objects.filter(vendor=user).all().order_by('bookingdate')
+            # old code
             saveadvancebookdata = SaveAdvanceBookGuestData.objects.filter(vendor=user,checkinstatus=False).all().order_by('-id')[:25]
             
+            # new code updates
+            from collections import Counter
+            from django.db.models import Prefetch
+
+            # Prefetch related room data with room type
+            room_prefetch = Prefetch(
+                'roombookadvance_set',
+                queryset=RoomBookAdvance.objects.select_related('roomno__room_type'),
+                to_attr='booked_rooms'
+            )
+
+            # Apply prefetch
+            saveadvancebookdata = SaveAdvanceBookGuestData.objects.filter(
+                vendor=user,
+                checkinstatus=False
+            ).prefetch_related(room_prefetch).order_by('-id')[:25]
+
+            # Add room category summary to each guest
+            for guest in saveadvancebookdata:
+                category_names = [
+                    room.roomno.room_type.category_name
+                    for room in guest.booked_rooms
+                ]
+                category_counts = Counter(category_names)
+
+                guest.room_categories_summary = ", ".join(
+                    f"({count}) {cat}" for cat, count in category_counts.items()
+                )
+
            
             return render(request,'notify.html',{'saveadvancebookdata':saveadvancebookdata})
         else:

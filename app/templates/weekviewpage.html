@@ -449,7 +449,7 @@ onmouseout="this.style.overflowX='auto'">
                                                          style="width: {{ booking.check_out_width }}%; left: 0;"
                                                          onclick="showBookingInfo('{{ booking.id }}','{{ booking.guest_name }}', '{{ room.room_name }}', '{{ booking.check_in_date }}',
                                                           '{{ booking.check_out_date }}','{{ booking.checkintime }}' ,'{{ booking.checkouttime }}' ,'{{ booking.segment }}','{{ booking.totalroom }}','{{ booking.totalamount }}','{{ booking.status }}','{{booking.fnbid}}')">
-                                                        {{ booking.guest_name }}
+                                                        {% comment %} {{ booking.guest_name }} {% endcomment %}
                                                     </div>
                                                 {% else %}
                                                     <div class="booking-card {% if booking.status == 'CHECK IN' %}checkin-status{% endif %} {% if booking.status == 'CHECK OUT' %}checkout-status{% endif %}" 
@@ -457,7 +457,7 @@ onmouseout="this.style.overflowX='auto'">
                                                          onclick="showBookingInfo('{{ booking.id }}','{{ booking.guest_name }}', '{{ room.room_name }}', '{{ booking.check_in_date }}',
                                                           '{{ booking.check_out_date }}','{{ booking.checkintime }}' ,'{{ booking.checkouttime }}' ,'{{ booking.segment }}','{{ booking.totalroom }}','{{ booking.totalamount }}','{{ booking.status }}','{{booking.fnbid}}')">
                                                         {% comment %} {% if not forloop.first %} {% endcomment %}
-                                                            <div class="guest-name">{{ booking.guest_name }}</div>
+                                                            <div class="guest-name"></div>
                                                         {% comment %} {% endif %} {% endcomment %}
                                                     </div>
                                                 {% endif %}

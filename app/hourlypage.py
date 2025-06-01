@@ -334,11 +334,39 @@ def searchguestdataadvance(request):
                 filters &= Q(checkoutdate__gte=checkoutdate) & Q(checkoutdate__lt=checkoutdate + timedelta(days=1))
 
             # Apply filters and fetch data
-            advancersoomdata = guests.filter(filters)
+            # advancersoomdata = guests.filter(filters)
 
-            # If no results found
+            # # If no results found
+            # if not advancersoomdata.exists():
+            #     messages.error(request, "No matching guests found.")
+
+            from django.db.models import Prefetch
+            from collections import Counter
+            # new code 
+            # ⬇️ Prefetch related room bookings
+            room_prefetch = Prefetch(
+                'roombookadvance_set',
+                queryset=RoomBookAdvance.objects.select_related('roomno__room_type'),
+                to_attr='booked_rooms'
+            )
+
+            # ⬇️ Apply filters and prefetch
+            advancersoomdata = SaveAdvanceBookGuestData.objects.filter(filters, vendor=user).prefetch_related(room_prefetch)
+
             if not advancersoomdata.exists():
                 messages.error(request, "No matching guests found.")
+
+            # ⬇️ Attach room summary to each guest
+            for guest in advancersoomdata:
+                category_names = [
+                    room.roomno.room_type.category_name
+                    for room in guest.booked_rooms
+                ]
+                category_counts = Counter(category_names)
+
+                guest.room_categories_summary = ", ".join(
+                    f"({count}) {cat}" for cat, count in category_counts.items()
+                )
 
             # Return results
             return render(request, 'advancebookinghistory.html', {

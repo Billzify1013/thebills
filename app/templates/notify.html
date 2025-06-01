@@ -83,7 +83,8 @@
                     <td><a  href="{% url 'advancebookingdetails' id=data.id %}"><strong>{{ data.bookingguest }}</a><br>{{ data.bookingguestphone }}</strong></td>
                     {% endif %}
                     <td>{{ data.channal.channalname }}<br>{{ data.booking_id }}</td>
-                    <td><span class="badge bg-label-primary">{{ data.bookingdate }} - {{ data.checkoutdate }} {D: {{data.staydays}} }</span></td>
+                    <td><span class="badge bg-label-primary mb-1">{{ data.bookingdate }} - {{ data.checkoutdate }} {D: {{data.staydays}} }</span>
+                    <p style="font-size:12px;">{{ data.room_categories_summary  }}</p></td>
                     <td>{{ data.total_amount }}</td>
                     <td>
                         {% if data.Payment_types == 'prepaid' %}
@@ -112,7 +113,13 @@
                             <li><a class="dropdown-item" href="{% url 'receipt_view' %}?cd={{ data.id }}"><i class='bx bx-conversation'></i>Voucher</a></li>
                             <li><a class="dropdown-item" href="{% url 'addpaymenttobooking' booking_id=data.id %}"><i class='bx bxl-paypal'></i>Add Payment</a></li>
                             <li><a class="dropdown-item" href="{% url 'formo_view' %}?cd={{ data.id  }}"><i class='bx bx-id-card mb-1'></i> Formo Invoice</a></li>
-                            <li><a class="dropdown-item" href="{% url 'advancebookingdelete' id=data.id %}"><i class="bx bx-trash me-1"></i>Cancel</a></li>
+                            {% comment %} <li><a class="dropdown-item" href="{% url 'advancebookingdelete' id=data.id %}"><i class="bx bx-trash me-1"></i>Cancel</a></li> {% endcomment %}
+                            {% if data.action == 'cancel' %}
+                                <li><a class="dropdown-item" href="{% url 'bookingrevokenot' id=data.id %}"><i class='bx  bx-repeat'  ></i>   Revoke</a></li>
+                                {%else%}
+                                <li><a class="dropdown-item" href="{% url 'advancebookingdelete' id=data.id %}"><i class="bx bx-trash me-1"></i>Cancel</a></li>
+                                
+                            {%endif%}
                         </ul>
                     </td>
                 </tr>

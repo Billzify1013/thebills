@@ -4363,7 +4363,7 @@ def opencheckinforadvanebooking(request,pk):
     
 
 
-
+from django.db.models import OuterRef, Subquery
 # advancebook page function
 def advanceroomhistory(request):
     try:
@@ -4412,11 +4412,39 @@ def advanceroomhistory(request):
         
 
 
+            # ye pahle ka code hai 
+            # monthbookdata  = SaveAdvanceBookGuestData.objects.filter(
+            #     vendor=user,
+            #     bookingdate__range=(first_day_of_month, last_day_of_month)
+            #         ).order_by('bookingdate')
 
-            monthbookdata  = SaveAdvanceBookGuestData.objects.filter(
+            # ye new code hai
+            from django.db.models import Prefetch
+            from collections import Counter
+
+            room_prefetch = Prefetch(
+                'roombookadvance_set',
+                queryset=RoomBookAdvance.objects.select_related('roomno__room_type'),
+                to_attr='booked_rooms'
+            )
+
+            monthbookdata = SaveAdvanceBookGuestData.objects.filter(
                 vendor=user,
                 bookingdate__range=(first_day_of_month, last_day_of_month)
-                    ).order_by('bookingdate')
+            ).prefetch_related(room_prefetch).order_by('bookingdate')
+
+            for guest in monthbookdata:
+                category_names = [
+                    room.roomno.room_type.category_name
+                    for room in guest.booked_rooms
+                ]
+                category_counts = Counter(category_names)
+
+                guest.room_categories_summary = ", ".join(
+                    f"({count}) {cat}" for cat, count in category_counts.items()
+                )
+
+
 
             return render(request,'advancebookinghistory.html',{'filtered_orders':filtered_orders,'advanceroomdata':advanceroomdata,'active_page': 'advancebookhistory','monthbookdata':monthbookdata
                                                             ,'first_day_of_month':first_day_of_month,'last_day_of_month':last_day_of_month})
@@ -7256,9 +7284,9 @@ def addguestdatafromadvanceroombook(request):
                         
                     else:
                         pass
-
+                    today = datetime.now().date()
                     Invoice.objects.filter(vendor=user,id=Invoiceid.id).update(total_item_amount=totalitemamount,
-                                    discount_amount=discamts,subtotal_amount=subttlamt,
+                                    discount_amount=discamts,subtotal_amount=subttlamt,invoice_date=today,
                                     modeofpayment=paymentstatus,grand_total_amount=gtamts,
                                     gst_amount=taxamts,sgst_amount=taxamts,room_no=fisrroom.roomno.room_name,
                                     taxable_amount=subttlamt)
@@ -7312,7 +7340,7 @@ def addguestdatafromadvanceroombook(request):
 
             
                 
-                    today = datetime.now().date()
+                    
                     roomdata = RoomBookAdvance.objects.filter(vendor=user,saveguestdata_id=saveguestdata).all()
                     #  roomdata = Room_history.objects.filter(vendor=user,checkindate__range=[checkindate,checkoutdate],bookingstatus=True,bookingguestphone=guestphome).all()
                     if roomalldefaultcheckinbutton == 'on':
@@ -7338,11 +7366,15 @@ def addguestdatafromadvanceroombook(request):
                                                 bookingdate=today)
                             ctime = datetime.now().time()
                             Booking.objects.filter(vendor=user,advancebook_id=saveguestdata,room=roomid).update(status="CHECK IN",check_in_time=ctime,
-                                                                             gueststay=guestdata)
+                                                                    check_in_date=today,gueststay=guestdata)
                         CustomGuestLog.objects.filter(vendor=user,advancebook=saveguestdata).update(
                             customer=guestdata
                         )
-                        actionss = 'Create RoomAllocation'
+                        if today!=checkindate:
+                            textmsg = f'Check In date is chaged from {checkindate} to {today}'
+                            CustomGuestLog.objects.create(vendor=user,customer=guestdata,by=request.user,action='Check In Date Change',
+                            description=textmsg)
+                        actionss = 'Create Check-in'
                         CustomGuestLog.objects.create(vendor=user,customer=guestdata,by=request.user,action=actionss,
                             description=f'Booking Check-in is created from {checkindate} To {checkoutdate}')
 
