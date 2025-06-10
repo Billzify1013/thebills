@@ -293,11 +293,13 @@ def guestdetails(request, id):
                 user = subuser.vendor  
             guestdetails = Gueststay.objects.filter(vendor=user, id=id).all()
             moredata = MoreGuestData.objects.filter(vendor=user, mainguest_id=id).all()
-            
+            moreids = Guest_BackId.objects.filter(vendor=user,guest__id__in=guestdetails)
+            print(moreids)
             return render(request, 'guestdetails.html', {
                 'guestdetails': guestdetails,
                 'MoreGuestData': moredata,
-                'active_page': 'guesthistory'
+                'active_page': 'guesthistory',
+                'moreids':moreids
             })
         else:
             return render(request, 'login.html')
@@ -6784,6 +6786,7 @@ def addguestdata(request):
             guestcity = request.POST.get('guestcity')
             guestcountry = request.POST.get('guestcountry')
             guestidimg = request.FILES.get('guestid')
+            guestidbackimg = request.FILES.get('guestid1')
             checkindate = request.POST.get('guestcheckindate')
             checkoutdate = request.POST.get('guestcheckoutdate')
             noofguest = request.POST.get('noofguest')
@@ -6910,6 +6913,9 @@ def addguestdata(request):
                                         ,purposeofvisit=purposeofvisit,roomno=roomno,tax=gstname,discount=0.00,subtotal=invoicetotalamount,total=grabd_total_amount,noofrooms=1
                                         ,guestidtypes=idtype,guestsdetails=iddetails,gueststates=state,rate_plan=rateplanname,
                                         channel='PMS',saveguestid=None,male=male,female=female,transg=other,dp=departure,ar=arival)
+                if guestidbackimg:
+                    Guest_BackId.objects.create(vendor=user,guest=guestdata,
+                                guestidbackimg=guestidbackimg)
                 gsid=guestdata.id
                 if checkmoredatastatus == 'on':
                     moreguestname = request.POST.get('moreguestname')
@@ -7112,6 +7118,7 @@ def addguestdatafromadvanceroombook(request):
             guestcity = request.POST.get('guestcity')
             guestcountry = request.POST.get('guestcountry')
             guestidimg = request.FILES.get('guestid')
+            guestidbackimg = request.FILES.get('guestid1')
             checkindate = request.POST.get('guestcheckindate')
             checkoutdate = request.POST.get('guestcheckoutdate')
             noofguest = request.POST.get('noofguest')
@@ -7165,6 +7172,10 @@ def addguestdatafromadvanceroombook(request):
                                                 ,purposeofvisit=purposeofvisit,roomno=roomno,tax=tax,discount=discount,subtotal=subtotal,total=total,noofrooms=noofrooms
                                             ,rate_plan=rateplansdata.rateplan_code,guestidtypes=idtype,guestsdetails=iddetails,gueststates=state,saveguestid=saveguestdata.id,channel=saveguestdata.channal.channalname,
                                             male=male,female=female,transg=other,dp=departure,ar=arival)
+                    if guestidbackimg:
+                        Guest_BackId.objects.create(vendor=user,guest=guestdata,
+                                guestidbackimg=guestidbackimg)
+
                     Invoiceid = Invoice.objects.create(vendor=user,customer=guestdata,customer_gst_number="",
                                                 invoice_number="",invoice_date=checkindate,total_item_amount=0.0,discount_amount=discount,
                                                         subtotal_amount=0.0,gst_amount=0.0,sgst_amount=0.0,accepted_amount=0.00,

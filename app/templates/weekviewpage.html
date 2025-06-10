@@ -372,12 +372,24 @@ onmouseout="this.style.overflowX='auto'">
         <button onclick="changeDate(1)" class="btn btn-primary"><i class='bx bxs-right-arrow'></i></button>
     </div>
 
-    <div class="header-row mb-2">
+  <div class="header-row mb-2">
         <div class="card header-room text-center" style="width:100px">Rooms</div>
         {% for i in dates %}
-            <div class="card header-day">{{ i }}</div>
+            {% comment %} <div class="card header-day">{{ i }}</div> {% endcomment %}
+            <div class="card header-day date-label" data-date="{{ i }}">{{ i }}</div>
         {% endfor %}
-    </div>
+    </div> 
+ <script>
+  document.querySelectorAll('.date-label').forEach(el => {
+    const rawDate = el.getAttribute('data-date');
+    const date = new Date(rawDate);
+    const options = { weekday: 'short', day: '2-digit', month: 'short' };
+    const formatted = date.toLocaleDateString('en-US', options); // Example: "Wed, Jun 12"
+    el.textContent = formatted;
+  });
+</script>
+
+
 
     {% for category in categories %}
         <div class="card date-row">
@@ -418,6 +430,8 @@ onmouseout="this.style.overflowX='auto'">
                                                             <img src="{% static 'undercss/assets/img/icons/unicons/agoda.png'%}" alt="Credit Card" class="rounded" height='25px'/>
                                                         {% elif booking.segment == 'Goibibo' %}
                                                             <img src="{% static 'undercss/assets/img/icons/unicons/goibibos.png'%}" alt="Credit Card" class="rounded" height='25px'/>
+                                                        {%else%}
+                                                        <i class="fa-solid ms-1 fa-person-booth"></i>
                                                         {% endif %}
                                                         {{ booking.guest_name }}
                                                     </div>
@@ -440,6 +454,8 @@ onmouseout="this.style.overflowX='auto'">
                                                                 <img src="{% static 'undercss/assets/img/icons/unicons/agoda.png'%}" alt="Credit Card" class="rounded" height='25px'/>
                                                             {% elif booking.segment == 'Goibibo' %}
                                                                 <img src="{% static 'undercss/assets/img/icons/unicons/goibibos.png'%}" alt="Credit Card" class="rounded" height='25px'/>
+                                                            {%else%}
+                                                             <i class="fa-solid ms-1 fa-person-booth"></i>
                                                             {% endif %}
                                                             {{ booking.guest_name }}
                                                         </div>
@@ -477,7 +493,7 @@ onmouseout="this.style.overflowX='auto'">
 
 <style>
 .calendar-wrapper {
-  height: auto;
+  height: 500px;
   overflow-y: auto;
   overflow-x: auto; /* ✅ allow horizontal scroll */
   padding: 5px;

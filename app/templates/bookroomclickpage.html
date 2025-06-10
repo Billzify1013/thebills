@@ -657,13 +657,12 @@
       </div>
 
       <div class="row">
-          <div class="col-md-6 col-12">
+          <div class="col-md-3 col-12">
               <div class="mb-3">
-                Guest Id Image
-                  <div class="input-group input-group-merge">
+                Guest Id Front Image
+                  <div class="input-group ">
                     <p id="message1" style="color: red;"></p>
-                    <span id="basic-icon-default-company2" class="input-group-text"
-                      >Id-Document</span>
+                    
                       <input
                     type="file"
                     name = "guestid"
@@ -674,11 +673,27 @@
                     aria-describedby="inputGroupFileAddon04"
                     aria-label="Upload"
                   />
-                  <button class="btn btn-outline-primary" type="button" id="inputGroupFileAddon04">Browse</button>
                   </div>
                 </div>
           </div>
-          
+
+          <div class="col-md-3 col-12">
+          <div class="mb-3">
+            Guest Id Back Image
+            <div class="input-group input-group-merge">
+              <p id="message11" style="color: red;"></p>
+              <input
+                type="file"
+                name="guestid1"
+                class="form-control"
+                id="imageInput1"
+                accept="image/*"
+                aria-describedby="inputGroupFileAddon041"
+                aria-label="Upload"
+              />
+            </div>
+          </div>
+        </div>
           <script>
             const MAX_FILE_SIZE = 700 * 1024; // 700 KB
             const MAX_DIMENSION = 1200; // Maximum width or height to avoid unnecessary large images
@@ -769,12 +784,103 @@
                             file.type,
                             0.85 // Initial quality setting for fast compression
                         );
-                    };
-    
-                    reader.readAsDataURL(file);
+                        };
+        
+                        reader.readAsDataURL(file);
+                    });
+                }
+            </script>
+
+        <script>
+                const MAX_FILE_SIZE1 = 700 * 1024; // 700 KB
+                const MAX_DIMENSION1 = 1200; // Maximum width or height
+
+                document.getElementById('imageInput1').addEventListener('change', async function(event) {
+                    const input1 = event.target;
+                    const file1 = input1.files[0];
+                    const processingMessage1 = document.getElementById('processingMessage1');
+                    const preview1 = document.getElementById('preview1');
+
+                    if (!file1) return;
+
+                    processingMessage1.style.display = 'block';
+                    processingMessage1.textContent = "Processing your image, please wait...";
+                    preview1.style.display = 'none';
+
+                    const resizedFile1 = await resizeAndCompressImage1(file1, MAX_FILE_SIZE1, MAX_DIMENSION1);
+
+                    const dataTransfer1 = new DataTransfer();
+                    dataTransfer1.items.add(resizedFile1);
+                    input1.files = dataTransfer1.files;
+
+                    processingMessage1.style.display = 'none';
+                    preview1.src = URL.createObjectURL(resizedFile1);
+                    preview1.style.display = 'block';
                 });
-            }
-        </script>
+
+                async function resizeAndCompressImage1(file1, maxFileSize1, maxDimension1) {
+                    return new Promise((resolve) => {
+                        const img1 = new Image();
+                        const reader1 = new FileReader();
+
+                        reader1.onload = (e) => {
+                            img1.src = e.target.result;
+                        };
+
+                        img1.onload = () => {
+                            const canvas1 = document.createElement('canvas');
+                            const ctx1 = canvas1.getContext('2d');
+
+                            let { width, height } = img1;
+                            if (width > maxDimension1 || height > maxDimension1) {
+                                if (width > height) {
+                                    height *= maxDimension1 / width;
+                                    width = maxDimension1;
+                                } else {
+                                    width *= maxDimension1 / height;
+                                    height = maxDimension1;
+                                }
+                            }
+
+                            canvas1.width = width;
+                            canvas1.height = height;
+
+                            ctx1.drawImage(img1, 0, 0, width, height);
+
+                            canvas1.toBlob(
+                                (blob1) => {
+                                    if (blob1.size > maxFileSize1) {
+                                        canvas1.toBlob(
+                                            (finalBlob1) => {
+                                                resolve(
+                                                    new File([finalBlob1], file1.name, {
+                                                        type: file1.type,
+                                                        lastModified: Date.now(),
+                                                    })
+                                                );
+                                            },
+                                            file1.type,
+                                            0.7
+                                        );
+                                    } else {
+                                        resolve(
+                                            new File([blob1], file1.name, {
+                                                type: file1.type,
+                                                lastModified: Date.now(),
+                                            })
+                                        );
+                                    }
+                                },
+                                file1.type,
+                                0.85
+                            );
+                        };
+
+                        reader1.readAsDataURL(file1);
+                    });
+                }
+            </script>
+
 
           
 
@@ -799,8 +905,19 @@
                 {% comment %} <button type="button" class="btn btn-primary float-end" onclick="adddayscalculation()">Save Information & Continue</button> {% endcomment %}
           </div>
 
-          <p id="processingMessage" class="TEXT text-success">Processing your image, please wait...</p>
-        <img id="preview" alt="Resized Preview">
+        <div class="row">
+          <div class="col-6">
+            <p>Front Id</p>
+            <p id="processingMessage" class="TEXT text-success">Processing your image, please wait...</p>
+            <img id="preview" alt="Resized Preview">
+          </div>
+          <div class="col-6">
+            <p>Back Id</p>
+            <img id="preview1" src="#" style="display: none; max-width: 100%; margin-top: 10px;" />
+            <p id="processingMessage1" style="display: none; color: green;">Processing...</p>
+          </div>
+        </div>
+
 
       </div>
               

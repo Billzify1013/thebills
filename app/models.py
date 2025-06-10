@@ -963,3 +963,11 @@ class Vendor_Service(models.Model):
     vendor = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     full_software = models.BooleanField(default=False)
     only_cm = models.BooleanField(default=False)
+
+class Guest_BackId(models.Model):
+    vendor = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    guest = models.ForeignKey(Gueststay, on_delete=models.CASCADE, null=True, blank=True)
+    guestidbackimg = models.ImageField(upload_to='Guestid_Back', null=True, blank=True)
+    def __str__(self):
+        return f"{self.vendor.username} (Guest {self.guest.guestname})"
+    

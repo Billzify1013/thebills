@@ -35,12 +35,20 @@ id-proof :<img src="{{data.guestidimg.url}}" height="450px" width="100%"/><br>
 </a>
 {%endif%}
 
-{%endfor%}</p>
+{%endfor%}
+</p>
+
         </div>
     </div>
 
     <div class="col-6">
         <div class="card p-3">
+            {%for img in moreids%}
+            <h5>Back Id Image</h5>
+            <img src="{{img.guestidbackimg.url}}" height="450px" width="100%"/><br>
+            <a href="{{img.guestidbackimg.url}}" download="Back_desired_filename.jpg">
+                <button class="m-2 btn btn-primary mt-4">Download Image</button>
+            {%endfor%}
             <h5 class="text pt-3">More Guest Data</h5>
             <p class="text ">
                 {%if MoreGuestData%}

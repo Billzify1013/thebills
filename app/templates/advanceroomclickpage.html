@@ -176,7 +176,7 @@
           
           <div class="row">
             <div class="text-success" id="customerinfos"></div>
-              <div class="col-6">
+              <div class="col-12 col-md-6">
                   <div class="mb-3">
                     Guest Phone
                       <div class="input-group input-group-merge">
@@ -201,7 +201,7 @@
                     </div>
               </div>
 
-              <div class="col-6">
+              <div class="col-12 col-md-6">
                 
                 <div class="mb-3">
                   <span>Guest Name</span>
@@ -234,7 +234,7 @@
           
 
           <div class="row">
-              <div class="col-3">
+              <div class="col-12  col-md-3">
                 
                   <div class="mb-3 mt-3">
                     Guest Gmail
@@ -307,7 +307,7 @@
               </div>
 
 
-              <div class="col-3">
+              <div class="col-md-3">
                 Guest Address,City
                   <div class="mb-3 mt-3">
                       <div class="input-group input-group-merge">
@@ -326,7 +326,7 @@
                     </div>
               </div>
 
-              <div class="col-3">
+              <div class="col-md-3">
                 Guest Country
                   <div class="mb-3 mt-3">
                       <div class="input-group input-group-merge">
@@ -347,7 +347,7 @@
           </div>
 
           <div class="row">
-              <div class="col-6">
+              <div class="col-md-6">
                 Check-In Date
                   <div class="mb-3">
                       <div class="input-group input-group-merge">
@@ -364,7 +364,7 @@
                       </div>
                     </div>
               </div>
-              <div class="col-6">
+              <div class="col-md-6">
                 Check-Out Date
                   <div class="mb-3">
                     
@@ -388,7 +388,7 @@
           </div>
 
           <div class="row">
-            <div class="col-3">
+            <div class="col-md-3">
               <div class="mb-3 mt-3">
                 ID-TYPE
                   <div class="input-group input-group-merge">
@@ -408,7 +408,7 @@
                 </div>
           </div>
 
-          <div class="col-3">
+          <div class="col-md-3">
             <div class="mb-3 mt-3">
               ID-NUMBER
               <div class="input-group input-group-merge">
@@ -428,7 +428,7 @@
             </div>
         </div>
 
-        <div class="col-3">
+        <div class="col-md-3">
           <div class="mb-3 mt-3">
             Arrival
             <div class="input-group input-group-merge">
@@ -448,7 +448,7 @@
           </div>
       </div>
 
-      <div class="col-3">
+      <div class="col-md-3">
         <div class="mb-3 mt-3">
           Departure
           <div class="input-group input-group-merge">
@@ -468,7 +468,7 @@
         </div>
     </div>
 
-    <div class="col-2">
+    <div class="col-md-2">
       <div class="mb-3 mt-3">
         MALE <span class="text-danger">* </span>
           <div class="input-group input-group-merge">
@@ -490,7 +490,7 @@
       </div>
 
 
-        <div class="col-2">
+        <div class="col-md-2">
             <div class="mb-3 mt-3">
               FEMALE <span class="text-danger">* </span>
                 <div class="input-group input-group-merge">
@@ -510,7 +510,7 @@
                 </div>
               </div>
         </div>
-        <div class="col-2">
+        <div class="col-md-2">
             <div class="mb-3 mt-3">
               OTHER <span class="text-danger">* </span>
                 <div class="input-group input-group-merge">
@@ -531,7 +531,7 @@
               </div>
         </div>
 
-        <div class="col-2">
+        <div class="col-md-2">
           <div class="mb-3 mt-3">
             KIDS <span class="text-danger">* </span><span class="text text-success"> C: {{child}}</span>
               <div class="input-group input-group-merge">
@@ -552,7 +552,7 @@
             </div>
       </div>
 
-      <div class="col-2">
+      <div class="col-md-2">
         <div class="mb-3 mt-3">
           TOTAL ADULTS <span class="text-danger">*</span><span class="text text-success"> A: {{adults}}</span>
             <div class="input-group input-group-merge">
@@ -573,7 +573,7 @@
           </div>
     </div>
 
-          <div class="col-2">
+          <div class="col-md-2">
               <div class="mb-3 mt-3">
                 TOTAL GUEST <span class="text-danger">*</span><span class="text text-success"> T: {{i.saveguestdata.totalguest}}</span>
                   <div class="input-group input-group-merge">
@@ -633,13 +633,12 @@
       </div>
 
       <div class="row">
-          <div class="col-6">
-            Guest Id Photo
+          <div class="col-md-3">
+            Guest Id Front Photo
               <div class="mb-3">
-                  <div class="input-group input-group-merge">
+                  <div class="input-group">
                     <p id="message1" style="color: red;"></p>
-                    <span id="basic-icon-default-company2" class="input-group-text"
-                      >Id-Document</span>
+                    
                       <input
                     type="file"
                     name = "guestid"
@@ -648,10 +647,27 @@
                     aria-describedby="inputGroupFileAddon04"
                     aria-label="Upload"
                   />
-                  <button class="btn btn-outline-primary" type="button" id="inputGroupFileAddon04">Button</button>
-                  </div>
+                   </div>
                 </div>
           </div>
+
+          <div class="col-md-3 col-12">
+          <div class="mb-3">
+            Guest Id Back Image
+            <div class="input-group ">
+              <p id="message11" style="color: red;"></p>
+             <input
+                type="file"
+                name="guestid1"
+                class="form-control"
+                id="imageInput1"
+                accept="image/*"
+                aria-describedby="inputGroupFileAddon041"
+                aria-label="Upload"
+              />
+            </div>
+          </div>
+        </div>
 
           <script>
             const MAX_FILE_SIZE = 700 * 1024; // 700 KB
@@ -750,8 +766,98 @@
             }
         </script>
 
+        <script>
+                const MAX_FILE_SIZE1 = 700 * 1024; // 700 KB
+                const MAX_DIMENSION1 = 1200; // Maximum width or height
 
-          <div class="col-6">
+                document.getElementById('imageInput1').addEventListener('change', async function(event) {
+                    const input1 = event.target;
+                    const file1 = input1.files[0];
+                    const processingMessage1 = document.getElementById('processingMessage1');
+                    const preview1 = document.getElementById('preview1');
+
+                    if (!file1) return;
+
+                    processingMessage1.style.display = 'block';
+                    processingMessage1.textContent = "Processing your image, please wait...";
+                    preview1.style.display = 'none';
+
+                    const resizedFile1 = await resizeAndCompressImage1(file1, MAX_FILE_SIZE1, MAX_DIMENSION1);
+
+                    const dataTransfer1 = new DataTransfer();
+                    dataTransfer1.items.add(resizedFile1);
+                    input1.files = dataTransfer1.files;
+
+                    processingMessage1.style.display = 'none';
+                    preview1.src = URL.createObjectURL(resizedFile1);
+                    preview1.style.display = 'block';
+                });
+
+                async function resizeAndCompressImage1(file1, maxFileSize1, maxDimension1) {
+                    return new Promise((resolve) => {
+                        const img1 = new Image();
+                        const reader1 = new FileReader();
+
+                        reader1.onload = (e) => {
+                            img1.src = e.target.result;
+                        };
+
+                        img1.onload = () => {
+                            const canvas1 = document.createElement('canvas');
+                            const ctx1 = canvas1.getContext('2d');
+
+                            let { width, height } = img1;
+                            if (width > maxDimension1 || height > maxDimension1) {
+                                if (width > height) {
+                                    height *= maxDimension1 / width;
+                                    width = maxDimension1;
+                                } else {
+                                    width *= maxDimension1 / height;
+                                    height = maxDimension1;
+                                }
+                            }
+
+                            canvas1.width = width;
+                            canvas1.height = height;
+
+                            ctx1.drawImage(img1, 0, 0, width, height);
+
+                            canvas1.toBlob(
+                                (blob1) => {
+                                    if (blob1.size > maxFileSize1) {
+                                        canvas1.toBlob(
+                                            (finalBlob1) => {
+                                                resolve(
+                                                    new File([finalBlob1], file1.name, {
+                                                        type: file1.type,
+                                                        lastModified: Date.now(),
+                                                    })
+                                                );
+                                            },
+                                            file1.type,
+                                            0.7
+                                        );
+                                    } else {
+                                        resolve(
+                                            new File([blob1], file1.name, {
+                                                type: file1.type,
+                                                lastModified: Date.now(),
+                                            })
+                                        );
+                                    }
+                                },
+                                file1.type,
+                                0.85
+                            );
+                        };
+
+                        reader1.readAsDataURL(file1);
+                    });
+                }
+            </script>
+
+
+          <div class="col-md-6">
             Purpose Of Visit
               <div class="mb-3">
                 <div class="input-group input-group-merge">
@@ -770,12 +876,11 @@
                 </div>
                 
           </div>
-          <p id="processingMessage" class="TEXT text-success">Processing your image, please wait...</p>
-        <img id="preview" alt="Resized Preview">
+          
 
 
           <div class="row" >
-            <div id="onebyonefullid" class="col-8 form-check form-switch mb-2 ms-3 border-danger" style="border:px solid red;border-radius:10px">
+            <div id="onebyonefullid" class="col-md-8 form-check form-switch mb-2 ms-3 border-danger" style="border:px solid red;border-radius:10px">
               <span class="badge bg-label-warning mb-1 me-1 mt-1  ">*NOTE</span>
               <label class="form-check-label mt-1 text-warning" style="margin-left:px;" for="flexSwitchCheckChecked"
                 >If your guest has booked multiple rooms and they want to <strong>check-in one room at a time</strong>, please turn on the button. By default, this button will check-in all the rooms that the guest has booked..</label
@@ -793,7 +898,18 @@
             document.getElementById('onebyonefullid').style.display = "none";
         }
     </script>
-      
+       <div class="row">
+          <div class="col-6">
+            <p>Front Id</p>
+            <p id="processingMessage" class="TEXT text-success">Processing your image, please wait...</p>
+            <img id="preview" alt="Resized Preview">
+          </div>
+          <div class="col-6">
+            <p>Back Id</p>
+            <img id="preview1" src="#" style="display: none; max-width: 100%; margin-top: 10px;" />
+            <p id="processingMessage1" style="display: none; color: green;">Processing...</p>
+          </div>
+        </div>
           
         
       </div> 
@@ -934,14 +1050,14 @@
                             <span class="ms-4"><b>Special Request:{{i.special_requests}}</b></span>
                           </div>
                   <div class="row mt-4 text-center" >
-                        <div class="col-3">
+                        <div class="col-md-3">
                         <h6>Total Amount : <span class="text-success  badge bg-label-success me-1">{{i.total_amount}}</span></h6></div>
-                        <div class="col-3"><h6>Advance Amount : <span class="text-success  badge bg-label-success me-1">{{i.advance_amount}}</span></h6></div>
-                        <div class="col-3"><h6>Discount Amount : <span class="text-primary  badge bg-label-primary me-1">{{i.discount}}
+                        <div class="col-md-3"><h6>Advance Amount : <span class="text-success  badge bg-label-success me-1">{{i.advance_amount}}</span></h6></div>
+                        <div class="col-md-3"><h6>Discount Amount : <span class="text-primary  badge bg-label-primary me-1">{{i.discount}}
                         </span><br>
                         <span id="morediscount" class="text-primary  badge bg-label-primary me-1"></span>
                     </h6></div>
-                        <div class="col-3"><h6>Remaining Amount :  <span id="reamainingamt" class="text-warning  badge bg-label-warning me-1">{{i.reamaining_amount}}</span></h6></div>
+                        <div class="col-md-3"><h6>Remaining Amount :  <span id="reamainingamt" class="text-warning  badge bg-label-warning me-1">{{i.reamaining_amount}}</span></h6></div>
                     <input type="hidden" value="{{i.reamaining_amount}}" id="reamainingamount">
 
                 </div></div></div>
