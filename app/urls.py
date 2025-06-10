@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views,newcode
-from . import manageQR
+from . import manageQR,cm_file
 from . import employeemanage,loyltys,hourlypage,donwloadexcel
 from django.conf import settings
 from django.conf.urls.static import static
@@ -493,6 +493,42 @@ urlpatterns = [
     path('editcommtdc/', travelagancy.editcommtdc, name='editcommtdc'),
     path('bookingrevoke/<int:id>/', travelagancy.bookingrevoke, name='bookingrevoke'),
     path('bookingrevokenot/<int:id>/', travelagancy.bookingrevokenot, name='bookingrevokenot'),
+
+    # channel manager newworking here
+    path('cm/', travelagancy.cm, name='cm'),
+    path('bulkupdatecm/',employeemanage.bulkupdatecm,name="bulkupdatecm"),
+    path('priceshow_new_cm/', cm_file.priceshow_new_cm, name='priceshow_new_cm'),
+    path('next_day_new_cm/', cm_file.next_day_new_cm, name='next_day_new_cm'),
+    path('change_date_new_cm/', cm_file.change_date_new_cm, name='change_date_new_cm'),
+    path('save_prices_new_cm/', cm_file.save_prices_new_cm, name='save_prices_new_cm'),
+
+    path('inventory_view_cm/', cm_file.inventory_view_cm, name='inventory_view_cm'),
+    path('next_day_inventory_cm/', cm_file.next_day_inventory_cm, name='next_day_inventory_cm'),
+    path('change_date_inventory_cm/', cm_file.change_date_inventory_cm, name='change_date_inventory_cm'),
+    path('save_inventory_new_cm/', cm_file.save_inventory_new_cm, name='save_inventory_new_cm'),
+    
+    path('ota_Commission_cm/', cm_file.ota_Commission_cm, name='ota_Commission_cm'),
+    path('create_roomcount/', cm_file.create_roomcount, name='create_roomcount'),
+    path('addroomcount/', cm_file.addroomcount, name='addroomcount'),
+
+    path('sync_inventory_cm/', cm_file.sync_inventory_cm, name='sync_inventory_cm'),
+
+    path('bulkinventoryform_cm/',cm_file.bulkinventoryform_cm,name="bulkinventoryform_cm"),
+
+    path('bulkformprice_cm/',cm_file.bulkformprice_cm,name="bulkformprice_cm"),
+    path('channel_manager_aiosell_new_reservation', cm_file.channel_manager_aiosell_new_reservation, name='channel_manager_aiosell_new_reservation'),
+
+    path('searchguestdataadvance_cm/',cm_file.searchguestdataadvance_cm,name="searchguestdataadvance_cm"),
+
+    path('advancebookingdetails_cm/<int:id>/',cm_file.advancebookingdetails_cm,name="advancebookingdetails_cm"),
+    path('addpaymenttobooking_cm/<int:booking_id>/',cm_file.addpaymenttobooking_cm,name="addpaymenttobooking_cm"),
+    path('addpymenttoboking_cm/',cm_file.addpymenttoboking_cm,name="addpymenttoboking_cm"),
+    path('edittotalbookingamount_cm/', cm_file.edittotalbookingamount_cm, name='edittotalbookingamount_cm'),
+    path('cmnotification/', cm_file.cmnotification, name='cmnotification'),
+    path('dashboardcm/', cm_file.dashboardcm, name='dashboardcm'),
+    path('salescm/', cm_file.salescm, name='salescm'),
+
+
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

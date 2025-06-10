@@ -457,7 +457,7 @@ onmouseout="this.style.overflowX='auto'">
                                                          onclick="showBookingInfo('{{ booking.id }}','{{ booking.guest_name }}', '{{ room.room_name }}', '{{ booking.check_in_date }}',
                                                           '{{ booking.check_out_date }}','{{ booking.checkintime }}' ,'{{ booking.checkouttime }}' ,'{{ booking.segment }}','{{ booking.totalroom }}','{{ booking.totalamount }}','{{ booking.status }}','{{booking.fnbid}}')">
                                                         {% comment %} {% if not forloop.first %} {% endcomment %}
-                                                            <div class="guest-name"></div>
+                                                            {% comment %} <div class="guest-name">{{ booking.guest_name }}</div> {% endcomment %}
                                                         {% comment %} {% endif %} {% endcomment %}
                                                     </div>
                                                 {% endif %}

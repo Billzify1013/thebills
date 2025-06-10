@@ -59,7 +59,10 @@ class Rooms(models.Model):
     
     # hsn required in gst bill according to services
     
-
+class Rooms_count(models.Model):
+    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
+    room_type = models.ForeignKey(RoomsCategory,on_delete=models.CASCADE)
+    total_room_numbers = models.IntegerField(default=0)
 
 
 class Gueststay(models.Model):
@@ -643,6 +646,30 @@ class extraBookingAmount(models.Model):
     grand_total_amount = models.DecimalField(max_digits=10, decimal_places=2)
 
 
+class Cm_RoomBookAdvance(models.Model):
+    vendor = models.ForeignKey(User,on_delete=models.CASCADE)
+    room_category = models.ForeignKey(RoomsCategory,on_delete=models.CASCADE)
+    saveguestdata = models.ForeignKey(SaveAdvanceBookGuestData,on_delete=models.CASCADE)
+
+    bookingguest = models.CharField(max_length=100)
+    bookingguestphone = models.BigIntegerField(
+        validators=[MaxValueValidator(9999999999)]
+    )
+    totalguest = models.CharField(max_length=10,null=True,blank=True,default="")
+    rateplan_code = models.CharField(max_length=50,null=True,blank=True)
+    rateplan_code_main = models.CharField(max_length=50,null=True,blank=True,default='')
+    guest_name = models.CharField(max_length=100,null=True,blank=True)
+    adults = models.PositiveIntegerField(null=True,blank=True)
+    children = models.PositiveIntegerField(null=True,blank=True)
+    sell_rate = models.FloatField(null=True,blank=True)
+    
+    def __str__(self) -> str:
+        return self.bookingguest
+    
+class Cm_bookpricesdates(models.Model):
+    roombook = models.ForeignKey(Cm_RoomBookAdvance,on_delete=models.CASCADE,blank=True,null=True)
+    date = models.CharField(max_length=250,blank=True,null=True)
+    price = models.FloatField(default=0.0,blank=True,null=True)
 
 class Booking(models.Model):
     vendor = models.ForeignKey(User,on_delete=models.CASCADE)
@@ -930,3 +957,9 @@ class room_services(models.Model):
 class whatsaap_link(models.Model):
     vendor = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     link = models.URLField(blank=True, null=True) 
+
+
+class Vendor_Service(models.Model):
+    vendor = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    full_software = models.BooleanField(default=False)
+    only_cm = models.BooleanField(default=False)

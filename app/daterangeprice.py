@@ -317,105 +317,105 @@ def change_date_inventory(request):
 
 
 
-def save_inventory_new(request):
-    """ Save inventory prices submitted from the form """
+# def save_inventory_new(request):
+#     """ Save inventory prices submitted from the form """
 
-    if not request.user.is_authenticated:
-        return redirect('loginpage')
+#     if not request.user.is_authenticated:
+#         return redirect('loginpage')
 
-    if request.method == "POST":
-        user = request.user
+#     if request.method == "POST":
+#         user = request.user
 
-        # Handle subuser case
-        subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
-        if subuser:
-            user = subuser.vendor  
+#         # Handle subuser case
+#         subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+#         if subuser:
+#             user = subuser.vendor  
 
         
 
-        # Get selected start date from the form
-        selected_date_str = request.POST.get('selected_date')
-        if selected_date_str:
-            try:
-                selected_date = datetime.strptime(selected_date_str, "%Y-%m-%d").date()
-            except ValueError:
-                messages.error(request, "Invalid date format!")
-                return redirect('priceshow_new')
-        else:
-            selected_date = datetime.now().date()
+#         # Get selected start date from the form
+#         selected_date_str = request.POST.get('selected_date')
+#         if selected_date_str:
+#             try:
+#                 selected_date = datetime.strptime(selected_date_str, "%Y-%m-%d").date()
+#             except ValueError:
+#                 messages.error(request, "Invalid date format!")
+#                 return redirect('priceshow_new')
+#         else:
+#             selected_date = datetime.now().date()
 
-        if VendorCM.objects.filter(vendor=user,inventory_active=True):
-            pass
-        else:
-            messages.error(request, "Your Permission is Denied via Admin")
-            return redirect(f"/inventory_view/?start_date={selected_date.strftime('%Y-%m-%d')}")
+#         if VendorCM.objects.filter(vendor=user,inventory_active=True):
+#             pass
+#         else:
+#             messages.error(request, "Your Permission is Denied via Admin")
+#             return redirect(f"/inventory_view/?start_date={selected_date.strftime('%Y-%m-%d')}")
 
 
-        # Generate date range (Fix: Use form-submitted date)
-        date_range = [selected_date + timedelta(days=i) for i in range(7)]
+#         # Generate date range (Fix: Use form-submitted date)
+#         date_range = [selected_date + timedelta(days=i) for i in range(7)]
 
-        enddate = selected_date + timedelta(days=6)
-        print("check this dates",selected_date,enddate)
+#         enddate = selected_date + timedelta(days=6)
+#         print("check this dates",selected_date,enddate)
 
-        # Fetch all categories
-        categories = RoomsCategory.objects.filter(vendor=user)
+#         # Fetch all categories
+#         categories = RoomsCategory.objects.filter(vendor=user)
     
-        # Process form data and update inventory
-        for category in categories:
-            for date in date_range:
-                price_key = f"price_{category.category_name}_{date.strftime('%Y-%m-%d')}"
-                price = request.POST.get(price_key, "").strip()
+#         # Process form data and update inventory
+#         for category in categories:
+#             for date in date_range:
+#                 price_key = f"price_{category.category_name}_{date.strftime('%Y-%m-%d')}"
+#                 price = request.POST.get(price_key, "").strip()
 
-                if price:  # Ensure inventory is not empty
-                    try:
-                        price = price
-                    except ValueError:
-                        continue  # Skip invalid price values
+#                 if price:  # Ensure inventory is not empty
+#                     try:
+#                         price = price
+#                     except ValueError:
+#                         continue  # Skip invalid price values
                 
-                    # Update or create inventory entry
-                    if RoomsInventory.objects.filter(vendor=user,room_category=category,date=date).exists():
-                        RoomsInventory.objects.filter(
-                            vendor=user,
-                            room_category=category,
-                            date=date
-                        ).update(
-                            total_availibility = price #this is actual inventory
-                        )
+#                     # Update or create inventory entry
+#                     if RoomsInventory.objects.filter(vendor=user,room_category=category,date=date).exists():
+#                         RoomsInventory.objects.filter(
+#                             vendor=user,
+#                             room_category=category,
+#                             date=date
+#                         ).update(
+#                             total_availibility = price #this is actual inventory
+#                         )
 
-                    else:
-                        RoomsInventory.objects.create(
-                            vendor=user,
-                            room_category=category,
-                            date=date,
-                            booked_rooms=0,
-                            total_availibility=price,
-                            price=category.catprice,
-                            occupancy=0
-                        )
+#                     else:
+#                         RoomsInventory.objects.create(
+#                             vendor=user,
+#                             room_category=category,
+#                             date=date,
+#                             booked_rooms=0,
+#                             total_availibility=price,
+#                             price=category.catprice,
+#                             occupancy=0
+#                         )
                         
 
 
-                    # Debugging Output
-                    print(f"Updated: {date} | Category: {category.category_name} | avaibility: {price}")
-        if VendorCM.objects.filter(vendor=user):
-                start_date = str(selected_date)
-                end_date = str(enddate)
+#                     # Debugging Output
+#                     print(f"Updated: {date} | Category: {category.category_name} | avaibility: {price}")
+#         if VendorCM.objects.filter(vendor=user):
+#                 start_date = str(selected_date)
+#                 end_date = str(enddate)
                     
-                    # for dynamic pricing
+#                     # for dynamic pricing
                
-        else:
-                    pass
-        start_date = str(selected_date)
-        end_date = str(enddate)
-        logsdesc = f"Update Inventory For All Category, From {start_date} To {end_date}"
-        bulklogs.objects.create(vendor=user,by=request.user,action="Update Inventory",
-                    description = logsdesc)
-        messages.success(request, "Inventory updated successfully!")
-        return redirect(f"/inventory_view/?start_date={selected_date.strftime('%Y-%m-%d')}")
+#         else:
+#                     pass
+#         start_date = str(selected_date)
+#         end_date = str(enddate)
+#         logsdesc = f"Update Inventory For All Category, From {start_date} To {end_date}"
+#         bulklogs.objects.create(vendor=user,by=request.user,action="Update Inventory",
+#                     description = logsdesc)
+#         messages.success(request, "Inventory updated successfully!")
+#         return redirect(f"/inventory_view/?start_date={selected_date.strftime('%Y-%m-%d')}")
     
-    else:
-        messages.error(request, "Method Not Exists!")
-    return redirect('inventory_view')
+#     else:
+#         messages.error(request, "Method Not Exists!")
+#     return redirect('inventory_view')
 
 
 

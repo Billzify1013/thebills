@@ -1,0 +1,208 @@
+{% extends "cm_base.html" %}
+{% block content %}
+{% load static %}
+
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <a href="{% url 'billingplanpage' %}" style="text-decoration:none;">
+    <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div></a>
+    {%endif%}
+</div>
+{%endfor%}
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 1000);
+  });
+</script>
+{%endif%}
+
+<style>
+  /* Scrollable but no scrollbar */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  overflow-y: hidden !important;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+#search-input, textarea, select {
+  font-size: 16px !important;
+}
+</style>
+
+
+
+<div class="overflow-x-auto hide-scrollbar" style="white-space: nowrap;">
+                  <div class="row flex-nowrap gx-3">
+
+                    <div class="col-6 col-md-4 mb-4">
+                      <div class="card" style="height:126px;">
+                        <div class="d-flex align-items-end row">
+                          <div class="col-sm-12">
+                            <div class="card-body">
+                              <h6 class="card-title"> Today Availability</h6>
+                              <div class="row pt-3">
+                                <div class="col-6 mb-1 ">
+                                  <i class='bx bxs-offer bx-md text-success'></i>
+                                </div>
+                                <div class="col-6">
+                                  <h6 class="card-title mt-1 text-center fs-xlarge">{{total_available}}</h6>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-6 col-md-4 mb-4">
+                      <a href="{% url 'todaybookingpage' %}">
+                        <div class="card" style="height:126px;">
+                          <div class="d-flex align-items-end row">
+                            <div class="col-sm-12">
+                              <div class="card-body">
+                                <h6 class="card-title"> Today Arrivals </h6>
+                                <div class="row ">
+                                  <div class="col-6 mt-3">
+                                    <i class='bx bxs-plane-land bx-md text-gray'></i>
+                                  </div>
+                                  <div class="col-6 mt-3">
+                                    <h6 class="card-title mt-2 text-center fs-xlarge">{{checin_roombok}}</h6>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </a>
+                    </div>
+
+                     <div class="col-6 col-md-4 mb-4">
+                      <div class="card" style="height:126px;">
+                        <div class="d-flex align-items-end row">
+                          <div class="col-sm-12">
+                            <div class="card-body">
+                              <h6 class="card-title"> Today Departure</h6>
+                              <div class="row pt-3">
+                                <div class="col-6 mb-1">
+                                  <i class='bx bxs-plane-take-off bx-md mt-1 mb-1 me-5'></i>
+                                </div>
+                                <div class="col-6">
+                                  <h6 class="card-title mt-2 text-center fs-xlarge">{{checout_roombok}}</h6>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    
+
+                  </div>
+                </div>
+                <!-- SCROLLABLE ROW END -->
+
+
+<div class="row">
+    {%if checkinids%}
+    <h5 class="card-title p-2 ms-2">Today Arrivals</h5>
+    {%endif%}
+    {%for booking in checkinids%}
+    <div class="col-12 col-md-4 mb-2">
+        <div class="card">
+            <div class="row p-2">
+                <div class="col-2 ps-4 pt-2">
+                    {% if booking.channal.channalname == 'MakeMyTrip' %}  
+                            <img src="{% static 'undercss/assets/img/icons/unicons/mmtshort.png'%}" alt="Credit Card" class="rounded" height='20px'/>
+                    {% elif booking.channal.channalname == 'BOOKING-ENGINE' %}
+                            <img src="{% static 'undercss/assets/img/icons/unicons/billzify.png'%}" alt="Credit Card" class="rounded" height='20px'/>
+                    {% elif booking.channal.channalname == 'booking.com' %}
+                            <img src="{% static 'undercss/assets/img/icons/unicons/bcom.png'%}" alt="Credit Card" class="rounded" height='20px'/>
+                    {% elif booking.channal.channalname == 'agoda' %}
+                            <img src="{% static 'undercss/assets/img/icons/unicons/agoda.png'%}" alt="Credit Card" class="rounded" height='25px'/>
+                    {% elif booking.channal.channalname == 'Goibibo' %}
+                            <img src="{% static 'undercss/assets/img/icons/unicons/goibibos.png'%}" alt="Credit Card" class="rounded" height='25px'/>
+                    {% endif %}
+                </div>
+                <div class="col-10 ">
+                  <a href="{% url 'advancebookingdetails_cm' id=booking.id %}">  <h5 class="card-title p-2">{{booking.bookingguest}}</h5></a>
+                </div>
+                
+            </div>
+            <div class="row p-2">
+                <div class="col-2 ps-4 pt-2">
+                  <div class="position-relative d-inline-block" id="phoneWrapper">
+                    <i class="fa-solid fa-phone-volume fs-4 text-primary" style="cursor: pointer;"></i>
+
+                    <!-- Phone number text toggle -->
+                    <div class="alert alert-secondary py-1 px-1 mt-1 position-absolute d-none" id="phoneText" style="font-size: 14px;">
+                        <a href="tel:{{booking.bookingguestphone}}" class="text-decoration-none text-dark">
+                        {{booking.bookingguestphone}}
+                        </a>
+                    </div>
+                    </div>
+
+                    <!-- Script -->
+                    <script>
+                    const phoneIcon = document.querySelector('#phoneWrapper i');
+                    const phoneText = document.getElementById('phoneText');
+
+                    phoneIcon.addEventListener('click', function () {
+                        phoneText.classList.toggle('d-none');
+                    });
+                    </script>
+
+                </div>
+                <div class="col-5 ">
+                    Check-In <i class="fa-solid fa-people-arrows"></i><br>
+                    {{booking.bookingdate}}
+                </div>
+                <div class="col-5 ">
+                    Check-Out <i class="fa-solid fa-arrow-right-from-bracket"></i>  <br>
+                    {{booking.checkoutdate}}
+                </div>
+                
+            </div>
+            <hr class="mt-0 m-2">
+            <h5 class="card-title p-2 pt-1">Amount ₹ {{booking.total_amount}}
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+                {% if booking.Payment_types == 'prepaid' %}
+            <span class="badge bg-label-success">{{ booking.Payment_types }}</span>
+            {% elif booking.Payment_types == 'postpaid' %}
+            <span class="badge bg-label-warning">{{ booking.Payment_types }}</span>
+            {% else %}
+            <span class="badge bg-label-info">{{ booking.Payment_types }}</span>
+            {% endif %}
+            </h5>
+
+        </div>
+    </div>
+    {%endfor%}
+</div>
+
+
+
+
+
+
+{%endblock%}

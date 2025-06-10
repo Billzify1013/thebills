@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "cm_base.html" %}
 {% block content %}
 
 
@@ -81,7 +81,11 @@
                 {%for i in roomdata%}
 
                     {{forloop.counter}}<br>
-                    Room {{i.roomno.room_name}}, {{i.roomno.room_type}}<br>
+                    {%if i.roomno.room_name%}
+                    Room {{i.roomno.room_name}}, {{i.roomno.room_type}}
+                    {%else%}
+                    Room Category: {{i.room_category}}<br>
+                    {%endif%}<br>
                     Room Sell-price {{i.sell_rate|floatformat:2}} (For 1 Day Exclude Tax)<br>
                     Room Meal-Plan {{i.rateplan_code}}<br>
                     Room Rate-Plan {{i.rateplan_code_main}}<br>
@@ -117,9 +121,14 @@
                                 <td> {{payment.price|floatformat:2}}
                                     
                                 </span></td>
-                                <td><span class="text w-50">{{payment.roombook.roomno.room_name}}</span>
-                                
+                                <td>
+                                    {%if payment.roombook.roomno%}
+                                    <span class="text w-50">{{payment.roombook.roomno.room_name}}</span>
+                                    {%else%}
+                                    <span class="text w-50">{{payment.roombook.room_category}}</span>
                                     
+                                    {%endif%}
+                                </td>
                             </tr>
                             {%endfor%}
                             
@@ -153,7 +162,7 @@
           </button>
           <ul class="dropdown-menu">
 
-            <li><a class="dropdown-item" href="{% url 'addpaymenttobooking' booking_id=i.id %}"><i class='bx bxl-paypal'></i>Add-Payment</a>
+            <li><a class="dropdown-item" href="{% url 'addpaymenttobooking_cm' booking_id=i.id %}"><i class='bx bxl-paypal'></i>Add-Payment</a>
             </li>
             <li><a class="dropdown-item" data-bs-toggle="modal"
         data-bs-target="#backDropModal"><i class="bx bx-edit-alt me-1"></i>Guest Details</a></li>
@@ -607,7 +616,7 @@ data-bs-target="#backDropModaleditrooms">..</a>
 <!-- edit Room Details amounts -->
 <div class="modal fade " id="backDropModaleditfinalamount" data-bs-backdrop="static" tabindex="-1">
   <div class="modal-dialog">
-      <form action="{% url 'edittotalbookingamount'  %}" method="POST" class="modal-content">
+      <form action="{% url 'edittotalbookingamount_cm'  %}" method="POST" class="modal-content">
           {% csrf_token %}
       
       <div class="modal-header">

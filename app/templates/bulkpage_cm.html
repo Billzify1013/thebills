@@ -1,0 +1,280 @@
+{% extends "cm_base.html" %}
+{% block content %}
+
+
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <a href="{% url 'billingplanpage' %}" style="text-decoration:none;">
+    <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div></a>
+    {%endif%}
+</div>
+{%endfor%}
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 1000);
+  });
+</script>
+{%endif%}
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+    }
+    .table-container {
+        margin-top: 20px;
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+        box-sizing: border-box;
+        padding: 0 15px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        border: 1px solid #ccc;
+        padding: 7px;
+        text-align: center;
+    }
+    th {
+        background-color: #f9f9f9;
+        font-weight: bold;
+    }
+    tbody tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+</style>
+
+
+<div class="row">
+
+    <div class="col-3 p-3">
+        <button class="btn btn-primary" onclick="ratebulkupdate()">₹ Rate Bulk Update</button>
+    </div>
+    
+    <div class="col-3 p-3">
+        <button class="btn btn-primary" onclick="inventoryform()">Inventory Bulk Update</button>
+    </div>
+
+    
+{% comment %} 
+    <div class="col-3 p-3">
+        <button class="btn btn-primary" onclick="showsellform()">Sell Stop Bulk Update</button>
+    </div>
+
+    
+    <div class="col-3 p-3">
+        <button class="btn btn-primary" onclick="sellonbulk()">Sell On Bulk Update</button>
+    </div> {% endcomment %}
+</div>
+
+<script>
+   
+
+    function inventoryform() {
+        document.getElementById('inventorybulkupdate').style.display="block";
+        document.getElementById('ratebulid').style.display="none";
+    }
+
+    function ratebulkupdate() {
+        document.getElementById('inventorybulkupdate').style.display="none";
+        document.getElementById('ratebulid').style.display="block";
+    }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<a class="float-end m-2" href="{% url 'bulklogshow' %}">Logs</a>
+
+
+<div id="inventorybulkupdate" style="display:none">
+    <div class="card " >
+        <h3 class="text m-2 mt-3 ms-4">Inventory Edits</h3>
+        <form action="{% url 'bulkinventoryform_cm' %}" method="post">
+            {% csrf_token %}
+            <div class="row m-2">
+                <div class="mb-1  col-md-3">
+                    <label for="guestname" class="form-label">Start Date</label>
+                    <input class="form-control" type="date" value="{{today|date:'Y-m-d'}}" id="guestname" name="startdate" placeholder="John" />
+                </div>
+    
+                <div class="mb-1 col-md-3">
+                    <label for="guestphone" class="form-label">End Date</label>
+                    <input class="form-control" type="date" value="{{today|date:'Y-m-d'}}" id="guestphone" name="enddate" placeholder="9178XXXX11" />
+                </div>
+    
+                
+    
+            
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Enable<br>
+                                    Category </th>
+                                <th>Rateplans</th>
+                                <th>Room Availibity</th>
+                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in roomcat %}
+                            <tr>
+                                <td>
+                                    <input type="checkbox" name="selected_categories" value="{{ i.id }}">
+                                </td>
+                                <td>{{ i.category_name }}</td>
+                                <td>
+                                    <input type="number" name="catavaibility_{{ i.id }}" value="" min="1">
+                                </td>
+                            </tr>
+                            {% endfor %}
+                          
+                        </tbody>
+                    </table>
+                </div>
+                
+                <button class="btn btn-primary w-25 m-3">Inventory Update</button>
+    
+    
+      </div>
+    
+    </div>
+    </form>
+    </div>
+
+
+    
+
+<div id="ratebulid" style="display:none">
+    <div class="card " >
+        <h3 class="text m-2 mt-3 ms-4">Rate Edits</h3>
+        {%if check%}
+        <span class="text-danger ms-4">If You Want To Update Bulk Rates Please Of Dynamic Pricing !</span>
+        {%else%}
+        <form action="{% url 'bulkformprice_cm' %}" method="post">
+            {% csrf_token %}
+            <div class="row m-2">
+                <div class="mb-1  col-md-3">
+                    <label for="guestname" class="form-label">Start Date</label>
+                    <input class="form-control" type="date" value="{{today|date:'Y-m-d'}}" id="guestname" name="startdate" placeholder="John" />
+                </div>
+    
+                <div class="mb-1 col-md-3">
+                    <label for="guestphone" class="form-label">End Date</label>
+                    <input class="form-control" type="date" value="{{today|date:'Y-m-d'}}" id="guestphone" name="enddate" placeholder="9178XXXX11" />
+                </div>
+    
+                <div class="mt-2 mb-2">
+                    <label class="form-label">Monday</label>
+                    <input class="form-check-input  " type="checkbox" name="mon" width='25px' checked />
+
+                    &nbsp;&nbsp;
+
+                    <label class="form-label">Tuesday</label>
+                    <input class="form-check-input  " type="checkbox" name="tues" width='25px' checked />
+
+                    &nbsp;&nbsp;
+
+                    <label class="form-label">Wednesday</label>
+                    <input class="form-check-input  " type="checkbox" name="wed" width='25px' checked />
+
+                    &nbsp;&nbsp;
+
+                    <label class="form-label">Thursday</label>
+                    <input class="form-check-input  " type="checkbox" name="thur" width='25px' checked />
+
+                    &nbsp;&nbsp;
+
+                    <label class="form-label">Friday</label>
+                    <input class="form-check-input  " type="checkbox" name="fri" width='25px' checked />
+
+                    &nbsp;&nbsp;
+
+                    <label class="form-label">Saturday</label>
+                    <input class="form-check-input  " type="checkbox" name="sat" width='25px' checked />
+
+                    &nbsp;&nbsp;
+
+                    <label class="form-label">Sunday</label>
+                    <input class="form-check-input  " type="checkbox" name="sun" width='25px' checked />
+                
+                </div>
+    
+            
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Enable<br>
+                                    Category </th>
+                                <th>Rateplans</th>
+                                <th>price</th>
+                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in roomcat %}
+                            <tr>
+                                <td>
+                                    <input type="checkbox" name="selected_categories" value="{{ i.id }}">
+                                </td>
+                                <td>{{ i.category_name }}</td>
+                                <td>
+                                    <input type="number" name="catavaibility_{{ i.id }}" value="{{i.catprice}}">
+                                </td>
+                            </tr>
+                            {% endfor %}
+                          
+                          
+                        </tbody>
+                    </table>
+                </div>
+                
+                <button class="btn btn-primary w-25 m-3">Rate Update</button>
+    
+    
+      </div>
+    
+    </div>
+    </form>
+    {%endif%}
+    </div>
+
+
+
+
+</div>
+
+
+
+{%endblock%}

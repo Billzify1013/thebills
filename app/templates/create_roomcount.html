@@ -1,0 +1,147 @@
+{% extends "cm_base.html" %}
+{% block content %}
+
+
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%endif%}
+</div>
+{%endfor%}
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 1000);
+      setTimeout(function() {
+        $("#danger-alert").fadeTo(500, 0).slideUp(500, function(){
+            $(this).remove(); 
+        });
+    }, 5000);
+      
+  });
+</script>
+{%endif%}
+
+
+
+<!--Room Create button-->
+        
+<div class="row"> 
+    <div class="col-10">
+        <h5 class="card-title  ms-2 mt-1">Add New Rooms</h5>
+    </div> 
+    <div class="col-2">
+        <button class="btn btn-primary  w-100 "   data-bs-toggle="modal"
+        data-bs-target="#backDropModal"><i class='bx bx-buildings mb-1' ></i> Add Room</button>
+    </div> 
+
+</div>  
+<!--Room Create button end-->
+
+ <!-- Bootstrap Table with Header - Light -->
+ <div class="card mt-5">
+    <h5 class="card-header">All Rooms</h5>
+    <div class="table-responsive text-nowrap">
+      <table class="table">
+        <thead class="table-light">
+          <tr>
+            <th>Room Category</th>
+            <th>Total Rooms</th>
+          </tr>
+        </thead>
+        <tbody class="table-border-bottom-0">
+
+            {%for data in roomdata%}
+          <tr>
+            <td><strong>{{data.room_type.category_name}}</strong></td>
+            <td>{{data.total_room_numbers}}</td>
+           
+          </tr>
+          {%endfor%}
+          <tr>
+            <td>Total</td>
+            <td>{{total_rooms}}</td>
+          </tr>
+   
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Bootstrap Table with Header - Light -->
+
+
+
+<!-- Modal add rooms -->
+<div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'addroomcount'  %}" method="POST" class="modal-content">
+            {% csrf_token %}
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Add Room</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-6 mb-3">
+                <label for="nameBackdrop" class="form-label">Category</label>
+                <select class="form-control" name="category" required placeholder="Select Category">
+                    {%for cat in category%}
+                    <option  value="{{cat.id}}">{{cat}}</option>
+                    
+                    {%endfor%}
+                  </select>
+              </div>
+              <br>
+              <div class="col-6 mb-3">
+                <label for="nameBackdrop" class="form-label">Total Rooms</label>
+                <input
+                  type="number"
+                  name="rooms"
+                  id="nameBackdrop"
+                  class="form-control"
+                  placeholder="Total Rooms"
+                  required
+                />
+              </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+{%endblock%}

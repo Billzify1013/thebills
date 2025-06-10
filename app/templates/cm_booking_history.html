@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "cm_base.html" %}
 {% block content %}
 
 
@@ -50,10 +50,10 @@
 
                       ><i class="bx bx-search fs-4 lh-0"></i> Search... Guest Data!</button>
 <div class="collapse multi-collapse" id="multiCollapseExample1">
-<form action="{% url 'searchguestdataadvance' %}" method="post">
+<form action="{% url 'searchguestdataadvance_cm' %}" method="post">
   {% csrf_token %}
   <div class="row m-2">
-    <div class="mb-3 ms-4 col-md-2">
+    <div class="mb-3  col-md-2">
       <label for="firstName" class="form-label">Guest Name</label>
       <input
         class="form-control"
@@ -117,7 +117,7 @@
       />
     </div>
 
-    <button type="submit" class=" col-md-3 ms-4 mt-4 h-50 btn btn-primary">Search...</button>
+    <button type="submit" class=" col-md-3  mt-4 h-50 btn btn-primary">Search...</button>
 
   </div>
 </form>
@@ -383,8 +383,78 @@
 </nav> {% endcomment %}
 
 <div class="container">
+
+<div class="card p-3 mt-3" id="collapsibleCard">
+  <!-- Top clickable area -->
+  <div id="toggleHeader" class="d-flex justify-content-between align-items-center" style="cursor: pointer;">
+    <p class="mb-0"><b>Data From:</b> {{first_day_of_month}} <b>TO</b> {{last_day_of_month}}</p>
+    <i class='bx bx-chevron-down' id="collapseIcon" style="font-size: 24px;"></i>
+  </div>
+
+  <!-- Summary Section -->
+  <div id="summaryDiv" style="max-height: 0; overflow: hidden; transition: max-height 0.4s ease;">
+    <div class="row mt-3">
+      <div class="col-6 col-md-3">
+        <label for="channelFilter">Filter by Channel:</label>
+        <select id="channelFilter" class="form-select">
+          <option value="">All Channels</option>
+        </select>
+      </div>
+
+      <div class="col-6 col-md-3">
+        <label for="paymentFilter">Payment Type:</label>
+        <select id="paymentFilter" class="form-select">
+          <option value="">All Payment Types</option>
+        </select>
+      </div>
+
+      <div class="col-6 col-md-3 mb-3">
+        <label for="statusFilter">Booking Status:</label>
+        <select id="statusFilter" class="form-select">
+          <option value="">All Status</option>
+        </select>
+      </div>
+
+      <div class="col-6 col-md-3 d-flex">
+        <button id="printBtn" class="btn btn-primary mt-4 h-50">Print Table</button>
+
+        {% comment %} <button type="button" class="btn dropdown-toggle hide-arrow" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="bx bx-dots-vertical-rounded"></i>
+        </button> {% endcomment %}
+        <ul class="dropdown-menu">
+          <li>
+            <a class="dropdown-item" href="{% url 'deletecancelbokings' %}">
+              <i class="bx bx-trash me-1"></i>Delete All Cancel Bookings
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <p><strong>Total Bookings:</strong> <span id="totalRows">0</span></p>
+    <p><strong>Total Amount:</strong> ₹<span id="totalAmount">0.00</span></p>
+  </div>
+</div>
+
+<script>
+  const summaryDiv = document.getElementById('summaryDiv');
+  const collapseIcon = document.getElementById('collapseIcon');
+  const toggleHeader = document.getElementById('toggleHeader');
+
+  toggleHeader.addEventListener('click', function () {
+    const isCollapsed = summaryDiv.style.maxHeight === '0px' || !summaryDiv.style.maxHeight;
+
+    summaryDiv.style.maxHeight = isCollapsed ? summaryDiv.scrollHeight + 'px' : '0px';
+    collapseIcon.className = isCollapsed ? 'bx bx-chevron-up' : 'bx bx-chevron-down';
+  });
+</script>
+
+
+
+
+
   <!-- Filters Section -->
-   <div class="card p-3 mt-3">
+   {% comment %} <div class="card p-3 mt-3">
   <div class="">
     <!-- Channel Filter -->
      <div class="row">
@@ -439,7 +509,7 @@
     <p><strong>Total Amount:</strong> ₹<span id="totalAmount">0.00</span></p>
     <p><b>Data From:</b> {{first_day_of_month}} <b>TO</b> {{last_day_of_month}}</p>
   </div>
-</div>
+</div> {% endcomment %}
 
 
 
@@ -458,7 +528,6 @@
           <th>Stay Dates & Rooms</th>
           <th>Total Amount</th>
           <th>Payment Type</th>
-          <th>Status</th>
           <th>Confirmation</th>
           <th>Actions</th>
         </tr>
@@ -468,9 +537,9 @@
         <tr data-channel="{{ data.channal.channalname }}" data-payment="{{ data.Payment_types }}" data-amount="{{ data.total_amount }}" data-status="{{ data.action }}">
           
           {% if data.action == 'cancel' %}
-          <td><a href="{% url 'advancebookingdetails' id=data.id %}"><strong><del>{{ data.bookingguest }}</del></strong></a></td>
+          <td><a href="{% url 'advancebookingdetails_cm' id=data.id %}"><strong><del>{{ data.bookingguest }}</del></strong></a></td>
           {%else%}
-          <td><a href="{% url 'advancebookingdetails' id=data.id %}"><strong>{{ data.bookingguest }}</strong></a>
+          <td><a href="{% url 'advancebookingdetails_cm' id=data.id %}"><strong>{{ data.bookingguest }}</strong></a>
             {{ data.bookingguestphone }}
           </td>
           {%endif%}
@@ -489,13 +558,7 @@
             <span class="badge bg-label-info">{{ data.Payment_types }}</span>
             {% endif %}
           </td>
-          <td>
-            {% if data.checkinstatus %}
-            <span>Check-In</span>
-            {% else %}
-            <span>Pending</span>
-            {% endif %}
-          </td>
+          
           <td>
             {% if data.action == 'book' %}
             <span class="badge bg-label-success">Booked</span>
@@ -517,14 +580,14 @@
           <i class="bx bx-dots-vertical-rounded"></i>
           </button>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="{% url 'advancebookingdetails' id=data.id %}"><i class="bx bx-edit-alt me-1"></i>Details</a></li>
+            <li><a class="dropdown-item" href="{% url 'advancebookingdetails_cm' id=data.id %}"><i class="bx bx-edit-alt me-1"></i>Details</a></li>
             {% comment %} <li><a class="dropdown-item" href="{% url 'receipt_view' booking_id=data.id %}"><i class='bx bx-conversation'></i>Voucher</a></li> {% endcomment %}
             {% comment %} <li><a class="dropdown-item" href="{% url 'receipt_view' %}?cd={{ data.id }}"><i class='bx bx-conversation'></i>Voucher</a></li> {% endcomment %}
             <li><a class="dropdown-item" href="{% url 'receipt_view' %}?cd={{ data.id  }}"><i class='bx bx-conversation'></i>Voucher</a></li>
-            <li><a class="dropdown-item" href="{% url 'addpaymenttobooking' booking_id=data.id %}"><i class='bx bxl-paypal'></i>Add-Payment</a></li>
+            <li><a class="dropdown-item" href="{% url 'addpaymenttobooking_cm' booking_id=data.id %}"><i class='bx bxl-paypal'></i>Add-Payment</a></li>
             <li><a class="dropdown-item" href="{% url 'formo_view' %}?cd={{ data.id  }}"><i class='bx bx-id-card mb-1'></i> Formo Invoice</a></li>
             {% if data.action == 'cancel' %}
-            <li><a class="dropdown-item" href="{% url 'bookingrevoke' id=data.id %}"><i class='bx  bx-repeat'  ></i>   Revoke</a></li>
+            {% comment %} <li><a class="dropdown-item" href="{% url 'bookingrevoke' id=data.id %}"><i class='bx  bx-repeat'  ></i>   Revoke</a></li> {% endcomment %}
             {%else%}
             <li><a class="dropdown-item" href="{% url 'advancebookingdelete' id=data.id %}"><i class="bx bx-trash me-1"></i> Cancel</a></li>
             
@@ -680,7 +743,7 @@
       // Add desired headers for the print version
       const headerData = [
         "Guest Name/Phone",  "Channel/Booking-Id" , "Stay Dates & Rooms", 
-        "Total Amount", "Payment Type", "Status", "Confirmation"
+        "Total Amount", "Payment Type",  "Confirmation"
       ];
   
       headerData.forEach((headerText) => {

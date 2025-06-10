@@ -27,7 +27,7 @@ from django.db.models import F
 from . loyltys import searchcredit
 from django.contrib.sessions.backends.db import SessionStore
 import math
-
+from .cm_file import update_inventory_task_cm
 
 
 
@@ -330,6 +330,10 @@ from django.http import QueryDict
 def advanceroombookpage(request):
     try:
         if request.user.is_authenticated:
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
             # Simulate POST data for startdate and enddate
             today = datetime.now().date()
             tomorrow = today + timedelta(days=1)
@@ -344,6 +348,8 @@ def advanceroombookpage(request):
             })
 
             # Call the bookingdate function with the modified request
+            if Vendor_Service.objects.filter(vendor=user,only_cm=True):
+                return redirect('cm')
             return bookingdate(new_request)
         else:
             return render(request, 'login.html')
@@ -2952,7 +2958,10 @@ def login_view(request):
                 user_subscription = Subscription.objects.filter(user=user).last()
                 if user_subscription and user_subscription.end_date >= date.today():
                     messages.success(request, 'Successfully logged in!')
-                    return redirect('homepage')
+                    if Vendor_Service.objects.filter(vendor=user,only_cm=True):
+                        return redirect('cm')
+                    else:
+                        return redirect('homepage')
                 else:
                     messages.error(request, 'Your plan is over. Please recharge to enjoy Billzify services.')
                     return render(request, 'subscriptionplanpage.html', {'username': username})
@@ -4480,7 +4489,7 @@ def advancebookingdetails(request,id):
 
 # advance booking delete function
 def advancebookingdelete(request,id):
-    try:
+    # try:
         if request.user.is_authenticated:
             user=request.user
             subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
@@ -4491,6 +4500,7 @@ def advancebookingdelete(request,id):
             # if not  checkdatas.booking_id :
             if checkdatas.checkinstatus==False:
                 roomdata = RoomBookAdvance.objects.filter(vendor=user,saveguestdata=saveguestid,partly_checkin=False).all()
+                checkroomdata = Cm_RoomBookAdvance.objects.filter(vendor=user,saveguestdata=saveguestid).all()
                 if roomdata: 
                     for data in roomdata:
                         Rooms.objects.filter(vendor=user,id=data.roomno.id).update(checkin=0)
@@ -4528,18 +4538,59 @@ def advancebookingdelete(request,id):
 
                   
                     messages.success(request,'booking Cancelled succesfully')
+                elif checkroomdata:
+                    for data in checkroomdata:
+                        # Rooms.objects.filter(vendor=user,id=data.roomno.id).update(checkin=0)
+                        checkindate = checkdatas.bookingdate
+                        checkoutdate = checkdatas.checkoutdate
+                        while checkindate < checkoutdate:
+                            
+                            roomscat = data.room_category
+                            if RoomsInventory.objects.filter(vendor=user,date=checkindate,room_category=roomscat).exists():
+                                invtdata = RoomsInventory.objects.get(vendor=user,date=checkindate,room_category=roomscat)
+                        
+                                invtavaible = invtdata.total_availibility + 1
+                                invtabook = invtdata.booked_rooms - 1
+                                total_rooms = Rooms_count.objects.filter(vendor=user, room_type=roomscat).values_list('total_room_numbers', flat=True).first() or 0
+                                occupancy = invtabook * 100//total_rooms
+                                                                        
+
+                                RoomsInventory.objects.filter(vendor=user,date=checkindate,room_category=roomscat).update(booked_rooms=invtabook,
+                                            total_availibility=invtavaible,occupancy=occupancy)
+                
+                            checkindate += timedelta(days=1)
+
+                    if VendorCM.objects.filter(vendor=user):
+                        start_date = str(checkdatas.bookingdate)
+                        end_date = str(checkdatas.checkoutdate)
+                        
+                        thread = threading.Thread(target=update_inventory_task_cm, args=(user.id, start_date, end_date))
+                        thread.start()
+
+                    SaveAdvanceBookGuestData.objects.filter(vendor=user,id=saveguestid).update(action='cancel')
+                    Booking.objects.filter(vendor=user,advancebook_id=saveguestid).delete()
+                    actionss = 'Cancel Booking'
+                    CustomGuestLog.objects.create(vendor=user,by=request.user,action=actionss,
+                        advancebook=checkdatas,description=f'Booking Cancel for {checkdatas.bookingguest},  ')
+
+                  
+                    messages.success(request,'booking Cancelled succesfully')
                 else:
                     messages.error(request,'Guest Is Stayed If You Want To Delete So cancel the folio room.')
                 # advanceroomdata = SaveAdvanceBookGuestData.objects.filter(vendor=user).all()
                 # return render(request,'advancebookinghistory.html',{'advanceroomdata':advanceroomdata,'active_page': 'advancebookhistory'})
+                if Vendor_Service.objects.filter(vendor=user,only_cm=True):
+                    return redirect('cm')
                 return redirect('advanceroomhistory')
             else:
+                if Vendor_Service.objects.filter(vendor=user,only_cm=True):
+                    return redirect('cm')
                 messages.error(request,'Guest Is Stayed If You Want To Delete So cancel the folio room.')
                 return redirect('advanceroomhistory')
         else:
             return redirect('loginpage')
-    except Exception as e:
-        return render(request, '404.html', {'error_message': str(e)}, status=500)
+    # except Exception as e:
+    #     return render(request, '404.html', {'error_message': str(e)}, status=500)
     
 
 # add profile hotels

@@ -250,6 +250,10 @@
                         <th>Rooms</th>
                         <th>Price</th>
                         <th>Nights</th>
+                        {%if gststatus%}
+                        <th>Total Tax</th>
+                        {%else%}
+                        {%endif%}
                         <th>Total</th>
                     </tr>
                 </thead>
@@ -260,6 +264,9 @@
                         <td>{{ room_type }}</td>
                         <td class="price-cell">{{ data.sell_rate }}</td>
                         <td class="qty-cell">{{ advancebookingmain.staydays }}</td>
+                        {% if gststatus %}
+                        <td class="tax-cell">0</td>
+                        {% endif %}
                         <td class="total-cell">0</td>
                     </tr>
                     {% endfor %}
@@ -268,7 +275,7 @@
 
 
                         
-            <script>
+            {% comment %} <script>
                 window.addEventListener('load', function () {
                     const gstStatus = {{ gststatus|yesno:"true,false" }}; // this gives `true` or `false` in JS
                     const table = document.getElementById("bookingTable");
@@ -296,7 +303,38 @@
                         row.querySelector('.total-cell').textContent = total.toFixed(2);
                     });
                 });
-            </script>
+            </script> {% endcomment %}
+
+           <script>
+    window.addEventListener('load', function () {
+        const gstStatus = {{ gststatus|yesno:"true,false" }};
+        const table = document.getElementById("bookingTable");
+        const rows = table.querySelectorAll("tbody tr");
+
+        rows.forEach(row => {
+            let price = parseFloat(row.dataset.price);
+            const qty = parseInt(row.querySelector('.qty-cell').textContent); // nights
+            const count = parseInt(row.dataset.count); // rooms
+
+            const taxRate = price < 7500 ? 0.12 : 0.18;
+            const singleDayTax = price * taxRate;
+            const totalTax = singleDayTax * qty * count;
+            let total = 0;
+
+            if (gstStatus === true) {
+                total = (price + singleDayTax) * qty * count;
+                const taxCell = row.querySelector('.tax-cell');
+                if (taxCell) taxCell.textContent = totalTax.toFixed(2); // show full tax for all nights and rooms
+            } else {
+                price = price + singleDayTax;
+                row.querySelector('.price-cell').textContent = price.toFixed(2);
+                total = price * qty * count;
+            }
+
+            row.querySelector('.total-cell').textContent = total.toFixed(2);
+        });
+    });
+</script>
 
         </div>
         
@@ -349,7 +387,7 @@
                 
                 <!-- Dashed line before Grand Total -->
                 {%if gststatus%}
-                    <span>SUBTOTAL :₹ <b>{{data.amount_before_tax}}</b> </span><br>
+                    <span>SUBTOTAL :₹ <b>{{data.amount_before_tax|floatformat:2}}</b> </span><br>
                     <span>Tax Amount :₹ <b>{{data.tax|floatformat:2}}</b> </span> 
                 {%else%}
                     

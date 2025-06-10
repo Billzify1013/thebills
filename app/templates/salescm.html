@@ -1,0 +1,45 @@
+{% extends "cm_base.html" %}
+{% block content %}
+{% load static %}
+
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <a href="{% url 'billingplanpage' %}" style="text-decoration:none;">
+    <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div></a>
+    {%endif%}
+</div>
+{%endfor%}
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 1000);
+  });
+</script>
+{%endif%}
+
+
+
+
+
+sales
+
+
+
+
+{%endblock%}

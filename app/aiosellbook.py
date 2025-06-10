@@ -897,7 +897,7 @@ logger = logging.getLogger(__name__)
 
 
 
-
+from . cm_file import channel_manager_aiosell_new_reservation
 
 @csrf_exempt
 def aiosell_new_reservation(request):
@@ -907,11 +907,14 @@ def aiosell_new_reservation(request):
 
             # Log incoming data for verification
             logger.info("Received new reservation data: %s", data)
-
-           
-            action = data['action']
-            hotelCode = data['hotelCode']
+            action = data.get('action')
+            hotelCode = data.get('hotelCode')
             if VendorCM.objects.filter(hotelcode=hotelCode).exists():
+                vendordata = VendorCM.objects.get(hotelcode=hotelCode)
+                if Vendor_Service.objects.filter(vendor=vendordata.vendor,only_cm=True):
+                    return channel_manager_aiosell_new_reservation(request) 
+
+
                 bookingId = data['bookingId']
 
                 if action == 'book' or action=='modify': 
@@ -1445,7 +1448,6 @@ def aiosell_new_reservation(request):
                                 tcs=None
 
                             agodataxamt = taxamount
-                            print('yha tk chal gaya')
                             # commisiion calculation here
                             if channel == "MakeMyTrip" or channel == "Goibibo":
                                 extra_mmt_commison = 0
@@ -1465,7 +1467,6 @@ def aiosell_new_reservation(request):
                             if tds_comm_model.objects.filter(roombook=Saveadvancebookdata).exists():
                                  tds_comm_model.objects.filter(roombook=Saveadvancebookdata).update(
                                         commission=commission,tds=tds,tcs=tcs  )
-                                 
                             # tdscreate = tds_comm_model.objects.create(roombook=Saveadvancebookdata,
                             #             commission=commission,tds=tds,tcs=tcs  )
                             if pahr==False:
@@ -1484,7 +1485,6 @@ def aiosell_new_reservation(request):
                                 vendor=vendordata.vendor,
                                 saveguestdata=Saveadvancebookdata
                             ))
-
                             # Create an iterator from the queryset
                             roombookadvance_iterator = iter(roombookadvance_data)
                             count=0
@@ -1508,7 +1508,6 @@ def aiosell_new_reservation(request):
                                         rateplanname = plandatas.rate_plan_name
                                     else:
                                         pass
-                                
                                 # print("  Prices:")
                                 # totalsell = 0.0
                                 # for price in room['prices']:
@@ -1517,7 +1516,6 @@ def aiosell_new_reservation(request):
                                 totalsell = 0.0
                                 for price in room['prices']:
                                     totalsell =  totalsell + price['sellRate']
-
 
 
                                 totalsell = totalsell / int(day_difference)

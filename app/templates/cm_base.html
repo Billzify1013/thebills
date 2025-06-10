@@ -1,0 +1,676 @@
+{% load static %}
+<html
+  lang="en"
+  class="light-style layout-menu-fixed"
+  dir="ltr"
+  data-theme="theme-default"
+  data-assets-path="{% static 'undercss/assets/'%}"
+  data-template="vertical-menu-template-free"
+>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+
+    <title>BILLZIFY</title>
+
+    <meta name="description" content="" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'undercss/assets/img/favicon/1.png'%}" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome 6 Free CDN -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Icons. Uncomment required icon fonts -->
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/fonts/boxicons.css'%}" />
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/css/core.css'%}" class="template-customizer-core-css" />
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/css/theme-default.css'%}" class="template-customizer-theme-css" />
+    <link rel="stylesheet" href="{% static 'undercss/assets/css/demo.css'%}" />
+
+    <!-- Vendors CSS -->
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css'%}" />
+
+    <link rel="stylesheet" href="{% static 'undercss/assets/vendor/libs/apex-charts/apex-charts.css'%}" />
+
+    {% comment %} <link rel="stylesheet" href="{% static 'undercss/assets/vendor/libs/spinkit/spinkit.css'%}" /> {% endcomment %}
+
+    <!-- Page CSS -->
+
+    <!-- Helpers -->
+    <script src="{% static 'undercss/assets/vendor/js/helpers.js'%}"></script>
+
+    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+    <script src="{% static 'undercss/assets/js/config.js'%}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  </head>
+
+  <style>
+    #dd1::-webkit-scrollbar {
+      width: 2px;
+    }
+   #dd1::-webkit-scrollbar-track {
+      background-color: none;
+    }
+    #dd1::-webkit-scrollbar-thumb {
+      background-color:#696cff;
+      border-radius:10px;
+    }
+  </style>
+
+  
+
+  <body>
+
+    
+    
+     
+  
+    
+    
+        <!-- Layout wrapper -->
+        <div class="layout-wrapper layout-content-navbar" >
+          <div class="layout-container" >
+            <!-- Menu -->
+    
+            <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+              <div class="app-brand demo" style="background: #0f0c29;  /* fallback for old browsers */
+              background: -webkit-linear-gradient(to right, #24243e, #302b63, #0f0c29);  /* Chrome 10-25, Safari 5.1-6 */
+              background: linear-gradient(to right, #24243e, #302b63, #0f0c29); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+              box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;position: ;">
+                <img src="{% static 'undercss/assets/img/avatars/logosgif.gif'%}" alt  class="" width="110%"  style="height:%;margin-left:-15px;margin-top:px"/>
+                          
+                <a href="index.html" class="app-brand-link">
+                    
+                    
+                    {% comment %} <img src="{% static 'undercss/assets/img/avatars/logonewgif.gif'%}" alt  class="" width="100%"  style="height:;margin-left:0px;margin-top:px"/>
+                               {% endcomment %}
+                     
+                  {% comment %} <span class="app-brand-text demo menu-text fw-bolder ms-0 mt-0 "  >illzify</span> {% endcomment %}
+                </a>
+    
+                <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+                  <i class="bx bx-chevron-left bx-sm align-middle">qq</i>
+                </a>
+              </div>
+    
+              <div class="menu-inner-shadow mt-4" style=""></div>
+    
+              <ul class="menu-inner py-1 mt-4">
+                <!-- Dashboard -->
+                
+
+                
+                
+                <li class="menu-item text-uppercase {% if active_page == 'cmadvancebookhistory' %}active{% endif %} ">
+                  <a href="{% url 'cm'  %}" class="menu-link">
+                    <i class="menu-icon fa-solid fa-table"></i>
+                    <div data-i18n="Analytics">Bookings</div>
+                  </a>
+                </li>
+
+                <li class="menu-item text-uppercase {% if active_page == 'dashboardcm' %}active{% endif %} ">
+                  <a href="{% url 'dashboardcm'  %}" class="menu-link">
+                    <i class='menu-icon bx bx-home'></i>
+                    <div data-i18n="Analytics">Dashboard</div>
+                  </a>
+                </li>
+
+                 {% comment %} <li class="menu-item text-uppercase {% if active_page == 'gridview' %}active{% endif %} ">
+              <a href="{% url 'gridview' %}" class="menu-link">
+                <i class='menu-icon bx bxs-grid'></i>
+                <div data-i18n="Analytics">Grid view</div>
+              </a>
+            </li>  {% endcomment %}
+
+
+            <li class="menu-item text-uppercase {% if active_page == 'bulkupdate' %}active{% endif %} ">
+              <a href="{% url 'bulkupdatecm'  %}" class="menu-link">
+                <i class='bx menu-icon bxl-jquery'></i>
+                <div data-i18n="Analytics">Bulk Update</div>
+              </a>
+            </li>
+
+
+            <li class="menu-item text-uppercase {% if active_page == 'priceshow_new' %}active{% endif %} ">
+              <a href="{% url 'priceshow_new_cm'  %}" class="menu-link">
+                <i class="fa-solid fa-indian-rupee-sign ms-1"></i> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <div data-i18n="Analytics">rate updates</div>
+              </a>
+            </li>
+
+
+            <li class="menu-item text-uppercase {% if active_page == 'inventory_view' %}active{% endif %} ">
+              <a href="{% url 'inventory_view_cm'  %}" class="menu-link">
+                <i class='menu-icon bx bx-unite'></i>
+                <div data-i18n="Analytics">Inventory updates</div>
+              </a>
+            </li>
+
+
+            <li class="menu-item text-uppercase {% if active_page == 'ota_Commission' %}active{% endif %} ">
+              <a href="{% url 'ota_Commission_cm'  %}" class="menu-link">
+                <i class="fa-solid fa-coins ms-1"></i>&nbsp;&nbsp;&nbsp;&nbsp;
+                <div data-i18n="Analytics">OTA Commission</div>
+              </a>
+            </li>
+
+            {% comment %} <li class="menu-item text-uppercase {% if active_page == 'salescm' %}active{% endif %} ">
+              <a href="{% url 'salescm'  %}" class="menu-link">
+                <i class="fa-solid fa-chart-line ms-1"></i>&nbsp;&nbsp;&nbsp;&nbsp;
+                <div data-i18n="Analytics">Sales & Analytics</div>
+              </a>
+            </li> {% endcomment %}
+
+            <li class="menu-header small text-uppercase">
+              <span class="menu-header-text">BOOKING - ENGINE</span>
+            </li>
+
+            <li class="menu-item text-uppercase {% if active_page == 'mobileview' %}active{% endif %} ">
+              <a href="{% url 'mobileview' user=request.user %}" class="menu-link">
+                <i class='menu-icon bx bxl-chrome'></i>
+                <div data-i18n="Analytics">Your Website</div>
+              </a>
+            </li> 
+
+                </ul>
+            </aside>
+            <!-- / Menu -->
+    
+
+              <!-- Layout container -->
+        <div class="layout-page">
+            <!-- Navbar -->
+  
+            <nav
+              class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
+              id="layout-navbar"
+            >
+              <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+                <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+                  <i class="bx bx-menu bx-sm"></i>
+                </a>
+              </div>
+  
+              <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+                <!-- Search -->
+                <div class="navbar-nav align-items-center">
+                 
+                  
+
+                </div>
+                <!-- /Search -->
+  
+                <ul class="navbar-nav flex-row align-items-center ms-auto">
+                  <!-- Place this tag where you want the button to render. -->
+                  <li class="nav-item lh-1 me-1">
+                    
+                    <a
+                    class="btn"
+                    type="button"
+                    style="text-decoration:none;"
+                    data-bs-toggle="offcanvas"
+                    data-bs-target="#offcanvasEnds"
+                    aria-controls="offcanvasEnd"
+                  >
+                  <i class='bx bxs-calculator' style="font-size:25px" ></i>
+                  </a>
+                    
+                  </li>
+
+                  <!--BELL TESTGIN CODE START-->
+                  <!-- Bell Icon -->
+                  <li class="nav-item lh-1 me-1 position-relative">
+                    <a
+                      class="btn"
+                      type="button"
+                      style="text-decoration:none;"
+                      onclick="handleNotificationClick()"
+                      href="{% url 'cmnotification' %}"
+                    >
+                    {% if request.session.notification %}
+                      <i class='bx bxs-bell' style="font-size:25px; color: #7C4DFF;"></i>
+                      <span id="notification-count" 
+                            class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger">
+                            
+                      </span>
+                      
+                      <span class="flex-shrink-0 badge d-none badge-center rounded-pill bg-danger w-px-20 h-px-20">1</span>
+                      <span class="wave-animation"></span>
+                      {%else%}
+                      <i class='bx bxs-bell' style="font-size:25px; "></i>
+                      {%endif%}
+                      
+                    </a>
+                  </li>
+                  
+
+                  <!-- CSS for Unique Wave Animation -->
+                  <style>
+                    .wave-animation {
+                      position: absolute;
+                      top: 50%;
+                      left: 50%;
+                      width: 60px;
+                      height: 60px;
+                      background:#6d68fe;
+                      border: 2px solid #a8b6e2;
+                      border-radius: 50%;
+                      animation: waveEffect 1.5s infinite;
+                      transform: translate(-50%, -50%);
+                      pointer-events: none;
+                      z-index: -1;
+                    }
+                    
+                    @keyframes waveEffect {
+                      0% {
+                        transform: translate(-50%, -50%) scale(1);
+                        opacity: 1;
+                      }
+                      100% {
+                        transform: translate(-50%, -50%) scale(2);
+                        opacity: 0;
+                      }
+                    }
+                    
+                    #notification-count {
+                      font-size: 12px;
+                      font-weight: bold;
+                      display: none;
+                    }
+                    
+                  </style>
+
+                  <!-- JavaScript -->
+                  <script>
+                    let notificationCount = 0;
+
+                  function incrementNotification() {
+                    notificationCount++;
+                    const countSpan = document.getElementById('notification-count');
+                    countSpan.textContent = notificationCount;
+                    countSpan.style.display = 'block';
+
+                    // Ensure wave animation is visible
+                    const wave = document.querySelector('.wave-animation');
+                    wave.style.display = 'block';
+                  }
+
+                  function handleNotificationClick() {
+                    notificationCount = 0;
+                    document.getElementById('notification-count').textContent = notificationCount;
+                    document.getElementById('notification-count').style.display = 'none';
+
+                    // Stop wave animation
+                    const wave = document.querySelector('.wave-animation');
+                    wave.style.display = 'none';
+                  }
+
+                  </script>
+                  
+
+
+
+                  <!--BELL CODE END-->
+
+                  
+  
+                  <!-- User -->
+                  <li class="nav-item navbar-dropdown dropdown-user dropdown">
+                    <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
+                      <div class="avatar avatar-online">
+                        <img src="{% static 'undercss/assets/img/avatars/7.png'%}" alt class="w-px-40 h-auto rounded-circle" />
+                      </div>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                      <li>
+                        <a class="dropdown-item" href="#">
+                          <div class="d-flex">
+                            <div class="flex-shrink-0 me-3">
+                              <div class="avatar avatar-online">
+                                <img src="{% static 'undercss/assets/img/avatars/7.png'%}" alt class="w-px-40 h-auto rounded-circle" />
+                              </div>
+                            </div>
+                            <div class="flex-grow-1">
+                              <span class="fw-semibold d-block">{{user}}</span>
+                              <small class="text-muted">Admin</small>
+                            </div>
+                          </div>
+                        </a>
+                      </li>
+                      <li>
+                        <div class="dropdown-divider"></div>
+                      </li>
+                      {% comment %} <li>
+                        <a class="dropdown-item" href="{% url 'myprofile' %}">
+                          <i class="bx bx-user me-2"></i>
+                          <span class="align-middle">My Profile</span>
+                        </a>
+                      </li>
+                      {% if request.session.permissions.set %}
+                      <li>
+                        <a class="dropdown-item" href="{% url 'setting' %}">
+                          <i class="bx bx-cog me-2"></i>
+                          <span class="align-middle">Settings</span>
+                        </a>
+                      </li>
+                      {%endif%}
+                      <li>
+                        <a class="dropdown-item" href="{% url 'billingplanpage' %}">
+                          <span class="d-flex align-items-center align-middle">
+                            <i class="flex-shrink-0 bx bx-credit-card me-2"></i>
+                            <span class="flex-grow-1 align-middle">Billing</span>
+                            <span class="flex-shrink-0 badge badge-center rounded-pill bg-danger w-px-20 h-px-20">4</span>
+                          </span>
+                        </a>
+                      </li> {% endcomment %}
+                      {% comment %} <li>
+                        <div class="dropdown-divider"></div>
+                      </li> {% endcomment %}
+                      <li>
+                        <a class="dropdown-item" href="{%url 'logout' %}">
+                          <i class="bx bx-power-off me-2"></i>
+                          <span class="align-middle">Logout</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
+                  <!--/ User -->
+                </ul>
+              </div>
+            </nav>
+   <!-- / Navbar -->
+            <div class="content-wrapper">
+
+                <div class="container-xxl flex-grow-1 container-p-y">
+
+                 
+            {% block content %}{% endblock %}
+        
+                
+
+                <!--calculator start-->
+                 <!-- End Offcanvas -->
+                 <div class="col-lg-3 col-md-6">
+                  <div class="mt-3">
+                   
+                    <div
+                      class="offcanvas offcanvas-end"
+                      tabindex="-1"
+                      id="offcanvasEnds"
+                      aria-labelledby="offcanvasEndLabel"
+                    >
+                      <div class="offcanvas-header">
+                        <h5 id="offcanvasEndLabel" class="offcanvas-title">CALCULATOR</h5>
+                        <button
+                          type="button"
+                          class="btn-close text-reset"
+                          data-bs-dismiss="offcanvas"
+                          aria-label="Close"
+                        ></button>
+                      </div>
+                      <div class="offcanvas-body my-auto mx-0 flex-grow-0">
+                       
+                        <div class="calculator " >
+                          <div class="display" id="display">0</div>
+                          <div class="buttons">
+                              <div class="button" onclick="clearDisplay()">C</div>
+                              <div class="button" onclick="deleteLast()">DEL</div>
+                              <div class="button" onclick="appendOperator('/')">/</div>
+                              <div class="button" onclick="appendOperator('*')"><span style="font-size:30px">*</span></div>
+                              <div class="button" onclick="appendNumber(7)">7</div>
+                              <div class="button" onclick="appendNumber(8)">8</div>
+                              <div class="button" onclick="appendNumber(9)">9</div>
+                              <div class="button" onclick="appendOperator('-')"><span style="font-size:30px">-</span></div>
+                              <div class="button" onclick="appendNumber(4)">4</div>
+                              <div class="button" onclick="appendNumber(5)">5</div>
+                              <div class="button" onclick="appendNumber(6)">6</div>
+                              <div class="button" onclick="appendOperator('+')"><span style="font-size:30px">+</span></div>
+                              <div class="button" onclick="appendNumber(1)">1</div>
+                              <div class="button" onclick="appendNumber(2)">2</div>
+                              <div class="button" onclick="appendNumber(3)">3</div>
+                              <div class="button" onclick="appendOperator('.')">.</div>
+                              <div class="button" onclick="appendNumber(0)">0</div>
+                              <div class="button" onclick="calculateResult()" style="grid-column: span 3">=</div>
+                              
+                          </div>
+                      </div>
+
+                      <style>
+                       
+                        .calculator {
+                            border: 1px solid #ccc;
+                            border-radius: 5px;
+                            padding: 20px;
+                            background-color: #fff;
+                            height:100%;
+                        }
+                        .display {
+                            font-size: 2em;
+                            margin-bottom: 10px;
+                            padding: 10px;
+                            border: 1px solid #ccc;
+                            border-radius: 5px;
+                            text-align: right;
+                        }
+                        .buttons {
+                            display: grid;
+                            grid-template-columns: repeat(4, 1fr);
+                            gap: 5px;
+                        }
+                        .button {
+                            padding: 20px;
+                            font-size: 1.5em;
+                            border: 1px solid #ccc;
+                            border-radius: 5px;
+                            background-color: white;
+                            cursor: pointer;
+                            text-align: center;
+                            height:78px;
+                        }
+                        .button:active {
+                            background-color: #ccc;
+                        }
+                    </style>
+
+                    <script>
+                      const display = document.getElementById('display');
+              
+                      function clearDisplay() {
+                          display.innerText = '0';
+                      }
+              
+                      function deleteLast() {
+                          if (display.innerText.length > 1) {
+                              display.innerText = display.innerText.slice(0, -1);
+                          } else {
+                              display.innerText = '0';
+                          }
+                      }
+              
+                      function appendNumber(number) {
+                          if (display.innerText === '0') {
+                              display.innerText = number;
+                          } else {
+                              display.innerText += number;
+                          }
+                      }
+              
+                      function appendOperator(operator) {
+                          const lastChar = display.innerText.slice(-1);
+                          if ('+-*/.'.includes(lastChar)) {
+                              display.innerText = display.innerText.slice(0, -1) + operator;
+                          } else {
+                              display.innerText += operator;
+                          }
+                      }
+              
+                      function calculateResult() {
+                          try {
+                              display.innerText = eval(display.innerText);
+                          } catch (e) {
+                              display.innerText = 'Error';
+                          }
+                      }
+                  </script>
+                        
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                
+                <!--calculator end-->
+
+              </div></div>
+
+               <!-- build:js assets/vendor/js/core.js -->
+    <script src="{% static 'undercss/assets/vendor/libs/jquery/jquery.js'%}"></script>
+    <script src="{% static 'undercss/assets/vendor/libs/popper/popper.js'%}"></script>
+    <script src="{% static 'undercss/assets/vendor/js/bootstrap.js'%}"></script>
+    <script src="{% static 'undercss/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js'%}"></script>
+
+    <script src="{% static 'undercss/assets/vendor/js/menu.js'%}"></script>
+    <!-- endbuild -->
+
+    <!-- Vendors JS -->
+    <script src="{% static 'undercss/assets/vendor/libs/apex-charts/apexcharts.js'%}"></script>
+
+    <!-- Main JS -->
+    <script src="{% static 'undercss/assets/js/main.js'%}"></script>
+
+    <!-- Page JS -->
+    <script src="{% static 'undercss/assets/js/dashboards-analytics.js'%}"></script>
+
+    <!-- Place this tag in your head or just before your close body tag. -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+  </body>
+</html>
+
+
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elegant Light Lavender Loader</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f3f3f3;
+        }
+
+        .loader-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
+            z-index: 9998;
+        }
+
+        .loader {
+            position: relative;
+            width: 60px;
+            height: 60px;
+        }
+
+        .loader div {
+            position: absolute;
+            border: 4px solid transparent;
+            border-top-color: #c5a3ff; /* Light lavender color */
+            border-radius: 50%;
+            animation: spin 1.5s ease infinite;
+        }
+
+        .loader div:nth-child(1) {
+            width: 60px;
+            height: 60px;
+            animation-delay: -0.45s;
+        }
+
+        .loader div:nth-child(2) {
+            width: 45px;
+            height: 45px;
+            top: 7.5px;
+            left: 7.5px;
+            animation-delay: -0.3s;
+        }
+
+        .loader div:nth-child(3) {
+            width: 30px;
+            height: 30px;
+            top: 15px;
+            left: 15px;
+            animation-delay: -0.15s;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #content {
+            display: none; /* Hide content initially */
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .loader-wrapper.hidden #content {
+            display: block;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div id="loader-wrapper" class="loader-wrapper">
+        <div class="loader">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+    <div id="content">
+       
+    </div>
+    </div>
+  </div>
+
+    <script>
+        // Show the loader when the page is loading
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('loader-wrapper').style.display = 'flex';
+            document.getElementById('content').style.display = 'none'; // Hide the content
+        });
+
+        // Hide the loader and show the content when the page has fully loaded
+        window.addEventListener('load', function() {
+            document.getElementById('loader-wrapper').style.display = 'none'; // Hide the loader
+            document.getElementById('content').style.display = 'block'; // Show the content
+            setTimeout(function() {
+                document.getElementById('content').style.opacity = '1'; // Fade in the content
+            }, 50); // Slight delay for the fade effect
+        });
+    </script>
+</body>

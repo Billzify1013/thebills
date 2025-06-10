@@ -871,6 +871,11 @@ def formo_view(request):
 
     advancebookingmain = SaveAdvanceBookGuestData.objects.get(id=booking_id)
     advancebookingdatas = RoomBookAdvance.objects.filter(saveguestdata_id=booking_id)
+    if advancebookingdatas:
+        changealgo=False
+    else:
+        changealgo = True
+        advancebookingdatas= Cm_RoomBookAdvance.objects.filter(saveguestdata_id=booking_id)
     profiledata = HotelProfile.objects.filter(vendor_id=vid)
     hoteldatas = HotelProfile.objects.get(vendor_id=vid)
     invcpayments = InvoicesPayment.objects.filter(advancebook=advancebookingmain)
@@ -879,14 +884,24 @@ def formo_view(request):
     gststatus = hoteldatas.gstin != "UNREGISTERED"
     print(gststatus)
 
-    # ✅ Group rooms by category_name
-    grouped_room_data = defaultdict(lambda: {'sell_rate': 0.0, 'count': 0})
-    for item in advancebookingdatas:
-        room_type = item.roomno.room_type.category_name
-        grouped_room_data[room_type]['sell_rate'] = item.sell_rate  # Assuming same rate for same room type
-        grouped_room_data[room_type]['count'] += 1
+    if changealgo:
+        grouped_room_data = defaultdict(lambda: {'sell_rate': 0.0, 'count': 0})
+        for item in advancebookingdatas:
+            room_type = item.room_category.category_name
+            grouped_room_data[room_type]['sell_rate'] = item.sell_rate  # Assuming same rate for same room type
+            grouped_room_data[room_type]['count'] += 1
 
-    grouped_room_data = grouped_room_data.items()
+        grouped_room_data = grouped_room_data.items()
+
+    else:
+        # ✅ Group rooms by category_name
+        grouped_room_data = defaultdict(lambda: {'sell_rate': 0.0, 'count': 0})
+        for item in advancebookingdatas:
+            room_type = item.roomno.room_type.category_name
+            grouped_room_data[room_type]['sell_rate'] = item.sell_rate  # Assuming same rate for same room type
+            grouped_room_data[room_type]['count'] += 1
+
+        grouped_room_data = grouped_room_data.items()
 
     return render(request, 'booking_fromo_recipt.html', {
         'advancebookdata': advancebookdata,
@@ -1116,6 +1131,8 @@ def editcommtdc(request):
                                 advancebook=mainguest,description=f'Booking Commission amount Created, commission: {commission}, tds :{tds}, tcs :{tcs}.')
 
             messages.success(request,'data saved!')
+            if Vendor_Service.objects.filter(vendor=user,only_cm=True):
+                return redirect('advancebookingdetails_cm',id)
             return redirect('advancebookingdetails',id)
         else:
             return render(request, 'login.html')
@@ -1126,6 +1143,9 @@ def bookingrevoke(request,id):
     print(id)
     if request.user.is_authenticated:
         user=request.user
+        subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+        if subuser:
+            user = subuser.vendor 
         checkdatas = SaveAdvanceBookGuestData.objects.get(vendor=user,id=id)
         today = datetime.now().date()
         if checkdatas.checkoutdate >= today:
@@ -1134,7 +1154,7 @@ def bookingrevoke(request,id):
             checkoutdate = checkdatas.checkoutdate - timedelta(days=1)
             print(checkindate,checkoutdate)
             # for check in roomdata:
-
+            messages.error(request, "This Service is not available yet!")
         else:
             messages.error(request, "The guest's checkout date has already passed.")
             print("date ja chuke hai ")
@@ -1142,9 +1162,11 @@ def bookingrevoke(request,id):
 
 
 def bookingrevokenot(request,id):
-    print(id)
     if request.user.is_authenticated:
         user=request.user
+        subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+        if subuser:
+            user = subuser.vendor 
         checkdatas = SaveAdvanceBookGuestData.objects.get(vendor=user,id=id)
         today = datetime.now().date()
         if checkdatas.checkoutdate >= today:
@@ -1172,8 +1194,10 @@ def bookingrevokenot(request,id):
                         status=False
 
                     print(room)
+
             if status == True:
                 print(rooms_list)
+                messages.error(request, "This Service is not available yet!")
             else:
                 messages.error(request, "Some rooms are not available in guest selected rooms category!")
 
@@ -1182,3 +1206,134 @@ def bookingrevokenot(request,id):
             messages.error(request, "The guest's checkout date has already passed.")
             print("date ja chuke hai ")
         return redirect('notification')
+
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models.functions import ExtractMonth
+def cm(request):
+    if request.user.is_authenticated:
+        user=request.user
+        subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+        if subuser:
+            user = subuser.vendor 
+
+        if True:
+            today = datetime.now().date()
+
+            # Define the date range
+            # Example: Get dates within the next 7 days from today
+            start_date = today
+            end_date = today + timedelta(days=7)
+
+            # Query to filter records within the date range and order by bookingdate
+            filtered_orders = SaveAdvanceBookGuestData.objects.filter(
+                vendor=user,
+                bookingdate__range=(start_date, end_date)
+                    ).order_by('-id')
+            # advanceroomdata = RoomBookAdvance.objects.filter(vendor=user).all().order_by('bookingdate')
+            advanceroomsdata = SaveAdvanceBookGuestData.objects.filter(vendor=user).all().order_by('-id')
+            page = request.GET.get('page', 1) 
+            paginator = Paginator(advanceroomsdata, 25) 
+            try: 
+                advanceroomdata = paginator.page(page) 
+            except PageNotAnInteger: 
+                advanceroomdata = paginator.page(1) 
+            except EmptyPage: 
+                advanceroomdata = paginator.page(paginator.num_pages) 
+
+           
+            now = timezone.now()
+
+            # Determine the first and last day of the current month
+            first_day_of_month = now.replace(day=1)
+            if now.month == 12:  # Handle December to January transition
+                # last_day_of_month = now.replace(year=now.year + 1, month=1, day=1) - timezone.timedelta(days=1)
+                last_day_of_month = today
+            else:
+                # last_day_of_month = now.replace(month=now.month + 1, day=1) - timezone.timedelta(days=20)
+                last_day_of_month = today
+        
+
+
+            # ye pahle ka code hai 
+            # monthbookdata  = SaveAdvanceBookGuestData.objects.filter(
+            #     vendor=user,
+            #     bookingdate__range=(first_day_of_month, last_day_of_month)
+            #         ).order_by('bookingdate')
+
+            # ye new code hai
+            from django.db.models import Prefetch
+            from collections import Counter
+
+            # room_prefetch = Prefetch(
+            #     'roombookadvance_set',
+            #     queryset=RoomBookAdvance.objects.select_related('roomno__room_type'),
+            #     to_attr='booked_rooms'
+            # )
+
+            # monthbookdata = SaveAdvanceBookGuestData.objects.filter(
+            #     vendor=user,
+            #     bookingdate__range=(first_day_of_month, last_day_of_month)
+            # ).prefetch_related(room_prefetch).order_by('bookingdate')
+
+            # for guest in monthbookdata:
+            #     category_names = [
+            #         room.roomno.room_type.category_name
+            #         for room in guest.booked_rooms
+            #     ]
+            #     category_counts = Counter(category_names)
+
+            #     guest.room_categories_summary = ", ".join(
+            #         f"({count}) {cat}" for cat, count in category_counts.items()
+            #     )
+            room_prefetch = Prefetch(
+                'roombookadvance_set',
+                queryset=RoomBookAdvance.objects.select_related('roomno__room_type'),
+                to_attr='booked_rooms'
+            )
+
+            # Prefetch for Cm_RoomBookAdvance
+            cm_room_prefetch = Prefetch(
+                'cm_roombookadvance_set',
+                queryset=Cm_RoomBookAdvance.objects.select_related('room_category'),
+                to_attr='cm_booked_rooms'
+            )
+
+            # Query main guest data with both prefetches
+            monthbookdata = SaveAdvanceBookGuestData.objects.filter(vendor=user,
+                bookingdate__range=(first_day_of_month, last_day_of_month)).prefetch_related(
+                room_prefetch,
+                cm_room_prefetch
+            )
+
+            # If no matching records
+            if not monthbookdata.exists():
+                messages.error(request, "No matching guests found.")
+
+            # Process each guest's room summary
+            for guest in monthbookdata:
+                category_names = []
+
+                # From RoomBookAdvance
+                for room in getattr(guest, 'booked_rooms', []):
+                    if room.roomno and room.roomno.room_type:
+                        category_names.append(room.roomno.room_type.category_name)
+
+                # From Cm_RoomBookAdvance
+                for room in getattr(guest, 'cm_booked_rooms', []):
+                    if room.room_category:
+                        category_names.append(room.room_category.category_name)
+
+                # Count and summarize
+                category_counts = Counter(category_names)
+                guest.room_categories_summary = ", ".join(
+                    f"({count}) {cat}" for cat, count in category_counts.items()
+                )
+
+
+            return render(request,'cm_booking_history.html',{'filtered_orders':filtered_orders,'advanceroomdata':advanceroomdata,'active_page': 'cmadvancebookhistory','monthbookdata':monthbookdata
+                                                            ,'first_day_of_month':first_day_of_month,'last_day_of_month':last_day_of_month})
+    else:
+        return redirect('loginpage')
+    
+        
+        # return render(request,'cm_booking_history.html')

@@ -145,7 +145,7 @@
           {% csrf_token %}
           <input type="hidden" name="staydays" id="resultdaysinput" />
           <div class="row">
-            <div class="col-6">
+            <div class="col-md-6 col-12">
               Guest Phone
               <div class="mb-3">
                   <div class="input-group input-group-merge">
@@ -169,7 +169,7 @@
                 <div class="text-success" id="customerinfos"></div>
           </div>  
             
-            <div class="col-6">
+            <div class="col-md-6 col-12">
               Guest Name
                   <div class="mb-3">
                       <div class="input-group input-group-merge">
@@ -193,7 +193,7 @@
 
 
           <div class="row">
-              <div class="col-3">
+              <div class="col-md-3 col-12">
                 
                   <div class="mb-3 mt-3">
                     Guest Gmail
@@ -213,7 +213,7 @@
                     </div>
               </div>
 
-              <div class="mb-3 col-md-3 mt-3">
+              <div class="mb-3 col-md-3 col-12 mt-3">
                 Guest State
                 <select id="country" name="STATE" required placeholder="select States" class="select2 form-select">
                   <option  value="">Select States</option>
@@ -267,7 +267,7 @@
 
 
               
-              <div class="col-3">
+              <div class="col-md-3 col-12">
                 
                   <div class="mb-3 mt-3">
                     Guest Address,City
@@ -287,7 +287,7 @@
                     </div>
               </div>
 
-              <div class="col-3">
+              <div class="col-md-3 col-12">
                 
                   <div class="mb-3 mt-3">
                     Guest Country
@@ -331,7 +331,7 @@
                 console.log(`Set guest check-in date to: ${formattedDate}`);
             });
           </script>
-              <div class="col-6">
+              <div class="col-md-6 col-12">
                 Check-In Date
                   <div class="mb-3">
                       <div class="input-group input-group-merge">
@@ -382,7 +382,7 @@
               });
           </script>
           
-              <div class="col-6">
+              <div class="col-md-6 col-12">
                 Check-Out Date
                   <div class="mb-3">
                       <div class="input-group input-group-merge" >
@@ -409,7 +409,7 @@
           
 
           <div class="row">
-          <div class="col-3">
+          <div class="col-md-3 col-12">
               <div class="mb-3 mt-3">
                 Guest Id Type
                   <div class="input-group input-group-merge">
@@ -428,7 +428,7 @@
                 </div>
           </div>
 
-          <div class="col-3">
+          <div class="col-md-3 col-12">
             <div class="mb-3 mt-3">
               Guest Id Details
               <div class="input-group input-group-merge">
@@ -448,7 +448,7 @@
             </div>
         </div>
 
-        <div class="col-3">
+        <div class="col-md-3 col-12">
           <div class="mb-3 mt-3">
             Guest Arrival
             <div class="input-group input-group-merge">
@@ -468,7 +468,7 @@
           </div>
       </div>
 
-      <div class="col-3">
+      <div class="col-md-3 col-12">
         <div class="mb-3 mt-3">
           Guest Departure
           <div class="input-group input-group-merge">
@@ -497,7 +497,7 @@
 
        
 
-      <div class="col-2">
+      <div class="col-md-2 col-6">
         <div class="mb-3 mt-3">
           MALE <span class="text-danger">*</span>
             <div class="input-group input-group-merge">
@@ -518,7 +518,7 @@
         </div>
 
 
-          <div class="col-2">
+          <div class="col-md-2 col-6">
               <div class="mb-3 mt-3">
                 FEMALE <span class="text-danger">*</span>
                   <div class="input-group input-group-merge">
@@ -537,7 +537,7 @@
                   </div>
                 </div>
           </div>
-          <div class="col-2">
+          <div class="col-md-2 col-6">
               <div class="mb-3 mt-3">
                 OTHER <span class="text-danger">*</span>
                   <div class="input-group input-group-merge">
@@ -557,7 +557,7 @@
                 </div>
           </div>
 
-          <div class="col-2">
+          <div class="col-md-2 col-6">
             <div class="mb-3 mt-3">
               KIDS <span class="text-danger">*</span>
                 <div class="input-group input-group-merge">
@@ -577,7 +577,7 @@
               </div>
         </div>
 
-        <div class="col-2">
+        <div class="col-md-2 col-6">
           <div class="mb-3 mt-3">
            TOTAL ADULTS <span class="text-danger">*</span>
               <div class="input-group input-group-merge">
@@ -597,7 +597,7 @@
               
             </div></DIV>
 
-          <div class="col-2">
+          <div class="col-md-2 col-6">
               <div class="mb-3 mt-3">
                 TOTAL GUEST  <span class="text-danger">*</span>
                   <div class="input-group input-group-merge">
@@ -657,7 +657,7 @@
       </div>
 
       <div class="row">
-          <div class="col-6">
+          <div class="col-md-6 col-12">
               <div class="mb-3">
                 Guest Id Image
                   <div class="input-group input-group-merge">
@@ -779,7 +779,7 @@
           
 
 
-          <div class="col-6">
+          <div class="col-md-6 col-12">
               <div class="mb-3">
                 Purpose Of Visit
                 <div class="input-group input-group-merge">
@@ -826,7 +826,7 @@
                 
                 <div class="row " >
                   <h5 class="mb-1 mt-3 ms-4"><i class="tf-icons bx bx-message-square"></i>  Room Information </h5>
-                  <div class="col-4">
+                  <div class="col-12 col-md-4">
                     
                     <h5 class="card-header mb-1">Room No: <span class="text-success fw-bold">{{i.room_name}} </span>
                       <br><br>Total Stay Day : <span class="text-success fw-bold" id="resultdays"></span>
@@ -835,7 +835,7 @@
                     </h5>
                   </div>
 
-                  <div class="col-4">
+                  <div class="col-12 col-md-4">
 
                     <h5 class="card-header mb-1">Room Price: <span class="text-success fw-bold">{{i.price}} </span>
                       <br><br>Category : <span class="text-success fw-bold" >{{i.room_type}}</span><br><br>
@@ -850,7 +850,7 @@
                     </h5>
                   </div>
 
-                  <div class="col-4">
+                  <div class="col-12 col-md-4">
 
                     <h5 class="card-header mb-1">Room Tax: <span id="roomtaxshow" class="text-success fw-bold"></span> %<span style="display:none" id="texamt"></span> 
                       <br><br>Total amount incl tax and days: <span class="text-success fw-bold" id="totalamounttext"></span>
@@ -870,7 +870,7 @@
                   
                   <div class="row  " >
 
-                    <div class="col-4 ms-4 ">
+                    <div class="col-12 col-md-4 ms-4 ">
                       <div class="mb-3 ">
                         <div id="loader" style="display:none;">Please Wait Loading...</div>
                         <label class="col-sm-12  col-form-label" for="basic-icon-default-fullname">Select Rate Plan</label>
@@ -1052,7 +1052,7 @@
 
                   </script>
 
-                  <div class="col-sm-4 ms-4 mb-3" style="display:none">
+                  <div class="col-12 col-md-4 ms-4 mb-3" style="display:none">
                     <label class="col-sm-12  col-form-label" for="basic-icon-default-fullname">Excepted Amount₹</label>
                     <div class="input-group">
                         
@@ -1142,7 +1142,7 @@
                     
                     </div></div>
                     
-                  <div class="col-4 ms-4 mb-2">
+                  <div class="col-12 col-md-4 ms-4 mb-2">
                     <span>Total Amount Incl Tax,Discount.</span>
                     <div class="input-group">
                       <span class="input-group-text" id="basic-addon11">Grand-Total ₹</span>
@@ -1242,7 +1242,7 @@
 
               <div class="row">
 
-                <div class="col-3">
+                <div class="col-12 col-md-3">
                   <button id="submitButton" type="submit"  class="btn btn-primary mt-4 mb-4 ms-4 w-100" > Booking Done</button>
                 </div>
                 

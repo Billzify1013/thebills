@@ -2747,6 +2747,25 @@ def bulkupdate(request):
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)
 
+def bulkupdatecm(request):
+    try:    
+        if request.user.is_authenticated:
+            user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            roomcat = RoomsCategory.objects.filter(vendor=user)
+            today = datetime.now().date()
+            check = VendorCM.objects.filter(vendor=user,dynamic_price_active=True).last()
+            
+            return render(request,'bulkpage_cm.html',{'roomcat':roomcat,'active_page':'bulkupdate','today':today,'check':check})
+
+        else:
+            return redirect('loginpage')
+        
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+
 from django.http import HttpResponse
 from .newcode import *
 # Create your views here.

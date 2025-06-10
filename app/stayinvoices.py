@@ -2065,6 +2065,8 @@ def editbookingdetails(request):
             else:
                 messages.error(request,"Id Not Found")
 
+            if Vendor_Service.objects.filter(vendor=user,only_cm=True):
+                return redirect('advancebookingdetails_cm',id)
             return redirect('advancebookingdetails',id)
             
         else:
