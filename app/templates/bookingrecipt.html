@@ -208,7 +208,11 @@
         <div class="col-6">Children:</div>
         <div class="col-6 text-end">{{book.children}}</div>
         <div class="col-6">Room Type:</div>
+        {%if book.roomno%}
         <div class="col-6 text-end">{{book.roomno.room_name}} {{book.roomno.room_type.category_name}}</div>
+        {%else%}
+        <div class="col-6 text-end">{{book.room_category.category_name}}</div>
+        {%endif%}
         <div class="col-6">Meal Plan:</div>
         <div class="col-6 text-end">{{book.rateplan_code}}</div>
         <div class="col-6">Rate Plan:</div>

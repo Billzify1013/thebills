@@ -585,7 +585,7 @@ html, body {
     
     
 
-    <div class="container" style="display:none">
+    {% comment %} <div class="container" style="display:none">
         {% if cheapest_room and cheapest_rate_plan %}
             <div class="card">
                 <h5 class="card-header">Cheapest Room Available</h5>
@@ -606,7 +606,7 @@ html, body {
         {% else %}
             <p class="text-danger">No rooms are available at the moment.</p>
         {% endif %}
-    </div>
+    </div> {% endcomment %}
     
     <div class="col-lg-12 mb-5 card p-3">
     <div class="form-group mb-5  ">
@@ -814,7 +814,7 @@ html, body {
       const cartView = document.getElementById('bottom-cart-view');
   
       function toggleCartView() {
-        if (window.scrollY > 650) {
+        if (window.scrollY > 50) {
           cartView.style.display = 'block';
         } else {
           cartView.style.display = 'none';
@@ -824,9 +824,9 @@ html, body {
       // Trigger only on scroll
       window.addEventListener('scroll', toggleCartView);
     });
-  </script>
+  </script> 
   
-
+{% comment %} 
 <script>
     const cart = {}; // Holds the cart items
     let totalPrice = 0; // Total price for the cart
@@ -1108,6 +1108,223 @@ html, body {
     
     
     
+</script> {% endcomment %}
+<script>
+    const cart = {};
+    let totalPrice = 0;
+    let totalTax = 0;
+    let totalRooms = 0;
+    let totalDiscount = 0;
+
+    // Utility to get cart visibility
+    function toggleCartVisibility() {
+        const bottomCartView = document.getElementById("bottom-cart-view");
+        const cartItemsDiv = document.getElementById("cart-items");
+        const isVisible = Object.keys(cart).some((key) => cart[key]?.count > 0);
+
+        bottomCartView.classList.toggle("d-none", !isVisible);
+        if (!isVisible) {
+            cartItemsDiv.innerHTML = "";
+        }
+    }
+
+    // Unique key per room + plan
+    function getCartKey(roomId, planCode) {
+        return `${roomId}-${planCode}`;
+    }
+
+    // Add to cart function
+    function handleAddToCartAnimation(button, roomId, categoryName, ratePlanName, ratePlanCode, adults, children, roomPrice, taxRate, availableRooms, offerAmount) {
+        const key = getCartKey(roomId, ratePlanCode);
+
+        // Dynamic tax logic
+        if (parseInt(roomPrice) > 7500) taxRate = 18;
+        else taxRate = 12;
+
+        let totalBookedInCategory = 0;
+        for (const k in cart) {
+            if (cart[k].category === categoryName) {
+                totalBookedInCategory += cart[k].count;
+            }
+        }
+
+        if (totalBookedInCategory >= availableRooms) {
+            alert("All rooms in this category are booked!");
+            return;
+        }
+
+        if (!cart[key]) {
+            cart[key] = {
+                count: 0,
+                category: categoryName,
+                ratePlan: ratePlanName,
+                ratePlancode: ratePlanCode,
+                adultsPerRoom: adults,
+                childrenPerRoom: children,
+                price: roomPrice,
+                taxRate: taxRate,
+                max: availableRooms,
+                adults: 0,
+                children: 0,
+                offerAmount: offerAmount,
+                roomId: roomId
+            };
+        }
+
+        cart[key].count += 1;
+        cart[key].adults += adults;
+        cart[key].children += children;
+        totalPrice += roomPrice;
+        totalTax += (roomPrice * taxRate) / 100;
+        totalRooms += 1;
+        totalDiscount += offerAmount;
+
+        updateCart();
+        toggleCartVisibility();
+    }
+
+    function removeFromCart(key) {
+        if (cart[key] && cart[key].count > 0) {
+            totalPrice -= cart[key].price;
+            totalTax -= (cart[key].price * cart[key].taxRate) / 100;
+            totalRooms -= 1;
+            totalDiscount -= cart[key].offerAmount;
+
+            cart[key].adults -= cart[key].adultsPerRoom;
+            cart[key].children -= cart[key].childrenPerRoom;
+            cart[key].count -= 1;
+
+            if (cart[key].count === 0) delete cart[key];
+
+            updateCart();
+            toggleCartVisibility();
+        }
+    }
+
+    function getDays() {
+        const days = parseInt(document.getElementById("days-diff").innerText, 10);
+        return isNaN(days) || days <= 0 ? 1 : days;
+    }
+
+    function updateCart() {
+        const cartItemsDiv = document.getElementById("cart-items");
+        cartItemsDiv.innerHTML = "";
+        const daysDiff = getDays();
+
+        let totalPriceAdjusted = 0;
+        let totalTaxAdjusted = 0;
+        let totalDiscountAdjusted = 0;
+
+        for (const key in cart) {
+            const room = cart[key];
+
+            const roomDiv = document.createElement("div");
+            roomDiv.classList.add("cart-item", "border", "rounded", "p-2", "mb-2", "d-flex", "shadow", "justify-content-between");
+            roomDiv.style.background = "#FFF";
+            roomDiv.style.fontSize = "14px";
+
+            roomDiv.innerHTML = `
+                <div>
+                    <h6>${room.category} - ${room.ratePlan}</h6>
+                    <p>Adults: ${room.adults} | Children: ${room.children}</p>
+                    <p>Price: ₹${room.price} | Tax Rate: ${room.taxRate}%</p>
+                </div>
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-success me-2" onclick="handleAddToCartAnimation(this, '${room.roomId}', '${room.category}', '${room.ratePlan}', '${room.ratePlancode}', ${room.adultsPerRoom}, ${room.childrenPerRoom}, ${room.price}, ${room.taxRate}, ${room.max}, ${room.offerAmount})" ${room.count >= room.max ? "disabled" : ""}>+</button>
+                    <span>${room.count}</span>
+                    <button class="btn btn-danger ms-2" onclick="removeFromCart('${key}')">-</button>
+                </div>
+            `;
+
+            cartItemsDiv.appendChild(roomDiv);
+
+            totalPriceAdjusted += room.price * room.count * daysDiff;
+            totalTaxAdjusted += (room.price * room.count * room.taxRate) / 100 * daysDiff;
+            totalDiscountAdjusted += room.offerAmount * room.count * daysDiff;
+        }
+
+        const grandTotal = totalPriceAdjusted + totalTaxAdjusted;
+
+        document.getElementById("fixed-total-price").innerText = totalPriceAdjusted.toFixed(2);
+        document.getElementById("total-price").innerText = (totalPriceAdjusted + totalDiscountAdjusted).toFixed(2);
+        document.getElementById("total-tax").innerText = totalTaxAdjusted.toFixed(2);
+        document.getElementById("grand-total").innerText = grandTotal.toFixed(2);
+        document.getElementById("total-rooms").innerText = totalRooms;
+        document.getElementById("discount-amount").innerText = totalDiscountAdjusted.toFixed(2);
+        document.getElementById("subtotal-amount").innerText = totalPriceAdjusted.toFixed(2);
+    }
+
+    // Submit form
+    document.addEventListener("DOMContentLoaded", function () {
+        const csrfTokenElement = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (!csrfTokenElement) return alert("CSRF token not found.");
+
+        const csrfToken = csrfTokenElement.value;
+
+        document.getElementById("cart-form").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const checkInDate = document.getElementById("check-in")?.value || '';
+            const checkOutDate = document.getElementById("check-out")?.value || '';
+            const guestName = document.querySelector('[name="guestname"]')?.value || '';
+            const guestPhone = document.querySelector('[name="guestphone"]')?.value || '';
+            const guestCountry = document.querySelector('[name="Country"]')?.value || '';
+            const guestAddress = document.querySelector('[name="adress"]')?.value || null;
+            const specialRequest = document.querySelector('[name="Speacialrequest"]')?.value || null;
+            const userids = document.getElementById("userid").value;
+
+            const cartData = {
+                items: Object.keys(cart).map(key => ({
+                    id: cart[key].roomId,
+                    count: cart[key].count,
+                    category: cart[key].category,
+                    ratePlan: cart[key].ratePlan,
+                    ratePlancode: cart[key].ratePlancode,
+                    price: cart[key].price,
+                    taxRate: cart[key].taxRate,
+                    offerAmount: cart[key].offerAmount,
+                    adults: cart[key].adults,
+                    children: cart[key].children,
+                })),
+                totalPrice,
+                totalTax,
+                totalDiscount,
+                totalRooms,
+                checkIn: checkInDate,
+                checkOut: checkOutDate,
+                days: getDays(),
+                guestName,
+                guestPhone,
+                guestCountry,
+                guestAddress,
+                specialRequest,
+                userid: userids,
+            };
+
+            fetch("{% url 'your_cart_processing_view' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken,
+                },
+                body: JSON.stringify(cartData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = `/receipt_book/${data.id}/`;
+                } else {
+                    alert(data.message || "Something went wrong");
+                    window.location.reload();
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("There was an error processing the cart.");
+                window.location.reload();
+            });
+        });
+    });
 </script>
 
 

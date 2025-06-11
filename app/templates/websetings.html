@@ -164,22 +164,120 @@
                               type="file"
                               name="addhotelimg"
                               maxlength="60"
-                           
-                              id="fileInput"
+                            id="imageInput"
+                              {% comment %} id="fileInput" {% endcomment %}
                               class="form-control"
                               placeholder="Like Free Wifi,Swiming Pool!"
                               required
                             />
                           </div>
-                          
+                          <p id="processingMessage" style="display: none; color: green;" class="TEXT text-success">Processing your image, please wait...</p>
+                          <img id="preview" alt="Resized Preview" style="display: none; max-width: 100%; margin-top: 10px;" >
                       </div>
                       <button type="submit" class="btn btn-primary mt-4 ms-3 w-25">
                           Add
                       </button>
                       
                   </form></div>
-  
+                  
                   <script>
+                    const MAX_FILE_SIZE = 700 * 1024; // 700 KB
+                    const MAX_DIMENSION = 1200; // Maximum width or height to avoid unnecessary large images
+            
+                    document.getElementById('imageInput').addEventListener('change', async function(event) {
+                        const input = event.target;
+                        const file = input.files[0];
+                        const processingMessage = document.getElementById('processingMessage');
+                        const preview = document.getElementById('preview');
+            
+                        if (!file) return;
+            
+                        // Show "Processing" message
+                        processingMessage.style.display = 'block';
+                        processingMessage.textContent = "Processing your image, please wait...";
+                        preview.style.display = 'none';
+            
+                        // Resize and compress file
+                        const resizedFile = await resizeAndCompressImage(file, MAX_FILE_SIZE, MAX_DIMENSION);
+            
+                        // Replace input file with resized file
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(resizedFile);
+                        input.files = dataTransfer.files;
+            
+                        // Hide "Processing" message and show preview
+                        processingMessage.style.display = 'none';
+                        preview.src = URL.createObjectURL(resizedFile);
+                        preview.style.display = 'block';
+                    });
+            
+                    async function resizeAndCompressImage(file, maxFileSize, maxDimension) {
+                        return new Promise((resolve) => {
+                            const img = new Image();
+                            const reader = new FileReader();
+            
+                            reader.onload = (e) => {
+                                img.src = e.target.result;
+                            };
+            
+                            img.onload = () => {
+                                const canvas = document.createElement('canvas');
+                                const ctx = canvas.getContext('2d');
+            
+                                // Calculate resizing dimensions
+                                let { width, height } = img;
+                                if (width > maxDimension || height > maxDimension) {
+                                    if (width > height) {
+                                        height *= maxDimension / width;
+                                        width = maxDimension;
+                                    } else {
+                                        width *= maxDimension / height;
+                                        height = maxDimension;
+                                    }
+                                }
+            
+                                canvas.width = width;
+                                canvas.height = height;
+            
+                                ctx.drawImage(img, 0, 0, width, height);
+            
+                                // Compress image with reduced quality
+                                canvas.toBlob(
+                                    (blob) => {
+                                        if (blob.size > maxFileSize) {
+                                            // If still too large, reduce quality further
+                                            canvas.toBlob(
+                                                (finalBlob) => {
+                                                    resolve(
+                                                        new File([finalBlob], file.name, {
+                                                            type: file.type,
+                                                            lastModified: Date.now(),
+                                                        })
+                                                    );
+                                                },
+                                                file.type,
+                                                0.7 // Slightly lower quality for final compression
+                                            );
+                                        } else {
+                                            resolve(
+                                                new File([blob], file.name, {
+                                                    type: file.type,
+                                                    lastModified: Date.now(),
+                                                })
+                                            );
+                                        }
+                                    },
+                                    file.type,
+                                    0.85 // Initial quality setting for fast compression
+                                );
+                            };
+            
+                            reader.readAsDataURL(file);
+                        });
+                    }
+                </script>
+  
+                  {% comment %} <script>
                     const MAX_FILE_SIZE = 700 * 1024; // 700 KB in bytes
                     const fileInput = document.getElementById('fileInput');
                     const messageElement = document.getElementById('message');
@@ -205,7 +303,7 @@
                             messageElement.textContent = 'Please upload a file smaller than 700 KB.';
                         }
                     });
-                </script>
+                </script> {% endcomment %}
 
 
                   <table class="table mt-5">
@@ -488,7 +586,7 @@
 
                 <!--tax div start-->
                 <div class="tab-pane fade show " id="navs-pills-justified-profile" role="tabpanel">
-                    <h5><i class='bx bxs-image mb-1'></i>  Add Images To Websites Gallary</h5>
+                    <h5><i class='bx bxs-image mb-1'></i>  Add Images To Category Gallary</h5>
                     <div class="col-12 mb-2">
                         <button
                           class="btn btn-primary mb-4 float-end"
@@ -524,13 +622,15 @@
                                 type="file"
                                 name="galaryimg"
                                 maxlength="60"
-                                id="fileInput1"
+                                {% comment %} id="fileInput1" {% endcomment %}
+                                id="imageInput1"
                                 class="form-control"
                                 placeholder="Like Free Wifi,Swiming Pool!"
                                 required
                               />
                             </div>
-                            
+                             <img id="preview1" src="#" style="display: none; max-width: 100%; margin-top: 10px;" />
+                            <p id="processingMessage1" style="display: none; color: green;">Processing...</p>
                         </div>
                         <button type="submit" class="btn btn-primary mt-4 ms-3 w-25">
                             Add
@@ -539,6 +639,95 @@
                     </form></div>
 
                     <script>
+                      const MAX_FILE_SIZE1 = 700 * 1024; // 700 KB
+                      const MAX_DIMENSION1 = 1200; // Maximum width or height
+
+                      document.getElementById('imageInput1').addEventListener('change', async function(event) {
+                          const input1 = event.target;
+                          const file1 = input1.files[0];
+                          const processingMessage1 = document.getElementById('processingMessage1');
+                          const preview1 = document.getElementById('preview1');
+
+                          if (!file1) return;
+
+                          processingMessage1.style.display = 'block';
+                          processingMessage1.textContent = "Processing your image, please wait...";
+                          preview1.style.display = 'none';
+
+                          const resizedFile1 = await resizeAndCompressImage1(file1, MAX_FILE_SIZE1, MAX_DIMENSION1);
+
+                          const dataTransfer1 = new DataTransfer();
+                          dataTransfer1.items.add(resizedFile1);
+                          input1.files = dataTransfer1.files;
+
+                          processingMessage1.style.display = 'none';
+                          preview1.src = URL.createObjectURL(resizedFile1);
+                          preview1.style.display = 'block';
+                      });
+
+                      async function resizeAndCompressImage1(file1, maxFileSize1, maxDimension1) {
+                          return new Promise((resolve) => {
+                              const img1 = new Image();
+                              const reader1 = new FileReader();
+
+                              reader1.onload = (e) => {
+                                  img1.src = e.target.result;
+                              };
+
+                              img1.onload = () => {
+                                  const canvas1 = document.createElement('canvas');
+                                  const ctx1 = canvas1.getContext('2d');
+
+                                  let { width, height } = img1;
+                                  if (width > maxDimension1 || height > maxDimension1) {
+                                      if (width > height) {
+                                          height *= maxDimension1 / width;
+                                          width = maxDimension1;
+                                      } else {
+                                          width *= maxDimension1 / height;
+                                          height = maxDimension1;
+                                      }
+                                  }
+
+                                  canvas1.width = width;
+                                  canvas1.height = height;
+
+                                  ctx1.drawImage(img1, 0, 0, width, height);
+
+                                  canvas1.toBlob(
+                                      (blob1) => {
+                                          if (blob1.size > maxFileSize1) {
+                                              canvas1.toBlob(
+                                                  (finalBlob1) => {
+                                                      resolve(
+                                                          new File([finalBlob1], file1.name, {
+                                                              type: file1.type,
+                                                              lastModified: Date.now(),
+                                                          })
+                                                      );
+                                                  },
+                                                  file1.type,
+                                                  0.7
+                                              );
+                                          } else {
+                                              resolve(
+                                                  new File([blob1], file1.name, {
+                                                      type: file1.type,
+                                                      lastModified: Date.now(),
+                                                  })
+                                              );
+                                          }
+                                      },
+                                      file1.type,
+                                      0.85
+                                  );
+                              };
+
+                              reader1.readAsDataURL(file1);
+                          });
+                      }
+                  </script>
+                    {% comment %} <script>
                       const MAX_FILE_SIZE = 700 * 1024; // 700 KB in bytes
                       const fileInput = document.getElementById('fileInput1');
                       const messageElement = document.getElementById('message1');
@@ -564,7 +753,7 @@
                               messageElement.textContent = 'Please upload a file smaller than 700 KB.';
                           }
                       });
-                  </script>
+                  </script> {% endcomment %}
     
                     <table class="table mt-5">
                         <thead class="table">

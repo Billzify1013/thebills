@@ -2353,6 +2353,126 @@ def todaysales(request):
 from django.shortcuts import render
 from datetime import datetime, timedelta
 
+# def mobileview(request, user):
+#     try:
+#         # Check if the hotel profile exists
+#         if not HotelProfile.objects.filter(vendor__username=user).exists():
+#             return render(request, '404.html', {'error_message': "Profile Not Created!"}, status=300)
+#         checkdata = bestatus.objects.get(vendor__username=user)
+#         if checkdata.is_active is True:
+
+#             profile = HotelProfile.objects.get(vendor__username=user)
+#             rooms = RoomsCategory.objects.filter(vendor__username=user).prefetch_related('images')
+#             today = datetime.now().date()
+#             tomorrow = today + timedelta(days=1)
+
+#             daysdiff = 1
+#             adults = 2
+#             child = 0
+
+#             # Fetch inventory for today
+#             inventory_today = RoomsInventory.objects.filter(vendor__username=user, date=today)
+
+#             profiledata = HotelProfile.objects.filter(vendor__username=user)
+#             imagedata = HoelImage.objects.filter(vendor__username=user)
+#             # apply filters here
+#             default = 2
+#             rateplanmaxuser = RatePlan.objects.filter(vendor__username=user, max_persons=default)
+#             offers = OfferBE.objects.filter(vendor__username=user).last()
+
+#             # Initialize cheapest room tracking
+#             cheapest_room = None
+#             cheapest_rate_plan = None
+#             lowest_price = float('inf')
+
+#             users = User.objects.get(username=user)
+
+#             # Store availability data with room objects
+#             for room in rooms:
+#                 room_inventory = inventory_today.filter(room_category=room)
+#                 if room_inventory.exists():
+#                     inventory = room_inventory.first()
+#                     room.available_rooms = inventory.total_availibility
+
+#                     # Calculate prices with offers
+#                     if offers:
+#                         OFFERAMOUNT = inventory.price * offers.discount_percentage // 100
+#                         room.uprice = inventory.price - OFFERAMOUNT
+#                         room.delprice = inventory.price
+#                         room.offeramount = OFFERAMOUNT
+#                     else:
+#                         room.uprice = inventory.price
+#                         room.delprice = inventory.price + 1000
+#                         room.offeramount = 0
+
+#                     room.tax = room.category_tax.taxrate
+#                 else:
+#                     room.available_rooms = Rooms.objects.filter(vendor__username=user, room_type=room).exclude(checkin=6).count()
+#                     # room.uprice = room.catprice
+#                     # room.delprice = room.catprice+1000
+#                     # room.offeramount = 0
+#                     # Calculate prices with offers
+#                     if offers:
+#                         OFFERAMOUNT = room.catprice * offers.discount_percentage // 100
+#                         room.uprice = room.catprice - OFFERAMOUNT
+#                         room.delprice = room.catprice
+#                         room.offeramount = OFFERAMOUNT
+#                     else:
+#                         room.uprice = room.catprice
+#                         room.delprice = room.catprice + 1000
+#                         room.offeramount = 0
+#                     room.tax = room.category_tax.taxrate
+
+#                 # Check all rate plans for the cheapest option
+#                 for plan in rateplanmaxuser.filter(room_category=room):
+#                     total_price = room.uprice + plan.base_price
+
+#                     # Update the cheapest room and rate plan if found
+#                     if total_price < lowest_price and room.available_rooms > 0:
+#                         cheapest_room = room
+#                         cheapest_rate_plan = plan
+#                         lowest_price = total_price
+
+#             hoteldatas = HotelProfile.objects.get(vendor__username=user)
+#             terms_lines = hoteldatas.termscondition.splitlines() if hoteldatas else []
+#             aminities = beaminities.objects.filter(vendor__username=user)
+#             prfmcdata = becallemail.objects.filter(vendor__username=user)
+#             cpolicy = cancellationpolicy.objects.filter(vendor__username=user).last()
+#             pptdescription = property_description.objects.filter(vendor__username=user).last()
+#             roomserviceloop = room_services.objects.filter(vendor__username=user)
+#             chatwhatsaap = whatsaap_link.objects.filter(vendor__username=user).first()
+#             return render(request, 'website.html', {
+#                 'aminities':aminities,
+#                 'prfmcdata':prfmcdata,
+#                 'profile': profile,
+#                 'imagedata': imagedata,
+#                 'profiledata': profiledata,
+#                 'today': today,
+#                 'tomorrow': tomorrow,
+#                 'rooms': rooms,
+#                 'rateplanmaxuser': rateplanmaxuser,
+#                 'offer': offers,
+#                 'daysdiff': daysdiff,
+#                 'adults': adults,
+#                 'child': child,
+#                 'cheapest_room': cheapest_room,
+#                 'cheapest_rate_plan': cheapest_rate_plan,
+#                 'lowest_price': lowest_price,
+#                 'user':users.id,
+#                 'terms_lines':terms_lines,
+#                 'cpolicy':cpolicy,
+#                 'default':default,
+#                 'pptdescription':pptdescription,
+#                 'roomserviceloop':roomserviceloop,
+#                 'chatwhatsaap':chatwhatsaap
+#             })
+        
+#         else:
+#             return render(request, 'website.html',{'emptydata':'Online bookings are currently unavailable. Please try booking offline instead.'} )
+        
+#     except Exception as e:
+#         return render(request, '404.html', {'error_message': str(e)}, status=500)
+
 def mobileview(request, user):
     try:
         # Check if the hotel profile exists
@@ -2362,7 +2482,7 @@ def mobileview(request, user):
         if checkdata.is_active is True:
 
             profile = HotelProfile.objects.get(vendor__username=user)
-            rooms = RoomsCategory.objects.filter(vendor__username=user).prefetch_related('images')
+            rooms = RoomsCategory.objects.filter(vendor__username=user).prefetch_related('images').order_by('catprice')
             today = datetime.now().date()
             tomorrow = today + timedelta(days=1)
 
@@ -2403,9 +2523,26 @@ def mobileview(request, user):
                     else:
                         room.uprice = inventory.price
                         room.delprice = inventory.price + 1000
-                        room.offeramount = 0
+                        room.offeramount = 1000
 
                     room.tax = room.category_tax.taxrate
+                
+                elif Vendor_Service.objects.filter(vendor__username=user,only_cm=True):
+                    count_data = Rooms_count.objects.filter(vendor__username=user, room_type=room).first()
+                    room.available_rooms = count_data.total_room_numbers
+                    if offers:
+                        OFFERAMOUNT = room.catprice * offers.discount_percentage // 100
+                        room.uprice = room.catprice - OFFERAMOUNT
+                        room.delprice = room.catprice
+                        room.offeramount = OFFERAMOUNT
+                    else:
+                        room.uprice = room.catprice
+                        room.delprice = room.catprice + 1000
+                        room.offeramount = 1000
+                    room.tax = room.category_tax.taxrate
+
+    
+                
                 else:
                     room.available_rooms = Rooms.objects.filter(vendor__username=user, room_type=room).exclude(checkin=6).count()
                     # room.uprice = room.catprice
@@ -2420,18 +2557,18 @@ def mobileview(request, user):
                     else:
                         room.uprice = room.catprice
                         room.delprice = room.catprice + 1000
-                        room.offeramount = 0
+                        room.offeramount = 1000
                     room.tax = room.category_tax.taxrate
 
                 # Check all rate plans for the cheapest option
-                for plan in rateplanmaxuser.filter(room_category=room):
-                    total_price = room.uprice + plan.base_price
+                # for plan in rateplanmaxuser.filter(room_category=room):
+                #     total_price = room.uprice + plan.base_price
 
-                    # Update the cheapest room and rate plan if found
-                    if total_price < lowest_price and room.available_rooms > 0:
-                        cheapest_room = room
-                        cheapest_rate_plan = plan
-                        lowest_price = total_price
+                #     # Update the cheapest room and rate plan if found
+                #     if total_price < lowest_price and room.available_rooms > 0:
+                #         cheapest_room = room
+                #         cheapest_rate_plan = plan
+                #         lowest_price = total_price
 
             hoteldatas = HotelProfile.objects.get(vendor__username=user)
             terms_lines = hoteldatas.termscondition.splitlines() if hoteldatas else []
@@ -2493,7 +2630,7 @@ def searchwebsitedata(request):
                 return render(request, '404.html', {'error_message': "Profile Not Created!"}, status=300)
 
             profile = HotelProfile.objects.get(vendor__username=user)
-            rooms = RoomsCategory.objects.filter(vendor__username=user).prefetch_related('images')
+            rooms = RoomsCategory.objects.filter(vendor__username=user).prefetch_related('images').order_by('catprice')
 
             # Get check-in and check-out dates from the request
             checkin_date = request.POST.get('checkin_date')  # Example: '2024-12-04'
@@ -2579,9 +2716,24 @@ def searchwebsitedata(request):
                     else:
                         room.uprice = inventory.price
                         room.delprice = inventory.price + 1000
-                        room.offeramount = 0
+                        room.offeramount = 1000
 
                     room.tax = room.category_tax.taxrate
+
+                elif Vendor_Service.objects.filter(vendor__username=user,only_cm=True):
+                    count_data = Rooms_count.objects.filter(vendor__username=user, room_type=room).first()
+                    room.available_rooms = count_data.total_room_numbers
+                    if offers:
+                        OFFERAMOUNT = room.catprice * offers.discount_percentage // 100
+                        room.uprice = room.catprice - OFFERAMOUNT
+                        room.delprice = room.catprice
+                        room.offeramount = OFFERAMOUNT
+                    else:
+                        room.uprice = room.catprice
+                        room.delprice = room.catprice + 1000
+                        room.offeramount = 1000
+                    room.tax = room.category_tax.taxrate
+
                 else:
                     room.available_rooms = Rooms.objects.filter(vendor__username=user, room_type=room).exclude(checkin=6).count()
 

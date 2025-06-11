@@ -5678,7 +5678,8 @@ def cart_processing(request):
 
             # check_out_date = datetime.strptime(check_out, '%b. %d, %Y').date()
             check_out_date = datetime.strptime(check_out, '%B %d, %Y').date()
-
+            if Vendor_Service.objects.filter(vendor_id=userids,only_cm=True):
+                return cart_cm_new_reservation(request)
             # Consolidate cart items by category
             total_guests = 0
             consolidated_items = {}
@@ -6013,7 +6014,323 @@ def cart_processing(request):
 
     # return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=400)
 
+def cart_cm_new_reservation(request):
+    if request.method == "POST":
+        # try:
+            # Parse JSON data
+            data = json.loads(request.body)
 
+            # Extract required data
+            cart_items = data.get('items', [])
+            total_price = data.get('totalPrice', 0)
+            total_tax = data.get('totalTax', 0)
+            total_discount = data.get('totalDiscount', 0)
+            total_rooms = data.get('totalRooms', 0)
+            check_in = data.get('checkIn', None)
+            check_out = data.get('checkOut', None)
+            days = data.get('days', 1)
+            userids = data.get('userid', None)
+            ttal_gt_amont = total_price + total_tax
+       
+            # Convert dates to proper format
+            # check_in_date = datetime.strptime(check_in, '%b. %d, %Y').date()
+            check_in_date = datetime.strptime(check_in, '%B %d, %Y').date()
+
+            # check_out_date = datetime.strptime(check_out, '%b. %d, %Y').date()
+            check_out_date = datetime.strptime(check_out, '%B %d, %Y').date()
+            
+            # Consolidate cart items by category
+            total_guests = 0
+            consolidated_items = {}
+            for item in cart_items:
+                category = item.get('category')
+                count = item.get('count', 0)
+                total_guests += item.get('adults', 0) + item.get('children', 0)
+                if category in consolidated_items:
+                    consolidated_items[category] += count
+                else:
+                    consolidated_items[category] = count
+
+            all_categories_available = True
+            room_availability_map = {}
+
+            # Check room availability for each category
+            for category, required_count in consolidated_items.items():
+                # Fetch room IDs that are booked during the requested period
+                
+                # new code here
+                newcheckdate = check_out_date - timedelta(days=1)
+                inventorycheck = RoomsInventory.objects.filter(vendor_id=userids,room_category__category_name=category,
+                                date__range=[check_in_date,newcheckdate])
+                print(newcheckdate,inventorycheck)
+                for i in inventorycheck:
+                    if i.total_availibility<required_count:
+                        print("haan bhia bigad gaye inventory")
+                        return JsonResponse({'success': False, 'message': 'Some rooms are SOLD. Please try again.'})
+                    else:
+                        print("barabar haiinventory")
+
+                
+            # Create booking if all rooms are available
+            guest_name = data.get('guestName', None)
+            guest_phone = data.get('guestPhone', None)
+            guest_country = data.get('guestCountry', None)
+            guest_address = data.get('guestAddress', None)
+            special_request = data.get('specialRequest', None)
+            channal = onlinechannls.objects.filter(vendor_id=userids, channalname='BOOKING-ENGINE').first()
+            if not channal:
+                channal = onlinechannls.objects.create(vendor_id=userids, channalname='BOOKING-ENGINE')
+
+            # Create SaveAdvanceBookGuestData record
+            current_date = datetime.now()
+            lastid = SaveAdvanceBookGuestData.objects.filter(vendor_id=userids).last().id or 0
+            beid = f"BE-{lastid + 1}"
+
+            Saveadvancebookdata = SaveAdvanceBookGuestData.objects.create(
+                vendor_id=userids,
+                bookingdate=check_in_date,
+                noofrooms=total_rooms,
+                bookingguest=guest_name,
+                bookingguestphone=guest_phone,
+                staydays=days,
+                advance_amount=0.00,
+                reamaining_amount=ttal_gt_amont*days,
+                discount=0.00,
+                total_amount=ttal_gt_amont*days,
+                channal=channal,
+                checkoutdate=check_out_date,
+                email='',
+                address_city=guest_address,
+                state='',
+                country=guest_country,
+                totalguest=total_guests,
+                action='book',
+                booking_id=beid,
+                cm_booking_id=None,
+                segment='BOOKING-ENGINE',
+                special_requests=special_request,
+                pah=True,
+                amount_after_tax=ttal_gt_amont*days,
+                amount_before_tax=total_price*days,
+                tax=total_tax*days,
+                currency="INR",
+                checkin=current_date,
+                Payment_types='postpaid',
+                is_selfbook=False
+
+            )
+
+            # Create RoomBookAdvance records
+            for item in cart_items:
+                category_name = item['category']
+                rate_plan = item['ratePlan']
+                rate_plan_code = item['ratePlancode']
+                ads = item['adults'] // item['count']
+                cds = item['children'] // item['count']
+                
+                
+                if RatePlan.objects.filter(vendor_id=userids,rate_plan_name=rate_plan,rate_plan_code=rate_plan_code).exists():
+                    rdatas = RatePlan.objects.get(vendor_id=userids,rate_plan_name=rate_plan,rate_plan_code=rate_plan_code)
+                    ratecodes = rdatas.rate_plan_code
+                    
+                else:
+                    ratecodes=''
+                for loop in range(item['count']):
+                    # room = available_rooms.first()
+                    # if not room:
+                        
+                    #     continue
+                    sellratebydays = (item['price']) 
+                    catdatas = RoomsCategory.objects.get(vendor_id=userids,category_name=category_name)
+                    Cm_RoomBookAdvance.objects.create(
+                        vendor_id=userids,
+                        saveguestdata=Saveadvancebookdata,
+                        room_category=catdatas,
+                        bookingguest=guest_name,
+                        bookingguestphone=guest_phone,
+                        totalguest=ads + cds,
+                        rateplan_code=rate_plan,
+                        rateplan_code_main=ratecodes,
+                        guest_name='',
+                        adults=ads,
+                        children=cds,
+                        sell_rate=sellratebydays
+                    )
+
+                    
+                    
+                    # inventory code
+                    # Convert date strings to date objects
+                    checkindate = str(check_in_date)
+                    checkoutdate = str(check_out_date)
+                    checkindate = datetime.strptime(checkindate, '%Y-%m-%d').date()
+                    checkoutdate = (datetime.strptime(checkoutdate, '%Y-%m-%d').date() - timedelta(days=1))
+
+                    # Generate the list of all dates between check-in and check-out (inclusive)
+                    all_dates = [checkindate + timedelta(days=x) for x in range((checkoutdate - checkindate).days + 1)]
+
+                    # Query the RoomsInventory model to check if records exist for all those dates
+                    existing_inventory = RoomsInventory.objects.filter(vendor_id=userids,room_category=catdatas, date__in=all_dates)
+
+                    # Get the list of dates that already exist in the inventory
+                    existing_dates = set(existing_inventory.values_list('date', flat=True))
+
+                    # Identify the missing dates by comparing all_dates with existing_dates
+                    missing_dates = [date for date in all_dates if date not in existing_dates]
+
+                    # If there are missing dates, create new entries for those dates in the RoomsInventory model
+                    roomcount = Rooms_count.objects.filter(vendor_id=userids, room_type=catdatas).values_list('total_room_numbers', flat=True).first() or 0
+                 
+                    occupancy = (1 * 100 // roomcount)
+                    for inventory in existing_inventory:
+                        if inventory.total_availibility > 0:  # Ensure there's at least 1 room available
+                            inventory.total_availibility -= 1
+                            inventory.booked_rooms += 1
+                            if inventory.occupancy+occupancy==99:
+                                inventory.occupancy=100
+                            else:
+                                inventory.occupancy +=occupancy
+                            inventory.save()
+                    
+                    # catdatas = RoomsCategory.objects.get(vendor_id=userids,category_name=category_name)
+                    totalrooms = Rooms_count.objects.filter(vendor_id=userids, room_type=catdatas).values_list('total_room_numbers', flat=True).first() or 0
+                    occupancccy = (1 *100 //totalrooms)
+                    if missing_dates:
+                        for missing_date in missing_dates:
+                        
+                                RoomsInventory.objects.create(
+                                    vendor_id=userids,
+                                    date=missing_date,
+                                    room_category=catdatas,  # Use the appropriate `roomtype` or other identifier here
+                                    total_availibility=roomcount-1,       # Set according to your logic
+                                    booked_rooms=1,    
+                                    occupancy=occupancccy,
+                                    price=catdatas.catprice
+                                                            # Set according to your logic
+                                )
+                       
+                    else:
+                        pass
+                    
+                                 # api calling backend automatically
+            usermsglimit = Messgesinfo.objects.get(vendor_id=userids)
+            
+            if True:
+                        addmsg = usermsglimit.changedlimit + 2
+                        Messgesinfo.objects.filter(vendor_id=userids).update(changedlimit=addmsg)
+                        profilename = HotelProfile.objects.get(vendor_id=userids)
+                        mobile_number = guest_phone
+                        
+                        # message_content = f"Dear guest, Your booking at {profilename.name} is confirmed. Advance payment of Rs.{advanceamount} received. Check-in date: {bookingdate}. We're thrilled to host you and make your stay unforgettable. For assistance, contact us at {profilename.contact}. -BILLZIFY"
+                        # oururl = 'https://live.billzify.com/receipt/88/'
+                        # message_content = f"Hello {guestname}, Your reservation is confirmed. View your booking details here: {oururl}-BILLZIFY"
+                        bids=Saveadvancebookdata.id
+                        message_content = f"Hello {guest_name}, Your hotel reservation is confirmed. View your booking details here: https://live.billzify.com/receipt/?cd={bids} -BILLZIFY"
+                        
+                        base_url = "http://control.yourbulksms.com/api/sendhttp.php"
+                        params = {
+                            'authkey': settings.YOURBULKSMS_API_KEY,
+                            'mobiles': mobile_number,
+                            'sender':  'BILZFY',
+                            'route': '2',
+                            'country': '0',
+                            'DLT_TE_ID': '1707173659916248212'
+                        }
+                        encoded_message = urllib.parse.urlencode({'message': message_content})
+                        url = f"{base_url}?authkey={params['authkey']}&mobiles={params['mobiles']}&sender={params['sender']}&route={params['route']}&country={params['country']}&DLT_TE_ID={params['DLT_TE_ID']}&{encoded_message}"
+                        
+                        try:
+                            response = requests.get(url)
+                            if response.status_code == 200:
+                                try:
+                                    response_data = response.json()
+                                    if response_data.get('Status') == 'success':
+                                        messages.success(request, 'SMS sent successfully.')
+                                    else:
+                                        messages.success(request, response_data.get('Description', 'Failed to send SMS'))
+                                except ValueError:
+                                    messages.success(request, 'Failed to parse JSON response')
+                            else:
+                                messages.success(request, f'Failed to send SMS. Status code: {response.status_code}')
+                        except requests.RequestException as e:
+                            messages.success(request, f'Error: {str(e)}')
+            else:
+                pass
+            
+            
+            # Start the long-running task in a separate thread
+            if VendorCM.objects.filter(vendor_id=userids,):
+                        start_date = str(checkindate)
+                        end_date = str(checkoutdate)
+                        thread = threading.Thread(target=update_inventory_task, args=(userids, start_date, end_date))
+                        thread.start()
+                        # for dynamic pricing
+                        if  VendorCM.objects.filter(vendor_id=userids,dynamic_price_active=True):
+                            thread = threading.Thread(target=rate_hit_channalmanager, args=(userids, start_date, end_date))
+                            thread.start()
+                        else:
+                            pass
+            else:
+                        pass    
+
+
+            user = User.objects.get(id=userids)
+            actionss = 'Create Booking'
+            CustomGuestLog.objects.create(vendor=user,by='system Assign',action=actionss,
+                    advancebook=Saveadvancebookdata,description=f'Booking Created for {Saveadvancebookdata.bookingguest}, This Booking From Booking Engine ')
+
+
+            # Fetch all active sessions (remove expiration filter temporarily for debugging)
+            sessions = Session.objects.filter(expire_date__gte=timezone.now())  # You can remove this condition if needed
+
+            # Iterate over all active sessions
+            for session in sessions:
+                session_store = SessionStore(session_key=session.session_key)
+                data = session_store.load()  # Load session data
+                
+                # Debugging: Check the session data before making any changes
+
+                # Match user ID with session data
+                if str(user.id) == str(data.get('_auth_user_id')):
+                    # Check if the user has a subuser profile
+                    if hasattr(user, 'subuser_profile'):
+                        subuser = user.subuser_profile
+                        if not subuser.is_cleaner:
+                            # Get the main user (vendor) of this subuser
+                            main_user = subuser.vendor
+                            if main_user:
+                                # Iterate over all sessions to find the main user's session
+                                for main_session in sessions:
+                                    main_session_store = SessionStore(session_key=main_session.session_key)
+                                    main_session_data = main_session_store.load()
+                                    
+                                    if str(main_user.id) == str(main_session_data.get('_auth_user_id')):
+                                        # Update the main user's session with a notification
+                                        main_session_data['notification'] = True
+                                        main_session_store.update(main_session_data)
+                                        main_session_store.save()  # Save after making changes
+
+                        # Update the subuser's session
+                        data['notification'] = True
+                        session_store.update(data)
+                        session_store.save()  # Save after making changes
+
+                    else:
+                        # If no subuser profile, update the main user's session
+                        data['notification'] = True
+                        session_store.update(data)
+                        session_store.save()  # Save after making changes
+                       
+
+           
+            
+
+            return JsonResponse({'success': True, 'message': 'Booking successful','id':Saveadvancebookdata.id})
+    #     except Exception as e:
+            
+    #         return JsonResponse({'success': False, 'message': str(e)}, status=500)
+
+    # return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=400)
 
 from django.shortcuts import render, get_object_or_404
 
@@ -6027,6 +6344,10 @@ def receipt_view_book(request, booking_id):
         hoteldata = HotelProfile.objects.filter(vendor_id=vid)
         hoteldatas = HotelProfile.objects.get(vendor_id=vid)
         terms_lines = hoteldatas.termscondition.splitlines() if hoteldatas else []
+        if advancebookingdatas:
+            pass
+        else:
+            advancebookingdatas = Cm_RoomBookAdvance.objects.filter(saveguestdata_id=booking_id)
         return render(request, 'bookingrecipt.html', {
             'advancebookdata': advancebookdata,
             'advancebookingdatas': advancebookingdatas,
@@ -6055,7 +6376,10 @@ def receipt_view(request):
     hoteldata = HotelProfile.objects.filter(vendor_id=vid)
     hoteldatas = HotelProfile.objects.get(vendor_id=vid)
     terms_lines = hoteldatas.termscondition.splitlines() if hoteldatas else []
-
+    if advancebookingdatas:
+        pass
+    else:
+        advancebookingdatas = Cm_RoomBookAdvance.objects.filter(saveguestdata_id=booking_id)
     # Return the template with the booking data and query parameter
     return render(request, 'bookingrecipt.html', {
         'advancebookdata': advancebookdata,
@@ -6160,6 +6484,48 @@ def advancebookingdeletebe(request,id):
 
                 SaveAdvanceBookGuestData.objects.filter(vendor=user,id=saveguestid).update(action='cancel')
                 Booking.objects.filter(vendor=user,advancebook_id=saveguestid).delete()
+                actionss = 'Cancel Booking'
+                CustomGuestLog.objects.create(vendor=user,by='by Guest Canceled',action=actionss,
+                        advancebook=savedata,description=f'Booking Cancel for {savedata.bookingguest}, This Booking From Booking Engine ')
+
+                # roomchekinstatus = Rooms.objects.filter(vendor=user,id=roomid,checkin__range=[4,5]).exists()
+                # if roomchekinstatus is True:
+                #     Rooms.objects.filter(vendor=user,id=roomid).update(checkin=0)
+                # RoomBookAdvance.objects.filter(vendor=user,id=id).delete()
+                # Room_history.objects.filter(vendor=user,room_no=roomid).delete()
+                # advanceroomdata = RoomBookAdvance.objects.filter(vendor=user).all()
+                messages.success(request,'booking Cancelled succesfully')
+
+            elif Cm_RoomBookAdvance.objects.filter(vendor=user,saveguestdata=saveguestid):
+                newroomdata = Cm_RoomBookAdvance.objects.filter(vendor=user,saveguestdata=saveguestid)
+                for data in newroomdata:
+                    # Rooms.objects.filter(vendor=user,id=data.roomno.id).update(checkin=0)
+                    checkindate = savedata.bookingdate
+                    checkoutdate = savedata.checkoutdate
+                    while checkindate < checkoutdate:
+                        # roomscat = Rooms.objects.get(vendor=user,id=data.roomno.id)
+                        roomscat = data.room_category
+                        invtdata = RoomsInventory.objects.get(vendor=user,date=checkindate,room_category=roomscat)
+                        
+                        invtavaible = invtdata.total_availibility + 1
+                        invtabook = invtdata.booked_rooms - 1
+                        total_rooms = Rooms_count.objects.filter(vendor=user, room_type=roomscat).values_list('total_room_numbers', flat=True).first() or 0
+                        occupancy = invtabook * 100//total_rooms
+                                                                
+
+                        RoomsInventory.objects.filter(vendor=user,date=checkindate,room_category=roomscat).update(booked_rooms=invtabook,
+                                    total_availibility=invtavaible,occupancy=occupancy)
+            
+                        checkindate += timedelta(days=1)
+
+                if VendorCM.objects.filter(vendor=user):
+                    start_date = str(savedata.bookingdate)
+                    end_date = str(savedata.checkoutdate)
+                    thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
+                    thread.start()
+
+                SaveAdvanceBookGuestData.objects.filter(vendor=user,id=saveguestid).update(action='cancel')
+                # Booking.objects.filter(vendor=user,advancebook_id=saveguestid).delete()
                 actionss = 'Cancel Booking'
                 CustomGuestLog.objects.create(vendor=user,by='by Guest Canceled',action=actionss,
                         advancebook=savedata,description=f'Booking Cancel for {savedata.bookingguest}, This Booking From Booking Engine ')

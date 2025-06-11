@@ -526,7 +526,7 @@ def save_inventory_new_cm(request):
 
     if request.method == "POST":
         user = request.user
-
+        
         # Handle subuser case
         subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
         if subuser:
@@ -550,7 +550,7 @@ def save_inventory_new_cm(request):
         enddate = selected_date + timedelta(days=9)
 
         # Fetch all categories
-        categories = RoomsCategory.objects.filter(vendor=user)
+        categories = RoomsCategory.objects.filter(vendor=user).all()
 
         # Process form data and update inventory
         for category in categories:
