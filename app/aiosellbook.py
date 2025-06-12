@@ -914,7 +914,7 @@ def aiosell_new_reservation(request):
                 if Vendor_Service.objects.filter(vendor=vendordata.vendor,only_cm=True):
                     return channel_manager_aiosell_new_reservation(request) 
 
-
+                print("aiosell walachala")
                 bookingId = data['bookingId']
 
                 if action == 'book' or action=='modify': 
@@ -1057,15 +1057,30 @@ def aiosell_new_reservation(request):
                                 totalguest=totalguest,
                                 noofrooms=roomcount,
                             )
-                            commission = float(amount_details['commission'])
-                            tds = amount_details['tds']
-                            tcs = amount_details['tcs']
-                            if commission=='null':
-                                commission=0.0
-                            if tds=='null':
-                                tds=None
-                            if tcs=='null':
-                                tcs=None
+                            # commission = amount_details['commission']
+                            # tds = amount_details['tds']
+                            # tcs = amount_details['tcs']
+                            # if commission=='null':
+                            #     commission=0.0
+                            # else:
+                            #     commission = float(commission)
+                            # if tds=='null':
+                            #     tds=None
+                            # if tcs=='null':
+                            #     tcs=None
+                            commission = amount_details.get('commission')
+                            tds = amount_details.get('tds')
+                            tcs = amount_details.get('tcs')
+
+                            # Handle commission
+                            if commission is None:
+                                commission = 0.0
+                            else:
+                                commission = float(commission)
+
+                            # Handle tds and tcs
+                            tds = float(tds) if tds is not None else None
+                            tcs = float(tcs) if tcs is not None else None
 
                             agodataxamt = taxamount
 
@@ -1437,15 +1452,28 @@ def aiosell_new_reservation(request):
                                 totalguest=totalguest,
                                 noofrooms=roomcount,
                             )
-                            commission = float(amount_details['commission'])
-                            tds = amount_details['tds']
-                            tcs = amount_details['tcs']
-                            if commission=='null':
-                                commission=0.0
-                            if tds=='null':
-                                tds=None
-                            if tcs=='null':
-                                tcs=None
+                            # commission = float(amount_details['commission'])
+                            # tds = amount_details['tds']
+                            # tcs = amount_details['tcs']
+                            # if commission=='null':
+                            #     commission=0.0
+                            # if tds=='null':
+                            #     tds=None
+                            # if tcs=='null':
+                            #     tcs=None
+                            commission = amount_details.get('commission')
+                            tds = amount_details.get('tds')
+                            tcs = amount_details.get('tcs')
+
+                            # Handle commission
+                            if commission is None:
+                                commission = 0.0
+                            else:
+                                commission = float(commission)
+
+                            # Handle tds and tcs
+                            tds = float(tds) if tds is not None else None
+                            tcs = float(tcs) if tcs is not None else None
 
                             agodataxamt = taxamount
                             # commisiion calculation here

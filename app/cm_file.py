@@ -526,7 +526,7 @@ def save_inventory_new_cm(request):
 
     if request.method == "POST":
         user = request.user
-        
+
         # Handle subuser case
         subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
         if subuser:
@@ -1570,7 +1570,7 @@ def channel_manager_aiosell_new_reservation(request):
     # if request.method == 'POST':
         try:
             data = json.loads(request.body)  
-
+            print("mera walachala")
             # Log incoming data for verification
             logger.info("Received new reservation data: %s", data)
 
@@ -1720,18 +1720,35 @@ def channel_manager_aiosell_new_reservation(request):
                                 totalguest=totalguest,
                                 noofrooms=roomcount,
                             )
-                            commission = float(amount_details['commission'])
-                            tds = amount_details['tds']
-                            tcs = amount_details['tcs']
-                            if commission=='null':
-                                commission=0.0
-                            if tds=='null':
-                                tds=None
-                            if tcs=='null':
-                                tcs=None
+                            print("yha tk to chal gaya ")
+                            # commission = amount_details['commission']
+                            # tds = amount_details['tds']
+                            # tcs = amount_details['tcs']
+                            # if commission=='null':
+                            #     commission=0.0
+                            # else:
+                            #     commission = float(commission)
+                            # if tds=='null':
+                            #     tds=None
+                            # if tcs=='null':
+                            #     tcs=None
+
+                            commission = amount_details.get('commission')
+                            tds = amount_details.get('tds')
+                            tcs = amount_details.get('tcs')
+
+                            # Handle commission
+                            if commission is None:
+                                commission = 0.0
+                            else:
+                                commission = float(commission)
+
+                            # Handle tds and tcs
+                            tds = float(tds) if tds is not None else None
+                            tcs = float(tcs) if tcs is not None else None
 
                             agodataxamt = taxamount
-
+                            print("yha tk bhi chal gaya ")
                             # commisiion calculation here
                             if channel == "MakeMyTrip" or channel == "Goibibo":
                                 extra_mmt_commison = 0
@@ -2099,15 +2116,28 @@ def channel_manager_aiosell_new_reservation(request):
                                 totalguest=totalguest,
                                 noofrooms=roomcount,
                             )
-                            commission = float(amount_details['commission'])
-                            tds = amount_details['tds']
-                            tcs = amount_details['tcs']
-                            if commission=='null':
-                                commission=0.0
-                            if tds=='null':
-                                tds=None
-                            if tcs=='null':
-                                tcs=None
+                            # commission = float(amount_details['commission'])
+                            # tds = amount_details['tds']
+                            # tcs = amount_details['tcs']
+                            # if commission=='null':
+                            #     commission=0.0
+                            # if tds=='null':
+                            #     tds=None
+                            # if tcs=='null':
+                            #     tcs=None
+                            commission = amount_details.get('commission')
+                            tds = amount_details.get('tds')
+                            tcs = amount_details.get('tcs')
+
+                            # Handle commission
+                            if commission is None:
+                                commission = 0.0
+                            else:
+                                commission = float(commission)
+
+                            # Handle tds and tcs
+                            tds = float(tds) if tds is not None else None
+                            tcs = float(tcs) if tcs is not None else None
 
                             agodataxamt = taxamount
                             print('yha tk chal gaya')
