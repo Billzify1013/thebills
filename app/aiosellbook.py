@@ -1023,7 +1023,7 @@ def aiosell_new_reservation(request):
                         if SaveAdvanceBookGuestData.objects.filter(vendor=vendordata.vendor, booking_id=bookingId, cm_booking_id=cmBookingId).exists():
                             return JsonResponse({'success': True, 'message': 'Reservation Already Exists! '})
                         else:
-                            cnalledata = onlinechannls.objects.get(vendor=vendordata.vendor, channalname=channel)
+                            cnalledata = onlinechannls.objects.filter(vendor=vendordata.vendor, channalname=channel).first()
                             Saveadvancebookdata = SaveAdvanceBookGuestData.objects.create(
                                 vendor=vendordata.vendor,
                                 booking_id=bookingId,
@@ -1416,7 +1416,7 @@ def aiosell_new_reservation(request):
                 
                 elif action=='modify':
                         # i am work here
-                        cnalledata = onlinechannls.objects.get(vendor=vendordata.vendor, channalname=channel)
+                        cnalledata = onlinechannls.objects.filter(vendor=vendordata.vendor, channalname=channel).first()
                         if SaveAdvanceBookGuestData.objects.filter(vendor=vendordata.vendor,booking_id=bookingId,channal=cnalledata).exists():
                             
                             Saveadvancebookdata = SaveAdvanceBookGuestData.objects.get(vendor=vendordata.vendor,booking_id=bookingId,channal=cnalledata)
@@ -1840,7 +1840,7 @@ def aiosell_new_reservation(request):
                         bookingIds = data['bookingId']
                         vendordata = VendorCM.objects.get(hotelcode=hotelCode)
                         channel = data['channel']
-                        cnalledata = onlinechannls.objects.get(vendor=vendordata.vendor, channalname=channel)
+                        cnalledata = onlinechannls.objects.filter(vendor=vendordata.vendor, channalname=channel).first()
                         
                         exists = SaveAdvanceBookGuestData.objects.filter(vendor=vendordata.vendor,booking_id=bookingIds,channal=cnalledata).exclude(action='cancel').exists()
 
