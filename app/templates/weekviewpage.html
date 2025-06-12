@@ -877,7 +877,8 @@ onmouseout="this.style.overflowX='auto'">
             const roomUrl = "{% url 'openroomclickformpage' id='ROOM_NO' %}".replace('ROOM_NO', roomNumber);
             console.log('Generated URL:', roomUrl);  // Check the generated URL in the console
             window.location.href = roomUrl; // Navigate to the Django URL for the room
-        } else {
+        } 
+        else {
             console.error('Room number is undefined or incorrect');
         }
     }

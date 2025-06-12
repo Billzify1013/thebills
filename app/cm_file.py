@@ -761,7 +761,7 @@ def update_inventory_cm(user, start_date_str, end_date_str):
 
 
 def bulkinventoryform_cm(request):
-    try:
+    # try:
         if request.user.is_authenticated and request.method == "POST":
             # Get the selected category IDs
             user = request.user
@@ -823,7 +823,7 @@ def bulkinventoryform_cm(request):
 
                 # Get availability value for the current category from category_data
                 availability_value = category_data.get(roomtype.id, roomcount)  # Default to roomcount if not provided
-
+                print(availability_value,'check this')
                 # Deduct availability and update bookings for existing inventory
                 for inventory in existing_inventory:
                     trms = inventory.booked_rooms
@@ -831,7 +831,10 @@ def bulkinventoryform_cm(request):
                         trms=1
                     else:
                         pass
-                    occupncies = (trms*100//availability_value)
+                    if availability_value==0:
+                        occupncies=100
+                    else:
+                        occupncies = (trms*100//availability_value)
                     inventory.total_availibility = availability_value  # Update with the provided value
                     inventory.occupancy=occupncies
                     inventory.save()
@@ -881,8 +884,8 @@ def bulkinventoryform_cm(request):
         
         else:
             return render(request, 'login.html')
-    except Exception as e:
-        return render(request, '404.html', {'error_message': str(e)}, status=500)
+    # except Exception as e:
+    #     return render(request, '404.html', {'error_message': str(e)}, status=500)
     
 
 

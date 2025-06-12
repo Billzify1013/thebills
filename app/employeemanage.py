@@ -2999,7 +2999,10 @@ def bulkinventoryform(request):
                         trms=1
                     else:
                         pass
-                    occupncies = (trms*100//availability_value)
+                    if availability_value==0:
+                        occupncies=100
+                    else:
+                        occupncies = (trms*100//availability_value)
                     inventory.total_availibility = availability_value  # Update with the provided value
                     inventory.occupancy=occupncies
                     inventory.save()
