@@ -3817,7 +3817,7 @@ def addadvancebooking(request):
                 bookingguestphone=phone,staydays=totalstaydays,advance_amount=advanceamount,reamaining_amount=reaminingamount,discount=0.00,
                 total_amount=totalamount,channal=channal,checkoutdate=bookenddate,email='',address_city='',state='',country='',totalguest=guestcount,
                 action='book',booking_id=None,cm_booking_id=None,segment='PMS',special_requests=sprequest,pah=True,amount_after_tax=totalamount,amount_before_tax=0.00,
-                  tax=0.00,currency="INR",checkin=current_date,Payment_types='postpaid',is_selfbook=True)
+                  tax=0.00,currency="INR",checkin=current_date,Payment_types='postpaid',is_selfbook=True,is_noshow=False,is_hold=False,)
             paymenttypes = 'postpaid'
             pah=True
             if int(advanceamount) > 0:
@@ -5766,7 +5766,9 @@ def cart_processing(request):
                 currency="INR",
                 checkin=current_date,
                 Payment_types='postpaid',
-                is_selfbook=False
+                is_selfbook=False,
+                is_noshow=False,
+                is_hold=False,
 
             )
 
@@ -6116,7 +6118,9 @@ def cart_cm_new_reservation(request):
                 currency="INR",
                 checkin=current_date,
                 Payment_types='postpaid',
-                is_selfbook=False
+                is_selfbook=False,
+                is_noshow=False,
+                is_hold=False,
 
             )
 

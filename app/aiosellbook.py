@@ -1056,6 +1056,8 @@ def aiosell_new_reservation(request):
                                 country = country,
                                 totalguest=totalguest,
                                 noofrooms=roomcount,
+                                is_noshow=False,
+                                is_hold=False,
                             )
                             # commission = amount_details['commission']
                             # tds = amount_details['tds']

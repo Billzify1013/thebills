@@ -588,6 +588,8 @@ class SaveAdvanceBookGuestData(models.Model):
     ]
     Payment_types = models.CharField(max_length=20, choices=ACTION_CHOICES_payment,blank=True,null=True)
     is_selfbook = models.BooleanField(default=False)
+    is_noshow =  models.BooleanField(default=False)
+    is_hold = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.bookingguest} for {self.vendor.username} id {self.id}"

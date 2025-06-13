@@ -527,6 +527,8 @@ urlpatterns = [
     path('cmnotification/', cm_file.cmnotification, name='cmnotification'),
     path('dashboardcm/', cm_file.dashboardcm, name='dashboardcm'),
     path('salescm/', cm_file.salescm, name='salescm'),
+    path('noshowcme/', cm_file.noshowcme, name='noshowcme'),
+    path('marknoshowcm/<int:id>/',cm_file.marknoshowcm,name="marknoshowcm"),
 
 
 

@@ -1,0 +1,171 @@
+{% extends "cm_base.html" %}
+{% block content %}
+
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%endif%}
+</div>
+{%endfor%}
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 1000);
+  });
+</script>
+{%endif%} 
+
+<h4>No Show/Page</h4>
+
+
+
+<!-- Table Section -->
+<div class="card mt-4">
+    <div class="row"><div class="col-6 col-md-9">
+        <h5 class="card-header"><i class='bx bx-transfer-alt'></i> Bookings</h5>
+    </div>
+   
+
+</div>
+    
+    <div class="table-responsive text-nowrap">
+        <table class="table table-striped" style="cursor: grabbing;">
+            <thead class="table-light">
+                <tr>
+                    <th>Guest Name/Phone</th>
+                    <th>Channel/Booking ID</th>
+                    <th>Action</th>
+                    <th>Stay Dates</th>
+                    <th>Total Amount</th>
+                    <th>Payment Type</th>
+                    <th>Confirmation</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="bookingTableBody">
+                {% for data in alldata %}
+                <tr data-channel="{{ data.channal.channalname }}" data-payment="{{ data.Payment_types }}" data-amount="{{ data.total_amount }}" data-status="{{ data.action }}" data-name="{{ data.bookingguest }}" data-number="{{ data.bookingguestphone }}" data-bookingid="{{ data.booking_id }}">
+                    {% if data.action == 'cancel' %}
+                    <td><a  href="{% url 'advancebookingdetails_cm' id=data.id %}"><strong><del>{{ data.bookingguest }}<br>{{ data.bookingguestphone }}</del></strong></a></td>
+                    {% else %}
+                    <td><a  href="{% url 'advancebookingdetails_cm' id=data.id %}"><strong>{{ data.bookingguest }}</a><br>{{ data.bookingguestphone }}</strong></td>
+                    {% endif %}
+                    <td>{{ data.channal.channalname }}<br>{{ data.booking_id }}</td>
+                    <td>
+                        {%if data.is_noshow %}
+                            <p class="text text-success">No Show Done</p>
+                        {%else%}
+                        <a href="{% url 'marknoshowcm' id=data.id %}" 
+       class="btn btn-warning text-white"
+       onclick="return handleClick(this)">
+       No Show
+    </a>{%endif%}
+                        
+                    </td>
+                    <td><span class="badge bg-label-primary mb-1">{{ data.bookingdate }} - {{ data.checkoutdate }} {D: {{data.staydays}} }</span>
+                    <p style="font-size:12px;">{{ data.room_categories_summary  }}</p></td>
+                    <td>{{ data.total_amount }}</td>
+                    <td>
+                        {% if data.Payment_types == 'prepaid' %}
+                        <span class="badge bg-label-success">{{ data.Payment_types }}</span>
+                        {% elif data.Payment_types == 'postpaid' %}
+                        <span class="badge bg-label-warning">{{ data.Payment_types }}</span>
+                        {% else %}
+                        <span class="badge bg-label-info">{{ data.Payment_types }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if data.action == 'book' %}
+                        <span class="badge bg-label-success">Booked</span>
+                        {% elif data.action == 'modify' %}
+                        <span class="badge bg-label-info">Modified</span>
+                        {% else %}
+                        <span class="badge bg-label-danger">Cancelled</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <button type="button" class="btn dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                            <i class="bx bx-dots-vertical-rounded"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'advancebookingdetails_cm' id=data.id %}"><i class="bx bx-edit-alt me-1"></i>Details</a></li>
+                            <li><a class="dropdown-item" href="{% url 'receipt_view' %}?cd={{ data.id }}"><i class='bx bx-conversation'></i>Voucher</a></li>
+                            <li><a class="dropdown-item" href="{% url 'addpaymenttobooking_cm' booking_id=data.id %}"><i class='bx bxl-paypal'></i>Add Payment</a></li>
+                            <li><a class="dropdown-item" href="{% url 'formo_view' %}?cd={{ data.id  }}"><i class='bx bx-id-card mb-1'></i> Formo Invoice</a></li>
+                            {% comment %} <li><a class="dropdown-item" href="{% url 'advancebookingdelete' id=data.id %}"><i class="bx bx-trash me-1"></i>Cancel</a></li> {% endcomment %}
+                            {% if data.action == 'cancel' %}
+                                {% comment %} <li><a class="dropdown-item" href="{% url 'bookingrevokenot' id=data.id %}"><i class='bx  bx-repeat'  ></i>   Revoke</a></li> {% endcomment %}
+                                {%else%}
+                                <li><a class="dropdown-item" href="{% url 'advancebookingdelete' id=data.id %}"><i class="bx bx-trash me-1"></i>Cancel</a></li>
+                                
+                            {%endif%}
+                        </ul>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function handleClick(element) {
+    // Disable the clicked button visually and functionally
+    element.innerText = "Processing...";
+    element.classList.add("disabled");
+    element.style.pointerEvents = "none";
+    element.style.opacity = "0.6";
+
+    // Manually redirect after a small delay
+    setTimeout(function() {
+        window.location.href = element.href;
+    }, 100); // Small delay ensures visual update
+
+    return false; // Prevent default click
+}
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const tableContainer = document.querySelector('.table-responsive');
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+  
+        tableContainer.addEventListener('mousedown', (e) => {
+            isDown = true;
+            startX = e.pageX - tableContainer.offsetLeft;
+            scrollLeft = tableContainer.scrollLeft;
+        });
+  
+        tableContainer.addEventListener('mouseleave', () => isDown = false);
+        tableContainer.addEventListener('mouseup', () => isDown = false);
+  
+        tableContainer.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - tableContainer.offsetLeft;
+            const walk = (x - startX) * 2;
+            tableContainer.scrollLeft = scrollLeft - walk;
+        });
+    });
+  </script>
+
+{%endblock%}
