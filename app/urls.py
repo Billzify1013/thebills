@@ -530,6 +530,10 @@ urlpatterns = [
     path('noshowcme/', cm_file.noshowcme, name='noshowcme'),
     path('marknoshowcm/<int:id>/',cm_file.marknoshowcm,name="marknoshowcm"),
 
+    path('noshowcmemain/', cm_file.noshowcmemain, name='noshowcmemain'),
+    path('marknoshowmain/<int:id>/',cm_file.marknoshowmain,name="marknoshowmain"),
+    
+
 
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

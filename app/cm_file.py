@@ -2702,3 +2702,112 @@ def marknoshowcm(request,id):
             return redirect('loginpage')
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)    
+
+def noshowcmemain(request):
+    try:
+        if request.user.is_authenticated:
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor 
+            today = datetime.now().date()
+            yesterday = today - timedelta(days=1)
+            print(yesterday,today)
+            alldata = SaveAdvanceBookGuestData.objects.filter(vendor=user,bookingdate=yesterday,channal__channalname='booking.com').all()
+            return render(request,'noshowcmmain.html',{'alldata':alldata})
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)  
+
+def marknoshowmain(request,id):
+    try:
+        if request.user.is_authenticated:
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor 
+            if SaveAdvanceBookGuestData.objects.filter(vendor=user,id=id,is_noshow=True).exists():
+                messages.success(request,"Booking marked as no-show Already")
+                return redirect('noshowcmemain')
+            if SaveAdvanceBookGuestData.objects.filter(vendor=user,id=id).exists():
+                    booking = SaveAdvanceBookGuestData.objects.get(vendor=user,id=id)
+                    url = "https://live.aiosell.com/api/v2/cm/noshow"
+                    vendordata = VendorCM.objects.filter(vendor=user).first()
+                    hotelcode = vendordata.hotelcode
+                    payload = {
+                        "hotelId": hotelcode,
+                        "bookingId": booking.booking_id,
+                        "partner": "booking.com"
+                    }
+                    
+                    try:
+                        response = requests.post(url, json=payload)
+                        result = response.json()
+
+                        if result.get("success") is True:
+                            # Handle success response
+                            if booking.action == 'book' or booking.action == 'modify':
+                                roomdata = RoomBookAdvance.objects.filter(vendor=user,saveguestdata=booking).all()
+                                savedata=booking
+                                saveguestid=booking
+                                if roomdata: 
+                                    for data in roomdata:
+                                        # Rooms.objects.filter(vendor=user,id=data.roomno.id).update(checkin=0)
+                                        checkindate = savedata.bookingdate
+                                        checkoutdate = savedata.checkoutdate
+                                        while checkindate < checkoutdate:
+                                            # roomscat = Rooms.objects.get(vendor=user,id=data.roomno.id)
+                                            roomcategory = data.roomno.room_type
+                                            invtdata = RoomsInventory.objects.get(vendor=user,date=checkindate,room_category=roomcategory)
+                                            invtavaible = invtdata.total_availibility + 1
+                                            invtabook = invtdata.booked_rooms - 1
+                                            total_rooms = Rooms.objects.filter(vendor=user, room_type=roomcategory).exclude(checkin=6).count()
+                                            # total_rooms = Rooms_count.objects.filter(vendor=user, room_type=roomcategory).values_list('total_room_numbers', flat=True).first() or 0
+                                            occupancy = invtabook * 100//total_rooms
+                                                                                    
+
+                                            RoomsInventory.objects.filter(vendor=user,date=checkindate,room_category=roomcategory).update(booked_rooms=invtabook,
+                                                        total_availibility=invtavaible,occupancy=occupancy)
+                                
+                                            checkindate += timedelta(days=1)
+
+                                    if VendorCM.objects.filter(vendor=user):
+                                        start_date = str(savedata.bookingdate)
+                                        end_date = str(savedata.checkoutdate)
+                                        thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
+                                        thread.start()
+
+                                    SaveAdvanceBookGuestData.objects.filter(vendor=user,id=saveguestid.id).update(action='cancel',
+                                                                    is_noshow=True)
+                                    # Booking.objects.filter(vendor=user,advancebook_id=saveguestid.id).delete()
+                                    actionss = 'No Show And Cancel Booking'
+                                    CustomGuestLog.objects.create(vendor=user,by='system Assign',action=actionss,
+                                            advancebook=saveguestid,description=f'Booking No Show And Cancel for {saveguestid.bookingguest}, This Booking From OTA ')
+                            else:
+                                saveguestid=booking
+                                SaveAdvanceBookGuestData.objects.filter(vendor=user,id=saveguestid.id).update(action='cancel',
+                                                    is_noshow=True)
+                                actionss = 'No Show Booking'
+                                CustomGuestLog.objects.create(vendor=user,by='system Assign',action=actionss,
+                                            advancebook=saveguestid,description=f'Booking No Show for {saveguestid.bookingguest}, This Booking From OTA ')
+                            messages.success(request,"Booking marked as no-show successfully.")
+                            return redirect('noshowcmemain')
+                        
+                        else:
+                            messages.error(request,f'Failed to mark booking as no-show.{booking.bookingguest} Booking id: {booking.booking_id}')
+                            # Handle failure response
+                            return redirect('noshowcmemain')
+
+                    except requests.exceptions.RequestException as e:
+                        messages.error(request,f'Failed to mark booking as no-show.')
+                        return redirect('noshowcmemain')
+                        # Handle request errors (e.g., timeout, connection error)
+            else:
+                    messages.error(request,f'Failed to mark booking as no-show.')
+                    return redirect('noshowcmemain')
+                
+        else:
+            return redirect('loginpage')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)    
