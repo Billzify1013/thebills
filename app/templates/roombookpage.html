@@ -41,11 +41,29 @@
       <labal>CheckIn Date</label>
       <input  type="date" name="startdate" placeholder="select CheckIn Date" class="form-control "   required id="dateInput" value="{{startdate}}"/>
     </div>
+    <script>
+      const dateInput = document.getElementById("dateInput");
+
+      // Add event listener for any click inside input
+      dateInput.addEventListener("click", function () {
+        this.showPicker && this.showPicker(); // Modern browsers
+        this.focus(); // Fallback for others
+      });
+    </script>
 
     <div class="col-6 col-md-4" style="">
       <labal>CheckOut Date</label>
     <input type="date" name="enddate" placeholder="select CheckOut Date" id="dateInputs" class=" form-control" value="{{enddate}}" required/>
   </div>
+  <script>
+      const dateInputs = document.getElementById("dateInputs");
+
+      // Add event listener for any click inside input
+      dateInputs.addEventListener("click", function () {
+        this.showPicker && this.showPicker(); // Modern browsers
+        this.focus(); // Fallback for others
+      });
+    </script>
   <div class="col-12 col-md-4 mt-4" style="">
     <input type="submit" class="btn mb-1 w-100 btn-primary "/>
   </div>

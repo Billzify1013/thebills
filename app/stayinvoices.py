@@ -15,7 +15,7 @@ from django.urls import reverse
 from django.db.models import IntegerField
 from django.db.models.functions import Cast
 def stayinvoice(request):
-    # try:
+    try:
         if request.user.is_authenticated:
             user = request.user
             subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
@@ -90,8 +90,8 @@ def stayinvoice(request):
             })
         else:
             return render(request, 'login.html')
-    # except Exception as e:
-    #     return render(request, '404.html', {'error_message': str(e)}, status=500)
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
 
 
 
@@ -1918,6 +1918,18 @@ def invcshow(request, id):
                             'creditdata':creditdata,
                             'taxelab':taxelab
                         })
+                    elif invcheck.guestinvcdesign==3:
+                        return render(request, 'invoicepage3.html', {
+                            'profiledata': profiledata,
+                            'guestdata': guestdata,
+                            'invoice_data': invoice_datas,
+                            'invoiceitemdata': invoiceitemdata,
+                            'invcpayments':invcpayments,
+                            'gstamounts':gstamounts,
+                            'sstamounts':sstamounts,
+                            'creditdata':creditdata,
+                            'taxelab':taxelab
+                        })
                         
                         
                 else:
@@ -1937,6 +1949,17 @@ def invcshow(request, id):
                     elif invcheck.guestinvcdesign==2:
                         print(invcpayments)
                         return render(request, 'invoicepage2.html', {
+                            'profiledata': profiledata,
+                            'guestdata': guestdata,
+                            'invoice_data': invoice_datas,
+                            'invoiceitemdata': invoiceitemdata,
+                            'invcpayments':invcpayments,
+                            'creditdata':creditdata,
+                            'istamts':istamts,
+                            'taxelab':taxelab
+                        })
+                    elif invcheck.guestinvcdesign==3:
+                        return render(request, 'invoicepage3.html', {
                             'profiledata': profiledata,
                             'guestdata': guestdata,
                             'invoice_data': invoice_datas,

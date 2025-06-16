@@ -841,7 +841,8 @@ onmouseout="this.style.overflowX='auto'">
     }
 
     function handleDateBoxClick(element, roomName, date, roomNumber) {
-        console.log('Room Number:check chandan', roomName);  // Debugging: Check if roomNumber is correct
+        console.log('Room Number:check chandan', roomName,clickedDate);
+          // Debugging: Check if roomNumber is correct
         roomNumber = roomName
         // Get today's date without the time part (set to midnight)
         const currentDate = new Date();

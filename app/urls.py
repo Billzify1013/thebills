@@ -38,6 +38,7 @@ urlpatterns = [
     path('guestearch/<int:id>/',stayinvoices.guestearch,name="guestearch"),
     
     path('guestdetails/<int:id>/',views.guestdetails,name="guestdetails"),
+    path('guestdetailsfrominvc/<int:id>/',views.guestdetailsfrominvc,name="guestdetailsfrominvc"),
     path('openroomclickformpage/<str:id>/',views.openroomclickformpage,name="openroomclickformpage"),
     path('openroomclickformtodayarriwalspage/<str:id>/',views.openroomclickformtodayarriwalspage,name="openroomclickformtodayarriwalspage"),
     path('weekviewcheckin/',views.weekviewcheckin,name="weekviewcheckin"),

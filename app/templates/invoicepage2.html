@@ -23,7 +23,7 @@
             left: 0;
             width: 210mm;
             height: auto;
-            padding: 60mm 20mm 20mm;
+            padding: 10mm 20mm 20mm;
             box-sizing: border-box;
         }
 
@@ -195,6 +195,19 @@
     {%endif%}
 
     <div class="container">
+         <center>
+                <div class="">
+                
+                    <div class="">
+                        {%for i in profiledata%}
+                        <img src="{{i.profile_image.url}}" height="100px"  />
+                        <p><b>{{i.name}}</b></p>
+                        <p>{{i.address}},{{i.zipcode}},{{i.counrty}}</p>
+                        <p>GSTIN: {{i.gstin}} , Contact: {{i.contact}}</p>
+                        {% comment %} <p>PH: {{i.contact}}</p> {% endcomment %}
+                        {%endfor%}
+                    </div>
+                </div></center>
         <!-- Invoice Details -->
         <div class="invoice-details">
             <div class="left">{%for data in invoice_data%}
@@ -211,6 +224,9 @@
                 <p><strong>Guests: </strong>{{data.customer.noofguest}}</p>
                 {%if data.customer_gst_number%}
                 <p><strong>Guest GST : </strong>{{data.customer_gst_number}}</p>
+                {%endif%}
+                {%if data.customer_company%}
+                <p><strong>Guest Company : </strong>{{data.customer_company}}</p>
                 {%endif%}
             </div>{%endfor%}
         </div>
@@ -371,7 +387,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
-        async function generatePDF() {
+        {% comment %} async function generatePDF() {
             const { jsPDF } = window.jspdf;
             const content = document.querySelector('.container');
             const canvas = await html2canvas(content, { scale: 3 });
@@ -381,11 +397,49 @@
             const imgHeight = (canvas.height * imgWidth) / canvas.width;
             pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
             pdf.save('invoice.pdf');
-        }
+        } {% endcomment %}
 
         function printInvoice() {
             window.print();
         }
+    </script>
+    <script>
+        async function generatePDF() {
+    const { jsPDF } = window.jspdf;
+    const content = document.querySelector('.container');
+
+    // Capture content as canvas (high quality)
+    const canvas = await html2canvas(content, {
+        scale: 2, // higher = better quality
+        useCORS: true
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('p', 'mm', 'a4');
+
+    const imgWidth = 210; // A4 width in mm
+    const pageHeight = 297; // A4 height in mm
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    // First page
+    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    // Add extra pages if content exceeds one
+    while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+    }
+
+    // Save PDF
+    pdf.save('invoice.pdf');
+}
+
     </script>
 </body>
 </html>

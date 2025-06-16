@@ -113,7 +113,7 @@ def submit_form(request):
 
         try:
             # if Invoice.objects.filter(id=invoice_id,customer_gst_number='').exists():
-            if Invoice.objects.filter(id=invoice_id,is_ota=False).exists():
+            if Invoice.objects.filter(id=invoice_id).exists():
                 user=request.user
                 subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
                 if subuser:

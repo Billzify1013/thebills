@@ -306,6 +306,30 @@ def guestdetails(request, id):
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)
 
+def guestdetailsfrominvc(request,id):
+    try:
+        if request.user.is_authenticated:
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            invcmain = Invoice.objects.filter(
+                vendor=user, id=id).first()
+            guestdetails = Gueststay.objects.filter(vendor=user,id=invcmain.customer.id).all()
+            moredata = MoreGuestData.objects.filter(vendor=user, mainguest_id=invcmain.customer.id).all()
+            moreids = Guest_BackId.objects.filter(vendor=user,guest__id__in=guestdetails)
+            print(moreids)
+            return render(request, 'guestdetails.html', {
+                'guestdetails': guestdetails,
+                'MoreGuestData': moredata,
+                'active_page': 'guesthistory',
+                'moreids':moreids
+            })
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+
 
 # def advanceroombookpage(request):
 #     try:
@@ -7546,7 +7570,7 @@ def addguestdatafromadvanceroombook(request):
                         Guest_BackId.objects.create(vendor=user,guest=guestdata,
                                 guestidbackimg=guestidbackimg)
 
-                    Invoiceid = Invoice.objects.create(vendor=user,customer=guestdata,customer_gst_number="",
+                    Invoiceid = Invoice.objects.create(vendor=user,customer=guestdata,
                                                 invoice_number="",invoice_date=checkindate,total_item_amount=0.0,discount_amount=discount,
                                                         subtotal_amount=0.0,gst_amount=0.0,sgst_amount=0.0,accepted_amount=0.00,
                                                         Due_amount=0.00,grand_total_amount=0.0,modeofpayment=paymentstatus,room_no=0.0,taxtype=taxtypes)
@@ -7710,8 +7734,12 @@ def addguestdatafromadvanceroombook(request):
                         else:
                             otagstin=''
                         companyname = saveguestdata.channal.channalname
+                        # old code
+                        # Invoice.objects.filter(vendor=user,id=Invoiceid.id).update(
+                        #     customer_gst_number=otagstin,customer_company=companyname,
+                        #     is_ota=True)
+                        # new code
                         Invoice.objects.filter(vendor=user,id=Invoiceid.id).update(
-                            customer_gst_number=otagstin,customer_company=companyname,
                             is_ota=True)
                         
                     else:
