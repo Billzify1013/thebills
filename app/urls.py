@@ -534,6 +534,9 @@ urlpatterns = [
     path('noshowcmemain/', cm_file.noshowcmemain, name='noshowcmemain'),
     path('marknoshowmain/<int:id>/',cm_file.marknoshowmain,name="marknoshowmain"),
     
+    path('cm_sales/', cm_file.cm_sales, name='cm_sales'),
+    path('searchcmsales/', cm_file.searchcmsales, name='searchcmsales'),
+    
 
 
 

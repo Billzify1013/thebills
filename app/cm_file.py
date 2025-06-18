@@ -2821,3 +2821,165 @@ def marknoshowmain(request,id):
             return redirect('loginpage')
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)    
+
+from django.db.models.functions import ExtractYear
+from django.db.models import Sum, Count
+def cm_sales(request):
+    try:
+        if request.user.is_authenticated:
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor
+
+            current_year = datetime.now().year
+
+            # Filter booking data (excluding cancel)
+            bookings = (
+                SaveAdvanceBookGuestData.objects
+                .filter(vendor=user)
+                .exclude(action='cancel')
+                .annotate(year=ExtractYear('bookingdate'))
+                .filter(year=current_year)
+            )
+
+            # Channel-wise aggregation
+            channel_data = (
+                bookings
+                .values('channal__channalname')
+                .annotate(
+                    total_sales=Sum('total_amount'),
+                    booking_count=Count('id'),
+                    total_nights=Sum('staydays')
+                )
+                .order_by('-total_sales')
+            )
+
+            # Rooms from related table
+            cm_room_data = Cm_RoomBookAdvance.objects.filter(
+                vendor=user,
+                saveguestdata__in=bookings
+            ).values('saveguestdata__channal__channalname') \
+            .annotate(room_count=Count('id'))
+
+            # Mapping rooms per channel
+            room_count_map = {
+                item['saveguestdata__channal__channalname']: item['room_count']
+                for item in cm_room_data
+            }
+
+            # Prepare lists for chart
+            channels = []
+            sales = []
+            bookings_list = []
+            nights = []
+            rooms = []
+
+            for item in channel_data:
+                name = item['channal__channalname']
+                channels.append(name)
+                sales.append(item['total_sales'] or 0)
+                bookings_list.append(item['booking_count'])
+                nights.append(item['total_nights'] or 0)
+                rooms.append(room_count_map.get(name, 0))
+
+            context = {
+                'channels': json.dumps(channels),
+                'sales': json.dumps(sales),
+                'bookings': json.dumps(bookings_list),
+                'nights': json.dumps(nights),
+                'rooms': json.dumps(rooms),
+                'active_page': 'cm_sales',
+                'showdates': f'{current_year} Full Year'
+            }
+
+            return render(request, 'cmsales.html', context)
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+    
+def searchcmsales(request):
+    try:
+        if request.user.is_authenticated:
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor
+            startdate = request.POST.get('startdate')
+            enddate = request.POST.get('enddate')
+            print("FILTERING: ", startdate, enddate)
+
+            start = datetime.strptime(startdate, "%Y-%m-%d").date()
+            end = datetime.strptime(enddate, "%Y-%m-%d").date()
+
+            if start <= end:
+                # Default fallback if no dates
+                if startdate and enddate:
+                    bookings = (
+                        SaveAdvanceBookGuestData.objects
+                        .filter(vendor=user)
+                        .exclude(action='cancel')
+                        .filter(bookingdate__range=[startdate, enddate])
+                    )
+                    show_range = f"{startdate} to {enddate}"
+                
+                    # Channel-wise aggregation
+                    channel_data = (
+                        bookings
+                        .values('channal__channalname')
+                        .annotate(
+                            total_sales=Sum('total_amount'),
+                            booking_count=Count('id'),
+                            total_nights=Sum('staydays')
+                        )
+                        .order_by('-total_sales')
+                    )
+
+                    # Rooms from related table
+                    cm_room_data = Cm_RoomBookAdvance.objects.filter(
+                        vendor=user,
+                        saveguestdata__in=bookings
+                    ).values('saveguestdata__channal__channalname') \
+                    .annotate(room_count=Count('id'))
+
+                    room_count_map = {
+                        item['saveguestdata__channal__channalname']: item['room_count']
+                        for item in cm_room_data
+                    }
+
+                    channels = []
+                    sales = []
+                    bookings_list = []
+                    nights = []
+                    rooms = []
+
+                    for item in channel_data:
+                        name = item['channal__channalname']
+                        channels.append(name)
+                        sales.append(item['total_sales'] or 0)
+                        bookings_list.append(item['booking_count'])
+                        nights.append(item['total_nights'] or 0)
+                        rooms.append(room_count_map.get(name, 0))
+
+                    context = {
+                        'channels': json.dumps(channels),
+                        'sales': json.dumps(sales),
+                        'bookings': json.dumps(bookings_list),
+                        'nights': json.dumps(nights),
+                        'rooms': json.dumps(rooms),
+                        'active_page': 'cm_sales',
+                        'showdates': show_range,
+                    }
+                    return render(request, 'cmsales.html', context)
+                else:
+                    messages.error(request,'please select correct dates')
+                    return render(request, 'cmsales.html')
+
+            else:
+                messages.error(request,'please select correct dates')
+                return render(request, 'cmsales.html')
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)

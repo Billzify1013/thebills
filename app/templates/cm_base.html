@@ -171,6 +171,13 @@
               </a>
             </li>
 
+            <li class="menu-item text-uppercase {% if active_page == 'cm_sales' %}active{% endif %} ">
+              <a href="{% url 'cm_sales'  %}" class="menu-link">
+                <i class="fa-solid fa-chart-pie ms-1"></i>&nbsp;&nbsp;&nbsp;&nbsp;
+                <div data-i18n="Analytics">Analytics</div>
+              </a>
+            </li>
+
             {% comment %} <li class="menu-item text-uppercase {% if active_page == 'salescm' %}active{% endif %} ">
               <a href="{% url 'salescm'  %}" class="menu-link">
                 <i class="fa-solid fa-chart-line ms-1"></i>&nbsp;&nbsp;&nbsp;&nbsp;
