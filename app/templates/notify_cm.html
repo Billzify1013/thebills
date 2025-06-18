@@ -198,11 +198,21 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         statuses.forEach((status) => {
-            const option = document.createElement("option");
-            option.value = status;
-            option.textContent = status === 'book' ? 'Booked' : 'Cancelled';
-            statusFilter.appendChild(option);
-        });
+        const option = document.createElement("option");
+        option.value = status;
+
+        if (status === 'book') {
+            option.textContent = 'Booked';
+        } else if (status === 'cancel') {
+            option.textContent = 'Cancelled';
+        } else if (status === 'modify') {
+            option.textContent = 'Modified';
+        } else {
+            option.textContent = status; // fallback
+        }
+
+        statusFilter.appendChild(option);
+    });
     }
 
     function filterTable() {
