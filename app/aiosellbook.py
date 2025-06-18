@@ -14,7 +14,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.contrib.sessions.backends.db import SessionStore
 import re
-
+from .email import *
 # Logging setup
 logger = logging.getLogger(__name__)
 
@@ -1353,6 +1353,9 @@ def aiosell_new_reservation(request):
 
 
                             userids = vendordata.vendor.id
+                            savidmain = Saveadvancebookdata.id
+                            emailthread = threading.Thread(target=sent_success_email, args=(userids, channel, bookingId,guestname,savidmain))
+                            emailthread.start()
                             if VendorCM.objects.filter(vendor=vendordata.vendor,):
                                         start_date = str(checkindate)
                                         end_date = str(checkoutdates)
@@ -1879,7 +1882,8 @@ def aiosell_new_reservation(request):
                                         end_date = str(data.checkoutdate)
                                         thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
                                         thread.start()
-
+                                    emailthread = threading.Thread(target=sent_cancel_email, args=(user.id, saveguestid.channal.channalname, saveguestid.booking_id,saveguestid.bookingguest,saveguestid.id))
+                                    emailthread.start()
                                     SaveAdvanceBookGuestData.objects.filter(vendor=user,id=saveguestid.id).update(action='cancel')
                                     Booking.objects.filter(vendor=user,advancebook_id=saveguestid.id).delete()
                                     actionss = 'Cancel Booking'

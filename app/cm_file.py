@@ -17,7 +17,7 @@ from django.urls import reverse
 from django.db.models import IntegerField
 from django.db.models.functions import Cast
 from datetime import datetime, timedelta
-
+from .email import *
 
 
 def priceshow_new_cm(request):
@@ -2020,6 +2020,9 @@ def channel_manager_aiosell_new_reservation(request):
 
 
                             userids = vendordata.vendor.id
+                            savidmain = Saveadvancebookdata.id
+                            emailthread = threading.Thread(target=sent_success_email, args=(userids, channel, bookingId,guestname,savidmain))
+                            emailthread.start()
                             if VendorCM.objects.filter(vendor=vendordata.vendor,):
                                         start_date = str(checkindate)
                                         end_date = str(checkoutdates)
@@ -2567,7 +2570,14 @@ def channel_manager_aiosell_new_reservation(request):
                                         end_date = str(savedata.checkoutdate)
                                         thread = threading.Thread(target=update_inventory_task_cm, args=(user.id, start_date, end_date))
                                         thread.start()
-
+                                    userids=user.id
+                                    channel=saveguestid.channal.channalname
+                                    cmBookingId=bookingIds
+                                    print(cmBookingId)
+                                    guestname=saveguestid.bookingguest
+                                    savidmain=saveguestid.id
+                                    emailthread = threading.Thread(target=sent_cancel_email, args=(userids,channel,cmBookingId,guestname,savidmain))
+                                    emailthread.start()
                                     SaveAdvanceBookGuestData.objects.filter(vendor=user,id=saveguestid.id).update(action='cancel')
                                     # Booking.objects.filter(vendor=user,advancebook_id=saveguestid.id).delete()
                                     actionss = 'Cancel Booking'
