@@ -536,6 +536,8 @@ urlpatterns = [
     
     path('cm_sales/', cm_file.cm_sales, name='cm_sales'),
     path('searchcmsales/', cm_file.searchcmsales, name='searchcmsales'),
+
+    path('editinvoiceitemamt/', travelagancy.editinvoiceitemamt, name='editinvoiceitemamt'),
     
 
 

@@ -1337,3 +1337,143 @@ def cm(request):
     
         
         # return render(request,'cm_booking_history.html')
+from django.db.models import F
+
+def editinvoiceitemamt(request):
+        if request.user.is_authenticated and request.method=="POST":
+            user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            itemsids = request.POST.get('itemsids')
+            itemsmtname = request.POST.get('itemsmtname')
+
+            if InvoiceItem.objects.filter(vendor=user,id=itemsids):
+                items = InvoiceItem.objects.get(vendor=user,id=itemsids)
+                price = items.price
+                qty = items.quantity_likedays
+                items = InvoiceItem.objects.get(vendor=user, id=itemsids)
+                price = float(items.price)  # price per 1 qty (per day)
+                qty = items.quantity_likedays
+                tax_percent = float(items.cgst_rate * 2)
+
+                # Original calculated
+                base_price = price * qty
+                tax_amount = base_price * (tax_percent / 100)
+                total_with_tax = base_price + tax_amount
+
+                # User amount
+                try:
+                    user_final_amount = float(itemsmtname)
+                    base_settled = user_final_amount / (1 + tax_percent / 100)
+                    tax_settled = user_final_amount - base_settled
+                    per_day_price = base_settled / qty
+
+                    result = {
+                        'original_total': total_with_tax,
+                        'base_amount': float(base_settled),
+                        'tax_amount': float(tax_settled),
+                        'per_day_price': float(per_day_price),
+                        'final_amount': user_final_amount
+                    }
+                    if tax_percent==0 or tax_percent==0.0:
+                        oldmainwithouttaxamt = float(items.totalwithouttax)
+                        oldgrandtotalamt = float(items.total_amount)
+                        Invoice.objects.filter(vendor=user,id=items.invoice.id).update(
+                            total_item_amount=F('total_item_amount')-oldmainwithouttaxamt,
+                            subtotal_amount = F('subtotal_amount')-oldmainwithouttaxamt,
+                            grand_total_amount=F('grand_total_amount')-oldgrandtotalamt,
+                        )
+
+                        Invoice.objects.filter(vendor=user,id=items.invoice.id).update(
+                            total_item_amount=F('total_item_amount')+user_final_amount,
+                            subtotal_amount = F('subtotal_amount')+user_final_amount,
+                            grand_total_amount=F('grand_total_amount')+user_final_amount,
+                        )
+
+
+                        InvoiceItem.objects.filter(vendor=user,id=items.id).update(
+                            price=round(per_day_price, 2),total_amount=user_final_amount,
+                            totalwithouttax=user_final_amount,
+                        )
+
+                        maininvcwork = Invoice.objects.get(vendor=user,id=items.invoice.id)
+                        paidamt = maininvcwork.accepted_amount
+                        mainrdtamt = maininvcwork.grand_total_amount
+                        duramtmain = mainrdtamt-paidamt
+                        maininvcwork.Due_amount=duramtmain
+                        maininvcwork.save()
+                        CustomGuestLog.objects.create(vendor=user,customer=items.invoice.customer,
+                                by=request.user,action=f'Amount Changed For {items.id}',
+                                description=f'Amount Changed For {items.id}, from {total_with_tax} to {user_final_amount} '
+                                )
+                    else:
+                        totaloldstaxamt = float(items.cgst_rate_amount)
+                        oldmaintotalamt = float(items.total_amount)
+                        oldmainwithouttaxamt = float(items.totalwithouttax)
+                        oldgrandtotalamt = float(items.total_amount)
+                        Invoice.objects.filter(vendor=user,id=items.invoice.id).update(
+                            total_item_amount=F('total_item_amount')-oldmainwithouttaxamt,
+                            subtotal_amount = F('subtotal_amount')-oldmainwithouttaxamt,
+                            gst_amount = F('gst_amount')-totaloldstaxamt,
+                            sgst_amount = F('sgst_amount')-totaloldstaxamt,
+                            grand_total_amount=F('grand_total_amount')-oldgrandtotalamt,
+                            taxable_amount=F('taxable_amount')-oldmainwithouttaxamt
+                        )
+
+                        netxper = str(int(tax_percent))
+                        netxper = "GST"+netxper
+                        if taxSlab.objects.filter(invoice_id=items.invoice.id,tax_rate_name=netxper).exists():
+                            taxSlab.objects.filter(invoice_id=items.invoice.id,tax_rate_name=netxper).update(
+                                cgst_amount=F('cgst_amount')-float(items.cgst_rate_amount),
+                                sgst_amount=F('sgst_amount')-float(items.cgst_rate_amount),
+                                total_amount = F('total_amount')-float(items.cgst_rate_amount*2)
+                            )
+
+                        item_total_finalamt = float(base_settled)
+                        item_final_tax_amt = float(tax_settled)/2
+
+                        InvoiceItem.objects.filter(vendor=user,id=items.id).update(
+                            price=float(per_day_price),total_amount=user_final_amount,
+                            totalwithouttax=float(per_day_price)*qty,cgst_rate_amount=item_final_tax_amt,
+                            sgst_rate_amount=item_final_tax_amt
+                        )
+
+                        Invoice.objects.filter(vendor=user,id=items.invoice.id).update(
+                                total_item_amount=F('total_item_amount')+item_total_finalamt,
+                                subtotal_amount = F('subtotal_amount')+item_total_finalamt,
+                                gst_amount = F('gst_amount')+item_final_tax_amt,
+                                sgst_amount = F('sgst_amount')+item_final_tax_amt,
+                                grand_total_amount=F('grand_total_amount')+user_final_amount,
+                                taxable_amount=F('taxable_amount')+item_total_finalamt
+                            )
+                        
+                        if taxSlab.objects.filter(invoice_id=items.invoice.id,tax_rate_name=netxper).exists():
+                            taxSlab.objects.filter(invoice_id=items.invoice.id,tax_rate_name=netxper).update(
+                                cgst_amount=F('cgst_amount')+float(item_final_tax_amt),
+                                sgst_amount=F('sgst_amount')+float(item_final_tax_amt),
+                                total_amount = F('total_amount')+float(item_final_tax_amt*2)
+                            )
+                        else:
+                            taxSlab.objects.create(vendor=user,invoice=items.invoice,tax_rate_name=netxper,
+                                cgst_amount=float(item_final_tax_amt),
+                                sgst_amount=float(item_final_tax_amt),
+                                total_amount = float(item_final_tax_amt*2),
+                                cgst=items.cgst_rate,sgst=items.cgst_rate)
+                            
+                        CustomGuestLog.objects.create(vendor=user,customer=items.invoice.customer,
+                                by=request.user,action=f'Amount Changed For {items.id}',
+                                description=f'Amount Changed For {items.id}, from {total_with_tax} to {user_final_amount} '
+                                )
+                        maininvcwork = Invoice.objects.get(vendor=user,id=items.invoice.id)
+                        paidamt = maininvcwork.accepted_amount
+                        mainrdtamt = maininvcwork.grand_total_amount
+                        duramtmain = mainrdtamt-paidamt
+                        maininvcwork.Due_amount=duramtmain
+                        maininvcwork.save()
+
+                except ValueError:
+                    messages.error(request,'Invalid amount entered')
+                    return redirect('invoicepage',items.invoice.id)
+                messages.success(request,'Amount Changed')
+                return redirect('invoicepage',items.invoice.id)
