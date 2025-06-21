@@ -952,6 +952,10 @@ def aiosell_new_reservation(request):
                     checkout_date = datetime.strptime(data['checkout'], '%Y-%m-%d')
 
                     day_difference = (checkout_date - checkin_date).days
+                    if day_difference==0:
+                        day_difference=1
+                    else:
+                        pass
 
                     # Example 2: Access nested keys (amount details)
                     amount_details = data['amount']

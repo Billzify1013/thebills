@@ -53,7 +53,7 @@
 <form action="{% url 'searchguestdataadvance' %}" method="post">
   {% csrf_token %}
   <div class="row m-2">
-    <div class="mb-3 ms-4 col-md-2">
+    <div class="mb-3  col-md-2">
       <label for="firstName" class="form-label">Guest Name</label>
       <input
         class="form-control"
@@ -96,12 +96,21 @@
       <input
         class="form-control"
         type="date"
-        id="firstName"
+        id="dateInputs123"
         name="checkindate"
         value=""
         
         
       />
+      <script>
+      const dateInputs = document.getElementById("dateInputs123");
+
+      // Add event listener for any click inside input
+      dateInputs.addEventListener("click", function () {
+        this.showPicker && this.showPicker(); // Modern browsers
+        this.focus(); // Fallback for others
+      });
+    </script>
     </div>
 
     <div class="mb-3 col-md-2">
@@ -109,16 +118,25 @@
       <input
         class="form-control"
         type="date"
-        id="firstName"
+        id="dateInputs12"
         name="checkoutdate"
         value="John"
         
         
       />
+      <script>
+      const dateInputs1 = document.getElementById("dateInputs12");
+
+      // Add event listener for any click inside input
+      dateInputs1.addEventListener("click", function () {
+        this.showPicker && this.showPicker(); // Modern browsers
+        this.focus(); // Fallback for others
+      });
+    </script>
     </div>
-
-    <button type="submit" class=" col-md-3 ms-4 mt-4 h-50 btn btn-primary">Search...</button>
-
+    <div class="mb-1 col-md-1">
+    <button type="submit" class="  ms-4 mt-4  btn btn-primary">Search...</button>
+    </div>
   </div>
 </form>
 
