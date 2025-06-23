@@ -6057,7 +6057,7 @@ def cart_cm_new_reservation(request):
             days = data.get('days', 1)
             userids = data.get('userid', None)
             ttal_gt_amont = total_price + total_tax
-       
+            
             # Convert dates to proper format
             # check_in_date = datetime.strptime(check_in, '%b. %d, %Y').date()
             check_in_date = datetime.strptime(check_in, '%B %d, %Y').date()

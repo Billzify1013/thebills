@@ -96,7 +96,8 @@ urlpatterns = [
     path('billingplanpage/',employeemanage.billingplanpage,name="billingplanpage"),
     path('roomclean/<int:user>/',employeemanage.roomclean,name="roomclean"),
     path('cleanroom/',employeemanage.cleanroom,name="cleanroom"),
-    path('mobileview/<str:user>/',employeemanage.mobileview,name="mobileview"),
+    # path('mobileview/<str:user>/',employeemanage.mobileview,name="mobileview"),
+    path('mobileview/<str:usercode>/', employeemanage.bookbe, name='mobileview'),
     path('pos/',employeemanage.pos,name="pos"),
     path('additems/',employeemanage.additems,name="additems"),
     path('updateitems/',employeemanage.updateitems,name="updateitems"),
@@ -339,7 +340,8 @@ urlpatterns = [
     path('gotocmpbills/<int:id>/', companyies.gotocmpbills, name='gotocmpbills'),
 
     path('process-cart/', views.cart_processing, name='your_cart_processing_view'),
-    path('searchwebsitedata/',employeemanage.searchwebsitedata,name='searchwebsitedata'),
+    # path('searchwebsitedata/',employeemanage.searchwebsitedata,name='searchwebsitedata'),
+    path('bookbe/<str:usercode>/',employeemanage.bookbe,name='bookbe'),
 
 
     # websettings deleteaminity

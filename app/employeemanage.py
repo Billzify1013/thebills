@@ -2473,22 +2473,52 @@ from datetime import datetime, timedelta
 #     except Exception as e:
 #         return render(request, '404.html', {'error_message': str(e)}, status=500)
 
-def mobileview(request, user):
+
+
+def mobileview(request, usercode):
     try:
+        try:
+            user = decode_base64url(usercode)
+        except Exception as e:
+            return HttpResponse("Invalid username", status=400)
         # Check if the hotel profile exists
         if not HotelProfile.objects.filter(vendor__username=user).exists():
             return render(request, '404.html', {'error_message': "Profile Not Created!"}, status=300)
         checkdata = bestatus.objects.get(vendor__username=user)
         if checkdata.is_active is True:
 
+            # new parameters
+            checkin = request.GET.get('checkin')
+            checkout = request.GET.get('checkout')
+            guests = request.GET.get('noOfGuests', 2)
+            rooms = request.GET.get('noOfRooms', 1)
+            if checkin and checkout:
+                today = datetime.strptime(checkin, "%Y-%m-%d").date()
+                tomorrow = datetime.strptime(checkout, "%Y-%m-%d").date()
+
+                if tomorrow > today:
+                    daysdiff = (tomorrow - today).days
+                    adults = guests
+                    child = rooms
+                else:
+                    today = datetime.now().date()
+                    tomorrow = today + timedelta(days=1)
+                    print(today)
+                    daysdiff = 1
+                    adults = 2
+                    child = 0
+
+            else:
+                today = datetime.now().date()
+                tomorrow = today + timedelta(days=1)
+                print(today)
+                daysdiff = 1
+                adults = 2
+                child = 0
+
             profile = HotelProfile.objects.get(vendor__username=user)
             rooms = RoomsCategory.objects.filter(vendor__username=user).prefetch_related('images').order_by('catprice')
-            today = datetime.now().date()
-            tomorrow = today + timedelta(days=1)
-
-            daysdiff = 1
-            adults = 2
-            child = 0
+            
 
             # Fetch inventory for today
             inventory_today = RoomsInventory.objects.filter(vendor__username=user, date=today)
@@ -2596,6 +2626,7 @@ def mobileview(request, user):
                 'cheapest_rate_plan': cheapest_rate_plan,
                 'lowest_price': lowest_price,
                 'user':users.id,
+                'username': users.username,
                 'terms_lines':terms_lines,
                 'cpolicy':cpolicy,
                 'default':default,
@@ -2615,15 +2646,65 @@ from django.shortcuts import render
 from .models import HotelProfile, RoomsCategory, RoomsInventory, RatePlan, OfferBE, HoelImage, User
 
 from django.http import HttpResponseRedirect
+import base64
+
+def decode_base64url(encoded_str):
+    # Add padding if missing
+    missing_padding = len(encoded_str) % 4
+    if missing_padding:
+        encoded_str += '=' * (4 - missing_padding)
+    return base64.urlsafe_b64decode(encoded_str).decode('utf-8')
 
 
-def searchwebsitedata(request):
+def bookbe(request,usercode):
     try:
-        if request.method=="POST":
+        try:
+            user = decode_base64url(usercode)
+        except Exception as e:
+            return render(request, '404.html', {'error_message': "Invalid username!"}, status=400)
+        if not HotelProfile.objects.filter(vendor__username=user).exists():
+            return render(request, '404.html', {'error_message': "Profile Not Created!"}, status=300)
+        checkdata = bestatus.objects.get(vendor__username=user)
+        if checkdata.is_active is True:
+        # if request.method=="POST":
             # Get user data from request
-            userid = request.POST.get('userid')
-            users = User.objects.get(id=userid)
-            user = users.username
+            # userid = request.POST.get('userid')
+            # users = User.objects.get(id=userid)
+            # user = users.username
+
+            # new parameters
+            checkin = request.GET.get('checkin')
+            checkout = request.GET.get('checkout')
+            guests = request.GET.get('noOfGuests', 2)
+            rooms = request.GET.get('noOfRooms', 1)
+            print("Check-in:", checkin)
+            print("Check-out:", checkout)
+            print("Guests:", guests)
+            print("Rooms:", rooms)
+
+            if checkin and checkout:
+                today = datetime.strptime(checkin, "%Y-%m-%d").date()
+                tomorrow = datetime.strptime(checkout, "%Y-%m-%d").date()
+
+                if tomorrow > today:
+                    daysdiff = (tomorrow - today).days
+                    adults = guests
+                    child = rooms
+                else:
+                    today = datetime.now().date()
+                    tomorrow = today + timedelta(days=1)
+                    print(today)
+                    daysdiff = 1
+                    adults = 2
+                    child = 0
+
+            else:
+                today = datetime.now().date()
+                tomorrow = today + timedelta(days=1)
+                print(today)
+                daysdiff = 1
+                adults = 2
+                child = 0
             
             # Check if the hotel profile exists
             if not HotelProfile.objects.filter(vendor__username=user).exists():
@@ -2633,28 +2714,10 @@ def searchwebsitedata(request):
             rooms = RoomsCategory.objects.filter(vendor__username=user).prefetch_related('images').order_by('catprice')
 
             # Get check-in and check-out dates from the request
-            checkin_date = request.POST.get('checkin_date')  # Example: '2024-12-04'
-            checkout_date = request.POST.get('checkout_date')  # Example: '2024-12-06'
-            guestscountss = int(request.POST.get('guestscountss'))
+            checkin_date = today
+            checkout_date = tomorrow
+            guestscountss = adults
             default=guestscountss
-            print(default)
-            # Parse the dates
-            checkin_date = datetime.strptime(checkin_date, '%Y-%m-%d').date()
-            checkout_date = datetime.strptime(checkout_date, '%Y-%m-%d').date()
-
-            # Check if any of the dates are in the past
-            today = datetime.now().date()
-            if checkin_date < today or checkout_date < today or (checkin_date == today and  checkout_date==today) or (checkin_date == checkin_date and  checkout_date==checkin_date) or (checkin_date == checkout_date and  checkout_date==checkout_date):
-                # If the check-in or checkout date is in the past, call the URL with the username
-                # Example: make a URL call to a page with the username parameter
-                # url = f"http://127.0.0.1:8000/mobileview/{user}/"
-                url = f"https://live.billzify.com/mobileview/{user}/"
-                return HttpResponseRedirect(url)
-
-            # Initialize variables
-            daysdiff = (checkout_date - checkin_date).days
-            adults = 2
-            child = 0
 
             # Fetch all inventory for the date range
             inventory_data = RoomsInventory.objects.filter(vendor__username=user, date__range=[checkin_date, checkout_date])
@@ -2773,6 +2836,7 @@ def searchwebsitedata(request):
                 'cheapest_room': cheapest_room,
                 'lowest_price': lowest_price,
                 'user': users.id,
+                'username': users.username,
                 'terms_lines':terms_lines,
                 'cpolicy':cpolicy,
                 'default':default,
@@ -2785,6 +2849,176 @@ def searchwebsitedata(request):
         
     except Exception as e:
         return render(request, '404.html', {'error_message': str(e)}, status=500)
+
+# thisis the old codejoproper chl rha tha
+# def searchwebsitedata(request):
+#     try:
+#         if request.method=="POST":
+#             # Get user data from request
+#             userid = request.POST.get('userid')
+#             users = User.objects.get(id=userid)
+#             user = users.username
+            
+#             # Check if the hotel profile exists
+#             if not HotelProfile.objects.filter(vendor__username=user).exists():
+#                 return render(request, '404.html', {'error_message': "Profile Not Created!"}, status=300)
+
+#             profile = HotelProfile.objects.get(vendor__username=user)
+#             rooms = RoomsCategory.objects.filter(vendor__username=user).prefetch_related('images').order_by('catprice')
+
+#             # Get check-in and check-out dates from the request
+#             checkin_date = request.POST.get('checkin_date')  # Example: '2024-12-04'
+#             checkout_date = request.POST.get('checkout_date')  # Example: '2024-12-06'
+#             guestscountss = int(request.POST.get('guestscountss'))
+#             default=guestscountss
+#             print(default)
+#             # Parse the dates
+#             checkin_date = datetime.strptime(checkin_date, '%Y-%m-%d').date()
+#             checkout_date = datetime.strptime(checkout_date, '%Y-%m-%d').date()
+
+#             # Check if any of the dates are in the past
+#             today = datetime.now().date()
+#             if checkin_date < today or checkout_date < today or (checkin_date == today and  checkout_date==today) or (checkin_date == checkin_date and  checkout_date==checkin_date) or (checkin_date == checkout_date and  checkout_date==checkout_date):
+#                 # If the check-in or checkout date is in the past, call the URL with the username
+#                 # Example: make a URL call to a page with the username parameter
+#                 # url = f"http://127.0.0.1:8000/mobileview/{user}/"
+#                 url = f"https://live.billzify.com/mobileview/{user}/"
+#                 return HttpResponseRedirect(url)
+
+#             # Initialize variables
+#             daysdiff = (checkout_date - checkin_date).days
+#             adults = 2
+#             child = 0
+
+#             # Fetch all inventory for the date range
+#             inventory_data = RoomsInventory.objects.filter(vendor__username=user, date__range=[checkin_date, checkout_date])
+
+#             profiledata = HotelProfile.objects.filter(vendor__username=user)
+#             imagedata = HoelImage.objects.filter(vendor__username=user)
+#             rateplanmaxuser = RatePlan.objects.filter(vendor__username=user, max_persons=guestscountss)
+#             offers = OfferBE.objects.filter(vendor__username=user).last()
+
+#             if len(rateplanmaxuser) < 1:
+#                 rateplanmaxuser = RatePlan.objects.filter(vendor__username=user, max_persons__gte=1)
+#             # Initialize cheapest room tracking
+#             cheapest_room = None
+#             cheapest_rate_plan = None
+#             lowest_price = float('inf')
+
+#             users = User.objects.get(username=user)
+
+#             # Fetch the inventory for the specific date range
+#             inventory_today = RoomsInventory.objects.filter(vendor__username=user, date__range=[checkin_date, checkout_date])
+
+#             # Store availability data with room objects
+#             for room in rooms:
+#                 room_inventory = inventory_today.filter(room_category=room)
+#                 if room_inventory.exists():
+#                     inventory = room_inventory.first()
+
+#                     # Loop through all days in the check-in and check-out date range to find minimum availability
+#                     available_rooms_per_day = []  # List to store availability for each day
+
+#                     current_date = checkin_date
+#                     while current_date < checkout_date:
+#                         # Filter inventory for the current room and date
+#                         room_inventory = inventory_data.filter(room_category=room, date=current_date).first()
+
+#                         if room_inventory:
+#                             # If inventory exists, use the availability for that date
+#                             available_rooms_per_day.append(room_inventory.total_availibility)
+#                         else:
+#                             # If no inventory exists for the date, assume all rooms are available (fallback to total rooms)
+#                             available_rooms_per_day.append(Rooms.objects.filter(vendor__username=user, room_type=room).count())
+
+#                         current_date += timedelta(days=1)
+
+#                     # If available_rooms_per_day is not empty, find the minimum availability, otherwise set a default value
+#                     if available_rooms_per_day:
+#                         min_available_rooms = min(available_rooms_per_day)
+#                         room.available_rooms = min_available_rooms
+                        
+#                     else:
+#                         room.available_rooms = 0  # Default to 0 if no availability data is found
+
+#                     # Calculate prices with offers
+#                     if offers:
+#                         OFFERAMOUNT = inventory.price * offers.discount_percentage // 100
+#                         room.uprice = inventory.price - OFFERAMOUNT
+#                         room.delprice = inventory.price
+#                         room.offeramount = OFFERAMOUNT
+#                     else:
+#                         room.uprice = inventory.price
+#                         room.delprice = inventory.price + 1000
+#                         room.offeramount = 1000
+
+#                     room.tax = room.category_tax.taxrate
+
+#                 elif Vendor_Service.objects.filter(vendor__username=user,only_cm=True):
+#                     count_data = Rooms_count.objects.filter(vendor__username=user, room_type=room).first()
+#                     room.available_rooms = count_data.total_room_numbers
+#                     if offers:
+#                         OFFERAMOUNT = room.catprice * offers.discount_percentage // 100
+#                         room.uprice = room.catprice - OFFERAMOUNT
+#                         room.delprice = room.catprice
+#                         room.offeramount = OFFERAMOUNT
+#                     else:
+#                         room.uprice = room.catprice
+#                         room.delprice = room.catprice + 1000
+#                         room.offeramount = 1000
+#                     room.tax = room.category_tax.taxrate
+
+#                 else:
+#                     room.available_rooms = Rooms.objects.filter(vendor__username=user, room_type=room).exclude(checkin=6).count()
+
+#                     if offers:
+#                         OFFERAMOUNT = room.catprice * offers.discount_percentage // 100
+#                         room.uprice = room.catprice - OFFERAMOUNT
+#                         room.delprice = room.catprice
+#                         room.offeramount = OFFERAMOUNT
+#                     else:
+#                         room.uprice = room.catprice
+#                         room.delprice = room.catprice + 1000
+#                         room.offeramount = 0
+#                     room.tax = room.category_tax.taxrate
+
+#             hoteldatas = HotelProfile.objects.get(vendor__username=user)
+#             terms_lines = hoteldatas.termscondition.splitlines() if hoteldatas else []
+#             aminities = beaminities.objects.filter(vendor__username=user)
+#             prfmcdata = becallemail.objects.filter(vendor__username=user)
+#             cpolicy = cancellationpolicy.objects.filter(vendor__username=user).last()
+#             pptdescription = property_description.objects.filter(vendor__username=user).last()
+#             roomserviceloop = room_services.objects.filter(vendor__username=user)
+#             chatwhatsaap = whatsaap_link.objects.filter(vendor__username=user).first()
+#             return render(request, 'website.html', {
+#                 'aminities':aminities,
+#                 'prfmcdata':prfmcdata,
+#                 'profile': profile,
+#                 'imagedata': imagedata,
+#                 'profiledata': profiledata,
+#                 'today': checkin_date,
+#                 'tomorrow': checkout_date,
+#                 'rooms': rooms,
+#                 'rateplanmaxuser': rateplanmaxuser,
+#                 'offer': offers,
+#                 'daysdiff': daysdiff,
+#                 'adults': adults,
+#                 'child': child,
+#                 'cheapest_room': cheapest_room,
+#                 'lowest_price': lowest_price,
+#                 'user': users.id,
+#                 'terms_lines':terms_lines,
+#                 'cpolicy':cpolicy,
+#                 'default':default,
+#                 'pptdescription':pptdescription,
+#                 'roomserviceloop':roomserviceloop,
+#                 'chatwhatsaap':chatwhatsaap
+#             })
+#         else:
+#             return render(request, '404.html', {'error_message': 'Opps Session Expired Please Go Back And Check!'}, status=500)
+        
+#     except Exception as e:
+#         return render(request, '404.html', {'error_message': str(e)}, status=500)
 
 
 

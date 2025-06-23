@@ -173,7 +173,46 @@
   <div class="card">
     <h2>Channel-wise Booking Stats (Count, Nights, Rooms)</h2>
     <canvas id="channelStatsChart" height="300"></canvas>
+   </div>
+{% comment %}
+  <div class="card shadow p-4 w-100" style="max-width: 800px; margin: auto;">
+  <h2 class="text-center mb-4 text-dark">📄 Hotel Metrics Receipt</h2>
+
+  <div class="row ">
+    <!-- ADR -->
+    <div class="col-12 col-md-6">
+      <div class="bg-light p-3 rounded text-center">
+        <div class="text-muted">Average Daily Rate (ADR)</div>
+        <div class="fs-4 fw-bold text-dark">₹ {{adr}}</div>
+      </div>
+    </div>
+
+    <!-- Booked Amount -->
+    <div class="col-12 col-md-6">
+      <div class="bg-light p-3 rounded text-center">
+        <div class="text-muted">Total Booked Amount</div>
+        <div class="fs-4 fw-bold text-dark">₹ {{total_amount_sum}}</div>
+      </div>
+    </div>
+
+    <!-- Cancelled Amount -->
+    <div class="col-12 col-md-6">
+      <div class="bg-light p-3 rounded text-center">
+        <div class="text-muted">Cancelled Amount</div>
+        <div class="fs-4 fw-bold text-dark">₹ {{total_cancel_amount_sum}}</div>
+      </div>
+    </div>
+
+    <!-- Rooms Sold -->
+    <div class="col-12 col-md-6">
+      <div class="bg-light p-3 rounded text-center">
+        <div class="text-muted">Total Rooms Sold</div>
+        <div class="fs-4 fw-bold text-dark">{{sum_cmroombook_count}}</div>
+      </div>
+    </div>
   </div>
+</div>
+ {% endcomment %}
 
   <script>
     const channelLabels = {{ channels|safe }};

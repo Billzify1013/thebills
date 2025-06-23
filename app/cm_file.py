@@ -2781,6 +2781,34 @@ def cm_sales(request):
                 nights.append(item['total_nights'] or 0)
                 rooms.append(room_count_map.get(name, 0))
 
+            sum_bookings = (
+                    SaveAdvanceBookGuestData.objects
+                    .filter(vendor=user)
+                    .exclude(action='cancel')
+                    .annotate(year=ExtractYear('bookingdate'))
+                    .filter(year=current_year)
+                )
+            sum_cmroombook_count = Cm_RoomBookAdvance.objects.filter(
+                    vendor=user,
+                    saveguestdata__in=sum_bookings
+                ).count()
+            total_amount_sum = sum_bookings.aggregate(total=Sum('total_amount'))['total'] or 0
+
+            sum_cancel_bookings = (
+                    SaveAdvanceBookGuestData.objects
+                    .filter(vendor=user,action='cancel')
+                    .annotate(year=ExtractYear('bookingdate'))
+                    .filter(year=current_year)
+                )
+            total_cancel_amount_sum = sum_cancel_bookings.aggregate(total=Sum('total_amount'))['total'] or 0
+            if sum_cmroombook_count > 0:
+                adr = total_amount_sum / sum_cmroombook_count
+            else:
+                adr = 0
+            print("Total Room Book Count:", sum_cmroombook_count)
+            print("Total Amount Sum:", total_amount_sum)
+            print("ADR (Average Daily Rate):", adr)
+            print(total_cancel_amount_sum,'cancel sale')
             context = {
                 'channels': json.dumps(channels),
                 'sales': json.dumps(sales),
@@ -2788,7 +2816,11 @@ def cm_sales(request):
                 'nights': json.dumps(nights),
                 'rooms': json.dumps(rooms),
                 'active_page': 'cm_sales',
-                'showdates': f'{current_year} Full Year'
+                'showdates': f'{current_year} Full Year',
+                'sum_cmroombook_count':sum_cmroombook_count,
+                'total_amount_sum':total_amount_sum,
+                'adr':adr,'total_cancel_amount_sum':total_cancel_amount_sum
+
             }
 
             return render(request, 'cmsales.html', context)

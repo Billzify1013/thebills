@@ -237,13 +237,49 @@ html, body {
     <!-- Spinner End -->
 
 
-    <div style="height:60px;width:100%;box-shadow: rgba(50, 50, 93, 0.25) 0px 7px 14px -5px, rgba(0, 0, 0, 0.3) 0px 4px 8px -8px; position: ;
+    {% comment %} <div style="height:60px;width:100%;box-shadow: rgba(50, 50, 93, 0.25) 0px 7px 14px -5px, rgba(0, 0, 0, 0.3) 0px 4px 8px -8px; position: ;
     top: 0;
     left: 0;z-index: 1000;background-color: white;
     color: #fff;"  >
             <img src="{{profile.profile_image.url}}" class="mt-1 ms-3" height="50px">
-    </div>
+    </div> {% endcomment %}
     
+<!-- Sticky Header -->
+<div class="card shadow" style="height:60px; position: sticky; top: 0; z-index: 1000;">
+  <div class="container d-flex align-items-center justify-content-between">
+    <img src="{{profile.profile_image.url}}" class="logo" height="58" alt="Logo">
+
+    <div id="bigdivdate">
+      <a data-bs-toggle="modal" data-bs-target="#backDropModaleditrooms">
+        <div class="newcdt card mt-1 ms-auto" style="border-radius:25px; width: 100%; max-width: 350px;">
+          <h5 class="text pt-2   ps-4 pe-4">
+            <i class='bx bx-search-alt'></i>&nbsp;
+            <span style="color:rgba(61, 61, 92, 0.25)">&nbsp;|&nbsp;</span>
+            {% if today and tomorrow %}
+              <span style="font-size:16px">{{ today|date:"j M" }} - {{ tomorrow|date:"j M" }}</span>
+            {% else %}
+              <span id="date-span">Dates</span>
+            {% endif %}
+            <span style="color:rgba(61, 61, 92, 0.25)">&nbsp;|&nbsp;</span>
+            <span style="font-size:16px">{{ default|default:"2" }} Guest</span>
+
+            
+          </h5>
+        </div>
+      </a>
+    </div>
+
+    <div id="smalldivdate" style="height:45px;">
+      <a data-bs-toggle="modal" data-bs-target="#backDropModaleditrooms">
+        <div class="newcdt card  ms-auto" style="border-radius:20px;  width: 100%; max-width: 350px;">
+          <h5 class="text pt-2 ps-4 pe-4">
+           <i class='bx bx-search-alt'></i>  {{ today|date:"j M" }} - {{ tomorrow|date:"j M" }} 
+          </h5>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
    
 
     <!-- Header Start -->
@@ -299,10 +335,10 @@ html, body {
                     </div>
                 </div>
                 </div>{%endfor%}
-                <div class="col-lg-12 mb-5 mt-4">
+                {% comment %} <div class="col-lg-12 mb-5 mt-4">
               
                     <div class="portfolio-img rounded overflow-hidden shadow">
-                        <form action="{% url 'searchwebsitedata' %}" method="post">
+                        {% comment %} <form action="{% url 'searchwebsitedata' %}" method="post">
                             {% csrf_token %}
                             <div class="row p-2">
                             <div class=" col-5  w-50 ">
@@ -359,10 +395,92 @@ html, body {
                                 <button href="#target-div" type="submit" class="btn btn-primary w-100 ">Change Dates</button>
                                 </div>
 
+                        </form> {% endcomment %}
+                        {% comment %} <form id="date-form" method="get">
+                            <div class="row p-2">
+                            <div class=" col-5  w-50 ">
+                                <label for="zipCode" class="form-label">CheckIn Date </label>
+                                <input
+                                  type="date"
+                                  class="form-control"
+                                  value="{{today|date:'Y-m-d'}}"
+                                  id="zipcode"
+                                  name="checkin_date" required
+                                  placeholder="Like: 11:00am"
+                                  maxlength="8"
+                                />
+                              </div> 
+
+                              <input type="hidden"  name="userid" value="{{username}}" />
+                              
+                              <input type="hidden" id="check-in" value="{{today}}" />
+                              <input type="hidden" id="check-out" value="{{tomorrow}}" />
+                              <div class="col-5 w-50 ">
+                                <label for="zipCode" class="form-label">CheckOut Date </label>
+                                <input
+                                  type="date"
+                                  class="form-control"
+                                  value="{{tomorrow|date:'Y-m-d'}}"
+                                  id="xxx"
+                                  name="checkout_date" required
+                                  placeholder="Like: 11:00am"
+                                  maxlength="8"
+                                />
+                              </div> 
+                            </div>
+
+                            <div class="row p-2">
+                                <div class="col-12  ">
+                                    <label for="zipCode" class="form-label">Guests </label>
+                                  <select class="form-control" required name="guestscountss">
+                                    <option value="{{default}}">{{default}}</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">Group Booking</option>
+                                    
+
+                                  </select>
+                                </div>
+                          
+                            
+                                <div class="col-12 w-100 p-2 mb-2 mt-2">
+                                <button href="#target-div" type="submit" class="btn btn-primary w-100 ">Change Dates</button>
+                                </div>
+
                         </form>
+                        <script>
+                            function encodeBase64(str) {
+                                return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+                            }
+
+                            document.addEventListener("DOMContentLoaded", function () {
+                                const form = document.getElementById("date-form");
+
+                                form.addEventListener("submit", function (e) {
+                                    e.preventDefault();
+
+                                    const checkin = form.querySelector("input[name='checkin_date']").value;
+                                    const checkout = form.querySelector("input[name='checkout_date']").value;
+                                    const guests = form.querySelector("select[name='guestscountss']").value;
+                                    const user = form.querySelector("input[name='userid']").value;
+
+                                    const encodedUser = encodeBase64(user);
+
+                                    // Redirect to URL
+                                    const finalURL = `/bookbe/${encodedUser}/?checkin=${checkin}&checkout=${checkout}&noOfGuests=${guests}&noOfRooms=1`;
+                                    window.location.href = finalURL;
+                                });
+                            });
+                        </script>
+
                      </div>
-                </div>
-             
+                </div> {% endcomment %}
+              
 
 
                 <div class="shadow rounded p-3 mt-4">
@@ -1573,3 +1691,169 @@ function updateSecondCarousel(id) {
       }
       
 </style>  
+
+ <style>
+    #dd1::-webkit-scrollbar {
+      width: 2px;
+    }
+   #dd1::-webkit-scrollbar-track {
+      background-color: none;
+    }
+    #dd1::-webkit-scrollbar-thumb {
+      background-color:#696cff;
+      border-radius:10px;
+    }
+    body {
+      background:white;
+    }
+
+    #smalldivdate {
+        display:none;
+       }
+
+    #bigdivdate {
+           display:block;
+       }
+
+    @media (max-width: 576px) {
+        #smalldivdate {
+         display:block;
+        }
+        #bigdivdate {
+            display:none;
+        }
+      }
+
+      
+  </style>
+
+                       
+
+
+<div class="modal fade" id="backDropModaleditrooms" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog">
+    <form class="modal-content" id="date-form" method="get">
+      <div class="modal-header">
+        <h5 class="modal-title">Select Checkin Checkout</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Hidden user -->
+        <input type="hidden" name="userid" value="{{ username }}" />
+
+        <!-- Check-in -->
+        <div class="mb-3" id="checkin-wrapper">
+          <label class="form-label">CheckIn Date</label>
+          <input type="date" class="form-control" id="checkinnew-date" name="checkin_date" value="{{ today|date:'Y-m-d' }}" required />
+        </div>
+
+        <!-- Check-out -->
+        <div class="mb-3" id="checkout-wrapper">
+          <label class="form-label">CheckOut Date</label>
+          <input type="date" class="form-control" id="checkoutnew-date" name="checkout_date" value="{{ tomorrow|date:'Y-m-d' }}" required />
+        </div>
+
+        <input type="hidden"  name="userid" value="{{username}}" />
+                              
+                              <input type="hidden" id="check-in" value="{{today}}" />
+                              <input type="hidden" id="check-out" value="{{tomorrow}}" />
+
+        <!-- Guests -->
+        <div class="mb-3">
+          <label class="form-label">Guests</label>
+          <select class="form-control" required name="guestscountss">
+                                    <option value="{{default}}">{{default}}</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">Group Booking</option>
+                                    
+
+                                  </select>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        <button class="btn btn-primary" type="submit">Search</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Required Scripts -->
+<script>
+  function encodeBase64(str) {
+    return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("date-form");
+    const checkinInput = document.getElementById("checkinnew-date");
+    const checkoutInput = document.getElementById("checkoutnew-date");
+
+    // Disable past dates
+    const today = new Date().toISOString().split("T")[0];
+    checkinInput.min = today;
+    checkoutInput.min = today;
+
+    // On checkin change -> set checkout +1
+    checkinInput.addEventListener("change", () => {
+      const checkinDate = new Date(checkinInput.value);
+      if (checkinDate) {
+        const nextDate = new Date(checkinDate);
+        nextDate.setDate(checkinDate.getDate() + 1);
+        const formatted = nextDate.toISOString().split("T")[0];
+        if (!checkoutInput.value || new Date(checkoutInput.value) <= checkinDate) {
+          checkoutInput.value = formatted;
+        }
+        checkoutInput.min = formatted;
+      }
+    });
+
+    // On checkout change -> update checkin -1
+    checkoutInput.addEventListener("change", () => {
+      const checkoutDate = new Date(checkoutInput.value);
+      if (checkoutDate) {
+        const prevDate = new Date(checkoutDate);
+        prevDate.setDate(checkoutDate.getDate() - 1);
+        const formatted = prevDate.toISOString().split("T")[0];
+        if (!checkinInput.value || new Date(checkinInput.value) >= checkoutDate) {
+          checkinInput.value = formatted;
+        }
+        checkinInput.max = formatted;
+      }
+    });
+
+    // Form submission
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const checkin = checkinInput.value;
+      const checkout = checkoutInput.value;
+      const guests = form.querySelector("select[name='guestscountss']").value;
+      const user = form.querySelector("input[name='userid']").value;
+      const encodedUser = encodeBase64(user);
+      const url = `/bookbe/${encodedUser}/?checkin=${checkin}&checkout=${checkout}&noOfGuests=${guests}&noOfRooms=1`;
+      window.location.href = url;
+    });
+
+    // Enable click anywhere on input to open calendar
+    document.getElementById("checkin-wrapper").addEventListener("click", () => checkinInput.showPicker && checkinInput.showPicker());
+    document.getElementById("checkout-wrapper").addEventListener("click", () => checkoutInput.showPicker && checkoutInput.showPicker());
+  });
+</script>
+
+
+                        
+
+
+
+
+
+
+          
