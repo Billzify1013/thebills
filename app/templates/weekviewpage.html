@@ -366,11 +366,42 @@ onmouseout="this.style.overflowX='auto'">
 <div class="container">
     <div class="calendar-wrapper">
   <div class="calendar-inner">
-    <div class="navigation-buttons">
+    {% comment %} <div class="navigation-buttons">
         <button onclick="changeDate(-1)" class="btn btn-primary"><i class='bx bxs-left-arrow'></i></button>
         <button onclick="refreshToCurrent()" class="btn btn-primary"><b><i class='bx bx-refresh'></i></b></button>
         <button onclick="changeDate(1)" class="btn btn-primary"><i class='bx bxs-right-arrow'></i></button>
+        <form method="POST" action="">
+  {% csrf_token %}
+  <input type="date" class="btn btn-primary" name="searchdate">
+</form>
+    </div> {% endcomment %}
+    <div class="navigation-buttons d-flex align-items-center gap-2">
+        <button onclick="changeDate(-1)" class="btn btn-primary">
+            <i class='bx bxs-left-arrow'></i>
+        </button>
+        <button onclick="refreshToCurrent()" class="btn btn-primary">
+            <b><i class='bx bx-refresh'></i></b>
+        </button>
+        <button onclick="changeDate(1)" class="btn btn-primary">
+            <i class='bx bxs-right-arrow'></i>
+        </button>
+        
+        <form method="POST" action="{% url 'searchdateweek' %}" class="d-inline">
+  {% csrf_token %}
+  
+  <!-- Hidden date input -->
+  <input type="date" name="searchdate" id="hiddenDate" style="opacity: 0; position: absolute; pointer-events: none;" onchange="this.form.submit()" />
+
+  <!-- Visible icon button -->
+  <button type="button" class="btn btn-light mt-3" onclick="document.getElementById('hiddenDate').showPicker()">
+    <i class='bx bx-calendar'></i>  <!-- Or use any icon -->
+  </button>
+</form>
+
+</form>
+
     </div>
+
 
   <div class="header-row mb-2">
         <div class="card header-room text-center" style="width:100px">Rooms</div>

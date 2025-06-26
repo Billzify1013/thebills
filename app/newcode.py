@@ -280,7 +280,7 @@ def update_inventory_task(user_id, start_date_str, end_date_str):
 def update_inventory(user, start_date_str, end_date_str):
     try:
         # Fetch room categories for the vendor
-        room_categories = RoomsCategory.objects.filter(vendor=user)
+        room_categories = RoomsCategory.objects.filter(vendor=user,is_not_active=False)
         inventory_updates = []
 
         # Parse start and end dates

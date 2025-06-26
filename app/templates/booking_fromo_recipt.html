@@ -207,9 +207,9 @@
                     <div class="">
                         {%for i in profiledata%}
                         <img src="{{i.profile_image.url}}" height="100px"/>
-                        <p><strong>{{i.name}}</p>
-                        <p><strong>{{i.address}},{{i.zipcode}},{{i.counrty}}</p>
-                        <p><strong>PH: </strong>{{i.contact}}</p>
+                        <p><strong>{{i.name}}</strong></p>
+                        <p><strong>{{i.address}},{{i.zipcode}},{{i.counrty}}</strong></p>
+                        <p><strong>PH: </strong>{{i.contact}}</strong></p>
                         {%endfor%}
                     </div>
                 </div></center>
@@ -475,6 +475,9 @@
         try {
             // Hide loader visibility so it won't be in PDF snapshot
             loader.style.visibility = "hidden";
+            document.getElementById('download-btn').style.visibility = "hidden";
+            document.getElementById('print-btn').style.visibility = "hidden";
+            document.getElementById('back').style.visibility = "hidden";
 
             const { jsPDF } = window.jspdf;
             const canvas = await html2canvas(content, { scale: 3 });
@@ -488,6 +491,9 @@
 
             // Show loader again before saving PDF
             loader.style.visibility = "visible";
+            document.getElementById('download-btn').style.visibility = "visible";
+            document.getElementById('print-btn').style.visibility = "visible";
+            document.getElementById('back').style.visibility = "visible";
 
             // Wait for PDF save to finish (using returnPromise: true)
             await pdf.save('invoice.pdf', { returnPromise: true });

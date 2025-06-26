@@ -404,7 +404,7 @@ def rate_hit_channalmanager_cm(user_id, start_date_str, end_date_str):
         print("Starting dynamic rate update for user:", user)
         start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
         end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-        roomscat = RoomsCategory.objects.filter(vendor=user)
+        roomscat = RoomsCategory.objects.filter(vendor=user,is_not_active=False)
         
         vendorcmdata = VendorCM.objects.get(vendor=user)
         chooseplannumber = vendorcmdata.dynamic_price_plan
@@ -682,9 +682,9 @@ def update_inventory_cm(user, start_date_str, end_date_str):
     print("haan 2nd cm chala")
     try:
         # Fetch room categories for the vendor
-        room_categories = RoomsCategory.objects.filter(vendor=user)
+        room_categories = RoomsCategory.objects.filter(vendor=user,is_not_active=False)
         inventory_updates = []
-
+        print(room_categories,'check category in cm')
         # Parse start and end dates
         start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
         end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
@@ -2909,6 +2909,263 @@ def searchcmsales(request):
             else:
                 messages.error(request,'please select correct dates')
                 return render(request, 'cmsales.html')
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+
+
+
+from django.db.models import Sum, Count, F, ExpressionWrapper, DurationField
+from datetime import timedelta
+def pm_cm_sales(request):
+    try:
+        if request.user.is_authenticated:
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor
+
+            current_year = datetime.now().year
+
+            # Step 1: Filter PMS data for the current year
+            pms_data = Gueststay.objects.filter(
+                vendor=user,
+                channel="PMS",
+                checkindate__date__year=current_year
+            )
+
+            # Step 2: Annotate duration (checkout - checkin)
+            pms_data = pms_data.annotate(
+                duration=ExpressionWrapper(
+                    F('checkoutdate') - F('checkindate'),
+                    output_field=DurationField()
+                )
+            )
+
+            # Step 3: Calculate total values
+            total_sales = pms_data.aggregate(total_sales=Sum('total'))['total_sales'] or 0
+            booking_count = pms_data.count()
+            total_nights = sum([int(item.duration.days) for item in pms_data])
+            room_count = booking_count  # As each booking = 1 room
+
+
+            # Filter booking data (excluding cancel)
+            bookings = (
+                SaveAdvanceBookGuestData.objects
+                .filter(vendor=user)
+                .exclude(action='cancel')
+                .annotate(year=ExtractYear('bookingdate'))
+                .filter(year=current_year)
+            )
+
+            # Channel-wise aggregation
+            channel_data = (
+                bookings
+                .values('channal__channalname')
+                .annotate(
+                    total_sales=Sum('total_amount'),
+                    booking_count=Count('id'),
+                    total_nights=Sum('staydays')
+                )
+                .order_by('-total_sales')
+            )
+
+            # Rooms from related table
+            cm_room_data = Cm_RoomBookAdvance.objects.filter(
+                vendor=user,
+                saveguestdata__in=bookings
+            ).values('saveguestdata__channal__channalname') \
+            .annotate(room_count=Count('id'))
+
+            # Mapping rooms per channel
+            room_count_map = {
+                item['saveguestdata__channal__channalname']: item['room_count']
+                for item in cm_room_data
+            }
+
+            # Prepare lists for chart
+            channels = []
+            sales = []
+            bookings_list = []
+            nights = []
+            rooms = []
+
+            for item in channel_data:
+                name = item['channal__channalname']
+                channels.append(name)
+                sales.append(item['total_sales'] or 0)
+                bookings_list.append(item['booking_count'])
+                nights.append(item['total_nights'] or 0)
+                rooms.append(room_count_map.get(name, 0))
+
+            # Step 4: Append to lists
+            channels.append("PMS")
+            sales.append(total_sales)
+            bookings_list.append(booking_count)
+            nights.append(total_nights)
+            rooms.append(room_count)
+
+            sum_bookings = (
+                    SaveAdvanceBookGuestData.objects
+                    .filter(vendor=user)
+                    .exclude(action='cancel')
+                    .annotate(year=ExtractYear('bookingdate'))
+                    .filter(year=current_year)
+                )
+            sum_cmroombook_count = Cm_RoomBookAdvance.objects.filter(
+                    vendor=user,
+                    saveguestdata__in=sum_bookings
+                ).count()
+            total_amount_sum = sum_bookings.aggregate(total=Sum('total_amount'))['total'] or 0
+
+            sum_cancel_bookings = (
+                    SaveAdvanceBookGuestData.objects
+                    .filter(vendor=user,action='cancel')
+                    .annotate(year=ExtractYear('bookingdate'))
+                    .filter(year=current_year)
+                )
+            total_cancel_amount_sum = sum_cancel_bookings.aggregate(total=Sum('total_amount'))['total'] or 0
+            if sum_cmroombook_count > 0:
+                adr = total_amount_sum / sum_cmroombook_count
+            else:
+                adr = 0
+            print("Total Room Book Count:", sum_cmroombook_count)
+            print("Total Amount Sum:", total_amount_sum)
+            print("ADR (Average Daily Rate):", adr)
+            print(total_cancel_amount_sum,'cancel sale')
+            context = {
+                'channels': json.dumps(channels),
+                'sales': json.dumps(sales),
+                'bookings': json.dumps(bookings_list),
+                'nights': json.dumps(nights),
+                'rooms': json.dumps(rooms),
+                'active_page': 'pm_cm_sales',
+                'showdates': f'{current_year} Full Year',
+                'sum_cmroombook_count':sum_cmroombook_count,
+                'total_amount_sum':total_amount_sum,
+                'adr':adr,'total_cancel_amount_sum':total_cancel_amount_sum
+
+            }
+
+            return render(request, 'cmsalespm.html', context)
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+    
+
+
+def pmsearchcmsales(request):
+    try:
+        if request.user.is_authenticated:
+            user = request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor
+            startdate = request.POST.get('startdate')
+            enddate = request.POST.get('enddate')
+
+            start = datetime.strptime(startdate, "%Y-%m-%d").date()
+            end = datetime.strptime(enddate, "%Y-%m-%d").date()
+
+            if start <= end:
+                # Default fallback if no dates
+                if startdate and enddate:
+
+                    # Step 1: Filter PMS data for the current year
+                    pms_data = Gueststay.objects.filter(
+                        vendor=user,
+                        channel="PMS",
+                        checkindate__date__range=[startdate, enddate]
+                    )
+
+                    # Step 2: Annotate duration (checkout - checkin)
+                    pms_data = pms_data.annotate(
+                        duration=ExpressionWrapper(
+                            F('checkoutdate') - F('checkindate'),
+                            output_field=DurationField()
+                        )
+                    )
+
+                    # Step 3: Calculate total values
+                    total_sales = pms_data.aggregate(total_sales=Sum('total'))['total_sales'] or 0
+                    booking_count = pms_data.count()
+                    total_nights = sum([int(item.duration.days) for item in pms_data])
+                    room_count = booking_count  # As each booking = 1 room
+
+
+
+                    bookings = (
+                        SaveAdvanceBookGuestData.objects
+                        .filter(vendor=user)
+                        .exclude(action='cancel')
+                        .filter(bookingdate__range=[startdate, enddate])
+                    )
+                    show_range = f"{startdate} to {enddate}"
+                
+                    # Channel-wise aggregation
+                    channel_data = (
+                        bookings
+                        .values('channal__channalname')
+                        .annotate(
+                            total_sales=Sum('total_amount'),
+                            booking_count=Count('id'),
+                            total_nights=Sum('staydays')
+                        )
+                        .order_by('-total_sales')
+                    )
+
+                    # Rooms from related table
+                    cm_room_data = Cm_RoomBookAdvance.objects.filter(
+                        vendor=user,
+                        saveguestdata__in=bookings
+                    ).values('saveguestdata__channal__channalname') \
+                    .annotate(room_count=Count('id'))
+
+                    room_count_map = {
+                        item['saveguestdata__channal__channalname']: item['room_count']
+                        for item in cm_room_data
+                    }
+
+                    channels = []
+                    sales = []
+                    bookings_list = []
+                    nights = []
+                    rooms = []
+
+                    for item in channel_data:
+                        name = item['channal__channalname']
+                        channels.append(name)
+                        sales.append(item['total_sales'] or 0)
+                        bookings_list.append(item['booking_count'])
+                        nights.append(item['total_nights'] or 0)
+                        rooms.append(room_count_map.get(name, 0))
+
+                    # Step 4: Append to lists
+                    channels.append("PMS")
+                    sales.append(total_sales)
+                    bookings_list.append(booking_count)
+                    nights.append(total_nights)
+                    rooms.append(room_count)
+
+                    context = {
+                        'channels': json.dumps(channels),
+                        'sales': json.dumps(sales),
+                        'bookings': json.dumps(bookings_list),
+                        'nights': json.dumps(nights),
+                        'rooms': json.dumps(rooms),
+                        'active_page': 'cm_sales',
+                        'showdates': show_range,
+                    }
+                    return render(request, 'cmsalespm.html', context)
+                else:
+                    messages.error(request,'please select correct dates')
+                    return render(request, 'cmsalespm.html')
+
+            else:
+                messages.error(request,'please select correct dates')
+                return render(request, 'cmsalespm.html')
         else:
             return render(request, 'login.html')
     except Exception as e:

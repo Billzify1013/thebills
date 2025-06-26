@@ -4440,10 +4440,10 @@ def advanceroomhistory(request):
             first_day_of_month = now.replace(day=1)
             if now.month == 12:  # Handle December to January transition
                 # last_day_of_month = now.replace(year=now.year + 1, month=1, day=1) - timezone.timedelta(days=1)
-                last_day_of_month = today
+                last_day_of_month = today + timedelta(days=6)
             else:
                 # last_day_of_month = now.replace(month=now.month + 1, day=1) - timezone.timedelta(days=20)
-                last_day_of_month = today
+                last_day_of_month = today + timedelta(days=6)
         
 
 

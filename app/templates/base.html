@@ -511,6 +511,12 @@
                 <div data-i18n="Analytics">Sales & Analytics</div>
               </a>
             </li>
+            <li class="menu-item text-uppercase {% if active_page == 'pm_cm_sales' %}active{% endif %} ">
+              <a href="{% url 'pm_cm_sales'  %}" class="menu-link">
+                <i class="fa-solid fa-chart-pie ms-1"></i>&nbsp;&nbsp;&nbsp;&nbsp;
+                <div data-i18n="Analytics">Analytics</div>
+              </a>
+            </li>
             {%endif%}
           <li class="menu-header small text-uppercase">
               <span class="menu-header-text">Block Room Management</span>

@@ -1987,8 +1987,32 @@ def bookingsearchview(request):
             bookidsmain = request.POST.get('bookidsmain')
             if Booking.objects.filter(vendor=user,id=bookidsmain):
                 bookdata=Booking.objects.get(vendor=user,id=bookidsmain)
-                advancersoomdata = SaveAdvanceBookGuestData.objects.filter(vendor=user,
-                                    id=bookdata.advancebook.id )
+                # advancersoomdata = SaveAdvanceBookGuestData.objects.filter(vendor=user,
+                #                     id=bookdata.advancebook.id )
+                from django.db.models import Prefetch
+                from collections import Counter
+
+                room_prefetch = Prefetch(
+                    'roombookadvance_set',
+                    queryset=RoomBookAdvance.objects.select_related('roomno__room_type'),
+                    to_attr='booked_rooms'
+                )
+
+                advancersoomdata = SaveAdvanceBookGuestData.objects.filter(
+                    vendor=user,
+                    id=bookdata.advancebook.id 
+                ).prefetch_related(room_prefetch).order_by('bookingdate')
+
+                for guest in advancersoomdata:
+                    category_names = [
+                        room.roomno.room_type.category_name
+                        for room in guest.booked_rooms
+                    ]
+                    category_counts = Counter(category_names)
+
+                    guest.room_categories_summary = ", ".join(
+                        f"({count}) {cat}" for cat, count in category_counts.items()
+                    )
 
             # If no results found
             if not advancersoomdata.exists():
@@ -2134,9 +2158,9 @@ def editamountdetailsbooking(request):
                     booking_id=bookingid,
                  )
                 Saveadvancebookdata = SaveAdvanceBookGuestData.objects.get(vendor=user,id=id)
-                actionss = 'Edit Booking'
+                actionss = 'Edit Booking Amounts'
                 CustomGuestLog.objects.create(vendor=user,by=request.user,action=actionss,
-                    advancebook=Saveadvancebookdata,description=f'Edit Amount Details ')
+                    advancebook=Saveadvancebookdata,description=f'Edit Amount Details. All old Amounts Changed. ')
 
                 messages.success(request,"Succesfully Edited!")
             else:

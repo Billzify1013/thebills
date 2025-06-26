@@ -55,6 +55,11 @@
                 {%if i.booking_id%}
                 BOOKING-ID:<b> {{i.booking_id}} </b><br>
                 {%endif%}
+                {%if i.action == 'cancel' %}  
+                Status:<span class="text text-danger">Cancelled</span>
+                {%else%}
+                  Status:<b>{{i.action}}</b>
+                {%endif%}<br>
                 Booking Date: {{i.checkin}}<br>
                 Name: {{i.bookingguest}}<br>
                 Phone: {{i.bookingguestphone}}<br>
@@ -63,12 +68,12 @@
                 Advance amount: {{i.advance_amount|floatformat:2}}<br>
                 Reamaining amount: {{i.reamaining_amount|floatformat:2}}<br>
                 Discount amount: {{i.discount|floatformat:2}}<br>
-               <b> Grand Total amount : {{i.total_amount|floatformat:2}}</b><br>
+               <b> Grand Total amount : {{i.amount_after_tax|floatformat:2}}</b><br>
                 TOTAL Tax amount: {{i.tax|floatformat:2}}<br>
                 Without Tax Total amount: {{i.amount_before_tax|floatformat:2}}<br>
                 Stay Days: {{i.staydays}}<br>
                 Booking From: {{i.channal.channalname}}<br>
-                Stay Days: {{i.staydays}}<br>
+                Total Rooms: {{i.noofrooms}}<br>
                 Pay At Hotel: {{i.pah}} ( {{i.Payment_types}} )<br>
                 Special Request: {{i.special_requests}}<br>
                 {%endfor%}
@@ -86,7 +91,9 @@
                     Room Meal-Plan {{i.rateplan_code}}<br>
                     Room Rate-Plan {{i.rateplan_code_main}}<br>
                     Adults:{{i.adults}}<br>
-                    Child:{{i.children}}<br><hr>
+                    Child:{{i.children}}<br>
+                  <a class="text text-danger" href="{% url 'delteroominbook' id=i.id %}"><i class="bx bx-trash me-1"></i> Remove</a>
+                  <hr>
                 {%endfor%}
             </p>
                 {%endif%}
@@ -156,7 +163,15 @@
             <li><a class="dropdown-item" href="{% url 'addpaymenttobooking' booking_id=i.id %}"><i class='bx bxl-paypal'></i>Add-Payment</a>
             </li>
             <li><a class="dropdown-item" data-bs-toggle="modal"
-        data-bs-target="#backDropModal"><i class="bx bx-edit-alt me-1"></i>Guest Details</a></li>
+        data-bs-target="#backDropModal"><i class="bx bx-edit-alt me-1"></i> Guest Details</a></li>
+
+          <li><a  class="dropdown-item" href="{% url 'receipt_view' %}?cd={{ i.id  }}"><i class='bx bx-conversation'></i> Voucher</a></li>
+
+            <li><a  class="dropdown-item" href="{% url 'formo_view' %}?cd={{ i.id  }}"><i class='bx bx-id-card mb-1'></i> Formo Invoice</a></li>
+
+            <!--isko abhi ke liye active nhi kiya hai -->
+{% comment %} <li><a class="dropdown-item" data-bs-toggle="modal"
+data-bs-target="#backDropModaleditdates"><i class="bx bx-edit-alt me-1"></i>Edit Dates</a></li> {% endcomment %}
 
             <li><a class="dropdown-item" data-bs-toggle="modal"
 data-bs-target="#backDropModaleditfinalamount"><i class="bx bx-edit-alt me-1"></i>Total Rates</a></li>
@@ -167,8 +182,12 @@ data-bs-target="#backDropModaleditfinalamount"><i class="bx bx-edit-alt me-1"></
 {% comment %} <li><a class="dropdown-item" data-bs-toggle="modal"
 data-bs-target="#backDropModaleditfinaldates"><i class="bx bx-edit-alt me-1"></i>Dates</a></li> {% endcomment %}
             
-            
-            
+      
+
+             <li><a class="dropdown-item" data-bs-toggle="modal"
+        data-bs-target="#backDropModaleditbooing"><i class="bx bx-edit-alt me-1"></i>All Amounts</a></li>
+
+           
             <li><a class="dropdown-item" href="{% url 'showbooklog' id=i.id %}">Logs</a></li>
             
           </ul>
@@ -186,7 +205,7 @@ data-bs-target="#backDropModaleditfinaldates"><i class="bx bx-edit-alt me-1"></i
     </li>
     <li class="list-group-item d-flex justify-content-between fw-bold border-top pt-2">
       <span>Total Amount</span>
-      <span>₹ <span id="total-amount">{{i.total_amount|floatformat:2}}</span></span>
+      <span>₹ <span id="total-amount">{{i.amount_after_tax|floatformat:2}}</span></span>
     </li>
     {%if tdscomm.commission%}
     <li class="list-group-item d-flex justify-content-between">
@@ -389,7 +408,7 @@ data-bs-target="#backDropModaleditrooms">..</a>
             {% csrf_token %}
         {%for i in guestdata%}
         <div class="modal-header">
-          <h5 class="modal-title" id="backDropModalTitle">Edit Bookings</h5>
+          <h5 class="modal-title" id="backDropModalTitle">Edit Bookings Amount</h5>
           <button
             type="button"
             class="btn-close"
@@ -452,7 +471,7 @@ data-bs-target="#backDropModaleditrooms">..</a>
                 <input
                   type="number"
                   name="advanceamount"
-                  value='{{i.advance_amount}}'
+                  value='{{i.advance_amount|floatformat:0}}'
                   id="nameBackdrop"
                   class="form-control"
                   placeholder="Enter max person"
@@ -465,7 +484,7 @@ data-bs-target="#backDropModaleditrooms">..</a>
                 <input
                   type="number"
                   name="remainamount"
-                  value='{{i.reamaining_amount}}'
+                  value='{{i.reamaining_amount|floatformat:0}}'
                   id="nameBackdrop"
                   class="form-control"
                   placeholder="Enter max person"
@@ -478,7 +497,7 @@ data-bs-target="#backDropModaleditrooms">..</a>
                 <input
                   type="text"
                   name="taxamount"
-                  value='{{i.tax|floatformat:2}}'
+                  value='{{i.tax|floatformat:0}}'
                   id="nameBackdrop"
                   class="form-control"
                   placeholder="Enter max person"
@@ -491,7 +510,7 @@ data-bs-target="#backDropModaleditrooms">..</a>
                 <input
                   type="text"
                   name="amtbeforetax"
-                  value='{{i.amount_before_tax|floatformat:2}}'
+                  value='{{i.amount_before_tax|floatformat:0}}'
                   id="nameBackdrop"
                   class="form-control"
                   placeholder="Enter max person"
@@ -504,7 +523,7 @@ data-bs-target="#backDropModaleditrooms">..</a>
                 <input
                   type="text"
                   name="amtaftertax"
-                  value='{{i.amount_after_tax|floatformat:2}}'
+                  value='{{i.amount_after_tax|floatformat:0}}'
                   id="nameBackdrop"
                   class="form-control"
                   placeholder="Enter max person"
@@ -520,7 +539,7 @@ data-bs-target="#backDropModaleditrooms">..</a>
                 <input
                   type="number"
                   name="grandtotalamount"
-                  value='{{i.total_amount}}'
+                  value='{{i.total_amount|floatformat:0}}'
                   id="nameBackdrop"
                   class="form-control"
                   placeholder="Enter max person"
@@ -626,7 +645,7 @@ data-bs-target="#backDropModaleditrooms">..</a>
           
 
           <label>Edit Total Amount</label><br>
-          <input type="number" class="form-control w-50" value="{{i.total_amount|floatformat:0}}" name="total_amount" required/>
+          <input type="number" class="form-control w-50" value="{{i.amount_after_tax|floatformat:0}}" name="total_amount" required/>
 
           {%endfor%}
       
@@ -886,5 +905,74 @@ data-bs-target="#backDropModaleditrooms">..</a>
     document.getElementById('Comments').value=description;
   }
 </script>
+
+
+
+<!-- edit Room dates amounts -->
+<div class="modal fade " id="backDropModaleditdates" data-bs-backdrop="static" tabindex="-1">
+  <div class="modal-dialog">
+      <form action="{%url 'editbookingdates' %}" method="POST" class="modal-content">
+          {% csrf_token %}
+      
+      <div class="modal-header">
+        <h5 class="modal-title" id="backDropModalTitle">Edit Total Price</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+      
+        {%for i in guestdata%}
+          <input type="hidden" name="id" value='{{i.id}}' />
+          <div class="row">
+          <div class="col-6">
+          <label>Check In Date</label><br>
+          <input type="date" class="form-control " id="dateInputs1" value="{{i.bookingdate|date:'Y-m-d'}}" name="checkin" required/>
+          </div>
+          <div class="col-6">
+          <label>Check Out Date</label><br>
+          <input type="date" class="form-control " id="dateInputs" value="{{i.checkoutdate|date:'Y-m-d'}}" name="checkout" required/>
+          </div>
+        </div>
+        <script>
+            const dateInputs1 = document.getElementById("dateInputs1");
+
+            // Add event listener for any click inside input
+            dateInputs1.addEventListener("click", function () {
+              this.showPicker && this.showPicker(); // Modern browsers
+              this.focus(); // Fallback for others
+            });
+
+            const dateInputs = document.getElementById("dateInputs");
+
+            // Add event listener for any click inside input
+            dateInputs.addEventListener("click", function () {
+              this.showPicker && this.showPicker(); // Modern browsers
+              this.focus(); // Fallback for others
+            });
+          </script>
+
+          {%endfor%}
+      
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary ms-4" data-bs-dismiss="modal">
+          Close
+        </button>
+        <button  class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
 
 {%endblock%}

@@ -541,6 +541,13 @@ urlpatterns = [
 
     path('editinvoiceitemamt/', travelagancy.editinvoiceitemamt, name='editinvoiceitemamt'),
     
+    # edit bookings
+    path('delteroominbook/<int:id>/',travelagancy.delteroominbook,name="delteroominbook"),
+    path('pm_cm_sales/', cm_file.pm_cm_sales, name='pm_cm_sales'),
+    path('pmsearchcmsales/', cm_file.pmsearchcmsales, name='pmsearchcmsales'),
+    path('editbookingdates/', travelagancy.editbookingdates, name='editbookingdates'),
+    path('searchdateweek/', travelagancy.searchdateweek, name='searchdateweek'),
+    
 
 
 

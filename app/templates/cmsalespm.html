@@ -1,0 +1,319 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%endif%}
+</div>
+{%endfor%}
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 1000);
+      setTimeout(function() {
+        $("#danger-alert").fadeTo(500, 0).slideUp(500, function(){
+            $(this).remove(); 
+        });
+    }, 5000);
+      
+  });
+</script>
+{%endif%}
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Channel-wise Sales</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9fafb;
+      margin: 0;
+      color: #111827;
+    }
+    .card {
+      background: white;
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 1rem;
+      font-size: 1.75rem;
+    }
+    canvas {
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+
+<div class="col-2">
+        <button class="btn btn-primary  w-100 "   data-bs-toggle="modal"
+        data-bs-target="#backDropModal"><i class='bx bx-buildings mb-1' ></i> Change Dates</button>
+</div> 
+
+
+  <div class="card">
+    <h2>Channel-wise Sales Report { {{showdates}} }</h2>
+    <canvas id="channelSalesChart" height="300"></canvas>
+  </div>
+
+  <div class="card">
+    <h2>Channel-wise Booking Stats (Count, Nights, Rooms)</h2>
+    <canvas id="channelStatsChart" height="300"></canvas>
+   </div>
+{% comment %}
+  <div class="card shadow p-4 w-100" style="max-width: 800px; margin: auto;">
+  <h2 class="text-center mb-4 text-dark">📄 Hotel Metrics Receipt</h2>
+
+  <div class="row ">
+    <!-- ADR -->
+    <div class="col-12 col-md-6">
+      <div class="bg-light p-3 rounded text-center">
+        <div class="text-muted">Average Daily Rate (ADR)</div>
+        <div class="fs-4 fw-bold text-dark">₹ {{adr}}</div>
+      </div>
+    </div>
+
+    <!-- Booked Amount -->
+    <div class="col-12 col-md-6">
+      <div class="bg-light p-3 rounded text-center">
+        <div class="text-muted">Total Booked Amount</div>
+        <div class="fs-4 fw-bold text-dark">₹ {{total_amount_sum}}</div>
+      </div>
+    </div>
+
+    <!-- Cancelled Amount -->
+    <div class="col-12 col-md-6">
+      <div class="bg-light p-3 rounded text-center">
+        <div class="text-muted">Cancelled Amount</div>
+        <div class="fs-4 fw-bold text-dark">₹ {{total_cancel_amount_sum}}</div>
+      </div>
+    </div>
+
+    <!-- Rooms Sold -->
+    <div class="col-12 col-md-6">
+      <div class="bg-light p-3 rounded text-center">
+        <div class="text-muted">Total Rooms Sold</div>
+        <div class="fs-4 fw-bold text-dark">{{sum_cmroombook_count}}</div>
+      </div>
+    </div>
+  </div>
+</div>
+ {% endcomment %}
+
+  <script>
+    const channelLabels = {{ channels|safe }};
+    const salesData = {{ sales|safe }};
+    const bookingsData = {{ bookings|safe }};
+    const nightsData = {{ nights|safe }};
+    const roomsData = {{ rooms|safe }};
+
+    // Chart 1: Sales Chart
+    const ctxSales = document.getElementById('channelSalesChart').getContext('2d');
+    new Chart(ctxSales, {
+      type: 'bar',
+      data: {
+        labels: channelLabels,
+        datasets: [{
+          label: 'Sales (₹)',
+          data: salesData,
+          backgroundColor: channelLabels.map((_, i) => ['#4F46E5', '#EC4899', '#10B981', '#F59E0B', '#3B82F6', '#8B5CF6', '#EF4444', '#22D3EE'][i % 8]),
+          borderRadius: 8,
+          barThickness: 40
+        }]
+      },
+      options: {
+        responsive: true,
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return `₹ ${context.parsed.y.toLocaleString()}`;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return `₹${value}`;
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // Chart 2: Booking, Nights, Rooms
+    const ctxStats = document.getElementById('channelStatsChart').getContext('2d');
+    new Chart(ctxStats, {
+      type: 'bar',
+      data: {
+        labels: channelLabels,
+        datasets: [
+          {
+            label: 'Bookings',
+            data: bookingsData,
+            backgroundColor: '#10B981',
+            borderRadius: 8,
+            barThickness: 40
+          },
+          {
+            label: 'Nights',
+            data: nightsData,
+            backgroundColor: '#F59E0B',
+            borderRadius: 8,
+            barThickness: 40
+          },
+          {
+            label: 'Rooms Booked',
+            data: roomsData,
+            backgroundColor: '#EF4444',
+            borderRadius: 8,
+            barThickness: 40
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
+        plugins: {
+          legend: { position: 'top' },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return `${context.dataset.label}: ${context.parsed.y}`;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+<!-- Modal add rooms -->
+<div class="modal fade" id="backDropModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal-dialog">
+        <form action="{% url 'pmsearchcmsales'  %}" method="POST" class="modal-content">
+            {% csrf_token %}
+        
+        <div class="modal-header">
+          <h5 class="modal-title" id="backDropModalTitle">Search...</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-6 mb-3">
+                <label for="nameBackdrop" class="form-label">Start Date</label>
+                <input
+                  type="date"
+                  name="startdate"
+                  id="dateInputs"
+                  class="form-control"
+                  placeholder="Total Rooms"
+                  required
+                />
+              </div>
+              <script>
+                const dateInputs = document.getElementById("dateInputs");
+
+                // Add event listener for any click inside input
+                dateInputs.addEventListener("click", function () {
+                    this.showPicker && this.showPicker(); // Modern browsers
+                    this.focus(); // Fallback for others
+                });
+                </script>
+              <br>
+              <div class="col-6 mb-3">
+                <label for="nameBackdrop" class="form-label">End Date </label>
+                <input
+                  type="date"
+                  name="enddate"
+                  id="dateInputs1"
+                  class="form-control"
+                  placeholder="Total Rooms"
+                  required
+                />
+              </div>
+              <script>
+                const dateInputs1 = document.getElementById("dateInputs1");
+
+                // Add event listener for any click inside input
+                dateInputs1.addEventListener("click", function () {
+                    this.showPicker && this.showPicker(); // Modern browsers
+                    this.focus(); // Fallback for others
+                });
+                </script>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Close
+          </button>
+          <button  class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!--/ Bootstrap modals -->
+
+
+
+{%endblock%}

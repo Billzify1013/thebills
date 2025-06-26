@@ -34,6 +34,7 @@ class RoomsCategory(models.Model):
     Hsn_sac = models.IntegerField(default=0)
     catprice = models.IntegerField(default=1)
     category_tax = models.ForeignKey(Taxes,on_delete=models.CASCADE)
+    is_not_active = models.BooleanField(default=False)
     def __str__(self) -> str:
         return self.category_name
 

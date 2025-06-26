@@ -54,7 +54,7 @@ def rate_hit_channalmanager(user_id, start_date_str, end_date_str):
         print("Starting dynamic rate update for user:", user)
         start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
         end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-        roomscat = RoomsCategory.objects.filter(vendor=user)
+        roomscat = RoomsCategory.objects.filter(vendor=user,is_not_active=False)
         
         vendorcmdata = VendorCM.objects.get(vendor=user)
         chooseplannumber = vendorcmdata.dynamic_price_plan
@@ -216,9 +216,8 @@ def rate_hit_channalmanager(user_id, start_date_str, end_date_str):
 # rate plan work ke liye new code
 def update_rates_cm(user, start_date, end_date):
     try:
-        room_categories = RoomsCategory.objects.filter(vendor=user)
+        room_categories = RoomsCategory.objects.filter(vendor=user,is_not_active=False)
         inventory_updates = []
-
         print(end_date,"en date")
         
         current_date = start_date

@@ -1247,10 +1247,10 @@ def cm(request):
             first_day_of_month = now.replace(day=1)
             if now.month == 12:  # Handle December to January transition
                 # last_day_of_month = now.replace(year=now.year + 1, month=1, day=1) - timezone.timedelta(days=1)
-                last_day_of_month = today
+                last_day_of_month = today + timedelta(days=6)
             else:
                 # last_day_of_month = now.replace(month=now.month + 1, day=1) - timezone.timedelta(days=20)
-                last_day_of_month = today
+                last_day_of_month = today + timedelta(days=6)
         
 
 
@@ -1340,6 +1340,7 @@ def cm(request):
 from django.db.models import F
 
 def editinvoiceitemamt(request):
+    try:
         if request.user.is_authenticated and request.method=="POST":
             user=request.user
             subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
@@ -1477,3 +1478,176 @@ def editinvoiceitemamt(request):
                     return redirect('invoicepage',items.invoice.id)
                 messages.success(request,'Amount Changed')
                 return redirect('invoicepage',items.invoice.id)
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+
+def delteroominbook(request,id):
+    try:
+        if request.user.is_authenticated:
+            user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+
+            if RoomBookAdvance.objects.filter(vendor=user,id=id):
+                roombook = RoomBookAdvance.objects.get(vendor=user,id=id)
+                booking = SaveAdvanceBookGuestData.objects.filter(vendor=user,id=roombook.saveguestdata.id).first()
+
+                bookcounts = RoomBookAdvance.objects.filter(vendor=user,saveguestdata=booking).count()
+                if bookcounts==1:
+                    messages.error(request,"Only one room left please canclled full booking!")
+                    return redirect('advancebookingdetails',booking.id)
+
+                if booking.checkinstatus==False:
+                    sellprice = roombook.sell_rate
+                    if sellprice>7500:
+                        tax = 18
+                    else:
+                        tax=12
+                    days = booking.staydays
+
+                    base_amount = (sellprice*days)
+                    tax_amount = base_amount*tax/100
+                    total_amount = float(base_amount) + float(tax_amount)
+                    print(base_amount,tax_amount,total_amount)
+                    
+                    SaveAdvanceBookGuestData.objects.filter(vendor=user,id=roombook.saveguestdata.id).update(
+                        action="modify",
+                        tax=F('tax')-tax_amount,
+                        amount_after_tax=F('amount_after_tax')- total_amount,
+                        amount_before_tax=F('amount_before_tax')-base_amount,
+                        total_amount=F('total_amount')-total_amount,
+                        noofrooms=F('noofrooms')-1
+                    )
+                    newbooking = SaveAdvanceBookGuestData.objects.filter(vendor=user,id=roombook.saveguestdata.id).first()
+                    Booking.objects.filter(vendor=user,advancebook=newbooking,room=roombook.roomno).delete()
+                    Booking.objects.filter(vendor=user,advancebook=newbooking).update(
+                        totalamount=newbooking.total_amount,
+                        totalroom=newbooking.noofrooms,
+                    )
+                    print("checkamounts",newbooking.reamaining_amount,total_amount)
+                    if newbooking.reamaining_amount > total_amount or newbooking.reamaining_amount == total_amount:
+                        print(total_amount,'check here')
+                        newbooking.reamaining_amount = newbooking.reamaining_amount - float(total_amount)
+                        newbooking.save()
+                    else:
+                        print("if nhi chaal",newbooking.reamaining_amount,total_amount)
+
+                    Rooms.objects.filter(vendor=user,id=roombook.roomno.id).update(checkin=0)
+                    checkindate = roombook.bookingdate
+                    checkoutdate = roombook.checkoutdate
+                    while checkindate < checkoutdate:
+                        roomscat = Rooms.objects.get(vendor=user,id=roombook.roomno.id)
+                        invtdata = RoomsInventory.objects.get(vendor=user,date=checkindate,room_category=roomscat.room_type)
+                                            
+                        invtavaible = invtdata.total_availibility + 1
+                        invtabook = invtdata.booked_rooms - 1
+                        total_rooms = Rooms.objects.filter(vendor=user, room_type=roomscat.room_type).exclude(checkin=6).count()
+                        occupancy = invtabook * 100//total_rooms
+                                                                                    
+
+                        RoomsInventory.objects.filter(vendor=user,date=checkindate,room_category=roomscat.room_type).update(booked_rooms=invtabook,
+                                    total_availibility=invtavaible,occupancy=occupancy)
+                                
+                        checkindate += timedelta(days=1)
+
+                    if VendorCM.objects.filter(vendor=user):
+                        start_date = str(roombook.bookingdate)
+                        end_date = str(roombook.checkoutdate)
+                        thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
+                        thread.start()
+                    actionss = 'Modify Booking Delete Room'
+                    CustomGuestLog.objects.create(vendor=user,by='system Assign',action=actionss,
+                        advancebook=newbooking,description=f"Room booking for Room No. {roombook.roomno.room_name} has been deleted, and the booking amount of {total_amount} has been removed.")
+                    roombook.delete()
+                    messages.success(request,"Room Deleted")
+                else:
+                    messages.error(request,"Guest Checkin Complete Room Cant Be Delete!")
+
+                return redirect('advancebookingdetails',booking.id)
+            
+            else:
+                messages.error(request,"Id Not Found!")
+                return redirect('advanceroomhistory')
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+
+
+def editbookingdates(request):
+    # try:
+        if request.user.is_authenticated and request.method=="POST":
+            user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            checkin = request.POST.get('checkin')
+            checkout = request.POST.get('checkout')
+            id = request.POST.get('id')
+            if SaveAdvanceBookGuestData.objects.filter(vendor=user,id=id):
+                booking = SaveAdvanceBookGuestData.objects.get(vendor=user,id=id)
+            
+                if str(booking.bookingdate)==checkin and str(booking.checkoutdate)==checkout:
+                    messages.error(request,"Check-in and check-out are on the same date, and both are old dates.")
+                else:
+                    if checkin < checkout:
+                        checkindate = datetime.strptime(checkin, "%Y-%m-%d").date()
+                        checkoutdate = datetime.strptime(checkout, "%Y-%m-%d").date()
+                        roombooks = RoomBookAdvance.objects.filter(vendor=user,saveguestdata=booking).all()
+
+                        if checkindate==booking.bookingdate:
+                            available = False
+                            for books in roombooks:
+                                roomcatname = books.roomno
+                                Booking.objects.filter(Q(vendor=user),
+                                        Q(check_in_date__lt=checkoutdate) &
+                                        Q(check_out_date__gte=checkindate))
+                                
+
+                        else:
+
+                            available = False
+                            for books in roombooks:
+                                print(books.roomno.room_type)
+                                roomcatname=books.roomno.room_type
+                                if  Rooms.objects.filter(vendor=user,room_type__category_name=roomcatname).exclude(checkin=6).exists():
+                                    available_rooms = Rooms.objects.filter(
+                                                    vendor=user,
+                                                    room_type__category_name=roomcatname
+                                                ).exclude(
+                                                    id__in=Booking.objects.filter(
+                                                        Q(check_in_date__lt=checkoutdate) &
+                                                        Q(check_out_date__gte=checkindate)
+                                                    ).values_list('room_id', flat=True)
+                                                )
+                                    room = available_rooms.first()
+                                    if not room:
+                                        break
+                                    else:
+                                        available=True
+                            print(available)
+
+                        
+
+                    else:
+                        messages.error(request,"Checkout date is earlier than check-in date — please enter a valid date.")
+
+            return redirect('advancebookingdetails',id)
+
+def searchdateweek(request):
+    date_str = request.POST.get('searchdate')  # e.g. "2025-07-02"
+
+    if date_str:
+        form_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        today = datetime.now().date()
+
+        difference = (form_date - today).days  # positive, negative, or 0
+
+
+        # Redirect with calculated index in query string
+        return redirect(f'/weekviews/?index={difference}')
+
+    return redirect('weekviews')  # default fallback
