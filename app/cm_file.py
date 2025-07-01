@@ -2510,7 +2510,14 @@ def noshowcme(request):
             today = datetime.now().date()
             yesterday = today - timedelta(days=1)
             print(yesterday,today)
-            alldata = SaveAdvanceBookGuestData.objects.filter(vendor=user,bookingdate=yesterday,channal__channalname='booking.com').all()
+            # alldata = SaveAdvanceBookGuestData.objects.filter(vendor=user,bookingdate=yesterday,channal__channalname='booking.com').all()
+            alldata = SaveAdvanceBookGuestData.objects.filter(
+                    vendor=user,
+                    bookingdate=yesterday,
+                    channal__channalname='booking.com'
+                ).filter(
+                    Q(~Q(action='cancel')) | Q(action='cancel', is_hold=True)
+                )
             return render(request,'noshowcm.html',{'alldata':alldata})
         else:
             return redirect('loginpage')
@@ -2621,7 +2628,14 @@ def noshowcmemain(request):
             today = datetime.now().date()
             yesterday = today - timedelta(days=1)
             print(yesterday,today)
-            alldata = SaveAdvanceBookGuestData.objects.filter(vendor=user,bookingdate=yesterday,channal__channalname='booking.com').all()
+            # alldata = SaveAdvanceBookGuestData.objects.filter(vendor=user,bookingdate=yesterday,channal__channalname='booking.com').all()
+            alldata = SaveAdvanceBookGuestData.objects.filter(
+                    vendor=user,
+                    bookingdate=yesterday,
+                    channal__channalname='booking.com'
+                ).filter(
+                    Q(~Q(action='cancel')) | Q(action='cancel', is_hold=True)
+                )
             return render(request,'noshowcmmain.html',{'alldata':alldata})
         else:
             return redirect('loginpage')

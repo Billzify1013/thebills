@@ -463,7 +463,15 @@
 
 
 
+<style>
+  .table-responsive {
+  overflow-x: auto;
+  overflow-y: visible !important;
+  position: relative !important;
+  z-index: 2;
+}
 
+</style>
 
   <div class="card mt-4">
     <h5 class="card-header">Advance Booking History</h5>
@@ -523,7 +531,7 @@
             <span class="badge bg-label-danger">Cancelled</span>
             {% endif %}
           </td>
-          <td>
+           <td>
             <button
             type="button"
             class="btn  dropdown-toggle hide-arrow"
@@ -534,10 +542,8 @@
           >
           <i class="bx bx-dots-vertical-rounded"></i>
           </button>
-          <ul class="dropdown-menu">
+          <ul class="dropdown-menu dropdown-menu-end" style="z-index: 9999;">
             <li><a class="dropdown-item" href="{% url 'advancebookingdetails' id=data.id %}"><i class="bx bx-edit-alt me-1"></i>Details</a></li>
-            {% comment %} <li><a class="dropdown-item" href="{% url 'receipt_view' booking_id=data.id %}"><i class='bx bx-conversation'></i>Voucher</a></li> {% endcomment %}
-            {% comment %} <li><a class="dropdown-item" href="{% url 'receipt_view' %}?cd={{ data.id }}"><i class='bx bx-conversation'></i>Voucher</a></li> {% endcomment %}
             <li><a class="dropdown-item" href="{% url 'receipt_view' %}?cd={{ data.id  }}"><i class='bx bx-conversation'></i>Voucher</a></li>
             <li><a class="dropdown-item" href="{% url 'addpaymenttobooking' booking_id=data.id %}"><i class='bx bxl-paypal'></i>Add-Payment</a></li>
             <li><a class="dropdown-item" href="{% url 'formo_view' %}?cd={{ data.id  }}"><i class='bx bx-id-card mb-1'></i> Formo Invoice</a></li>
@@ -553,7 +559,10 @@
             
             
           </ul>
-          </td>
+          </td> 
+         
+
+
         </tr>
         {% endfor %}
       </tbody>

@@ -4556,7 +4556,7 @@ def advancebookingdelete(request,id):
                         thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
                         thread.start()
 
-                    SaveAdvanceBookGuestData.objects.filter(vendor=user,id=saveguestid).update(action='cancel')
+                    SaveAdvanceBookGuestData.objects.filter(vendor=user,id=saveguestid).update(action='cancel',is_hold=True)
                     Booking.objects.filter(vendor=user,advancebook_id=saveguestid).delete()
                     actionss = 'Cancel Booking'
                     CustomGuestLog.objects.create(vendor=user,by=request.user,action=actionss,
@@ -4593,7 +4593,7 @@ def advancebookingdelete(request,id):
                         thread = threading.Thread(target=update_inventory_task_cm, args=(user.id, start_date, end_date))
                         thread.start()
 
-                    SaveAdvanceBookGuestData.objects.filter(vendor=user,id=saveguestid).update(action='cancel')
+                    SaveAdvanceBookGuestData.objects.filter(vendor=user,id=saveguestid).update(action='cancel',is_hold=True)
                     Booking.objects.filter(vendor=user,advancebook_id=saveguestid).delete()
                     actionss = 'Cancel Booking'
                     CustomGuestLog.objects.create(vendor=user,by=request.user,action=actionss,

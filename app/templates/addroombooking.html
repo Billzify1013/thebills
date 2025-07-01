@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+
+
+
+{% if messages%}
+{% for msg in messages %}
+<div class="container mt-0">
+    <!-- Success Alert -->
+    {% if msg.tags == 'success' %}
+    <div id="success-alert" class="alert alert-success alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%else%}
+    <div id="danger-alert" class="alert alert-danger alert-dismissible" role="alert">
+        {{msg}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {%endif%}
+</div>
+{%endfor%}
+<script>
+  $(document).ready(function() {
+      // Fade out the alert after 5 seconds (5000 milliseconds)
+      setTimeout(function() {
+          $("#success-alert").fadeTo(500, 0).slideUp(500, function(){
+              $(this).remove(); 
+          });
+      }, 1000);
+      setTimeout(function() {
+        $("#danger-alert").fadeTo(500, 0).slideUp(500, function(){
+            $(this).remove(); 
+        });
+    }, 5000);
+      
+  });
+</script>
+{%endif%}
+
+
+
+    <div class="row">
+      <h6 class="title mb-0 mt-4">Guest: <b>{{booking.bookingguest}}</b> Check In: <b>{{booking.bookingdate}}</b>
+         and Check Out: <b>{{booking.checkoutdate}}</b> Total Amount: ₹ <b>{{booking.total_amount}}</b>
+        Stay Days: {{booking.staydays}}</h6>
+        
+ <h6 class="title mb-0 mt-4">Available Rooms</h6>
+<input type="hidden" value="{{ booking.staydays }}" id="days" />
+
+<div class="row" id="roomContainer">
+  {% for i in availableroomdata %}
+    <div class="col-6 col-md-2">
+      <div class="card mt-3">
+        <div class="card-body">
+          <input class="form-check-input room-checkbox"
+                 type="checkbox"
+                 data-id="{{ i.id }}"
+                 data-price="{{ i.price }}"
+                 id="room_{{ i.id }}" />
+          <center>
+            <h4 class="card-title mb-0">{{ i.room_name }}</h4> 
+            <p class="card-text mb-0">₹{{ i.price }}</p>
+            <p class="card-text mb-0">Tax: Auto</p>
+            <span><b>{{ i.room_type }}</b></span>
+          </center>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<!-- Total Summary -->
+<div class="mt-4">
+  <h5>Total Amount: ₹<span id="totalAmount">0</span></h5>
+  <h6>Total Tax: ₹<span id="totalTax">0</span></h6>
+</div>
+
+<!-- Final Form -->
+<form method="POST" action="{% url 'addroomsinbooking' %}">
+  {% csrf_token %}
+  <input type="hidden" name="selected_rooms" id="selectedRooms" />
+  <input type="hidden" name="bookingid" value="{{booking.id}}" />
+  <input type="number" class="form-control w-25" name="final_amount" id="finalAmount" />
+  <button type="submit" class="btn btn-success mt-3">Add Rooms In Booking</button>
+</form>
+
+<script>
+  const checkboxes = document.querySelectorAll('.room-checkbox');
+  const stayDays = parseInt(document.getElementById('days').value);
+  const totalAmountEl = document.getElementById('totalAmount');
+  const totalTaxEl = document.getElementById('totalTax');
+  const selectedRoomsInput = document.getElementById('selectedRooms');
+  const finalAmountInput = document.getElementById('finalAmount');
+
+  checkboxes.forEach(cb => {
+    cb.addEventListener('change', () => {
+      let total = 0;
+      let totalTax = 0;
+      let selectedIds = [];
+
+      checkboxes.forEach(box => {
+        if (box.checked) {
+          const id = box.dataset.id;
+          const price = parseFloat(box.dataset.price);
+          const baseAmount = price * stayDays;
+
+          // Tax rule based only on single room price
+          const taxRate = price > 7500 ? 18 : 12;
+          const tax = (baseAmount * taxRate) / 100;
+          const totalWithTax = baseAmount + tax;
+
+          total += totalWithTax;
+          totalTax += tax;
+          selectedIds.push(id);
+        }
+      });
+
+      totalAmountEl.textContent = total.toFixed(2);
+      totalTaxEl.textContent = totalTax.toFixed(2);
+      selectedRoomsInput.value = selectedIds.join(',');
+      finalAmountInput.value = total.toFixed(2);
+    });
+  });
+</script>
+
+
+
+
+
+
+
+{%endblock%}

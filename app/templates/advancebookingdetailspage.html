@@ -75,7 +75,9 @@
                 Booking From: {{i.channal.channalname}}<br>
                 Total Rooms: {{i.noofrooms}}<br>
                 Pay At Hotel: {{i.pah}} ( {{i.Payment_types}} )<br>
-                Special Request: {{i.special_requests}}<br>
+                Special Request: {{i.special_requests}}<br><br>
+                <a class="btn btn-primary" href="{% url 'bookingchangeroom' id=i.id%}">Change Rooms</a>
+                <a class="btn btn-primary" href="{% url 'addmorerooms' id=i.id%}">+ Add More Rooms</a>
                 {%endfor%}
                 {%endif%}
                

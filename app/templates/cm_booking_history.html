@@ -579,7 +579,7 @@
           >
           <i class="bx bx-dots-vertical-rounded"></i>
           </button>
-          <ul class="dropdown-menu">
+          <ul class="dropdown-menu  dropdown-menu-end" style="z-index: 9999;">
             <li><a class="dropdown-item" href="{% url 'advancebookingdetails_cm' id=data.id %}"><i class="bx bx-edit-alt me-1"></i>Details</a></li>
             {% comment %} <li><a class="dropdown-item" href="{% url 'receipt_view' booking_id=data.id %}"><i class='bx bx-conversation'></i>Voucher</a></li> {% endcomment %}
             {% comment %} <li><a class="dropdown-item" href="{% url 'receipt_view' %}?cd={{ data.id }}"><i class='bx bx-conversation'></i>Voucher</a></li> {% endcomment %}

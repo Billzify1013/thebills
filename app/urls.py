@@ -547,8 +547,10 @@ urlpatterns = [
     path('pmsearchcmsales/', cm_file.pmsearchcmsales, name='pmsearchcmsales'),
     path('editbookingdates/', travelagancy.editbookingdates, name='editbookingdates'),
     path('searchdateweek/', travelagancy.searchdateweek, name='searchdateweek'),
+    path('addmorerooms/<int:id>/', travelagancy.addmorerooms, name='addmorerooms'),
+    path('addroomsinbooking/', travelagancy.addroomsinbooking, name='addroomsinbooking'),
     
-
+    path('bookingchangeroom/<int:id>/', travelagancy.bookingchangeroom, name='bookingchangeroom'),
 
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

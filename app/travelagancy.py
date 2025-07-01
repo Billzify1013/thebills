@@ -1140,7 +1140,7 @@ def editcommtdc(request):
         return render(request, '404.html', {'error_message': str(e)}, status=500)
     
 def bookingrevoke(request,id):
-    print(id)
+
     if request.user.is_authenticated:
         user=request.user
         subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
@@ -1151,13 +1151,117 @@ def bookingrevoke(request,id):
         if checkdatas.checkoutdate >= today:
             roomdata = RoomBookAdvance.objects.filter(vendor=user,saveguestdata=checkdatas).all()
             checkindate = checkdatas.bookingdate
-            checkoutdate = checkdatas.checkoutdate - timedelta(days=1)
+            checkoutdate = checkdatas.checkoutdate 
             print(checkindate,checkoutdate)
-            # for check in roomdata:
-            messages.error(request, "This Service is not available yet!")
+            status = True
+            rooms_list = []
+            for check in roomdata:
+                roomcatname = check.roomno.room_type.category_name
+                if  Rooms.objects.filter(vendor=user,room_type__category_name=roomcatname).exclude(checkin=6).exists():
+                    available_rooms = Rooms.objects.filter(
+                                vendor=user,
+                                room_type__category_name=roomcatname
+                                ).exclude(
+                                    id__in=rooms_list
+                                ).exclude(
+                                    id__in=Booking.objects.filter(
+                                    Q(check_in_date__lt=checkoutdate) &
+                                    Q(check_out_date__gt=checkindate)
+                                ).values_list('room_id', flat=True)
+                                )
+                    room = available_rooms.first()
+                                    
+                    if not room:
+                        status=False
+                    else:
+                        rooms_list.append(room.id)
+
+            if status == True:
+                print(rooms_list,"jab chle tb ye ")
+                count = 0
+                for room in roomdata:
+                    id = rooms_list[count]
+                    newroom = Rooms.objects.filter(vendor=user,id=id).first()
+
+                    print(newroom.room_name,'check this one')
+
+                    RoomBookAdvance.objects.filter(vendor=user,id=room.id).update(
+                        roomno=newroom
+                    )
+                    noon_time_str = "12:00 PM"
+                    noon_time = datetime.strptime(noon_time_str, "%I:%M %p").time()
+                    Booking.objects.create(
+                            vendor=user,
+                            room=newroom,
+                            guest_name=checkdatas.bookingguest,
+                            check_in_date=checkindate,
+                            check_out_date=checkoutdate,
+                            check_in_time=noon_time,
+                            check_out_time=noon_time,
+                            segment=checkdatas.channal.channalname,
+                            totalamount=0.0,
+                            totalroom=1,
+                            gueststay=None,
+                            advancebook=checkdatas,
+                            status="BOOKING"
+                            )
+                    catdatas = RoomsCategory.objects.get(vendor=user,id=newroom.room_type.id)
+                                    # inventory code
+                                    # Convert date strings to date objects
+                    checkindate = str(checkindate)
+                    checkoutdate = str(checkoutdate)
+                    checkindate = datetime.strptime(checkindate, '%Y-%m-%d').date()
+                    checkoutdates = (datetime.strptime(checkoutdate, '%Y-%m-%d').date() - timedelta(days=1))
+
+                                    # Generate the list of all dates between check-in and check-out (inclusive)
+                    all_dates = [checkindate + timedelta(days=x) for x in range((checkoutdates - checkindate).days + 1)]
+
+                                    # Query the RoomsInventory model to check if records exist for all those dates
+                    existing_inventory = RoomsInventory.objects.filter(vendor=user,room_category=catdatas, date__in=all_dates)
+
+                    roomcount = Rooms.objects.filter(vendor=user,room_type=catdatas).count()
+                                   
+                    occupancy = (1 * 100 // roomcount)
+                    for inventory in existing_inventory:
+                        if inventory.total_availibility > 0:  # Ensure there's at least 1 room available
+                                inventory.total_availibility -= 1
+                                inventory.booked_rooms += 1
+                                if inventory.occupancy+occupancy==99:
+                                    inventory.occupancy=100
+                                else:
+                                    inventory.occupancy +=occupancy
+                                inventory.save()
+                    count +=1
+                roomdatacount = RoomBookAdvance.objects.filter(vendor=user,saveguestdata=checkdatas).count()
+                Booking.objects.filter(vendor=user,advancebook=checkdatas).update(
+                            totalroom=roomdatacount,totalamount=checkdatas.total_amount
+                )
+
+                actionss = 'Booking Revoked'
+                CustomGuestLog.objects.create(vendor=user,by=request.user,action=actionss,
+                                            advancebook=checkdatas,description=f'Booking Revoked in PMS')
+
+                if VendorCM.objects.filter(vendor=user):
+                    start_date = str(checkdatas.bookingdate)
+                    end_date = str(checkdatas.checkoutdate)
+                    thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
+                    thread.start()
+                    
+                checkdatas.action='modify'
+                checkdatas.is_hold=False
+                checkdatas.save()
+                messages.success(request,'booking Revoked')
+                return redirect('notification')
+                    
+                # messages.error(request, "This Service is not available yet!")
+            else:
+                messages.error(request, "Some rooms are not available in guest selected rooms category!")
+
+
         else:
             messages.error(request, "The guest's checkout date has already passed.")
             print("date ja chuke hai ")
+        # return redirect('notification')
         return redirect('advanceroomhistory')
 
 
@@ -1183,6 +1287,8 @@ def bookingrevokenot(request,id):
                                 vendor=user,
                                 room_type__category_name=roomcatname
                                 ).exclude(
+                                    id__in=rooms_list
+                                ).exclude(
                                     id__in=Booking.objects.filter(
                                     Q(check_in_date__lt=checkoutdate) &
                                     Q(check_out_date__gt=checkindate)
@@ -1192,12 +1298,87 @@ def bookingrevokenot(request,id):
                                     
                     if not room:
                         status=False
-
-                    print(room)
+                    else:
+                        rooms_list.append(room.id)
 
             if status == True:
-                print(rooms_list)
-                messages.error(request, "This Service is not available yet!")
+                print(rooms_list,"jab chle tb ye ")
+                count = 0
+                for room in roomdata:
+                    id = rooms_list[count]
+                    newroom = Rooms.objects.filter(vendor=user,id=id).first()
+
+                    print(newroom.room_name,'check this one')
+
+                    RoomBookAdvance.objects.filter(vendor=user,id=room.id).update(
+                        roomno=newroom
+                    )
+                    noon_time_str = "12:00 PM"
+                    noon_time = datetime.strptime(noon_time_str, "%I:%M %p").time()
+                    Booking.objects.create(
+                            vendor=user,
+                            room=newroom,
+                            guest_name=checkdatas.bookingguest,
+                            check_in_date=checkindate,
+                            check_out_date=checkoutdate,
+                            check_in_time=noon_time,
+                            check_out_time=noon_time,
+                            segment=checkdatas.channal.channalname,
+                            totalamount=0.0,
+                            totalroom=1,
+                            gueststay=None,
+                            advancebook=checkdatas,
+                            status="BOOKING"
+                            )
+                    catdatas = RoomsCategory.objects.get(vendor=user,id=newroom.room_type.id)
+                                    # inventory code
+                                    # Convert date strings to date objects
+                    checkindate = str(checkindate)
+                    checkoutdate = str(checkoutdate)
+                    checkindate = datetime.strptime(checkindate, '%Y-%m-%d').date()
+                    checkoutdates = (datetime.strptime(checkoutdate, '%Y-%m-%d').date() - timedelta(days=1))
+
+                                    # Generate the list of all dates between check-in and check-out (inclusive)
+                    all_dates = [checkindate + timedelta(days=x) for x in range((checkoutdates - checkindate).days + 1)]
+
+                                    # Query the RoomsInventory model to check if records exist for all those dates
+                    existing_inventory = RoomsInventory.objects.filter(vendor=user,room_category=catdatas, date__in=all_dates)
+
+                    roomcount = Rooms.objects.filter(vendor=user,room_type=catdatas).count()
+                                   
+                    occupancy = (1 * 100 // roomcount)
+                    for inventory in existing_inventory:
+                        if inventory.total_availibility > 0:  # Ensure there's at least 1 room available
+                                inventory.total_availibility -= 1
+                                inventory.booked_rooms += 1
+                                if inventory.occupancy+occupancy==99:
+                                    inventory.occupancy=100
+                                else:
+                                    inventory.occupancy +=occupancy
+                                inventory.save()
+                    count +=1
+                roomdatacount = RoomBookAdvance.objects.filter(vendor=user,saveguestdata=checkdatas).count()
+                Booking.objects.filter(vendor=user,advancebook=checkdatas).update(
+                            totalroom=roomdatacount,totalamount=checkdatas.total_amount
+                )
+
+                actionss = 'Booking Revoked'
+                CustomGuestLog.objects.create(vendor=user,by=request.user,action=actionss,
+                                            advancebook=checkdatas,description=f'Booking Revoked in PMS')
+
+                if VendorCM.objects.filter(vendor=user):
+                    start_date = str(checkdatas.bookingdate)
+                    end_date = str(checkdatas.checkoutdate)
+                    thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
+                    thread.start()
+                    
+                checkdatas.action='modify'
+                checkdatas.is_hold=False
+                checkdatas.save()
+                messages.success(request,'booking Revoked')
+                return redirect('notification')
+                    
+                # messages.error(request, "This Service is not available yet!")
             else:
                 messages.error(request, "Some rooms are not available in guest selected rooms category!")
 
@@ -1495,6 +1676,9 @@ def delteroominbook(request,id):
                 roombook = RoomBookAdvance.objects.get(vendor=user,id=id)
                 booking = SaveAdvanceBookGuestData.objects.filter(vendor=user,id=roombook.saveguestdata.id).first()
 
+                if booking.action=='cancel':
+                    messages.error(request,"This Booking is cancelled not remove any room from here")
+                    return redirect('advancebookingdetails',booking.id)
                 bookcounts = RoomBookAdvance.objects.filter(vendor=user,saveguestdata=booking).count()
                 if bookcounts==1:
                     messages.error(request,"Only one room left please canclled full booking!")
@@ -1651,3 +1835,258 @@ def searchdateweek(request):
         return redirect(f'/weekviews/?index={difference}')
 
     return redirect('weekviews')  # default fallback
+
+def addmorerooms(request,id):
+        if request.user.is_authenticated :
+            user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            if SaveAdvanceBookGuestData.objects.filter(vendor=user,id=id):
+                booking = SaveAdvanceBookGuestData.objects.get(vendor=user,id=id)
+                today = datetime.today().date()
+                if booking.segment=="OTA":
+                    messages.error(request,'This Booking From OTA. Not Added Another Room Please Create A New Booking')
+                    return redirect('advancebookingdetails',id)
+                if booking.checkoutdate>today:
+                    checkindate=booking.bookingdate
+                    checkoutdate=booking.checkoutdate
+                    available_rooms = Rooms.objects.filter(
+                                        vendor=user,
+                                        ).exclude(
+                                        id__in=Booking.objects.filter(
+                                                Q(check_in_date__lt=checkoutdate) &
+                                                Q(check_out_date__gte=checkindate)
+                                                ).values_list('room_id', flat=True)
+                                        )
+                    room = available_rooms
+                    for i in room:
+                        print(i.room_name,i.id)
+                    return render(request,"addroombooking.html",{'availableroomdata':room,'booking':booking})
+                else:
+                    messages.error(request,'Guest Checkout Date is Less Then To Current Date')
+                
+            else:
+                messages.error(request,'Id not found!')
+                return redirect('advancebookingdetails',id)
+
+        return redirect('advancebookingdetails',id)
+
+def addroomsinbooking(request):
+    try:
+        if request.user.is_authenticated and request.method=="POST":
+            user=request.user
+            subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+            if subuser:
+                user = subuser.vendor  
+            bookingid = request.POST.get('bookingid')
+            final_amount = float(request.POST.get('final_amount'))
+            booking = SaveAdvanceBookGuestData.objects.get(vendor=user,id=bookingid)
+            checkindate=booking.bookingdate
+            checkoutdate=booking.checkoutdate
+
+            # Step 3: Extract selected room IDs from POST data
+            room_ids_raw = request.POST.get('selected_rooms')  # e.g. "8,9"
+            room_ids_list = []
+            if room_ids_raw:
+                room_ids_list = [int(x) for x in room_ids_raw.split(',') if x.strip().isdigit()]
+
+            rooms = Rooms.objects.filter(id__in=room_ids_list)
+            available_rooms = Rooms.objects.filter(
+                                        vendor=user,
+                                        ).exclude(
+                                        id__in=Booking.objects.filter(
+                                                Q(check_in_date__lt=checkoutdate) &
+                                                Q(check_out_date__gte=checkindate)
+                                                ).values_list('room_id', flat=True)
+                                        )
+            
+
+            # Step 4: Get available room IDs
+            available_ids = list(available_rooms.values_list('id', flat=True))
+
+            # Step 5: Check if all selected rooms are actually available
+            somebook = not set(room_ids_list).issubset(set(available_ids))
+            
+
+            
+
+            if somebook==True:
+                messages.error(request,'Some Rooms Are Booked In Your Selected Rooms!')
+                return redirect('addmorerooms',bookingid)
+            else:
+                alldayoneroomamt = final_amount/len(room_ids_list)
+                onedayprice = alldayoneroomamt/booking.staydays
+                if onedayprice<= 8400: 
+                    baseprice = onedayprice/1.12
+                    taxamt = onedayprice-baseprice
+                elif 8400 < onedayprice <= 8850:
+                    baseprice = onedayprice/1.18
+                    taxamt = onedayprice-baseprice
+                else:
+                    baseprice = onedayprice/1.12
+                    taxamt = onedayprice-baseprice
+
+                total_tax_Amt = taxamt*len(room_ids_list)*booking.staydays
+                total_base_amt = baseprice*len(room_ids_list)*booking.staydays
+                grand_total_amt = total_tax_Amt+total_base_amt
+                print(total_base_amt,total_tax_Amt,grand_total_amt)
+                rooms = []
+                print(room_ids_raw,'checkids')
+                for room in room_ids_list:
+                        print(room,'check this')
+                        room=int(room)
+                        newroom = Rooms.objects.get(vendor=user,id=room)
+                        rooms.append(newroom.room_name)
+                        rbk = RoomBookAdvance.objects.create(
+                                vendor=user,
+                                saveguestdata=booking,
+                                bookingdate=checkindate,
+                                roomno_id=newroom.id,
+                                bookingguest=booking.bookingguest,
+                                bookingguestphone=0,
+                                checkoutdate=checkoutdate,
+                                bookingstatus=True,
+                                channal=booking.channal,
+                                totalguest=newroom.max_person,
+                                rateplan_code='EP',
+                                rateplan_code_main='add more room',
+                                guest_name='',
+                                adults=newroom.max_person,
+                                children=0,
+                                sell_rate=baseprice
+                                )
+                                  
+
+                                    
+
+
+                        # Handling check-in and check-out times
+                        noon_time_str = "12:00 PM"
+                        noon_time = datetime.strptime(noon_time_str, "%I:%M %p").time()
+                        # Create the Booking entry for the room
+                        Booking.objects.create(
+                                        vendor=user,
+                                        room=newroom,
+                                        guest_name=booking.bookingguest,
+                                        check_in_date=checkindate,
+                                        check_out_date=checkoutdate,
+                                        check_in_time=noon_time,
+                                        check_out_time=noon_time,
+                                        segment=booking.channal.channalname,
+                                        totalamount=0.0,
+                                        totalroom=1,
+                                        gueststay=None,
+                                        advancebook=booking,
+                                        status="BOOKING"
+                                    )
+
+                                    
+
+                        catdatas = RoomsCategory.objects.get(vendor=user,category_name=newroom.room_type)
+                                    # inventory code
+                                    # Convert date strings to date objects
+                        checkindate = str(checkindate)
+                        checkoutdate = str(checkoutdate)
+                        checkindate = datetime.strptime(checkindate, '%Y-%m-%d').date()
+                        checkoutdates = (datetime.strptime(checkoutdate, '%Y-%m-%d').date() - timedelta(days=1))
+
+                                    # Generate the list of all dates between check-in and check-out (inclusive)
+                        all_dates = [checkindate + timedelta(days=x) for x in range((checkoutdates - checkindate).days + 1)]
+
+                                    # Query the RoomsInventory model to check if records exist for all those dates
+                        existing_inventory = RoomsInventory.objects.filter(vendor=user,room_category=catdatas, date__in=all_dates)
+
+                                    # Get the list of dates that already exist in the inventory
+                        existing_dates = set(existing_inventory.values_list('date', flat=True))
+
+                                    # Identify the missing dates by comparing all_dates with existing_dates
+                        missing_dates = [date for date in all_dates if date not in existing_dates]
+
+                                    # If there are missing dates, create new entries for those dates in the RoomsInventory model
+                        roomcount = Rooms.objects.filter(vendor=user,room_type=catdatas).count()
+                                   
+                        occupancy = (1 * 100 // roomcount)
+                        for inventory in existing_inventory:
+                                        if inventory.total_availibility > 0:  # Ensure there's at least 1 room available
+                                            inventory.total_availibility -= 1
+                                            inventory.booked_rooms += 1
+                                            if inventory.occupancy+occupancy==99:
+                                                inventory.occupancy=100
+                                            else:
+                                                inventory.occupancy +=occupancy
+                                            inventory.save()
+                                    
+                                    # catdatas = RoomsCategory.objects.get(vendor_id=userids,category_name=category_name)
+                        totalrooms = Rooms.objects.filter(vendor=user,room_type=catdatas).count()
+                        occupancccy = (1 *100 //totalrooms)
+                        if missing_dates:
+                                for missing_date in missing_dates:
+                                        
+                                                RoomsInventory.objects.create(
+                                                    vendor=user,
+                                                    date=missing_date,
+                                                    room_category=catdatas,  # Use the appropriate `roomtype` or other identifier here
+                                                    total_availibility=roomcount-1,       # Set according to your logic
+                                                    booked_rooms=1,    
+                                                    occupancy=occupancccy,
+                                                    price=catdatas.catprice
+                                                                            # Set according to your logic
+                                                )
+                                print(f"Missing dates have been created for: {missing_dates}")
+                        else:
+                                print("All dates already exist in the inventory.")
+
+                roomcounts = RoomBookAdvance.objects.filter(vendor=user,saveguestdata=booking).count()
+                Booking.objects.filter(vendor=user,advancebook=booking).update(
+                    totalamount = booking.total_amount + grand_total_amt,
+                    totalroom = roomcounts
+                )
+
+                booking.amount_after_tax=F('amount_after_tax')+ grand_total_amt
+                booking.amount_before_tax=F('amount_before_tax')+total_base_amt
+                booking.total_amount=F('total_amount')+grand_total_amt
+                booking.tax=F('tax')+total_tax_Amt
+                booking.reamaining_amount=F('reamaining_amount')+grand_total_amt
+                booking.noofrooms=roomcounts
+                booking.action='modify'
+                booking.save()
+
+                actionss = 'Edit Booking Add Rooms'
+                CustomGuestLog.objects.create(vendor=user,by=request.user,action=actionss,
+                                            advancebook=booking,description=f'Add some room in booking, room numbers {rooms} ')
+
+                if VendorCM.objects.filter(vendor=user):
+                    start_date = str(booking.bookingdate)
+                    end_date = str(booking.checkoutdate)
+                    thread = threading.Thread(target=update_inventory_task, args=(user.id, start_date, end_date))
+                    thread.start()
+                    
+
+                messages.success(request,'Room Added')
+                return redirect('advancebookingdetails',booking.id)
+        else:
+            return render(request, 'login.html')
+    except Exception as e:
+        return render(request, '404.html', {'error_message': str(e)}, status=500)
+
+from .manageQR import changeroomadvance 
+from django.http import QueryDict
+def bookingchangeroom(request,id):
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Not authenticated"}, status=403)
+    user=request.user
+    subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+    if subuser:
+        user = subuser.vendor 
+    savebook = SaveAdvanceBookGuestData.objects.filter(vendor=user,id=id).first()
+    bookmodel=Booking.objects.filter(vendor=user,advancebook=savebook).first()
+    new_request = request
+    new_request.method = "POST"  # Simulate a POST request
+    new_request.POST = QueryDict(mutable=True)
+    new_request.POST.update({
+        'bookingmodelid': bookmodel.id,
+        })
+
+          
+    return changeroomadvance(new_request)
