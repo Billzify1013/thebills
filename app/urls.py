@@ -551,6 +551,9 @@ urlpatterns = [
     path('addroomsinbooking/', travelagancy.addroomsinbooking, name='addroomsinbooking'),
     
     path('bookingchangeroom/<int:id>/', travelagancy.bookingchangeroom, name='bookingchangeroom'),
+    
+    
+    path('arrangerooms/', travelagancy.arrangerooms, name='arrangerooms'),
 
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

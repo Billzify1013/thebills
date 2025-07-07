@@ -2090,3 +2090,74 @@ def bookingchangeroom(request,id):
 
           
     return changeroomadvance(new_request)
+
+def arrangerooms(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Not authenticated"}, status=403)
+    user=request.user
+    subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+    if subuser:
+        user = subuser.vendor 
+    today = datetime.now().date()
+    tomorrow = today + timedelta(days=6)
+    print(today,tomorrow)
+    # Step 1: Get Suite bookings in the date range only
+    rooms = Rooms.objects.filter(vendor=user,room_type__category_name='Suite').order_by('id')
+    for book in rooms:
+        suite_bookings = Booking.objects.filter(
+            room=book,
+            check_in_date__lte=tomorrow,
+            check_out_date__gte=today
+        ).order_by('check_in_date')
+        print(suite_bookings)
+        
+        gaps = []
+
+        # Convert queryset to list
+        bookings = list(suite_bookings)
+
+        # Start with today
+        current_date = today
+
+        for b in bookings:
+            if current_date < b.check_in_date:
+                gaps.append({
+                    "check_in": current_date,
+                    "check_out": b.check_in_date
+                })
+            # Move to next possible date
+            current_date = max(current_date, b.check_out_date)
+
+        # Optional: if no more bookings but there's still time until tomorrow
+        if current_date < tomorrow:
+            gaps.append({
+                "check_in": current_date,
+                "check_out": tomorrow
+            })
+        print(f"Room ID {book.id} Gaps: {gaps}")
+
+        for dates in gaps:
+            gap_start = dates["check_in"]
+            gap_end = dates["check_out"]
+
+            netbook = Booking.objects.filter(
+                room__room_type__category_name='Suite',
+                check_in_date=gap_start,
+                check_out_date=gap_end
+            ).first()
+            if netbook:
+                if RoomBookAdvance.objects.filter(vendor=user,saveguestdata=netbook.advancebook.id,roomno=netbook.room):
+                    RoomBookAdvance.objects.filter(vendor=user,saveguestdata=netbook.advancebook.id,roomno=netbook.room).update(
+                        roomno=book
+                    )
+                
+                netbook.room=book
+                netbook.save()
+                
+            else:
+                pass
+
+            print(f"Gap {gap_start} to {gap_end} → Found {netbook} bookings")
+    
+    
+    return redirect('weekviews')

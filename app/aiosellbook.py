@@ -2231,7 +2231,7 @@ def aiosell_new_reservation(request):
                                             )
                                     room = available_rooms.first()
                                     if not room:
-                                        room = Rooms.objects.filter(vendor=vendordata.vendor,room_type__category_name=roomcatname,checkin=0).exclude(checkin=6).first()
+                                        room = Rooms.objects.filter(vendor=vendordata.vendor,room_type__category_name=roomcatname).exclude(checkin=6).first()
                                     else:
                                         pass
                                     rbk = RoomBookAdvance.objects.create(
@@ -2652,7 +2652,7 @@ def aiosell_new_reservation(request):
                                     room = available_rooms.first()
                                     
                                     if not room:
-                                        room = Rooms.objects.filter(vendor=vendordata.vendor,room_type__category_name=roomcatname,checkin=0).exclude(checkin=6).first()
+                                        room = Rooms.objects.filter(vendor=vendordata.vendor,room_type__category_name=roomcatname).exclude(checkin=6).first()
                                     else:
                                         pass
                                     rbk = RoomBookAdvance.objects.create(
