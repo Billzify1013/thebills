@@ -77,3 +77,27 @@ def sent_cancel_email(userids,channel,cmBookingId,guestname,savidmain):
         ]
 
         send_mass_mail(messages)
+
+def error_message_email(userids,channel,cmBookingId,guestname):
+        hotelemail = 'ckhajwan@gmail.com'
+
+        import time
+        subject = f'Booking Creation Error {userids} - {cmBookingId} - {time.strftime("%Y%m%d%H%M%S")}'
+
+        message = textwrap.dedent(f"""
+            yha error aaye hai user hai {userids},
+
+            A booking from {channel} has been cancelled.
+
+            Booking ID: {cmBookingId}  
+            Guest Name: {guestname}  
+
+        """)
+        email_from = settings.EMAIL_HOST_USER
+        recipient_list = [hotelemail]  # ✅ ensure this is a list
+
+        messages = [
+            (subject, message, email_from, recipient_list)
+        ]
+
+        send_mass_mail(messages)

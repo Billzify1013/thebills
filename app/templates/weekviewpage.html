@@ -496,6 +496,8 @@ onmouseout="this.style.overflowX='auto'">
                                                 <!-- Same-day booking -->
                                                 <div class="booking-card {% if booking.status == 'CHECK IN' %}checkin-status{% endif %} {% if booking.status == 'CHECK OUT' %}checkout-status{% endif %}" 
                                                      style="width: 10%;border-radius:0px 15px 0px 15px;"
+                                                     data-checkin="{{ booking.check_in_date|date:'Y-m-d' }}"
+     data-checkout="{{ booking.check_out_date|date:'Y-m-d' }}"
                                                      onclick="showBookingInfo('{{ booking.id }}','{{ booking.guest_name }}', '{{ room.room_name }}', '{{ booking.check_in_date }}',
                                                       '{{ booking.check_out_date }}','{{ booking.checkintime }}' ,'{{ booking.checkouttime }}' ,'{{ booking.segment }}','{{ booking.totalroom }}','{{ booking.totalamount }}','{{ booking.status }}','{{booking.fnbid}}')">
                                                     <div class="guest-name">
@@ -520,6 +522,8 @@ onmouseout="this.style.overflowX='auto'">
                                                 {% if date == booking_checkin %}
                                                     <div class="booking-card checkin {% if booking.status == 'CHECK IN' %}checkin-status{% endif %} {% if booking.status == 'CHECK OUT' %}checkout-status{% endif %}" 
                                                          style="width: {{ booking.check_in_width }}%; right: 0;"
+                                                         data-checkin="{{ booking.check_in_date|date:'Y-m-d' }}"
+     data-checkout="{{ booking.check_out_date|date:'Y-m-d' }}"
                                                          onclick="showBookingInfo('{{ booking.id }}','{{ booking.guest_name }}', '{{ room.room_name }}', '{{ booking.check_in_date }}',
                                                           '{{ booking.check_out_date }}','{{ booking.checkintime }}' ,'{{ booking.checkouttime }}' ,'{{ booking.segment }}','{{ booking.totalroom }}','{{ booking.totalamount }}','{{ booking.status }}','{{booking.fnbid}}')">
                                                         <div class="guest-name">
@@ -541,14 +545,16 @@ onmouseout="this.style.overflowX='auto'">
                                                     </div>
                                                 {% elif date == booking_checkout %}
                                                     <div class="booking-card checkout {% if booking.status == 'CHECK IN' %}checkin-status{% endif %} {% if booking.status == 'CHECK OUT' %}checkout-status{% endif %}" 
-                                                         style="width: {{ booking.check_out_width }}%; left: 0;"
+                                                         style="width: {{ booking.check_out_width }}%; left: 0;" data-checkin="{{ booking.check_in_date|date:'Y-m-d' }}"
+     data-checkout="{{ booking.check_out_date|date:'Y-m-d' }}"
                                                          onclick="showBookingInfo('{{ booking.id }}','{{ booking.guest_name }}', '{{ room.room_name }}', '{{ booking.check_in_date }}',
                                                           '{{ booking.check_out_date }}','{{ booking.checkintime }}' ,'{{ booking.checkouttime }}' ,'{{ booking.segment }}','{{ booking.totalroom }}','{{ booking.totalamount }}','{{ booking.status }}','{{booking.fnbid}}')">
                                                         {% comment %} {{ booking.guest_name }} {% endcomment %}
                                                     </div>
                                                 {% else %}
                                                     <div class="booking-card {% if booking.status == 'CHECK IN' %}checkin-status{% endif %} {% if booking.status == 'CHECK OUT' %}checkout-status{% endif %}" 
-                                                         style="width: 100%; left: 0;"
+                                                         style="width: 100%; left: 0;" data-checkin="{{ booking.check_in_date|date:'Y-m-d' }}"
+     data-checkout="{{ booking.check_out_date|date:'Y-m-d' }}"
                                                          onclick="showBookingInfo('{{ booking.id }}','{{ booking.guest_name }}', '{{ room.room_name }}', '{{ booking.check_in_date }}',
                                                           '{{ booking.check_out_date }}','{{ booking.checkintime }}' ,'{{ booking.checkouttime }}' ,'{{ booking.segment }}','{{ booking.totalroom }}','{{ booking.totalamount }}','{{ booking.status }}','{{booking.fnbid}}')">
                                                         {% comment %} {% if not forloop.first %} {% endcomment %}
@@ -569,6 +575,52 @@ onmouseout="this.style.overflowX='auto'">
     {% endfor %}
 </div>
 </div></div>
+
+<!--card overlap js code-->
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const dateBoxes = document.querySelectorAll('.date-box');
+
+    dateBoxes.forEach(box => {
+        const onclickAttr = box.getAttribute('onclick');
+        const dateMatch = onclickAttr.match(/'(\d{4}-\d{2}-\d{2})'/);
+        if (!dateMatch) return;
+
+        const boxDateStr = dateMatch[1]; // e.g. '2025-07-13'
+        const boxDate = new Date(boxDateStr);
+        boxDate.setHours(0, 0, 0, 0); // Normalize time
+
+        const matchingCards = [];
+
+        const bookingCards = box.querySelectorAll('.booking-card');
+
+        bookingCards.forEach(card => {
+            const checkinStr = card.getAttribute('data-checkin');
+            const checkoutStr = card.getAttribute('data-checkout');
+            if (!checkinStr || !checkoutStr) return;
+
+            const checkin = new Date(checkinStr);
+            const checkout = new Date(checkoutStr);
+            checkin.setHours(0, 0, 0, 0);
+            checkout.setHours(0, 0, 0, 0);
+
+            // Booking is valid for boxDate if: checkin <= boxDate < checkout
+            if (checkin <= boxDate && boxDate < checkout) {
+                matchingCards.push(card);
+            }
+        });
+
+        if (matchingCards.length > 1) {
+            matchingCards.forEach(card => {
+                card.style.borderBottom = '3px solid red'; // or other color
+            });
+        }
+    });
+});
+</script>
+
+<!--card overlap js code end-->
 
 <style>
 .calendar-wrapper {

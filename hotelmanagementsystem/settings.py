@@ -27,7 +27,8 @@ SECRET_KEY = 'django-insecure-ale$nh!1)-^(ni^hlrlrq$+=xuwm*8!ffb^cn907j&r+ul_=bk
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 # DEBUG = True
-
+# mene new branch banaye hai sana_laptop ab all time usi me kam krna hai or pull lena hai server pr bhi vo chal rhe hai
+# all time checkkrna hai branch then hi kuch update krna hai
 
 ALLOWED_HOSTS = ['live.billzify.com','www.live.billzify.com','127.0.0.1','172.20.10.2']
 

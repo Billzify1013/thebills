@@ -2102,14 +2102,13 @@ def arrangerooms(request):
     tomorrow = today + timedelta(days=6)
     print(today,tomorrow)
     # Step 1: Get Suite bookings in the date range only
-    rooms = Rooms.objects.filter(vendor=user,room_type__category_name='Suite').order_by('id')
+    rooms = Rooms.objects.filter(vendor=user,room_type__category_name='SUITE').order_by('id')
     for book in rooms:
         suite_bookings = Booking.objects.filter(
             room=book,
             check_in_date__lte=tomorrow,
             check_out_date__gte=today
         ).order_by('check_in_date')
-        print(suite_bookings)
         
         gaps = []
 
@@ -2134,30 +2133,103 @@ def arrangerooms(request):
                 "check_in": current_date,
                 "check_out": tomorrow
             })
-        print(f"Room ID {book.id} Gaps: {gaps}")
-
+        c=0
         for dates in gaps:
+            print(dates,'check this print',c+1)
             gap_start = dates["check_in"]
             gap_end = dates["check_out"]
-
+            c=c+1
             netbook = Booking.objects.filter(
-                room__room_type__category_name='Suite',
+                room__room_type__category_name='SUITE',
                 check_in_date=gap_start,
                 check_out_date=gap_end
             ).first()
             if netbook:
-                if RoomBookAdvance.objects.filter(vendor=user,saveguestdata=netbook.advancebook.id,roomno=netbook.room):
-                    RoomBookAdvance.objects.filter(vendor=user,saveguestdata=netbook.advancebook.id,roomno=netbook.room).update(
-                        roomno=book
-                    )
-                
-                netbook.room=book
-                netbook.save()
-                
-            else:
                 pass
+            else:
+                # Candidate bookings from DB
+                candidates = Booking.objects.filter(
+                    room__room_type__category_name='SUITE',
+                    check_in_date__gte=gap_start,
+                    check_out_date__lte=gap_end
+                )
+
+                for i in candidates:
+                    if RoomBookAdvance.objects.filter(vendor=user,saveguestdata=i.advancebook.id,roomno=i.room):
+                        RoomBookAdvance.objects.filter(vendor=user,saveguestdata=i.advancebook.id,roomno=i.room).update(
+                            roomno=book
+                        )
+                    i.room=book
+                    i.save()
+            #     netbook.room=book
+            #     netbook.save()
+                
+            # else:
+            #     pass
 
             print(f"Gap {gap_start} to {gap_end} → Found {netbook} bookings")
     
     
     return redirect('weekviews')
+
+# def arrangerooms(request):
+#     if not request.user.is_authenticated:
+#         return JsonResponse({"error": "Not authenticated"}, status=403)
+
+#     user = request.user
+#     subuser = Subuser.objects.select_related('vendor').filter(user=user).first()
+#     if subuser:
+#         user = subuser.vendor
+
+#     today = datetime.now().date()
+#     end_date = today + timedelta(days=6)
+
+#     rooms = list(Rooms.objects.filter(vendor=user, room_type__category_name='Suite').order_by('id'))
+#     bookings = list(
+#         Booking.objects.filter(
+#             room__vendor=user,
+#             room__room_type__category_name='Suite',
+#             check_in_date__lte=end_date,
+#             check_out_date__gte=today
+#         ).select_related('advancebook', 'room').order_by('check_in_date')
+#     )
+
+#     used_ids = set()
+#     room_map = {room.id: [] for room in rooms}
+
+#     for b in bookings:
+#         room_map[b.room.id].append(b)
+
+#     # Step-by-step: Go room by room, and fill gaps
+#     for room in rooms:
+#         assigned = sorted(room_map[room.id], key=lambda x: x.check_in_date)
+#         gaps = []
+#         pointer = today
+
+#         for b in assigned:
+#             if pointer < b.check_in_date:
+#                 gaps.append((pointer, b.check_in_date))
+#             pointer = max(pointer, b.check_out_date)
+
+#         if pointer < end_date:
+#             gaps.append((pointer, end_date))
+
+#         for gap_start, gap_end in gaps:
+#             for b in bookings:
+#                 if b.id in used_ids or b.room.id == room.id:
+#                     continue
+#                 if b.check_in_date >= gap_start and b.check_out_date <= gap_end:
+#                     # Assign it to this room
+#                     old_room = b.room
+#                     b.room = room
+#                     b.save()
+#                     RoomBookAdvance.objects.filter(
+#                         vendor=user,
+#                         saveguestdata=b.advancebook.id,
+#                         roomno=old_room
+#                     ).update(roomno=room)
+#                     room_map[room.id].append(b)
+#                     used_ids.add(b.id)
+#                     break  # move to next gap
+
+#     return redirect('weekviews')

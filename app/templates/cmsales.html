@@ -180,44 +180,149 @@
 
 
 
-  <div class="card shadow p-4 w-100" style="max-width: 800px; margin: auto;">
-  <h2 class="text-center mb-4 text-dark">📄 Hotel Metrics Receipt</h2>
 
-  <div class="row ">
-    <!-- ADR -->
-    <div class="col-12 col-md-6">
-      <div class="bg-light p-3 rounded text-center">
-        <div class="text-muted">Average Daily Rate (ADR)</div>
-        <div class="fs-4 fw-bold text-dark">₹ {{adr}}</div>
-      </div>
-    </div>
 
-    <!-- Booked Amount -->
-    <div class="col-12 col-md-6">
-      <div class="bg-light p-3 rounded text-center">
-        <div class="text-muted">Total Booked Amount</div>
-        <div class="fs-4 fw-bold text-dark">₹ {{total_amount_sum}}</div>
-      </div>
-    </div>
+<div class="container">
 
-    <!-- Cancelled Amount -->
-    <div class="col-12 col-md-6">
-      <div class="bg-light p-3 rounded text-center">
-        <div class="text-muted">Cancelled Amount</div>
-        <div class="fs-4 fw-bold text-dark">₹ {{total_cancel_amount_sum}}</div>
-      </div>
-    </div>
-
-    <!-- Rooms Sold -->
-    <div class="col-12 col-md-6">
-      <div class="bg-light p-3 rounded text-center">
-        <div class="text-muted">Total Rooms Sold</div>
-        <div class="fs-4 fw-bold text-dark">{{sum_cmroombook_count}}</div>
-      </div>
+<div class="row">
+  <div class="col-6 col-md-2">
+    <div class="card">
+      <h6>Occupancy</h6>
+      <h4>{{avg_occupancy}} %</h4>
     </div>
   </div>
+
+  <div class="col-6 col-md-2">
+    <div class="card">
+      <h6> Booked Room</h6>
+      <h4>{{total_booked_rooms}} </h4>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-2">
+    <div class="card">
+      <h6>ADR</h6>
+      <h4>₹ {{adr|floatformat:0}} </h4>
+    </div>
+  </div>
+
+  
+
+  <div class="col-6 col-md-3">
+    <div class="card">
+      <h6> Net Revenue</h6>
+      <h4><span class="text-success">₹</span> {{total_amount_sum|floatformat:0}} </h4>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-3">
+    <div class="card">
+      <h6> Cancelled Amount</h6>
+      <h4><span class="text-danger">₹</span> {{total_cancel_amount_sum|floatformat:0}} </h4>
+    </div>
+  </div>
+
+
 </div>
 
+
+
+
+{% comment %} <table class="table table-bordered table-striped">
+  <thead class="thead-dark">
+    <tr>
+      <th>Date</th>
+      <th>Booked Rooms</th>
+      <th>Total Rooms</th>
+      <th>Occupancy (%)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in occupancy_data %}
+    <tr>
+      <td>{{ item.date }}</td>
+      <td>{{ item.booked_rooms }}</td>
+      <td>{{ item.total_rooms }}</td>
+      <td>{{ item.occupancy }}%</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table> {% endcomment %}
+
+<!-- Export Button -->
+<button class="btn btn-primary float-end mb-2" onclick="exportTableToExcel()">Export to Excel</button>
+
+<!-- Table -->
+<table id="occupancyTable" class="table table-bordered table-striped">
+  <thead class="thead-dark">
+    <tr>
+      <th>Sr.</th>
+      <th>Date</th>
+      <th>Booked Rooms</th>
+      <th>Total Rooms</th>
+      <th>Occupancy (%)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in occupancy_data %}
+    <tr>
+      <td>{{forloop.counter}}</td>
+      <td>{{ item.date }}</td>
+      <td>{{ item.booked_rooms }}</td>
+      <td>{{ item.total_rooms }}</td>
+      <td data-raw="{{ item.occupancy }}">{{ item.occupancy }}%</td> <!-- occupancy as raw for script -->
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- SheetJS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script>
+  function exportTableToExcel() {
+    const table = document.getElementById('occupancyTable');
+    const wb = XLSX.utils.book_new();
+    const ws_data = [];
+
+    // Header row
+    const headers = [];
+    table.querySelectorAll('thead th').forEach(th => headers.push(th.innerText));
+    ws_data.push(headers);
+
+    // Table body rows
+    table.querySelectorAll('tbody tr').forEach(row => {
+      const rowData = [];
+      const cells = row.querySelectorAll('td');
+      
+      // Sr. Number
+      rowData.push(cells[0].innerText);
+
+      // Date
+      rowData.push(cells[1].innerText); // Keep as string (avoid #####)
+
+      // Booked Rooms
+      rowData.push(parseInt(cells[2].innerText));
+
+      // Total Rooms
+      rowData.push(parseInt(cells[3].innerText));
+
+      // Occupancy (get data-raw)
+      const occ_raw = parseFloat(cells[4].getAttribute('data-raw')) || 0;
+      rowData.push({ v: occ_raw / 100, t: 'n', z: '0.00%' }); // Excel % formatting
+
+      ws_data.push(rowData);
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+    XLSX.utils.book_append_sheet(wb, ws, 'Occupancy');
+    XLSX.writeFile(wb, 'occupancy_report.xlsx');
+  }
+</script>
+
+
+
+</div>
 
   <script>
     const channelLabels = {{ channels|safe }};
@@ -402,6 +507,8 @@
 </div>
 </div>
 <!--/ Bootstrap modals -->
+
+
 
 
 

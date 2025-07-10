@@ -18,7 +18,7 @@ from django.db.models import IntegerField
 from django.db.models.functions import Cast
 from datetime import datetime, timedelta
 from .email import *
-
+from collections import defaultdict
 
 def priceshow_new_cm(request):
     """ Display inventory prices dynamically based on selected date """
@@ -2497,6 +2497,7 @@ def channel_manager_aiosell_new_reservation(request):
             return JsonResponse({'success': False, 'message': 'Invalid JSON format.'}, status=400)
         except Exception as e:
             logger.error("Error in new reservation function: %s", e)
+            error_message_email(vendordata.vendor,channel,bookingId,guestname)
             return JsonResponse({'success': False, 'message': 'An error occurred.'}, status=500)
 
 
@@ -2735,7 +2736,7 @@ def marknoshowmain(request,id):
         return render(request, '404.html', {'error_message': str(e)}, status=500)    
 
 from django.db.models.functions import ExtractYear
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count,Min
 def cm_sales(request):
     try:
         if request.user.is_authenticated:
@@ -2815,14 +2816,83 @@ def cm_sales(request):
                     .filter(year=current_year)
                 )
             total_cancel_amount_sum = sum_cancel_bookings.aggregate(total=Sum('total_amount'))['total'] or 0
-            if sum_cmroombook_count > 0:
-                adr = total_amount_sum / sum_cmroombook_count
+            
+            # print("Total Room Book Count:", sum_cmroombook_count)
+            # print("Total Amount Sum:", total_amount_sum)
+            # print("ADR (Average Daily Rate):", adr)
+            # print(total_cancel_amount_sum,'cancel sale')
+            
+            # Set date range
+            today = date.today()
+
+            # Get first booking date for the vendor
+            first_booking = SaveAdvanceBookGuestData.objects.filter(
+                vendor=user,
+            ).exclude(action='cancel').aggregate(min_date=Min('bookingdate'))['min_date']
+
+            # Use first booking date or fallback to today if no booking
+            start_date = first_booking or today
+
+            # Get bookings in date range
+            bookings = SaveAdvanceBookGuestData.objects.filter(
+                vendor=user,
+                bookingdate__gte=start_date,
+                bookingdate__lte=today,
+            ).exclude(action='cancel')
+
+            # Related room entries
+            cm_rooms = Cm_RoomBookAdvance.objects.filter(
+                vendor=user,
+                saveguestdata__in=bookings
+            )
+
+            # Prepare date-wise booking count
+            date_room_count = defaultdict(int)
+
+            for booking in bookings:
+                checkin = booking.bookingdate
+                checkout = booking.checkoutdate
+                total_rooms_for_booking = cm_rooms.filter(saveguestdata=booking).count()
+
+                current_date = checkin
+                while current_date < checkout:
+                    if start_date <= current_date <= today:
+                        date_room_count[current_date] += total_rooms_for_booking
+                    current_date += timedelta(days=1)
+
+            # Total available rooms
+            total_rooms_data = Rooms_count.objects.filter(vendor=user).aggregate(total_rooms=Sum('total_room_numbers'))
+            total_rooms = total_rooms_data['total_rooms'] or 0
+
+            # Final formatted data
+            final_data = []
+            total_booked_rooms = 0
+            occupancy_sum = 0
+
+            # Fill all dates from start_date to today (even with 0 bookings)
+            current_date = start_date
+            while current_date <= today:
+                booked = date_room_count.get(current_date, 0)
+                occupancy = round((booked / total_rooms) * 100, 2) if total_rooms > 0 else 0
+                final_data.append({
+                    'date': current_date.strftime('%d-%b-%Y'),
+                    'booked_rooms': booked,
+                    'total_rooms': total_rooms,
+                    'occupancy': occupancy,
+                })
+                total_booked_rooms += booked
+                occupancy_sum += occupancy
+                current_date += timedelta(days=1)
+
+            # Calculate average occupancy
+            days_count = (today - start_date).days + 1
+            avg_occupancy = round(occupancy_sum / days_count, 2) if days_count > 0 else 0
+
+            if total_booked_rooms > 0:
+                adr = total_amount_sum / total_booked_rooms
             else:
                 adr = 0
-            print("Total Room Book Count:", sum_cmroombook_count)
-            print("Total Amount Sum:", total_amount_sum)
-            print("ADR (Average Daily Rate):", adr)
-            print(total_cancel_amount_sum,'cancel sale')
+            
             context = {
                 'channels': json.dumps(channels),
                 'sales': json.dumps(sales),
@@ -2833,7 +2903,8 @@ def cm_sales(request):
                 'showdates': f'{current_year} Full Year',
                 'sum_cmroombook_count':sum_cmroombook_count,
                 'total_amount_sum':total_amount_sum,
-                'adr':adr,'total_cancel_amount_sum':total_cancel_amount_sum
+                'adr':adr,'total_cancel_amount_sum':total_cancel_amount_sum,
+                'occupancy_data': final_data,'avg_occupancy':avg_occupancy,'total_booked_rooms':total_booked_rooms
 
             }
 
@@ -2905,6 +2976,77 @@ def searchcmsales(request):
                         bookings_list.append(item['booking_count'])
                         nights.append(item['total_nights'] or 0)
                         rooms.append(room_count_map.get(name, 0))
+                        
+                    total_amount_sum = bookings.aggregate(total=Sum('total_amount'))['total'] or 0
+                    sum_cancel_bookings = (
+                            SaveAdvanceBookGuestData.objects.filter(vendor=user,action='cancel',bookingdate__range=[startdate, enddate])
+                        )
+                    total_cancel_amount_sum = sum_cancel_bookings.aggregate(total=Sum('total_amount'))['total'] or 0
+            
+
+                    # Use first booking date or fallback to today if no booking
+                    start_date = start
+                    today = end
+
+                    # Get bookings in date range
+                    bookings = SaveAdvanceBookGuestData.objects.filter(
+                        vendor=user,
+                        bookingdate__gte=start_date,
+                        bookingdate__lte=today,
+                    ).exclude(action='cancel')
+
+                    # Related room entries
+                    cm_rooms = Cm_RoomBookAdvance.objects.filter(
+                        vendor=user,
+                        saveguestdata__in=bookings
+                    )
+
+                    # Prepare date-wise booking count
+                    date_room_count = defaultdict(int)
+
+                    for booking in bookings:
+                        checkin = booking.bookingdate
+                        checkout = booking.checkoutdate
+                        total_rooms_for_booking = cm_rooms.filter(saveguestdata=booking).count()
+
+                        current_date = checkin
+                        while current_date < checkout:
+                            if start_date <= current_date <= today:
+                                date_room_count[current_date] += total_rooms_for_booking
+                            current_date += timedelta(days=1)
+
+                    # Total available rooms
+                    total_rooms_data = Rooms_count.objects.filter(vendor=user).aggregate(total_rooms=Sum('total_room_numbers'))
+                    total_rooms = total_rooms_data['total_rooms'] or 0
+
+                    # Final formatted data
+                    final_data = []
+                    total_booked_rooms = 0
+                    occupancy_sum = 0
+
+                    # Fill all dates from start_date to today (even with 0 bookings)
+                    current_date = start_date
+                    while current_date <= today:
+                        booked = date_room_count.get(current_date, 0)
+                        occupancy = round((booked / total_rooms) * 100, 2) if total_rooms > 0 else 0
+                        final_data.append({
+                            'date': current_date.strftime('%d-%b-%Y'),
+                            'booked_rooms': booked,
+                            'total_rooms': total_rooms,
+                            'occupancy': occupancy,
+                        })
+                        total_booked_rooms += booked
+                        occupancy_sum += occupancy
+                        current_date += timedelta(days=1)
+
+                    # Calculate average occupancy
+                    days_count = (today - start_date).days + 1
+                    avg_occupancy = round(occupancy_sum / days_count, 2) if days_count > 0 else 0
+
+                    if total_booked_rooms > 0:
+                        adr = total_amount_sum / total_booked_rooms
+                    else:
+                        adr = 0
 
                     context = {
                         'channels': json.dumps(channels),
@@ -2914,6 +3056,11 @@ def searchcmsales(request):
                         'rooms': json.dumps(rooms),
                         'active_page': 'cm_sales',
                         'showdates': show_range,
+                        'total_amount_sum':total_amount_sum,
+                        'adr':adr,'total_cancel_amount_sum':total_cancel_amount_sum,
+                        'occupancy_data': final_data,'avg_occupancy':avg_occupancy,
+                        'total_booked_rooms':total_booked_rooms
+
                     }
                     return render(request, 'cmsales.html', context)
                 else:
